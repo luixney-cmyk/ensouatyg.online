@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENSŌ - El Noveno Trazo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Montserrat:wght@200;300;400&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --gold: #D4AF37;
+            --gold-dark: #AA7C11;
+            --black: #050505;
+            --video-bg: #111111; /* Color aproximado del fondo del video */
+            --red-stamp: #9B1B30;
+        }
+
+        body {
+            background-color: var(--video-bg);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            overflow-y: hidden; /* Bloqueado hasta que termine el video */
+            margin: 0;
+            cursor: default;
+        }
+
+        h1, h2, h3, .cinzel {
+            font-family: 'Cinzel', serif;
+        }
+
+        .kanji {
+            font-family: 'Noto Serif JP', serif;
+        }
+
+        /* Golden Gradient Text */
+        .text-gold {
+            background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Intro Overlay */
+        #intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--black);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .enter-btn {
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            color: rgba(212, 175, 55, 0.8);
+            padding: 12px 32px;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .enter-btn:hover {
+            color: #fff;
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Cinematic Video Container */
+        #cinematic-container {
+            opacity: 0;
+            transition: opacity 2s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            background-color: var(--video-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #cinematic-container.play {
+            opacity: 1;
+        }
+
+        #hero-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Contain asegura que no se recorte ningún texto del video */
+            pointer-events: none; /* Evita que el usuario pause el video haciendo click */
+        }
+
+        /* Main Content hidden initially */
+        #main-content {
+            opacity: 0;
+            transition: opacity 2s ease;
+            padding-top: 100vh; /* Start content below the viewport */
+        }
+        
+        .scroll-indicator {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            opacity: 0;
+            transition: opacity 1s ease;
+            cursor: pointer;
+            z-index: 20;
+            pointer-events: none; /* Desactivado inicialmente */
+        }
+
+        .scroll-indicator.show {
+            opacity: 0.8;
+            pointer-events: auto; /* Activar clicks cuando se muestra */
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
+            40% { transform: translateY(-15px) translateX(-50%); }
+            60% { transform: translateY(-7px) translateX(-50%); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Interactive Intro Overlay -->
+    <div id="intro-overlay">
+        <button id="btn-enter" class="enter-btn">Descubrir la Experiencia</button>
+        <p id="loading-text" class="text-xs text-gray-500 mt-4 tracking-widest uppercase opacity-0 transition-opacity duration-500">Iniciando...</p>
+    </div>
+
+    <!-- Cinematic Video Section -->
+    <div id="cinematic-container">
+        <!-- El video se reproduce aquí. Usamos la ruta local "enso.mp4" -->
+        <video id="hero-video" playsinline preload="auto">
+            <source src="enso.mp4" type="video/mp4">
+            Tu navegador no soporta el formato de video.
+        </video>
+
+        <!-- Indicador de scroll (Aparece al terminar el video) -->
+        <div id="scroll-down" class="scroll-indicator">
+            <svg class="w-10 h-10 text-gold drop-shadow-lg" fill="none" stroke="#D4AF37" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Main Content of the Invitation -->
+    <main id="main-content" class="relative z-20 bg-gradient-to-b from-transparent via-[#0a0a0a] to-[#050505] min-h-screen text-center px-6 pb-24">
+        
+        <div class="max-w-3xl mx-auto pt-32">
+            <!-- Linea dorada decorativa -->
+            <div class="w-px h-24 bg-gradient-to-b from-[rgba(212,175,55,0.1)] to-[rgba(212,175,55,0.8)] mx-auto mb-16"></div>
+            
+            <h3 class="cinzel text-3xl md:text-4xl text-gold mb-12 tracking-wider">El Banquete de Banquetes</h3>
+            
+            <p class="text-gray-300 font-light leading-loose text-lg mb-6 text-justify md:text-center">
+                Hace nueve semestres encendimos los primeros fogones con manos temblorosas y sueños inmensos. Hoy, el fuego nos ha forjado. Esta no es solo una cena; es la culminación de cuatro años y medio de lágrimas, madrugadas, cicatrices de batalla y una pasión inquebrantable.
+            </p>
+            <p class="text-gray-300 font-light leading-loose text-lg mb-16 text-justify md:text-center">
+                Te invitamos a cruzar el umbral del ruido y la nostalgia de nuestro Barrio Chino, para adentrarte en el silencio y la perfección de nuestro último salón. Sé testigo del Noveno Trazo, donde la alta gastronomía oriental rinde un tributo final a cada paso de nuestra historia. Acompáñanos a cerrar el círculo.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-left border-y border-[rgba(212,175,55,0.2)] py-12 mb-16">
+                <div>
+                    <h4 class="text-gray-500 tracking-widest text-sm uppercase mb-2">Cuándo</h4>
+                    <p class="cinzel text-xl text-gray-200">22 de Noviembre, 2026</p>
+                    <p class="text-gold mt-1">20:00 Horas</p>
+                </div>
+                <div>
+                    <h4 class="text-gray-500 tracking-widest text-sm uppercase mb-2">Dónde</h4>
+                    <p class="cinzel text-xl text-gray-200">El Salón de Docencia</p>
+                    <p class="text-gray-400 mt-1 text-sm font-light">Acceso por el Andador Asiático</p>
+                </div>
+            </div>
+
+            <div class="mb-24">
+                <h4 class="text-gray-500 tracking-widest text-sm uppercase mb-4">Código de Vestimenta</h4>
+                <p class="cinzel text-2xl text-gold">Elegancia Minimalista</p>
+                <p class="text-gray-400 mt-2 text-sm font-light">Colores sólidos (Negro, Rojo Profundo, Oro).</p>
+            </div>
+
+            <button class="enter-btn bg-[rgba(212,175,55,0.05)]">Confirmar Asistencia</button>
+            
+            <div class="mt-32 pb-12 flex flex-col items-center justify-center opacity-50">
+                <svg class="w-12 h-12 mb-4" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                     <path d="M100,30 C138.66,30 170,61.34 170,100 C170,138.66 138.66,170 100,170 C61.34,170 30,138.66 30,100" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <p class="cinzel text-xs tracking-[0.3em] uppercase">Generación IX</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Elementos del DOM
+        const btnEnter = document.getElementById('btn-enter');
+        const introOverlay = document.getElementById('intro-overlay');
+        const loadingText = document.getElementById('loading-text');
+        const cinematicContainer = document.getElementById('cinematic-container');
+        const heroVideo = document.getElementById('hero-video');
+        const scrollIndicator = document.getElementById('scroll-down');
+        const mainContent = document.getElementById('main-content');
+
+        // Evento al hacer click en "Descubrir la Experiencia"
+        btnEnter.addEventListener('click', () => {
+            // Feedback visual en el botón
+            btnEnter.disabled = true;
+            btnEnter.style.borderColor = 'transparent';
+            btnEnter.style.color = 'transparent';
+            loadingText.classList.remove('opacity-0');
+
+            // 1. Desvanecer la pantalla de inicio
+            introOverlay.style.opacity = '0';
+            
+            setTimeout(() => {
+                introOverlay.style.display = 'none';
+                
+                // 2. Mostrar el contenedor del video y reproducirlo
+                cinematicContainer.classList.add('play');
+                
+                // Se reproduce el video. Al ser activado por un click del usuario,
+                // los navegadores permiten que el video se reproduzca con sonido si lo tiene.
+                heroVideo.play().catch(error => {
+                    console.error("No se pudo reproducir el video automáticamente:", error);
+                    // Fallback en caso de error: mostrar el contenido principal directamente
+                    finalizarVideo();
+                });
+
+            }, 1500); // Tiempo de espera para que termine el fade-out
+        });
+
+        // Evento que se dispara justo cuando el video termina de reproducirse
+        heroVideo.addEventListener('ended', finalizarVideo);
+
+        function finalizarVideo() {
+            // 3. Mostrar la flecha para indicar que se puede hacer scroll
+            scrollIndicator.classList.add('show');
+            
+            // 4. Mostrar el contenido principal y habilitar el scroll
+            mainContent.style.opacity = '1';
+            document.body.style.overflowY = 'auto'; // Re-habilitar scroll
+        }
+
+        // Animación suave al hacer click en la flecha de bajar
+        scrollIndicator.addEventListener('click', () => {
+            window.scrollTo({
+                top: window.innerHeight,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+</body>
+</html>
