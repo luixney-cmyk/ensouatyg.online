@@ -417,7 +417,7 @@
             
             <div class="ticket-card" id="ticket-card-capture">
                 <!-- Se corrigió el nombre de archivo a tu original enso.png -->
-                <img src="enso.png" alt="Pase Ensō" crossorigin="anonymous">
+                <img src="enso.png" alt="Pase Ensō" crossorigin="anonymous" onerror="this.style.display='none'">
                 <div class="ticket-overlay">
                     <div id="ticket-guest-name" class="ticket-guest-name">Nombre del Invitado</div>
                     <div id="ticket-table-num" class="ticket-table-num">Mesa X</div>
@@ -684,10 +684,14 @@
 
         window.finalizeRSVP = function() {
             window.closeModals();
+            
+            // Mantenemos el botón activo pero cambiamos el texto sutilmente
             const btn = document.getElementById('main-confirm-btn');
-            btn.textContent = '✓  Confirmado'; btn.style.background = 'linear-gradient(105deg, #2a1a00, #3a2400, #4a3000)';
-            btn.style.color = '#D4AF37'; btn.style.letterSpacing = '0.3em'; btn.style.cursor = 'default';
-            btn.onclick = null; btn.style.boxShadow = '0 0 30px rgba(212,175,55,0.15)';
+            btn.textContent = '+ Registrar Otro Invitado';
+            
+            // Limpiamos los inputs por si vuelven a abrir el modal
+            document.getElementById('invite-code-input').value = '';
+            document.getElementById('guest-name-input').value = '';
         };
 
         // ── LÓGICA DE ADMIN Y TECLADO ──
