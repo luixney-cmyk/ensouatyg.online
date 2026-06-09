@@ -179,6 +179,10 @@
         .confirm-btn:active { transform: scale(0.98); }
         .confirm-btn::after { content: ''; position: absolute; inset: -4px; border: 1px solid rgba(212,175,55,0.3); pointer-events: none; }
 
+        /* Botón elegante para abrir menú en la sección hero */
+        .btn-menu-reveal { margin-top: 40px; display: inline-block; border: 1px solid rgba(212,175,55,0.4); padding: 10px 30px; font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(212,175,55,0.8); cursor: pointer; transition: all 0.3s ease; }
+        .btn-menu-reveal:hover { background: rgba(212,175,55,0.1); border-color: var(--gold); color: #fff; }
+
         .enso-footer { display: flex; flex-direction: column; align-items: center; padding: 80px 0 64px; gap: 20px; }
         .enso-svg-container { position: relative; width: 140px; height: 140px; }
         .enso-path { stroke-dasharray: 900; stroke-dashoffset: 900; transition: stroke-dashoffset 3s ease; }
@@ -189,7 +193,7 @@
         .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.9s ease, transform 0.9s ease; }
         .reveal.visible { opacity: 1; transform: translateY(0); }
 
-        /* ── MODALS ── */
+        /* ── MODALS (CÓDIGOS DE INVITACIÓN) ── */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(5, 5, 5, 0.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
             z-index: 200; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
@@ -237,7 +241,7 @@
         #personal-message::-webkit-scrollbar-track { background: rgba(212,175,55,0.05); }
         #personal-message::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.4); border-radius: 2px; }
 
-        /* ── MODAL BOLETO IMPRESO CON QR ── */
+        /* ── MODAL BOLETO IMPRESO ── */
         .ticket-wrapper {
             background: var(--ink); border: 1px solid rgba(212, 175, 55, 0.3); padding: 32px 24px;
             max-width: 440px; width: 95%; text-align: center; position: relative; transform: scale(0.95);
@@ -282,6 +286,16 @@
         #qr-reader { border: 1px solid var(--gold); border-radius: 4px; overflow: hidden; background: #fff; color: #000; }
         #qr-reader button { background: var(--parchment); color: var(--gold); border: 1px solid var(--gold); padding: 6px 12px; cursor: pointer; margin: 4px; font-family: 'Cinzel', serif; font-size: 0.7rem; text-transform: uppercase; font-weight: bold;}
         #qr-reader__scan_region img { opacity: 0.3; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #modal-admin, #modal-admin * { visibility: visible; }
+            #modal-admin { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white !important; color: black !important; }
+            .modal-box { border: none !important; box-shadow: none !important; width: 100% !important; max-width: none !important; padding: 0 !important; background: white !important; }
+            .btn-outline, .btn-delete, .modal-close { display: none !important; }
+            .admin-table th, .admin-table td { border-bottom: 1px solid #ccc !important; color: black !important; }
+            .admin-table th { color: black !important; font-weight: bold; }
+        }
 
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: var(--ink); }
@@ -330,6 +344,8 @@
                     <span class="line-gold text-gold">El Banquete<br>de Banquetes</span>
                     <span class="line-white">Cena de Gala · Alta Gastronomía Oriental</span>
                 </h2>
+                <!-- Botón para ver el menú desde el Hero -->
+                <button onclick="window.openMenuModal()" class="btn-menu-reveal">Descubrir el Menú</button>
             </div>
         </div>
 
@@ -399,6 +415,154 @@
             </div>
         </div>
     </main>
+
+    <!-- ── MODAL MENÚ (NUEVE SEMESTRES) ── -->
+    <div id="modal-menu" class="modal-overlay">
+        <div class="modal-box" style="max-width: 600px; padding: 0; background: var(--parchment); overflow: hidden; max-height: 90vh;">
+            <span class="modal-close" onclick="window.closeModals()" style="z-index: 50;">×</span>
+            
+            <div style="padding: 48px 32px 24px; border-bottom: 1px solid rgba(212, 175, 55, 0.2); background: #0a0806;">
+                <p style="font-family:'Cinzel', serif; font-size: 0.8rem; color: var(--gold); letter-spacing: 0.4em; text-transform: uppercase; margin-bottom: 12px;">Menú Degustación</p>
+                <h3 style="font-family:'Cinzel', serif; font-size: 1.8rem; color: var(--off-white); letter-spacing: 0.1em; line-height: 1.2;">Nueve Semestres,<br>Un Solo Camino</h3>
+                
+                <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: rgba(210, 200, 185, 0.7); line-height: 1.6; margin-top: 24px;">
+                    El Ensō es un círculo realizado con un único trazo en la tradición zen. Representa plenitud, armonía y el final de un proceso. Sin embargo, para nuestra generación, este círculo no se construyó en un solo movimiento.
+                </p>
+                <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: rgba(210, 200, 185, 0.7); line-height: 1.6; margin-top: 12px;">
+                    Se construyó a través de nueve trazos.<br>Nueve semestres.<br>Nueve etapas de aprendizaje.<br>Nueve experiencias gastronómicas.
+                </p>
+                <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: var(--gold-light); line-height: 1.6; margin-top: 16px; font-weight: bold;">
+                    Esta noche presentamos el último de esos trazos.<br>Bienvenidos a ENSŌ.
+                </p>
+            </div>
+
+            <!-- CONTENEDOR CON SCROLL PARA LOS PLATILLOS -->
+            <div style="overflow-y: auto; max-height: 50vh; padding: 0 32px 32px;" class="custom-scrollbar">
+                
+                <!-- TIEMPO 1 -->
+                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
+                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">一</span>
+                    <div style="position: relative; z-index: 10;">
+                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">I. Salsas Madre</p>
+                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">Dumpling de Velouté y Miso</h4>
+                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                            Relleno de pollo con velouté de jengibre y salsa bechamel infusionada con miso.<br>
+                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">El inicio: aprender las bases. Pequeño, elegante y técnico.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- TIEMPO 2 -->
+                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
+                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">二</span>
+                    <div style="position: relative; z-index: 10;">
+                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">II. Panadería</p>
+                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">Bao al Vapor Artesanal</h4>
+                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                            Esponjoso pan al vapor relleno de cerdo laqueado y vegetales orientales.<br>
+                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">El descubrimiento de las masas y sus fermentaciones.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- TIEMPO 3 -->
+                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
+                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">三</span>
+                    <div style="position: relative; z-index: 10;">
+                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">III. Panadería Fina & Cocina Mexicana</p>
+                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">La Concha de Matcha</h4>
+                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                            Mini concha reinterpretada con té matcha y relleno sedoso de frijol dulce rojo (anko).<br>
+                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">México y Asia encontrándose en una sola pieza.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- TIEMPO 4 -->
+                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
+                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">四</span>
+                    <div style="position: relative; z-index: 10;">
+                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">IV. Vinos & Cocina del Norte</p>
+                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">Tataki Glaseado</h4>
+                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                            Lámina de res finamente sellada, bañada en una reducción profunda de vino tinto y soya.<br>
+                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">Representando la sofisticación y el arte del maridaje.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- TIEMPO 5 -->
+                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
+                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">五</span>
+                    <div style="position: relative; z-index: 10;">
+                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">V. Cocina Centro & Repostería Básica</p>
+                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">Tamal de Elote y Coco</h4>
+                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                            Tamal miniatura de elote tierno, coronado con una espuma etérea de coco y vainilla.<br>
+                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">Técnica mexicana presentada con delicada estética japonesa.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- TIEMPO 6 -->
+                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
+                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">六</span>
+                    <div style="position: relative; z-index: 10;">
+                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">VI. Cocina Nayarita & Coctelería</p>
+                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">Tostada Oriental de Atún</h4>
+                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                            Tostada miniatura de atún curado, escoltada por un audaz mocktail shot de mango, yuzu y chile.<br>
+                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">Un tributo a la identidad regional, encendiendo el paladar.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- TIEMPO 7 -->
+                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
+                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">七</span>
+                    <div style="position: relative; z-index: 10;">
+                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">VII. Cocina Francesa & Repostería Fina</p>
+                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">Mille-Feuille de Hojicha</h4>
+                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                            Milhojas crujiente de ajonjolí negro intercalado con un cremoso untuoso de té hojicha.<br>
+                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">La inconfundible elegancia francesa fusionada con Asia.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- TIEMPO 8 -->
+                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
+                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">八</span>
+                    <div style="position: relative; z-index: 10;">
+                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">VIII. Cocina Italiana & De Autor</p>
+                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">Ravioli Transparente</h4>
+                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                            Fina pasta translúcida rellena de camarón y hongos shiitake, sumergida en un caldo claro y aromático.<br>
+                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">La expresión de la creatividad desarrollada al final de la carrera.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- TIEMPO 9 -->
+                <div style="position: relative; padding: 40px 0 20px;">
+                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.06); user-select: none; z-index: 0;">九</span>
+                    <div style="position: relative; z-index: 10;">
+                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">IX. Cocina Oriental & Chocolatería</p>
+                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">El Gran Final</h4>
+                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                            Una obra maestra de chocolatería fina que integra ingredientes y técnicas orientales.<br>
+                            <span style="font-style: italic; color: var(--gold-light); font-size: 0.95rem; font-weight: bold;">El último trazo. El momento en que el círculo se cierra.</span>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div style="padding: 20px; background: #0a0806; border-top: 1px solid rgba(212, 175, 55, 0.2);">
+                <button class="btn-outline" style="width: 100%;" onclick="window.closeModals()">Cerrar Menú</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ── MODAL 1: PEDIR CÓDIGO ── -->
     <div id="modal-code" class="modal-overlay">
@@ -519,6 +683,7 @@
         <div class="modal-box" style="max-width: 700px; padding: 32px 24px;">
             <span class="modal-close" onclick="window.closeModals()">×</span>
             <h3 class="modal-title" style="font-size: 1.2rem; margin-bottom: 16px;">Inspiración de Vestimenta</h3>
+            <!-- Se llama a tu imagen subida a github -->
             <img src="dress.png" alt="Inspiración de vestimenta" style="width: 100%; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px;" onerror="this.style.display='none'">
             <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.95rem; color:rgba(212,175,55,0.8); line-height: 1.5; margin-bottom: 0;">
                 *Esta paleta de colores y estilos es únicamente una sugerencia para mantener la armonía visual de la gala. Siéntete con total libertad de asistir con los colores de tu preferencia.
@@ -629,18 +794,11 @@
         const errorText = document.getElementById('code-error');
         const nameErrorText = document.getElementById('name-error');
 
-        window.openCodeModal = function() {
-            document.getElementById('modal-code').classList.add('active');
-            codeInput.value = ''; errorText.style.opacity = '0'; codeInput.focus();
-        };
-        
-        window.openDressModal = function() {
-            document.getElementById('modal-dress').classList.add('active');
-        };
+        window.openMenuModal = function() { document.getElementById('modal-menu').classList.add('active'); };
+        window.openCodeModal = function() { document.getElementById('modal-code').classList.add('active'); codeInput.value = ''; errorText.style.opacity = '0'; codeInput.focus(); };
+        window.openDressModal = function() { document.getElementById('modal-dress').classList.add('active'); };
 
-        window.closeModals = function() {
-            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
-        };
+        window.closeModals = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); };
 
         // 1. Validar Código (y Aforo para Estudiantes)
         window.validateCode = function() {
@@ -648,13 +806,12 @@
             currentValidData = database[currentValidDataCode];
 
             if (currentValidData) {
-                // Validación de Aforo (Límite 4 para estándar)
                 if (currentValidData.type === 'standard') {
                     const count = allConfirmations.filter(c => c.hostCode === currentValidDataCode).length;
                     if (count >= 4) {
                         errorText.innerText = "Este anfitrión ya ha completado su aforo máximo de 4 invitados.";
                         errorText.style.opacity = '1';
-                        return; // Se detiene aquí, no avanza
+                        return; 
                     }
                 }
 
@@ -666,34 +823,19 @@
                 
                 if (currentValidData.type === 'standard') {
                     messageContainer.innerHTML = `"Yo, <strong style="color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;">${currentValidData.name}</strong>, tengo el honor de invitarte a mi último proyecto integrador. <br><br>Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."`;
-                    
-                    btnAccept.innerText = "Aceptar Invitación";
-                    btnAccept.style.background = "var(--gold)";
-                    btnAccept.style.border = "none";
-                    btnAccept.style.color = "var(--ink)";
-                    btnAccept.onclick = window.handleMessageAccept;
-                    
+                    btnAccept.innerText = "Aceptar Invitación"; btnAccept.style.background = "var(--gold)"; btnAccept.style.border = "none"; btnAccept.style.color = "var(--ink)"; btnAccept.onclick = window.handleMessageAccept;
                 } else if (currentValidData.type === 'special') {
                     messageContainer.innerHTML = `"${currentValidData.text}"`;
-                    
-                    const existingVIP = allConfirmations.find(c => c.hostCode === currentValidDataCode);
-                    
-                    if (existingVIP) {
-                        btnAccept.innerText = "Asistencia Confirmada (Ver Pase)";
-                        btnAccept.style.background = "transparent";
-                        btnAccept.style.border = "1px solid rgba(212, 175, 55, 0.5)";
-                        btnAccept.style.color = "rgba(212, 175, 55, 0.8)";
+                    const isVIPConfirmed = allConfirmations.some(c => c.hostCode === currentValidDataCode);
+                    if (isVIPConfirmed) {
+                        btnAccept.innerText = "Asistencia Confirmada (Ver Pase)"; btnAccept.style.background = "transparent"; btnAccept.style.border = "1px solid rgba(212, 175, 55, 0.5)"; btnAccept.style.color = "rgba(212, 175, 55, 0.8)";
                         btnAccept.onclick = () => {
                             window.closeModals();
-                            // Mostrar ticket sin volver a registrar, usando el código QR que ya se le generó
+                            const existingVIP = allConfirmations.find(c => c.hostCode === currentValidDataCode);
                             setTimeout(() => showTicket(existingVIP.guestName, existingVIP.table, existingVIP.codigo), 400);
                         };
                     } else {
-                        btnAccept.innerText = "Aceptar Invitación";
-                        btnAccept.style.background = "var(--gold)";
-                        btnAccept.style.border = "none";
-                        btnAccept.style.color = "var(--ink)";
-                        btnAccept.onclick = window.handleMessageAccept;
+                        btnAccept.innerText = "Aceptar Invitación"; btnAccept.style.background = "var(--gold)"; btnAccept.style.border = "none"; btnAccept.style.color = "var(--ink)"; btnAccept.onclick = window.handleMessageAccept;
                     }
                 }
                 setTimeout(() => document.getElementById('modal-message').classList.add('active'), 400);
@@ -704,16 +846,15 @@
             }
         };
 
-        // 2. Aceptar Invitación (Genera código QR único)
+        // 2. Aceptar Invitación
         window.handleMessageAccept = async function() {
             const btnAccept = document.getElementById('btn-accept-invite');
             btnAccept.disabled = true; btnAccept.innerText = "Registrando...";
 
             if (currentValidData.type === 'special') {
-                const existingVIP = allConfirmations.find(c => c.hostCode === currentValidDataCode);
+                const exists = allConfirmations.find(c => c.hostCode === currentValidDataCode);
                 let uniqueCode = "";
-                
-                if (!existingVIP) {
+                if (!exists) {
                     uniqueCode = 'ENSO-' + Math.random().toString(36).substring(2, 6).toUpperCase();
                     try {
                         const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
@@ -723,9 +864,7 @@
                             codigo: uniqueCode, asistio: false
                         });
                     } catch(e) { console.error(e); }
-                } else {
-                    uniqueCode = existingVIP.codigo;
-                }
+                } else { uniqueCode = exists.codigo; }
                 document.getElementById('modal-message').classList.remove('active');
                 setTimeout(() => showTicket(currentValidData.fullName, currentValidData.table, uniqueCode), 400);
             } else {
@@ -738,12 +877,11 @@
             btnAccept.disabled = false; btnAccept.innerText = "Aceptar Invitación";
         };
 
-        // 3. Generar Pase Estándar (Genera código QR único)
+        // 3. Generar Pase Estándar
         window.generateStandardTicket = async function() {
             const guestName = guestNameInput.value.trim().toUpperCase();
             if (guestName === "") {
-                nameErrorText.innerText = "Por favor ingresa tu nombre para continuar.";
-                nameErrorText.style.opacity = '1'; guestNameInput.focus(); return;
+                nameErrorText.innerText = "Por favor ingresa tu nombre para continuar."; nameErrorText.style.opacity = '1'; guestNameInput.focus(); return;
             }
 
             const btnGen = document.getElementById('btn-generate-ticket');
@@ -751,10 +889,8 @@
 
             const count = allConfirmations.filter(c => c.hostCode === currentValidDataCode).length;
             if (count >= 4) {
-                nameErrorText.innerText = "Lo sentimos, el aforo de este anfitrión se acaba de completar.";
-                nameErrorText.style.opacity = '1';
-                btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
-                return;
+                nameErrorText.innerText = "Lo sentimos, el aforo de este anfitrión se acaba de completar."; nameErrorText.style.opacity = '1';
+                btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase"; return;
             }
 
             const uniqueCode = 'ENSO-' + Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -770,30 +906,20 @@
                 document.getElementById('modal-name').classList.remove('active');
                 setTimeout(() => showTicket(guestName, currentValidData.table, uniqueCode), 400);
             } catch(e) {
-                console.error(e);
-                nameErrorText.innerText = "Error de conexión. Intenta nuevamente.";
-                nameErrorText.style.opacity = '1';
+                console.error(e); nameErrorText.innerText = "Error de conexión. Intenta nuevamente."; nameErrorText.style.opacity = '1';
             }
             btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
         };
 
-        // 4. Pantalla de Ticket con generación de QR
+        // 4. Pantalla de Ticket
         function showTicket(nameToDisplay, tableNum, ticketCode) {
             document.getElementById('ticket-guest-name').innerText = nameToDisplay;
             document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
             document.getElementById('ticket-code-text').innerText = ticketCode;
             
-            // Dibujar QR
             const qrContainer = document.getElementById('qrcode-container');
             qrContainer.innerHTML = '';
-            new QRCode(qrContainer, {
-                text: ticketCode,
-                width: 70,
-                height: 70,
-                colorDark : "#050505",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.M
-            });
+            new QRCode(qrContainer, { text: ticketCode, width: 70, height: 70, colorDark : "#050505", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.M });
 
             document.getElementById('modal-ticket').classList.add('active');
         }
@@ -804,10 +930,8 @@
             btn.innerHTML = 'Generando...'; btn.disabled = true;
             html2canvas(document.getElementById('ticket-card-capture'), { scale: 3, useCORS: true, backgroundColor: "#050505" })
             .then(canvas => {
-                const link = document.createElement('a'); link.download = 'Pase_Enso_Gala.png';
-                link.href = canvas.toDataURL('image/png'); link.click();
-                btn.innerHTML = '¡Descargado!';
-                setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
+                const link = document.createElement('a'); link.download = 'Pase_Enso_Gala.png'; link.href = canvas.toDataURL('image/png'); link.click();
+                btn.innerHTML = '¡Descargado!'; setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
             }).catch(err => {
                 btn.innerHTML = 'Error'; setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
             });
@@ -817,181 +941,98 @@
             window.closeModals();
             const btn = document.getElementById('main-confirm-btn');
             btn.textContent = '+ Registrar Otro Invitado';
-            document.getElementById('invite-code-input').value = '';
-            document.getElementById('guest-name-input').value = '';
+            document.getElementById('invite-code-input').value = ''; document.getElementById('guest-name-input').value = '';
         };
 
         // ── LÓGICA DE ADMIN Y ESCÁNER QR ──
         window.openAdminLogin = async function() {
-            adminPassInput.value = ''; 
-            document.getElementById('admin-error').style.opacity = '0';
-            document.getElementById('modal-admin-login').classList.add('active'); 
-            adminPassInput.focus();
+            adminPassInput.value = ''; document.getElementById('admin-error').style.opacity = '0';
+            document.getElementById('modal-admin-login').classList.add('active'); adminPassInput.focus();
         };
 
-        window.closeAdmin = function() {
-            window.detenerEscaner();
-            window.closeModals();
-        };
+        window.closeAdmin = function() { window.detenerEscaner(); window.closeModals(); };
 
         window.verifyAdmin = async function() {
             const pass = adminPassInput.value.trim().toUpperCase();
-            
             if (pass === "TESTIGO2027") {
-                document.getElementById('modal-admin-login').classList.remove('active');
-                window.renderAdminTable();
-                document.getElementById('modal-admin').classList.add('active');
+                document.getElementById('modal-admin-login').classList.remove('active'); window.renderAdminTable(); document.getElementById('modal-admin').classList.add('active');
             } else if (pass === "RESET2027") {
                 if (confirm("⚠️ ATENCIÓN: ¿Estás seguro de que quieres BORRAR TODA LA BASE DE DATOS? Esta acción no se puede deshacer.")) {
                     try {
-                        const btn = document.querySelector('#modal-admin-login .btn-outline');
-                        const originalText = btn.innerText;
-                        btn.innerText = "Borrando...";
-                        btn.disabled = true;
-
-                        const deletePromises = allConfirmations.map(g => 
-                            deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', g.id))
-                        );
+                        const btn = document.querySelector('#modal-admin-login .btn-outline'); const originalText = btn.innerText; btn.innerText = "Borrando..."; btn.disabled = true;
+                        const deletePromises = allConfirmations.map(g => deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', g.id)));
                         await Promise.all(deletePromises);
-                        
                         alert("✅ Base de datos reiniciada con éxito.");
                         document.getElementById('modal-admin-login').classList.remove('active');
-                        
-                        btn.innerText = originalText;
-                        btn.disabled = false;
-                    } catch (e) {
-                        console.error("Error al borrar la base de datos:", e);
-                        alert("Hubo un error al intentar borrar los datos.");
-                    }
+                        btn.innerText = originalText; btn.disabled = false;
+                    } catch (e) { console.error(e); alert("Hubo un error al intentar borrar los datos."); }
                 }
-            } else { 
-                document.getElementById('admin-error').style.opacity = '1'; 
-            }
+            } else { document.getElementById('admin-error').style.opacity = '1'; }
         };
 
         window.renderAdminTable = function() {
-            const tbody = document.getElementById('admin-table-body');
-            tbody.innerHTML = '';
-            document.getElementById('admin-total').innerText = allConfirmations.length;
+            const tbody = document.getElementById('admin-table-body'); tbody.innerHTML = ''; document.getElementById('admin-total').innerText = allConfirmations.length;
             const sorted = [...allConfirmations].sort((a, b) => a.hostName.localeCompare(b.hostName));
-            
             sorted.forEach(g => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${g.guestName}<br><small style="color:rgba(212,175,55,0.8);">${g.hostName}</small></td>
-                    <td>Mesa ${g.table}</td>
-                    <td style="text-align: center;">
-                        ${g.asistio 
-                            ? `<span style="color:#4ade80; display:block; font-size:0.7rem; font-weight:bold;">Ingresó</span><button class="btn-delete" style="border-color:#9ca3af; color:#9ca3af; font-size:0.6rem; margin-top:4px;" onclick="window.toggleCheckIn('${g.id}', false)">Deshacer</button>`
-                            : `<span style="color:#9ca3af; display:block; font-size:0.7rem; font-weight:bold;">Pendiente</span><button class="btn-delete" style="border-color:#4ade80; color:#4ade80; font-size:0.6rem; margin-top:4px;" onclick="window.toggleCheckIn('${g.id}', true)">Dar Acceso</button>`
-                        }
-                    </td>
-                    <td><button class="btn-delete" onclick="window.deleteGuest('${g.id}')">Eliminar</button></td>
-                `;
+                tr.innerHTML = `<td>${g.guestName}<br><small style="color:rgba(212,175,55,0.8);">${g.hostName}</small></td><td>Mesa ${g.table}</td><td style="text-align: center;">${g.asistio ? `<span style="color:#4ade80; display:block; font-size:0.7rem; font-weight:bold;">Ingresó</span><button class="btn-delete" style="border-color:#9ca3af; color:#9ca3af; font-size:0.6rem; margin-top:4px;" onclick="window.toggleCheckIn('${g.id}', false)">Deshacer</button>` : `<span style="color:#9ca3af; display:block; font-size:0.7rem; font-weight:bold;">Pendiente</span><button class="btn-delete" style="border-color:#4ade80; color:#4ade80; font-size:0.6rem; margin-top:4px;" onclick="window.toggleCheckIn('${g.id}', true)">Dar Acceso</button>`}</td><td><button class="btn-delete" onclick="window.deleteGuest('${g.id}')">Eliminar</button></td>`;
                 tbody.appendChild(tr);
             });
         };
 
         window.toggleCheckIn = async function(docId, status) {
-            try {
-                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId), { asistio: status });
-            } catch (e) { console.error("Error cambiando estatus", e); }
+            try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId), { asistio: status }); } catch (e) { console.error(e); }
         };
 
         window.deleteGuest = async function(docId) {
             if(confirm("¿Estás seguro de eliminar esta confirmación? Esto liberará su lugar.")){
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId));
-                } catch(e) { console.error(e); }
+                try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId)); } catch(e) { console.error(e); }
             }
         };
 
         // ====== LÓGICA DEL ESCÁNER QR =======
         window.iniciarEscaner = () => {
-            document.getElementById('btn-start-scan').style.display = 'none';
-            document.getElementById('btn-stop-scan').style.display = 'inline-block';
-            document.getElementById('qr-reader').style.display = 'block';
-            document.getElementById('scan-result').style.display = 'none';
-
-            if(html5QrcodeScanner) {
-                html5QrcodeScanner.clear().catch(e => console.log(e));
-            }
-
-            html5QrcodeScanner = new Html5QrcodeScanner(
-                "qr-reader", 
-                { 
-                    fps: 10, 
-                    qrbox: {width: 250, height: 250}, 
-                    aspectRatio: 1.0,
-                    videoConstraints: { facingMode: "environment" },
-                    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA] 
-                }
-            );
-            
+            document.getElementById('btn-start-scan').style.display = 'none'; document.getElementById('btn-stop-scan').style.display = 'inline-block'; document.getElementById('qr-reader').style.display = 'block'; document.getElementById('scan-result').style.display = 'none';
+            if(html5QrcodeScanner) { html5QrcodeScanner.clear().catch(e => console.log(e)); }
+            html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: {width: 250, height: 250}, aspectRatio: 1.0, videoConstraints: { facingMode: "environment" }, supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA] });
             html5QrcodeScanner.render(onScanSuccess, onScanFailure);
         };
 
         window.detenerEscaner = () => {
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear().then(() => {
-                    document.getElementById('qr-reader').innerHTML = '';
-                }).catch(e => console.log(e));
-                html5QrcodeScanner = null;
-            }
-            document.getElementById('qr-reader').style.display = 'none';
-            document.getElementById('btn-stop-scan').style.display = 'none';
-            document.getElementById('btn-start-scan').style.display = 'inline-block';
-            document.getElementById('scan-result').style.display = 'none';
+            if (html5QrcodeScanner) { html5QrcodeScanner.clear().then(() => { document.getElementById('qr-reader').innerHTML = ''; }).catch(e => console.log(e)); html5QrcodeScanner = null; }
+            document.getElementById('qr-reader').style.display = 'none'; document.getElementById('btn-stop-scan').style.display = 'none'; document.getElementById('btn-start-scan').style.display = 'inline-block'; document.getElementById('scan-result').style.display = 'none';
         };
 
         async function onScanSuccess(decodedText, decodedResult) {
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear().then(() => { document.getElementById('qr-reader').innerHTML = ''; }).catch(e => console.log(e));
-                html5QrcodeScanner = null;
-            }
-            
-            document.getElementById('qr-reader').style.display = 'none';
-            document.getElementById('btn-stop-scan').style.display = 'none';
-            document.getElementById('btn-start-scan').style.display = 'inline-block';
+            if (html5QrcodeScanner) { html5QrcodeScanner.clear().then(() => { document.getElementById('qr-reader').innerHTML = ''; }).catch(e => console.log(e)); html5QrcodeScanner = null; }
+            document.getElementById('qr-reader').style.display = 'none'; document.getElementById('btn-stop-scan').style.display = 'none'; document.getElementById('btn-start-scan').style.display = 'inline-block';
             
             const resDiv = document.getElementById('scan-result');
-            resDiv.style.display = 'block';
-            resDiv.style.background = 'rgba(212,175,55,0.1)';
-            resDiv.style.color = 'var(--gold-light)';
-            resDiv.innerHTML = `Buscando código: ${decodedText}...`;
+            resDiv.style.display = 'block'; resDiv.style.background = 'rgba(212,175,55,0.1)'; resDiv.style.color = 'var(--gold-light)'; resDiv.innerHTML = `Buscando código: ${decodedText}...`;
 
             try {
                 const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'guests'), where("codigo", "==", decodedText));
                 const querySnapshot = await getDocs(q);
                 
                 if (querySnapshot.empty) {
-                    resDiv.style.background = 'rgba(139,26,42,0.2)';
-                    resDiv.style.color = '#ff6b6b';
+                    resDiv.style.background = 'rgba(139,26,42,0.2)'; resDiv.style.color = '#ff6b6b';
                     resDiv.innerHTML = `❌ Código NO VÁLIDO o no encontrado.<br><button onclick="window.iniciarEscaner()" class="btn-outline" style="margin-top:10px; padding:4px 8px; font-size:0.6rem;">Escanear otro</button>`;
                 } else {
-                    let docId = "";
-                    let invData = {};
-                    querySnapshot.forEach((doc) => {
-                        docId = doc.id;
-                        invData = doc.data();
-                    });
+                    let docId = ""; let invData = {};
+                    querySnapshot.forEach((doc) => { docId = doc.id; invData = doc.data(); });
 
                     if(invData.asistio) {
-                        resDiv.style.background = 'rgba(212,175,55,0.3)';
-                        resDiv.style.color = '#F5E17A';
+                        resDiv.style.background = 'rgba(212,175,55,0.3)'; resDiv.style.color = '#F5E17A';
                         resDiv.innerHTML = `⚠️ ¡CUIDADO! Este código ya fue usado.<br><br>Invitado: ${invData.guestName}<br>Mesa: ${invData.table}<br><button onclick="window.iniciarEscaner()" class="btn-outline" style="margin-top:10px; padding:4px 8px; font-size:0.6rem;">Escanear otro</button>`;
                     } else {
                         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId), { asistio: true });
-                        
-                        resDiv.style.background = 'rgba(74,222,128,0.2)';
-                        resDiv.style.color = '#4ade80';
+                        resDiv.style.background = 'rgba(74,222,128,0.2)'; resDiv.style.color = '#4ade80';
                         resDiv.innerHTML = `✅ ¡ACCESO PERMITIDO!<br><br><span style="font-size:1.3rem;">${invData.guestName}</span><br><br><span style="background:var(--gold); color:var(--ink); padding:4px 12px; border-radius:2px; font-weight:bold;">MESA ${invData.table}</span><br><button onclick="window.iniciarEscaner()" class="btn-outline" style="margin-top:16px; padding:4px 8px; font-size:0.6rem; color:#4ade80; border-color:#4ade80;">Escanear Siguiente</button>`;
                     }
                 }
             } catch (error) {
                 console.error("Error validando QR:", error);
-                resDiv.style.background = 'rgba(139,26,42,0.2)';
-                resDiv.style.color = '#ff6b6b';
+                resDiv.style.background = 'rgba(139,26,42,0.2)'; resDiv.style.color = '#ff6b6b';
                 resDiv.innerHTML = `❌ Error de conexión al validar.<br><button onclick="window.iniciarEscaner()" class="btn-outline" style="margin-top:10px; padding:4px 8px; font-size:0.6rem;">Reintentar</button>`;
             }
         }
@@ -1004,12 +1045,8 @@
 
         // ── ANIMACIONES VISUALES ──
         window.addEventListener('load', () => {
-            // Asegurarnos de que el navegador no restaure el scroll anterior automáticamente
-            if ('scrollRestoration' in history) {
-                history.scrollRestoration = 'manual';
-            }
+            if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
             window.scrollTo(0, 0);
-
             setTimeout(() => { document.getElementById('intro-line-top').classList.add('grow'); document.getElementById('intro-line-bot').classList.add('grow'); }, 300);
             setTimeout(() => { document.getElementById('intro-title').classList.add('show'); document.getElementById('intro-subtitle').classList.add('show'); }, 600);
         });
@@ -1052,16 +1089,9 @@
         heroVideo.addEventListener('ended', () => { if (!videoYaFinalizado) finalizarVideo(); });
 
         function finalizarVideo() {
-            videoYaFinalizado = true; 
-            document.getElementById('skip-video-btn').classList.remove('show'); 
-            heroVideo.pause();
-            
-            // Forzar el scroll hasta arriba justo antes de habilitarlo
+            videoYaFinalizado = true; document.getElementById('skip-video-btn').classList.remove('show'); heroVideo.pause();
             window.scrollTo(0, 0);
-
-            scrollIndicator.classList.add('show'); 
-            mainContent.classList.add('visible'); 
-            document.body.style.overflowY = 'auto';
+            scrollIndicator.classList.add('show'); mainContent.classList.add('visible'); document.body.style.overflowY = 'auto';
             initParticles(); document.getElementById('particle-canvas').classList.add('visible');
             setTimeout(() => triggerReveal(), 400);
         }
