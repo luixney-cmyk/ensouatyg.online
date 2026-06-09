@@ -807,6 +807,17 @@
         adminPassInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.verifyAdmin(); });
 
         // ── ANIMACIONES VISUALES ──
+        window.addEventListener('load', () => {
+            // Asegurarnos de que el navegador no restaure el scroll anterior automáticamente
+            if ('scrollRestoration' in history) {
+                history.scrollRestoration = 'manual';
+            }
+            window.scrollTo(0, 0);
+
+            setTimeout(() => { document.getElementById('intro-line-top').classList.add('grow'); document.getElementById('intro-line-bot').classList.add('grow'); }, 300);
+            setTimeout(() => { document.getElementById('intro-title').classList.add('show'); document.getElementById('intro-subtitle').classList.add('show'); }, 600);
+        });
+
         function initParticles() {
             const canvas = document.getElementById('particle-canvas'); const ctx = canvas.getContext('2d');
             let W = window.innerWidth, H = window.innerHeight; canvas.width = W; canvas.height = H;
@@ -828,11 +839,6 @@
         const scrollIndicator = document.getElementById('scroll-down');
         const mainContent = document.getElementById('main-content');
         
-        window.addEventListener('load', () => {
-            setTimeout(() => { document.getElementById('intro-line-top').classList.add('grow'); document.getElementById('intro-line-bot').classList.add('grow'); }, 300);
-            setTimeout(() => { document.getElementById('intro-title').classList.add('show'); document.getElementById('intro-subtitle').classList.add('show'); }, 600);
-        });
-
         let videoYaFinalizado = false;
         btnEnter.addEventListener('click', () => {
             btnEnter.disabled = true; btnEnter.style.opacity = '0'; loadingText.style.opacity = '1'; introOverlay.style.opacity = '0';
@@ -850,8 +856,16 @@
         heroVideo.addEventListener('ended', () => { if (!videoYaFinalizado) finalizarVideo(); });
 
         function finalizarVideo() {
-            videoYaFinalizado = true; document.getElementById('skip-video-btn').classList.remove('show'); heroVideo.pause();
-            scrollIndicator.classList.add('show'); mainContent.classList.add('visible'); document.body.style.overflowY = 'auto';
+            videoYaFinalizado = true; 
+            document.getElementById('skip-video-btn').classList.remove('show'); 
+            heroVideo.pause();
+            
+            // Forzar el scroll hasta arriba justo antes de habilitarlo
+            window.scrollTo(0, 0);
+
+            scrollIndicator.classList.add('show'); 
+            mainContent.classList.add('visible'); 
+            document.body.style.overflowY = 'auto';
             initParticles(); document.getElementById('particle-canvas').classList.add('visible');
             setTimeout(() => triggerReveal(), 400);
         }
