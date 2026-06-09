@@ -8,8 +8,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
     
-    <!-- Librería para descargar el pase como imagen -->
+    <!-- Librerías Externas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -187,7 +189,7 @@
         .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.9s ease, transform 0.9s ease; }
         .reveal.visible { opacity: 1; transform: translateY(0); }
 
-        /* ── MODALS (CÓDIGOS DE INVITACIÓN) ── */
+        /* ── MODALS ── */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(5, 5, 5, 0.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
             z-index: 200; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
@@ -235,7 +237,7 @@
         #personal-message::-webkit-scrollbar-track { background: rgba(212,175,55,0.05); }
         #personal-message::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.4); border-radius: 2px; }
 
-        /* ── MODAL BOLETO IMPRESO ── */
+        /* ── MODAL BOLETO IMPRESO CON QR ── */
         .ticket-wrapper {
             background: var(--ink); border: 1px solid rgba(212, 175, 55, 0.3); padding: 32px 24px;
             max-width: 440px; width: 95%; text-align: center; position: relative; transform: scale(0.95);
@@ -247,9 +249,27 @@
             margin-bottom: 24px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); background-color: #050505;
         }
         .ticket-card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1; }
-        .ticket-overlay { position: absolute; bottom: 4%; left: 0; width: 100%; padding: 0 16px; text-align: center; z-index: 2; }
-        .ticket-guest-name { font-family: 'Cinzel', serif; font-size: clamp(1.2rem, 5vw, 1.5rem); color: var(--gold-light); letter-spacing: 0.1em; line-height: 1.2; margin-bottom: 8px; text-shadow: 0 2px 6px rgba(0,0,0,0.9); }
-        .ticket-table-num { font-family: 'Cinzel', serif; font-size: 0.95rem; color: #ffffff; letter-spacing: 0.3em; text-transform: uppercase; text-shadow: 0 2px 6px rgba(0,0,0,0.9); }
+        
+        /* OVERLAY RE-DISEÑADO PARA INCLUIR EL QR */
+        .ticket-overlay { 
+            position: absolute; bottom: 4%; left: 0; width: 100%; padding: 0 24px; 
+            display: flex; justify-content: space-between; align-items: flex-end; z-index: 2; 
+        }
+        .ticket-info { text-align: left; max-width: 65%; }
+        .ticket-guest-name { 
+            font-family: 'Cinzel', serif; font-size: clamp(1rem, 4vw, 1.3rem); color: var(--gold-light); 
+            letter-spacing: 0.1em; line-height: 1.2; margin-bottom: 4px; text-shadow: 0 2px 6px rgba(0,0,0,0.9); 
+        }
+        .ticket-table-num { 
+            font-family: 'Cinzel', serif; font-size: 0.85rem; color: #ffffff; 
+            letter-spacing: 0.3em; text-transform: uppercase; text-shadow: 0 2px 6px rgba(0,0,0,0.9); 
+        }
+        .ticket-qr-box { display: flex; flex-direction: column; align-items: center; }
+        .qrcode-wrapper { background: #fff; padding: 4px; border-radius: 2px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .ticket-code-text { 
+            font-family: monospace; font-size: 0.6rem; color: #fff; margin-top: 6px; 
+            letter-spacing: 0.15em; text-shadow: 0 2px 4px rgba(0,0,0,0.9); font-weight: bold;
+        }
 
         /* ── MODAL ADMIN & IMPRESIÓN ── */
         .admin-table { width: 100%; border-collapse: collapse; text-align: left; font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; }
@@ -258,15 +278,10 @@
         .btn-delete { background: none; border: 1px solid var(--red-seal); color: var(--red-seal); cursor: pointer; padding: 4px 8px; border-radius: 2px; transition: all 0.2s; font-family: 'Cinzel', serif; font-size: 0.7rem; text-transform: uppercase;}
         .btn-delete:hover { background: var(--red-seal); color: white; }
 
-        @media print {
-            body * { visibility: hidden; }
-            #modal-admin, #modal-admin * { visibility: visible; }
-            #modal-admin { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white !important; color: black !important; }
-            .modal-box { border: none !important; box-shadow: none !important; width: 100% !important; max-width: none !important; padding: 0 !important; background: white !important; }
-            .btn-outline, .btn-delete, .modal-close { display: none !important; }
-            .admin-table th, .admin-table td { border-bottom: 1px solid #ccc !important; color: black !important; }
-            .admin-table th { color: black !important; font-weight: bold; }
-        }
+        /* Estilos del Escáner en el Panel de Admin */
+        #qr-reader { border: 1px solid var(--gold); border-radius: 4px; overflow: hidden; background: #fff; color: #000; }
+        #qr-reader button { background: var(--parchment); color: var(--gold); border: 1px solid var(--gold); padding: 6px 12px; cursor: pointer; margin: 4px; font-family: 'Cinzel', serif; font-size: 0.7rem; text-transform: uppercase; font-weight: bold;}
+        #qr-reader__scan_region img { opacity: 0.3; }
 
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: var(--ink); }
@@ -431,9 +446,17 @@
             
             <div class="ticket-card" id="ticket-card-capture">
                 <img src="enso.png" alt="Pase Ensō" crossorigin="anonymous" onerror="this.style.display='none'">
+                
+                <!-- OVERLAY CON QR A LA DERECHA Y NOMBRE A LA IZQUIERDA -->
                 <div class="ticket-overlay">
-                    <div id="ticket-guest-name" class="ticket-guest-name">Nombre del Invitado</div>
-                    <div id="ticket-table-num" class="ticket-table-num">Mesa X</div>
+                    <div class="ticket-info">
+                        <div id="ticket-guest-name" class="ticket-guest-name">Nombre del Invitado</div>
+                        <div id="ticket-table-num" class="ticket-table-num">Mesa X</div>
+                    </div>
+                    <div class="ticket-qr-box">
+                        <div class="qrcode-wrapper" id="qrcode-container"></div>
+                        <div id="ticket-code-text" class="ticket-code-text">ENSO-XXXX</div>
+                    </div>
                 </div>
             </div>
             
@@ -458,19 +481,30 @@
         </div>
     </div>
 
-    <!-- ── MODAL 6: ADMIN DASHBOARD ── -->
+    <!-- ── MODAL 6: ADMIN DASHBOARD (AHORA CON ESCÁNER) ── -->
     <div id="modal-admin" class="modal-overlay">
-        <div class="modal-box" style="max-width: 800px; padding: 32px;">
-            <span class="modal-close" onclick="window.closeModals()">×</span>
-            <h3 class="modal-title" style="margin-bottom: 24px;">Panel de Control</h3>
+        <div class="modal-box" style="max-width: 800px; padding: 32px; max-height: 90vh;">
+            <span class="modal-close" onclick="window.closeAdmin()">×</span>
+            <h3 class="modal-title" style="margin-bottom: 24px;">Panel de Control y Acceso</h3>
+            
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                 <p class="modal-text" style="margin:0; text-align:left;">Total confirmados: <strong style="color:var(--gold-light);" id="admin-total">0</strong></p>
-                <button class="btn-outline" style="padding: 8px 16px;" onclick="window.print()">🖨️ Imprimir Lista</button>
             </div>
-            <div style="max-height: 50vh; overflow-y:auto; border: 1px solid rgba(212,175,55,0.2);">
+
+            <!-- CONTROLES DEL ESCÁNER -->
+            <div style="text-align: center; margin-bottom: 16px; background: rgba(212,175,55,0.05); padding: 16px; border: 1px solid rgba(212,175,55,0.2); border-radius: 4px;">
+                <button id="btn-start-scan" class="btn-outline" style="padding: 10px 20px; width: 100%; max-width: 300px;" onclick="window.iniciarEscaner()">📷 Abrir Escáner QR</button>
+                <button id="btn-stop-scan" class="btn-outline" style="display: none; padding: 10px 20px; width: 100%; max-width: 300px; background: rgba(139,26,42,0.1); color: #ff6b6b; border-color: #8B1A2A;" onclick="window.detenerEscaner()">✖ Cerrar Escáner</button>
+                
+                <div id="qr-reader" style="width: 100%; max-width: 300px; margin: 12px auto; display: none;"></div>
+                <div id="scan-result" style="display: none; padding: 12px; margin-top: 8px; border-radius: 4px; font-weight: bold; font-family: 'Cinzel', serif; letter-spacing: 0.1em;"></div>
+            </div>
+
+            <!-- TABLA DE INVITADOS -->
+            <div style="max-height: 40vh; overflow-y:auto; border: 1px solid rgba(212,175,55,0.2);">
                 <table class="admin-table">
-                    <thead style="position: sticky; top: 0; background: var(--parchment);">
-                        <tr><th>Invitado</th><th>Mesa</th><th>Anfitrión</th><th>Acción</th></tr>
+                    <thead style="position: sticky; top: 0; background: var(--parchment); z-index: 10;">
+                        <tr><th>Invitado</th><th>Mesa</th><th style="text-align:center;">Estatus</th><th>Acción</th></tr>
                     </thead>
                     <tbody id="admin-table-body">
                         <!-- Llenado automático con Firebase -->
@@ -485,7 +519,6 @@
         <div class="modal-box" style="max-width: 700px; padding: 32px 24px;">
             <span class="modal-close" onclick="window.closeModals()">×</span>
             <h3 class="modal-title" style="font-size: 1.2rem; margin-bottom: 16px;">Inspiración de Vestimenta</h3>
-            <!-- Se llama a tu imagen subida a github -->
             <img src="dress.png" alt="Inspiración de vestimenta" style="width: 100%; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px;" onerror="this.style.display='none'">
             <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.95rem; color:rgba(212,175,55,0.8); line-height: 1.5; margin-bottom: 0;">
                 *Esta paleta de colores y estilos es únicamente una sugerencia para mantener la armonía visual de la gala. Siéntete con total libertad de asistir con los colores de tu preferencia.
@@ -497,7 +530,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ============================================================================
         // CONFIGURACIÓN OFICIAL DE FIREBASE PARA ENSŌ GALA 2026
@@ -515,6 +548,8 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'enso-uatyg-gala';
+
+        let html5QrcodeScanner = null;
 
         // Autenticación Silenciosa
         const initAuth = async () => {
@@ -627,12 +662,11 @@
                 document.getElementById('modal-code').classList.remove('active');
                 
                 const messageContainer = document.getElementById('personal-message');
-                const btnAccept = document.getElementById('btn-accept-invite'); // Referencia al botón
+                const btnAccept = document.getElementById('btn-accept-invite'); 
                 
                 if (currentValidData.type === 'standard') {
                     messageContainer.innerHTML = `"Yo, <strong style="color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;">${currentValidData.name}</strong>, tengo el honor de invitarte a mi último proyecto integrador. <br><br>Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."`;
                     
-                    // Configuración del botón para Estándar
                     btnAccept.innerText = "Aceptar Invitación";
                     btnAccept.style.background = "var(--gold)";
                     btnAccept.style.border = "none";
@@ -642,18 +676,19 @@
                 } else if (currentValidData.type === 'special') {
                     messageContainer.innerHTML = `"${currentValidData.text}"`;
                     
-                    // Verificar si este VIP ya está registrado
-                    const isVIPConfirmed = allConfirmations.some(c => c.hostCode === currentValidDataCode);
+                    const existingVIP = allConfirmations.find(c => c.hostCode === currentValidDataCode);
                     
-                    if (isVIPConfirmed) {
-                        // Cambiar la apariencia y función del botón si ya confirmó
-                        btnAccept.innerText = "Asistencia Confirmada (Cerrar)";
+                    if (existingVIP) {
+                        btnAccept.innerText = "Asistencia Confirmada (Ver Pase)";
                         btnAccept.style.background = "transparent";
                         btnAccept.style.border = "1px solid rgba(212, 175, 55, 0.5)";
                         btnAccept.style.color = "rgba(212, 175, 55, 0.8)";
-                        btnAccept.onclick = window.closeModals; // Solo cierra el modal, no hace registro
+                        btnAccept.onclick = () => {
+                            window.closeModals();
+                            // Mostrar ticket sin volver a registrar, usando el código QR que ya se le generó
+                            setTimeout(() => showTicket(existingVIP.guestName, existingVIP.table, existingVIP.codigo), 400);
+                        };
                     } else {
-                        // Configuración del botón normal si aún no confirma
                         btnAccept.innerText = "Aceptar Invitación";
                         btnAccept.style.background = "var(--gold)";
                         btnAccept.style.border = "none";
@@ -669,24 +704,30 @@
             }
         };
 
-        // 2. Aceptar Invitación
+        // 2. Aceptar Invitación (Genera código QR único)
         window.handleMessageAccept = async function() {
             const btnAccept = document.getElementById('btn-accept-invite');
             btnAccept.disabled = true; btnAccept.innerText = "Registrando...";
 
             if (currentValidData.type === 'special') {
-                const exists = allConfirmations.find(c => c.hostCode === currentValidDataCode);
-                if (!exists) {
+                const existingVIP = allConfirmations.find(c => c.hostCode === currentValidDataCode);
+                let uniqueCode = "";
+                
+                if (!existingVIP) {
+                    uniqueCode = 'ENSO-' + Math.random().toString(36).substring(2, 6).toUpperCase();
                     try {
                         const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
                         await addDoc(colRef, {
                             guestName: currentValidData.fullName, hostCode: currentValidDataCode,
-                            hostName: "Invitado VIP", table: currentValidData.table, timestamp: new Date().toISOString()
+                            hostName: "Invitado VIP", table: currentValidData.table, timestamp: new Date().toISOString(),
+                            codigo: uniqueCode, asistio: false
                         });
                     } catch(e) { console.error(e); }
+                } else {
+                    uniqueCode = existingVIP.codigo;
                 }
                 document.getElementById('modal-message').classList.remove('active');
-                setTimeout(() => showTicket(currentValidData.fullName, currentValidData.table), 400);
+                setTimeout(() => showTicket(currentValidData.fullName, currentValidData.table, uniqueCode), 400);
             } else {
                 document.getElementById('modal-message').classList.remove('active');
                 setTimeout(() => {
@@ -697,7 +738,7 @@
             btnAccept.disabled = false; btnAccept.innerText = "Aceptar Invitación";
         };
 
-        // 3. Generar Pase Estándar
+        // 3. Generar Pase Estándar (Genera código QR único)
         window.generateStandardTicket = async function() {
             const guestName = guestNameInput.value.trim().toUpperCase();
             if (guestName === "") {
@@ -708,7 +749,6 @@
             const btnGen = document.getElementById('btn-generate-ticket');
             btnGen.disabled = true; btnGen.innerText = "Verificando...";
 
-            // Doble chequeo de aforo por si se llenó mientras escribía el nombre
             const count = allConfirmations.filter(c => c.hostCode === currentValidDataCode).length;
             if (count >= 4) {
                 nameErrorText.innerText = "Lo sentimos, el aforo de este anfitrión se acaba de completar.";
@@ -717,15 +757,18 @@
                 return;
             }
 
+            const uniqueCode = 'ENSO-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+
             try {
                 const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
                 await addDoc(colRef, {
                     guestName: guestName, hostCode: currentValidDataCode, hostName: currentValidData.name,
-                    table: currentValidData.table, timestamp: new Date().toISOString()
+                    table: currentValidData.table, timestamp: new Date().toISOString(),
+                    codigo: uniqueCode, asistio: false
                 });
                 nameErrorText.style.opacity = '0';
                 document.getElementById('modal-name').classList.remove('active');
-                setTimeout(() => showTicket(guestName, currentValidData.table), 400);
+                setTimeout(() => showTicket(guestName, currentValidData.table, uniqueCode), 400);
             } catch(e) {
                 console.error(e);
                 nameErrorText.innerText = "Error de conexión. Intenta nuevamente.";
@@ -734,10 +777,24 @@
             btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
         };
 
-        // 4. Pantalla de Ticket
-        function showTicket(nameToDisplay, tableNum) {
+        // 4. Pantalla de Ticket con generación de QR
+        function showTicket(nameToDisplay, tableNum, ticketCode) {
             document.getElementById('ticket-guest-name').innerText = nameToDisplay;
             document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
+            document.getElementById('ticket-code-text').innerText = ticketCode;
+            
+            // Dibujar QR
+            const qrContainer = document.getElementById('qrcode-container');
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, {
+                text: ticketCode,
+                width: 70,
+                height: 70,
+                colorDark : "#050505",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            });
+
             document.getElementById('modal-ticket').classList.add('active');
         }
 
@@ -758,22 +815,23 @@
 
         window.finalizeRSVP = function() {
             window.closeModals();
-            
-            // Mantenemos el botón activo pero cambiamos el texto sutilmente
             const btn = document.getElementById('main-confirm-btn');
             btn.textContent = '+ Registrar Otro Invitado';
-            
-            // Limpiamos los inputs por si vuelven a abrir el modal
             document.getElementById('invite-code-input').value = '';
             document.getElementById('guest-name-input').value = '';
         };
 
-        // ── LÓGICA DE ADMIN Y TECLADO ──
+        // ── LÓGICA DE ADMIN Y ESCÁNER QR ──
         window.openAdminLogin = async function() {
             adminPassInput.value = ''; 
             document.getElementById('admin-error').style.opacity = '0';
             document.getElementById('modal-admin-login').classList.add('active'); 
             adminPassInput.focus();
+        };
+
+        window.closeAdmin = function() {
+            window.detenerEscaner();
+            window.closeModals();
         };
 
         window.verifyAdmin = async function() {
@@ -816,11 +874,28 @@
             tbody.innerHTML = '';
             document.getElementById('admin-total').innerText = allConfirmations.length;
             const sorted = [...allConfirmations].sort((a, b) => a.hostName.localeCompare(b.hostName));
+            
             sorted.forEach(g => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${g.guestName}</td><td>Mesa ${g.table}</td><td><small style="color:rgba(212,175,55,0.8);">${g.hostName}</small></td><td><button class="btn-delete" onclick="window.deleteGuest('${g.id}')">Eliminar</button></td>`;
+                tr.innerHTML = `
+                    <td>${g.guestName}<br><small style="color:rgba(212,175,55,0.8);">${g.hostName}</small></td>
+                    <td>Mesa ${g.table}</td>
+                    <td style="text-align: center;">
+                        ${g.asistio 
+                            ? `<span style="color:#4ade80; display:block; font-size:0.7rem; font-weight:bold;">Ingresó</span><button class="btn-delete" style="border-color:#9ca3af; color:#9ca3af; font-size:0.6rem; margin-top:4px;" onclick="window.toggleCheckIn('${g.id}', false)">Deshacer</button>`
+                            : `<span style="color:#9ca3af; display:block; font-size:0.7rem; font-weight:bold;">Pendiente</span><button class="btn-delete" style="border-color:#4ade80; color:#4ade80; font-size:0.6rem; margin-top:4px;" onclick="window.toggleCheckIn('${g.id}', true)">Dar Acceso</button>`
+                        }
+                    </td>
+                    <td><button class="btn-delete" onclick="window.deleteGuest('${g.id}')">Eliminar</button></td>
+                `;
                 tbody.appendChild(tr);
             });
+        };
+
+        window.toggleCheckIn = async function(docId, status) {
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId), { asistio: status });
+            } catch (e) { console.error("Error cambiando estatus", e); }
         };
 
         window.deleteGuest = async function(docId) {
@@ -830,6 +905,98 @@
                 } catch(e) { console.error(e); }
             }
         };
+
+        // ====== LÓGICA DEL ESCÁNER QR =======
+        window.iniciarEscaner = () => {
+            document.getElementById('btn-start-scan').style.display = 'none';
+            document.getElementById('btn-stop-scan').style.display = 'inline-block';
+            document.getElementById('qr-reader').style.display = 'block';
+            document.getElementById('scan-result').style.display = 'none';
+
+            if(html5QrcodeScanner) {
+                html5QrcodeScanner.clear().catch(e => console.log(e));
+            }
+
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "qr-reader", 
+                { 
+                    fps: 10, 
+                    qrbox: {width: 250, height: 250}, 
+                    aspectRatio: 1.0,
+                    videoConstraints: { facingMode: "environment" },
+                    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA] 
+                }
+            );
+            
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        };
+
+        window.detenerEscaner = () => {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear().then(() => {
+                    document.getElementById('qr-reader').innerHTML = '';
+                }).catch(e => console.log(e));
+                html5QrcodeScanner = null;
+            }
+            document.getElementById('qr-reader').style.display = 'none';
+            document.getElementById('btn-stop-scan').style.display = 'none';
+            document.getElementById('btn-start-scan').style.display = 'inline-block';
+            document.getElementById('scan-result').style.display = 'none';
+        };
+
+        async function onScanSuccess(decodedText, decodedResult) {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear().then(() => { document.getElementById('qr-reader').innerHTML = ''; }).catch(e => console.log(e));
+                html5QrcodeScanner = null;
+            }
+            
+            document.getElementById('qr-reader').style.display = 'none';
+            document.getElementById('btn-stop-scan').style.display = 'none';
+            document.getElementById('btn-start-scan').style.display = 'inline-block';
+            
+            const resDiv = document.getElementById('scan-result');
+            resDiv.style.display = 'block';
+            resDiv.style.background = 'rgba(212,175,55,0.1)';
+            resDiv.style.color = 'var(--gold-light)';
+            resDiv.innerHTML = `Buscando código: ${decodedText}...`;
+
+            try {
+                const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'guests'), where("codigo", "==", decodedText));
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    resDiv.style.background = 'rgba(139,26,42,0.2)';
+                    resDiv.style.color = '#ff6b6b';
+                    resDiv.innerHTML = `❌ Código NO VÁLIDO o no encontrado.<br><button onclick="window.iniciarEscaner()" class="btn-outline" style="margin-top:10px; padding:4px 8px; font-size:0.6rem;">Escanear otro</button>`;
+                } else {
+                    let docId = "";
+                    let invData = {};
+                    querySnapshot.forEach((doc) => {
+                        docId = doc.id;
+                        invData = doc.data();
+                    });
+
+                    if(invData.asistio) {
+                        resDiv.style.background = 'rgba(212,175,55,0.3)';
+                        resDiv.style.color = '#F5E17A';
+                        resDiv.innerHTML = `⚠️ ¡CUIDADO! Este código ya fue usado.<br><br>Invitado: ${invData.guestName}<br>Mesa: ${invData.table}<br><button onclick="window.iniciarEscaner()" class="btn-outline" style="margin-top:10px; padding:4px 8px; font-size:0.6rem;">Escanear otro</button>`;
+                    } else {
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId), { asistio: true });
+                        
+                        resDiv.style.background = 'rgba(74,222,128,0.2)';
+                        resDiv.style.color = '#4ade80';
+                        resDiv.innerHTML = `✅ ¡ACCESO PERMITIDO!<br><br><span style="font-size:1.3rem;">${invData.guestName}</span><br><br><span style="background:var(--gold); color:var(--ink); padding:4px 12px; border-radius:2px; font-weight:bold;">MESA ${invData.table}</span><br><button onclick="window.iniciarEscaner()" class="btn-outline" style="margin-top:16px; padding:4px 8px; font-size:0.6rem; color:#4ade80; border-color:#4ade80;">Escanear Siguiente</button>`;
+                    }
+                }
+            } catch (error) {
+                console.error("Error validando QR:", error);
+                resDiv.style.background = 'rgba(139,26,42,0.2)';
+                resDiv.style.color = '#ff6b6b';
+                resDiv.innerHTML = `❌ Error de conexión al validar.<br><button onclick="window.iniciarEscaner()" class="btn-outline" style="margin-top:10px; padding:4px 8px; font-size:0.6rem;">Reintentar</button>`;
+            }
+        }
+
+        function onScanFailure(error) { }
 
         codeInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.validateCode(); });
         guestNameInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.generateStandardTicket(); });
