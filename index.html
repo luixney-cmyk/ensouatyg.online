@@ -259,27 +259,29 @@
         #ticket-bg-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1; }
         
         /* Asegurar que las imagenes del QR no se estiren */
-        #qrcode-container img, #qrcode-container canvas { width: 70px !important; height: 70px !important; display: block !important; position: static !important; }
+        #qrcode-container img, #qrcode-container canvas { width: 75px !important; height: 75px !important; display: block !important; position: static !important; }
         
-        /* OVERLAY RE-DISEÑADO PARA INCLUIR EL QR */
+        /* OVERLAY RE-DISEÑADO Y CENTRADO PARA INCLUIR EL QR ABAJO */
         .ticket-overlay { 
-            position: absolute; bottom: 4%; left: 0; width: 100%; padding: 0 24px; 
-            display: flex; justify-content: space-between; align-items: flex-end; z-index: 2; 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 24px; 
+            display: flex; flex-direction: column; justify-content: flex-end; align-items: center; z-index: 2; 
         }
-        .ticket-info { text-align: left; max-width: 65%; }
+        .ticket-info { text-align: center; width: 100%; margin-bottom: 12px; }
         .ticket-guest-name { 
-            font-family: 'Cinzel', serif; font-size: clamp(1rem, 4vw, 1.3rem); color: var(--gold-light); 
-            letter-spacing: 0.1em; line-height: 1.2; margin-bottom: 4px; text-shadow: 0 2px 6px rgba(0,0,0,0.9); 
+            font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 4.5vw, 1.4rem); color: var(--gold-light); 
+            letter-spacing: 0.1em; line-height: 1.2; margin-bottom: 6px; text-shadow: 0 2px 6px rgba(0,0,0,0.9); 
+            text-align: center;
         }
         .ticket-table-num { 
-            font-family: 'Cinzel', serif; font-size: 0.85rem; color: #ffffff; 
+            font-family: 'Cinzel', serif; font-size: 0.95rem; color: #ffffff; 
             letter-spacing: 0.3em; text-transform: uppercase; text-shadow: 0 2px 6px rgba(0,0,0,0.9); 
+            text-align: center;
         }
-        .ticket-qr-box { display: flex; flex-direction: column; align-items: center; }
-        .qrcode-wrapper { background: #fff; padding: 4px; border-radius: 2px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .ticket-qr-box { display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; }
+        .qrcode-wrapper { background: #fff; padding: 5px; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); display: inline-block; }
         .ticket-code-text { 
-            font-family: monospace; font-size: 0.6rem; color: #fff; margin-top: 6px; 
-            letter-spacing: 0.15em; text-shadow: 0 2px 4px rgba(0,0,0,0.9); font-weight: bold;
+            font-family: monospace; font-size: 0.65rem; color: #fff; margin-top: 8px; 
+            letter-spacing: 0.15em; text-shadow: 0 2px 4px rgba(0,0,0,0.9); font-weight: bold; text-align: center;
         }
 
         /* ── MODAL ADMIN & IMPRESIÓN ── */
@@ -614,7 +616,7 @@
                 <!-- Se corrigió el selector usando un ID para que el CSS no afecte al QR -->
                 <img id="ticket-bg-img" src="enso.png" alt="Pase Ensō" crossorigin="anonymous" onerror="this.style.display='none'">
                 
-                <!-- OVERLAY CON QR A LA DERECHA Y NOMBRE A LA IZQUIERDA -->
+                <!-- OVERLAY CENTRADO CON QR ABAJO -->
                 <div class="ticket-overlay">
                     <div class="ticket-info">
                         <div id="ticket-guest-name" class="ticket-guest-name">Nombre del Invitado</div>
@@ -798,11 +800,13 @@
         const errorText = document.getElementById('code-error');
         const nameErrorText = document.getElementById('name-error');
 
-        // REINICIO DE SCROLL PARA LOS MODALES
+        // REINICIO DE SCROLL PARA LOS MODALES CON SETTIMEOUT PARA ASEGURAR QUE EL NAVEGADOR LO APLIQUE
         window.openMenuModal = function() { 
-            const menuScroll = document.getElementById('menu-scroll-container');
-            if (menuScroll) menuScroll.scrollTop = 0;
             document.getElementById('modal-menu').classList.add('active'); 
+            setTimeout(() => {
+                const menuScroll = document.getElementById('menu-scroll-container');
+                if (menuScroll) menuScroll.scrollTop = 0;
+            }, 50);
         };
         
         window.openCodeModal = function() { 
@@ -813,9 +817,11 @@
         };
         
         window.openDressModal = function() { 
-            const dressScroll = document.getElementById('dress-scroll-container');
-            if (dressScroll) dressScroll.scrollTop = 0;
             document.getElementById('modal-dress').classList.add('active'); 
+            setTimeout(() => {
+                const dressScroll = document.getElementById('dress-scroll-container');
+                if (dressScroll) dressScroll.scrollTop = 0;
+            }, 50);
         };
 
         window.closeModals = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); };
@@ -868,10 +874,13 @@
                     }
                 }
                 
-                // REINICIAR EL SCROLL DE LA CARTA AL INICIO
-                document.getElementById('personal-message').scrollTop = 0;
-                
-                setTimeout(() => document.getElementById('modal-message').classList.add('active'), 400);
+                setTimeout(() => {
+                    document.getElementById('modal-message').classList.add('active');
+                    // REINICIAR EL SCROLL DE LA CARTA AL INICIO
+                    setTimeout(() => {
+                        document.getElementById('personal-message').scrollTop = 0;
+                    }, 50);
+                }, 400);
             } else {
                 errorText.innerText = "Código no reconocido. Intenta nuevamente.";
                 errorText.style.opacity = '1';
@@ -952,7 +961,7 @@
             
             const qrContainer = document.getElementById('qrcode-container');
             qrContainer.innerHTML = '';
-            new QRCode(qrContainer, { text: ticketCode, width: 70, height: 70, colorDark : "#050505", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.M });
+            new QRCode(qrContainer, { text: ticketCode, width: 75, height: 75, colorDark : "#050505", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.M });
 
             document.getElementById('modal-ticket').classList.add('active');
         }
