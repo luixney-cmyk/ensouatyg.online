@@ -838,16 +838,29 @@
                     messageContainer.innerHTML = `"${currentValidData.text}"`;
                     const isVIPConfirmed = allConfirmations.some(c => c.hostCode === currentValidDataCode);
                     if (isVIPConfirmed) {
-                        btnAccept.innerText = "Asistencia Confirmada (Ver Pase)"; btnAccept.style.background = "transparent"; btnAccept.style.border = "1px solid rgba(212, 175, 55, 0.5)"; btnAccept.style.color = "rgba(212, 175, 55, 0.8)";
+                        // Cambiar la apariencia y función del botón si ya confirmó
+                        btnAccept.innerText = "Asistencia Confirmada (Ver Pase)";
+                        btnAccept.style.background = "transparent";
+                        btnAccept.style.border = "1px solid rgba(212, 175, 55, 0.5)";
+                        btnAccept.style.color = "rgba(212, 175, 55, 0.8)";
                         btnAccept.onclick = () => {
                             window.closeModals();
                             const existingVIP = allConfirmations.find(c => c.hostCode === currentValidDataCode);
                             setTimeout(() => showTicket(existingVIP.guestName, existingVIP.table, existingVIP.codigo), 400);
                         };
                     } else {
-                        btnAccept.innerText = "Aceptar Invitación"; btnAccept.style.background = "var(--gold)"; btnAccept.style.border = "none"; btnAccept.style.color = "var(--ink)"; btnAccept.onclick = window.handleMessageAccept;
+                        // Configuración del botón normal si aún no confirma
+                        btnAccept.innerText = "Aceptar Invitación";
+                        btnAccept.style.background = "var(--gold)";
+                        btnAccept.style.border = "none";
+                        btnAccept.style.color = "var(--ink)";
+                        btnAccept.onclick = window.handleMessageAccept;
                     }
                 }
+                
+                // REINICIAR EL SCROLL DE LA CARTA AL INICIO
+                document.getElementById('personal-message').scrollTop = 0;
+                
                 setTimeout(() => document.getElementById('modal-message').classList.add('active'), 400);
             } else {
                 errorText.innerText = "Código no reconocido. Intenta nuevamente.";
