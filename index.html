@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -158,11 +158,18 @@
         .dress-code-block { text-align: center; padding: 56px 0; }
         .dress-code-block .label { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.7rem; letter-spacing: 0.5em; text-transform: uppercase; color: rgba(212,175,55,0.45); display: block; margin-bottom: 20px; }
         .dress-code-block .name { font-family: 'Cinzel', serif; font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 400; letter-spacing: 0.12em; }
-        .color-swatches { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 24px; }
-        .swatch { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        
+        .color-swatches { display: flex; justify-content: center; align-items: flex-start; gap: 16px; margin-top: 24px; flex-wrap: wrap; }
+        .swatch { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 70px; }
         .swatch-dot { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.15); }
-        .swatch-label { font-family: 'Cormorant Garamond', serif; font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(210,200,185,0.4); }
-        .swatch-sep { width: 1px; height: 28px; background: rgba(212,175,55,0.2); }
+        .swatch-label { font-family: 'Cormorant Garamond', serif; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(210,200,185,0.4); text-align: center; line-height: 1.3; }
+        .swatch-sep { width: 1px; height: 28px; background: rgba(212,175,55,0.2); margin-top: 4px; }
+        
+        @media (max-width: 768px) {
+            .swatch-sep { display: none; }
+            .color-swatches { gap: 24px 12px; }
+            .swatch { width: 28%; }
+        }
 
         .cta-section { text-align: center; padding: 32px 0 48px; position: relative; z-index: 10; }
         .confirm-btn { display: inline-block; position: relative; padding: 16px 52px; font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--ink); background: linear-gradient(105deg, #BF953F, #D4AF37, #F5E17A, #D4AF37, #BF953F); background-size: 200%; cursor: pointer; border: none; transition: background-position 0.7s ease, box-shadow 0.4s ease, transform 0.2s ease; background-position: left; }
@@ -343,12 +350,19 @@
                 <div class="dress-code-block reveal">
                     <span class="label">Código de Vestimenta</span><span class="name text-gold">Elegancia Minimalista</span>
                     <div class="color-swatches">
-                        <div class="swatch"><div class="swatch-dot" style="background:#0A0A0A; border-color:rgba(255,255,255,0.25);"></div><span class="swatch-label">Negro</span></div>
+                        <div class="swatch"><div class="swatch-dot" style="background:#0A0A0A; border-color:rgba(255,255,255,0.25);"></div><span class="swatch-label">Negro<br>Tinta</span></div>
                         <div class="swatch-sep"></div>
-                        <div class="swatch"><div class="swatch-dot" style="background:#6B0F1A;"></div><span class="swatch-label">Rojo Profundo</span></div>
+                        <div class="swatch"><div class="swatch-dot" style="background:#EAE0C8;"></div><span class="swatch-label">Marfil<br>Porcelana</span></div>
                         <div class="swatch-sep"></div>
-                        <div class="swatch"><div class="swatch-dot" style="background:#D4AF37;"></div><span class="swatch-label">Oro</span></div>
+                        <div class="swatch"><div class="swatch-dot" style="background:#8B8C89;"></div><span class="swatch-label">Gris<br>Piedra</span></div>
+                        <div class="swatch-sep"></div>
+                        <div class="swatch"><div class="swatch-dot" style="background:#C2B29A;"></div><span class="swatch-label">Beige<br>Arena</span></div>
+                        <div class="swatch-sep"></div>
+                        <div class="swatch"><div class="swatch-dot" style="background:#6B0F1A;"></div><span class="swatch-label">Rojo<br>Profundo</span></div>
+                        <div class="swatch-sep"></div>
+                        <div class="swatch"><div class="swatch-dot" style="background:#D4AF37;"></div><span class="swatch-label">Oro<br>Antiguo</span></div>
                     </div>
+                    <button class="btn-outline" style="margin-top: 32px; padding: 10px 24px; font-size: 0.65rem;" onclick="window.openDressModal()">Ver inspiración de vestimenta</button>
                 </div>
 
                 <div class="cta-section reveal">
@@ -466,6 +480,19 @@
         </div>
     </div>
 
+    <!-- ── MODAL 7: DRESS CODE (INSPIRACIÓN) ── -->
+    <div id="modal-dress" class="modal-overlay">
+        <div class="modal-box" style="max-width: 700px; padding: 32px 24px;">
+            <span class="modal-close" onclick="window.closeModals()">×</span>
+            <h3 class="modal-title" style="font-size: 1.2rem; margin-bottom: 16px;">Inspiración de Vestimenta</h3>
+            <!-- Se llama a tu imagen subida a github -->
+            <img src="dress.png" alt="Inspiración de vestimenta" style="width: 100%; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px;" onerror="this.style.display='none'">
+            <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.95rem; color:rgba(212,175,55,0.8); line-height: 1.5; margin-bottom: 0;">
+                *Esta paleta de colores y estilos es únicamente una sugerencia para mantener la armonía visual de la gala. Siéntete con total libertad de asistir con los colores de tu preferencia.
+            </p>
+        </div>
+    </div>
+
     <!-- ── FIREBASE & LÓGICA PRINCIPAL ── -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -570,6 +597,10 @@
         window.openCodeModal = function() {
             document.getElementById('modal-code').classList.add('active');
             codeInput.value = ''; errorText.style.opacity = '0'; codeInput.focus();
+        };
+        
+        window.openDressModal = function() {
+            document.getElementById('modal-dress').classList.add('active');
         };
 
         window.closeModals = function() {
