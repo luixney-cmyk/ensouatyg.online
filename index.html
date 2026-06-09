@@ -769,17 +769,46 @@
         };
 
         // ── LÓGICA DE ADMIN Y TECLADO ──
-        window.openAdminLogin = function() {
-            adminPassInput.value = ''; document.getElementById('admin-error').style.opacity = '0';
-            document.getElementById('modal-admin-login').classList.add('active'); adminPassInput.focus();
+        window.openAdminLogin = async function() {
+            adminPassInput.value = ''; 
+            document.getElementById('admin-error').style.opacity = '0';
+            document.getElementById('modal-admin-login').classList.add('active'); 
+            adminPassInput.focus();
         };
 
-        window.verifyAdmin = function() {
-            if (adminPassInput.value === "TESTIGO2027") {
+        window.verifyAdmin = async function() {
+            const pass = adminPassInput.value.trim().toUpperCase();
+            
+            if (pass === "TESTIGO2027") {
                 document.getElementById('modal-admin-login').classList.remove('active');
                 window.renderAdminTable();
                 document.getElementById('modal-admin').classList.add('active');
-            } else { document.getElementById('admin-error').style.opacity = '1'; }
+            } else if (pass === "RESET2027") {
+                if (confirm("⚠️ ATENCIÓN: ¿Estás seguro de que quieres BORRAR TODA LA BASE DE DATOS? Esta acción no se puede deshacer.")) {
+                    try {
+                        const btn = document.querySelector('#modal-admin-login .btn-outline');
+                        const originalText = btn.innerText;
+                        btn.innerText = "Borrando...";
+                        btn.disabled = true;
+
+                        const deletePromises = allConfirmations.map(g => 
+                            deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', g.id))
+                        );
+                        await Promise.all(deletePromises);
+                        
+                        alert("✅ Base de datos reiniciada con éxito.");
+                        document.getElementById('modal-admin-login').classList.remove('active');
+                        
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    } catch (e) {
+                        console.error("Error al borrar la base de datos:", e);
+                        alert("Hubo un error al intentar borrar los datos.");
+                    }
+                }
+            } else { 
+                document.getElementById('admin-error').style.opacity = '1'; 
+            }
         };
 
         window.renderAdminTable = function() {
