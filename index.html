@@ -24,122 +24,60 @@
             --off-white:  #D9D0C0;
         }
 
-        /* ── CORE ─────────────────────────────────────────────── */
         html { scroll-behavior: smooth; }
-
         body {
-            background-color: var(--ink);
-            color: var(--off-white);
-            font-family: 'Cormorant Garamond', serif;
-            overflow-x: hidden;
-            overflow-y: hidden;
-            cursor: default;
+            background-color: var(--ink); color: var(--off-white);
+            font-family: 'Cormorant Garamond', serif; overflow-x: hidden; overflow-y: hidden; cursor: default;
         }
 
-        /* ── TYPOGRAPHY ──────────────────────────────────────── */
         .cinzel        { font-family: 'Cinzel', serif; }
         .kanji         { font-family: 'Noto Serif JP', serif; }
-        .cormorant     { font-family: 'Cormorant Garamond', serif; }
-
         .text-gold {
             background: linear-gradient(105deg, #BF953F 0%, #FCF6BA 40%, #B38728 70%, #FBF5B7 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            -webkit-background-clip: text; background-clip: text; color: transparent;
         }
 
-        /* ── CANVAS DE PARTÍCULAS ────────────────────────────── */
+        /* ── CANVAS DE PARTÍCULAS ── */
         #particle-canvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            pointer-events: none;
-            z-index: 1;
-            opacity: 0;
-            transition: opacity 3s ease;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 1; opacity: 0; transition: opacity 3s ease;
         }
         #particle-canvas.visible { opacity: 1; }
 
-        /* ── INTRO OVERLAY ───────────────────────────────────── */
+        /* ── INTRO OVERLAY ── */
         #intro-overlay {
-            position: fixed;
-            inset: 0;
-            background: var(--ink);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 0;
-            transition: opacity 1.8s ease-in-out;
+            position: fixed; inset: 0; background: var(--ink); z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            gap: 0; transition: opacity 1.8s ease-in-out;
         }
-
         .intro-kanji {
-            font-family: 'Noto Serif JP', serif;
-            font-size: clamp(5rem, 15vw, 10rem);
-            color: rgba(212, 175, 55, 0.08);
-            position: absolute;
-            user-select: none;
-            letter-spacing: 0.05em;
-            animation: breathe 6s ease-in-out infinite;
+            font-family: 'Noto Serif JP', serif; font-size: clamp(5rem, 15vw, 10rem); color: rgba(212, 175, 55, 0.08);
+            position: absolute; user-select: none; letter-spacing: 0.05em; animation: breathe 6s ease-in-out infinite;
         }
-
-        @keyframes breathe {
-            0%, 100% { opacity: 0.06; transform: scale(1); }
-            50%       { opacity: 0.12; transform: scale(1.02); }
-        }
-
+        @keyframes breathe { 0%, 100% { opacity: 0.06; transform: scale(1); } 50% { opacity: 0.12; transform: scale(1.02); } }
         .intro-line {
-            width: 1px;
-            height: 0;
-            background: linear-gradient(to bottom, transparent, var(--gold), transparent);
-            margin: 24px 0;
-            transition: height 1.5s ease;
+            width: 1px; height: 0; background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+            margin: 24px 0; transition: height 1.5s ease;
         }
         .intro-line.grow { height: 64px; }
-
         .intro-subtitle {
-            font-family: 'Cormorant Garamond', serif;
-            font-style: italic;
-            font-size: 0.85rem;
-            letter-spacing: 0.3em;
-            color: rgba(212, 175, 55, 0.45);
-            text-transform: uppercase;
-            opacity: 0;
-            transform: translateY(8px);
+            font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.85rem; letter-spacing: 0.3em;
+            color: rgba(212, 175, 55, 0.45); text-transform: uppercase; opacity: 0; transform: translateY(8px);
             transition: opacity 1s ease 0.5s, transform 1s ease 0.5s;
         }
         .intro-subtitle.show { opacity: 1; transform: translateY(0); }
-
         .intro-title-wrap { position: relative; overflow: visible; }
         .intro-title {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(2rem, 6vw, 3.5rem);
-            font-weight: 400;
-            letter-spacing: 0.25em;
-            color: transparent;
-            background: linear-gradient(105deg, #BF953F 0%, #FCF6BA 45%, #B38728 75%, #FBF5B7 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            opacity: 0;
-            transform: translateY(12px);
+            font-family: 'Cinzel', serif; font-size: clamp(2rem, 6vw, 3.5rem); font-weight: 400; letter-spacing: 0.25em;
+            color: transparent; background: linear-gradient(105deg, #BF953F 0%, #FCF6BA 45%, #B38728 75%, #FBF5B7 100%);
+            -webkit-background-clip: text; background-clip: text; opacity: 0; transform: translateY(12px);
             transition: opacity 1s ease 0.2s, transform 1s ease 0.2s;
         }
         .intro-title.show { opacity: 1; transform: translateY(0); }
-
         .enter-btn {
-            border: 1px solid rgba(212, 175, 55, 0.35);
-            color: rgba(212, 175, 55, 0.75);
-            padding: 13px 36px;
-            font-family: 'Cinzel', serif;
-            letter-spacing: 0.35em;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            background: transparent;
-            cursor: pointer;
-            transition: all 0.5s ease;
-            position: relative;
-            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.35); color: rgba(212, 175, 55, 0.75); padding: 13px 36px;
+            font-family: 'Cinzel', serif; letter-spacing: 0.35em; text-transform: uppercase; font-size: 0.75rem;
+            background: transparent; cursor: pointer; transition: all 0.5s ease; position: relative; overflow: hidden;
         }
         .enter-btn::before {
             content: ''; position: absolute; inset: 0;
@@ -147,33 +85,27 @@
             transform: translateX(-100%); transition: transform 0.7s ease;
         }
         .enter-btn:hover::before { transform: translateX(100%); }
-        .enter-btn:hover {
-            color: #fff; border-color: var(--gold);
-            box-shadow: 0 0 24px rgba(212, 175, 55, 0.2), inset 0 0 24px rgba(212,175,55,0.04);
-        }
-
+        .enter-btn:hover { color: #fff; border-color: var(--gold); box-shadow: 0 0 24px rgba(212, 175, 55, 0.2), inset 0 0 24px rgba(212,175,55,0.04); }
         #loading-text {
             font-family: 'Cormorant Garamond', serif; font-size: 0.7rem; letter-spacing: 0.4em;
             color: rgba(212,175,55,0.4); text-transform: uppercase; margin-top: 20px; opacity: 0; transition: opacity 0.5s ease;
         }
 
-        /* ── CINEMATIC VIDEO ─────────────────────────────────── */
+        /* ── VIDEO ── */
         #cinematic-container {
             opacity: 0; transition: opacity 2s ease; position: fixed; inset: 0;
             z-index: 10; background: #111; display: flex; justify-content: center; align-items: center;
         }
         #cinematic-container.play { opacity: 1; }
         #hero-video { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-
         #skip-video-btn {
-            position: absolute; top: 40px; right: 40px; font-family: 'Cinzel', serif;
-            font-size: 0.65rem; letter-spacing: 0.25em; color: rgba(212,175,55,0.4); text-transform: uppercase;
-            cursor: pointer; z-index: 50; transition: color 0.3s ease; opacity: 0; pointer-events: none;
+            position: absolute; top: 40px; right: 40px; font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.25em;
+            color: rgba(212,175,55,0.4); text-transform: uppercase; cursor: pointer; z-index: 50; transition: color 0.3s ease;
+            opacity: 0; pointer-events: none;
         }
         #skip-video-btn.show { opacity: 1; pointer-events: auto; }
         #skip-video-btn:hover { color: rgba(212,175,55,1); }
 
-        /* ── SCROLL INDICATOR ────────────────────────────────── */
         .scroll-indicator {
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
             opacity: 0; transition: opacity 1.2s ease; cursor: pointer; z-index: 20;
@@ -187,47 +119,34 @@
         .scroll-arrow { animation: fadeUpDown 2.5s ease-in-out infinite 0.3s; }
         @keyframes fadeUpDown { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(6px); opacity: 1; } }
 
-        /* ── MAIN CONTENT ────────────────────────────────────── */
+        /* ── MAIN CONTENT ── */
         #main-content { opacity: 0; transition: opacity 2.5s ease; position: relative; z-index: 20; }
         #main-content.visible { opacity: 1; }
 
-        /* ── HERO SECTION ────────────────────────────────────── */
-        .content-hero {
-            min-height: 100vh; display: flex; flex-direction: column; align-items: center;
-            justify-content: flex-end; padding-bottom: 10vh; position: relative;
-        }
-        .content-hero::before {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(to bottom, transparent 0%, rgba(5,5,5,0.3) 40%, rgba(5,5,5,0.85) 75%, var(--parchment) 100%); pointer-events: none;
-        }
+        .content-hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 10vh; position: relative; }
+        .content-hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 0%, rgba(5,5,5,0.3) 40%, rgba(5,5,5,0.85) 75%, var(--parchment) 100%); pointer-events: none; }
         .hero-text-block { position: relative; z-index: 2; text-align: center; padding: 0 24px; }
         .hero-roman { font-family: 'Cinzel', serif; font-size: clamp(0.6rem, 1.5vw, 0.8rem); letter-spacing: 0.6em; color: rgba(212,175,55,0.5); text-transform: uppercase; display: block; margin-bottom: 12px; }
         .hero-headline { font-family: 'Cinzel', serif; font-size: clamp(2.2rem, 6vw, 4.5rem); font-weight: 400; line-height: 1.15; letter-spacing: 0.1em; }
         .hero-headline .line-gold { display: block; }
         .hero-headline .line-white { display: block; color: rgba(255,255,255,0.9); font-size: 0.65em; letter-spacing: 0.35em; margin-top: 8px; font-weight: 400; }
 
-        /* ── BODY SECTIONS ───────────────────────────────────── */
         .body-section { background: var(--parchment); padding: 0 24px 120px; }
         .inner { max-width: 760px; margin: 0 auto; }
-
-        /* ── DIVIDER ─────────────────────────────────────────── */
         .divider-ornate { display: flex; align-items: center; gap: 20px; margin: 64px 0; }
         .divider-ornate .line { flex: 1; height: 1px; background: linear-gradient(to right, transparent, rgba(212,175,55,0.3)); }
         .divider-ornate .line.right { background: linear-gradient(to left, transparent, rgba(212,175,55,0.3)); }
         .divider-ornate .diamond { width: 6px; height: 6px; background: var(--gold); transform: rotate(45deg); flex-shrink: 0; opacity: 0.6; }
         .divider-ornate .center-kanji { font-family: 'Noto Serif JP', serif; font-size: 1rem; color: rgba(212,175,55,0.4); letter-spacing: 0.15em; flex-shrink: 0; }
 
-        /* ── CUERPO TEXTO ────────────────────────────────────── */
         .prose-block { text-align: center; }
         .prose-block .eyebrow { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.75rem; letter-spacing: 0.45em; text-transform: uppercase; color: rgba(212,175,55,0.5); display: block; margin-bottom: 28px; }
         .prose-block p { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.15rem, 2.2vw, 1.4rem); font-weight: 300; line-height: 1.9; color: rgba(210, 200, 185, 0.85); margin-bottom: 20px; }
         .prose-block p strong { font-weight: 400; color: rgba(244, 230, 195, 0.95); }
-
         .seal-wrap { position: relative; display: inline-block; margin: 48px 0 0; }
         .seal-svg { width: 80px; height: 80px; opacity: 0; transform: scale(0.6) rotate(-15deg); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .seal-svg.stamped { opacity: 1; transform: scale(1) rotate(-8deg); }
 
-        /* ── DETALLES DEL EVENTO ─────────────────────────────── */
         .event-details { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.15); margin: 64px 0; }
         @media (max-width: 600px) { .event-details { grid-template-columns: 1fr; } }
         .detail-cell { background: var(--parchment); padding: 40px 36px; position: relative; }
@@ -236,7 +155,6 @@
         .detail-cell .value-sub { font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; font-style: italic; color: rgba(212,175,55,0.6); display: block; }
         .detail-cell .kanji-accent { position: absolute; top: 20px; right: 24px; font-family: 'Noto Serif JP', serif; font-size: 1.6rem; color: rgba(212,175,55,0.07); line-height: 1; }
 
-        /* ── DRESS CODE ──────────────────────────────────────── */
         .dress-code-block { text-align: center; padding: 56px 0; }
         .dress-code-block .label { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.7rem; letter-spacing: 0.5em; text-transform: uppercase; color: rgba(212,175,55,0.45); display: block; margin-bottom: 20px; }
         .dress-code-block .name { font-family: 'Cinzel', serif; font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 400; letter-spacing: 0.12em; }
@@ -246,14 +164,12 @@
         .swatch-label { font-family: 'Cormorant Garamond', serif; font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(210,200,185,0.4); }
         .swatch-sep { width: 1px; height: 28px; background: rgba(212,175,55,0.2); }
 
-        /* ── CTA ─────────────────────────────────────────────── */
         .cta-section { text-align: center; padding: 32px 0 48px; position: relative; z-index: 10; }
         .confirm-btn { display: inline-block; position: relative; padding: 16px 52px; font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--ink); background: linear-gradient(105deg, #BF953F, #D4AF37, #F5E17A, #D4AF37, #BF953F); background-size: 200%; cursor: pointer; border: none; transition: background-position 0.7s ease, box-shadow 0.4s ease, transform 0.2s ease; background-position: left; }
         .confirm-btn:hover { background-position: right; box-shadow: 0 0 40px rgba(212,175,55,0.35), 0 0 80px rgba(212,175,55,0.1); }
         .confirm-btn:active { transform: scale(0.98); }
         .confirm-btn::after { content: ''; position: absolute; inset: -4px; border: 1px solid rgba(212,175,55,0.3); pointer-events: none; }
 
-        /* ── ENSO FOOTER ─────────────────────────────────────── */
         .enso-footer { display: flex; flex-direction: column; align-items: center; padding: 80px 0 64px; gap: 20px; }
         .enso-svg-container { position: relative; width: 140px; height: 140px; }
         .enso-path { stroke-dasharray: 900; stroke-dashoffset: 900; transition: stroke-dashoffset 3s ease; }
@@ -264,7 +180,7 @@
         .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.9s ease, transform 0.9s ease; }
         .reveal.visible { opacity: 1; transform: translateY(0); }
 
-        /* ── MODALS (CÓDIGOS DE INVITACIÓN) ──────────────────── */
+        /* ── MODALS (CÓDIGOS DE INVITACIÓN) ── */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(5, 5, 5, 0.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
             z-index: 200; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
@@ -283,7 +199,6 @@
             cursor: pointer; transition: color 0.3s; font-family: sans-serif; line-height: 1;
         }
         .modal-close:hover { color: var(--gold); }
-
         .modal-title { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--gold-light); letter-spacing: 0.15em; margin-bottom: 12px; }
         .modal-text { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.6; margin-bottom: 32px; }
         
@@ -295,8 +210,7 @@
         }
         .code-input:focus { border-bottom-color: var(--gold); box-shadow: 0 10px 10px -10px rgba(212,175,55,0.4); }
         .code-input::placeholder { color: rgba(255,255,255,0.15); font-size: 0.9rem; letter-spacing: 0.1em; }
-        
-        .code-error { color: #8B1A2A; font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; margin-top: 8px; opacity: 0; transition: opacity 0.3s; font-style: italic; }
+        .code-error { color: #8B1A2A; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; margin-top: 8px; opacity: 0; transition: opacity 0.3s; font-style: italic; }
 
         .btn-outline {
             border: 1px solid rgba(212, 175, 55, 0.5); color: rgba(212, 175, 55, 0.9); padding: 12px 32px;
@@ -314,71 +228,37 @@
         #personal-message::-webkit-scrollbar-track { background: rgba(212,175,55,0.05); }
         #personal-message::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.4); border-radius: 2px; }
 
-        /* ── MODAL BOLETO / TICKET IMPRESO ──────────────────── */
+        /* ── MODAL BOLETO IMPRESO ── */
         .ticket-wrapper {
-            background: var(--ink);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            padding: 32px 24px;
-            max-width: 440px;
-            width: 95%;
-            text-align: center;
-            position: relative;
-            transform: scale(0.95);
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 80px rgba(212,175,55,0.05);
+            background: var(--ink); border: 1px solid rgba(212, 175, 55, 0.3); padding: 32px 24px;
+            max-width: 440px; width: 95%; text-align: center; position: relative; transform: scale(0.95);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 80px rgba(212,175,55,0.05);
         }
         .modal-overlay.active .ticket-wrapper { transform: scale(1); }
-
-        /* Contenedor que agrupa la imagen y el texto sobrepuesto */
         .ticket-card {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1 / 1; /* Obliga a que siempre sea cuadrado (como tu imagen) para que no colapse */
-            border-radius: 2px;
-            overflow: hidden;
-            margin-bottom: 24px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-            background-color: #050505;
+            position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 2px; overflow: hidden;
+            margin-bottom: 24px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); background-color: #050505;
         }
-        .ticket-card img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            z-index: 1;
-        }
-        
-        /* Capa de texto sobrepuesta en la parte inferior de la imagen */
-        .ticket-overlay {
-            position: absolute;
-            bottom: 4%; 
-            left: 0;
-            width: 100%;
-            padding: 0 16px;
-            text-align: center;
-            z-index: 2;
-        }
-        
-        .ticket-guest-name {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(1.2rem, 5vw, 1.5rem);
-            color: var(--gold-light);
-            letter-spacing: 0.1em;
-            line-height: 1.2;
-            margin-bottom: 8px;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.9);
-        }
-        
-        .ticket-table-num {
-            font-family: 'Cinzel', serif;
-            font-size: 0.95rem;
-            color: #ffffff;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+        .ticket-card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1; }
+        .ticket-overlay { position: absolute; bottom: 4%; left: 0; width: 100%; padding: 0 16px; text-align: center; z-index: 2; }
+        .ticket-guest-name { font-family: 'Cinzel', serif; font-size: clamp(1.2rem, 5vw, 1.5rem); color: var(--gold-light); letter-spacing: 0.1em; line-height: 1.2; margin-bottom: 8px; text-shadow: 0 2px 6px rgba(0,0,0,0.9); }
+        .ticket-table-num { font-family: 'Cinzel', serif; font-size: 0.95rem; color: #ffffff; letter-spacing: 0.3em; text-transform: uppercase; text-shadow: 0 2px 6px rgba(0,0,0,0.9); }
+
+        /* ── MODAL ADMIN & IMPRESIÓN ── */
+        .admin-table { width: 100%; border-collapse: collapse; text-align: left; font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; }
+        .admin-table th { border-bottom: 1px solid var(--gold); padding: 12px 8px; color: var(--gold-light); text-transform: uppercase; letter-spacing: 0.1em; font-family: 'Cinzel', serif; font-size: 0.8rem;}
+        .admin-table td { padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .btn-delete { background: none; border: 1px solid var(--red-seal); color: var(--red-seal); cursor: pointer; padding: 4px 8px; border-radius: 2px; transition: all 0.2s; font-family: 'Cinzel', serif; font-size: 0.7rem; text-transform: uppercase;}
+        .btn-delete:hover { background: var(--red-seal); color: white; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #modal-admin, #modal-admin * { visibility: visible; }
+            #modal-admin { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white !important; color: black !important; }
+            .modal-box { border: none !important; box-shadow: none !important; width: 100% !important; max-width: none !important; padding: 0 !important; background: white !important; }
+            .btn-outline, .btn-delete, .modal-close { display: none !important; }
+            .admin-table th, .admin-table td { border-bottom: 1px solid #ccc !important; color: black !important; }
+            .admin-table th { color: black !important; font-weight: bold; }
         }
 
         ::-webkit-scrollbar { width: 4px; }
@@ -391,6 +271,9 @@
 <body>
 
     <canvas id="particle-canvas"></canvas>
+
+    <!-- Botón Invisible para Administrador -->
+    <div onclick="window.openAdminLogin()" style="position: fixed; top: 0; right: 0; width: 80px; height: 80px; z-index: 9999; cursor: default;"></div>
 
     <!-- ── INTRO OVERLAY ── -->
     <div id="intro-overlay">
@@ -469,7 +352,7 @@
                 </div>
 
                 <div class="cta-section reveal">
-                    <button id="main-confirm-btn" class="confirm-btn" onclick="openCodeModal()">Confirmar Asistencia</button>
+                    <button id="main-confirm-btn" class="confirm-btn" onclick="window.openCodeModal()">Confirmar Asistencia</button>
                     <p style="margin-top:18px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.35); letter-spacing:0.2em;">Aforos limitados · Respuesta antes del 14 de noviembre</p>
                 </div>
 
@@ -491,7 +374,7 @@
     <!-- ── MODAL 1: PEDIR CÓDIGO ── -->
     <div id="modal-code" class="modal-overlay">
         <div class="modal-box">
-            <span class="modal-close" onclick="closeModals()">×</span>
+            <span class="modal-close" onclick="window.closeModals()">×</span>
             <div style="font-family:'Noto Serif JP',serif; color:var(--red-seal); font-size:2rem; margin-bottom:8px;">招待</div>
             <h3 class="modal-title">Llave de Acceso</h3>
             <p class="modal-text">Por favor, ingresa el código personal que te ha sido otorgado por tu anfitrión.</p>
@@ -499,30 +382,30 @@
                 <input type="text" id="invite-code-input" class="code-input" placeholder="INGRESA TU CÓDIGO" autocomplete="off" spellcheck="false">
                 <div id="code-error" class="code-error">Código no reconocido. Intenta nuevamente.</div>
             </div>
-            <button class="btn-outline" onclick="validateCode()">Validar Código</button>
+            <button class="btn-outline" onclick="window.validateCode()">Validar Código</button>
         </div>
     </div>
 
     <!-- ── MODAL 2: MENSAJE (CARTA) ── -->
     <div id="modal-message" class="modal-overlay">
         <div class="modal-box" style="max-width: 520px; padding-top: 56px;">
-            <span class="modal-close" onclick="closeModals()">×</span>
+            <span class="modal-close" onclick="window.closeModals()">×</span>
             <div id="personal-message"></div>
-            <button class="btn-outline" style="background:var(--gold); color:var(--ink); font-weight:bold; border:none; margin-top: auto;" onclick="handleMessageAccept()">Aceptar Invitación</button>
+            <button id="btn-accept-invite" class="btn-outline" style="background:var(--gold); color:var(--ink); font-weight:bold; border:none; margin-top: auto;" onclick="window.handleMessageAccept()">Aceptar Invitación</button>
         </div>
     </div>
 
     <!-- ── MODAL 3: PEDIR NOMBRE (Solo para invitados generales) ── -->
     <div id="modal-name" class="modal-overlay">
         <div class="modal-box">
-            <span class="modal-close" onclick="closeModals()">×</span>
+            <span class="modal-close" onclick="window.closeModals()">×</span>
             <h3 class="modal-title" style="font-size:1.1rem; margin-bottom: 24px;">Creando tu Pase de Acceso</h3>
             <p class="modal-text" style="font-size: 0.95rem; margin-bottom: 24px;">Por favor, ingresa tu <strong>nombre y apellido</strong> tal como deseas que aparezca en tu pase de entrada.</p>
             <div class="code-input-wrap">
                 <input type="text" id="guest-name-input" class="code-input" placeholder="JUAN PÉREZ" autocomplete="off" spellcheck="false" style="font-family: 'Cormorant Garamond', serif; letter-spacing: 0.1em; font-weight: bold;">
                 <div id="name-error" class="code-error">Por favor ingresa tu nombre para continuar.</div>
             </div>
-            <button class="btn-outline" onclick="generateStandardTicket()">Confirmar y Generar Pase</button>
+            <button id="btn-generate-ticket" class="btn-outline" onclick="window.generateStandardTicket()">Confirmar y Generar Pase</button>
         </div>
     </div>
 
@@ -532,12 +415,9 @@
             <h3 class="modal-title" style="margin-bottom: 8px; font-size: 1.2rem;">Confirmación Exitosa</h3>
             <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.85rem; color:rgba(212,175,55,0.7); margin-bottom: 24px; letter-spacing: 0.05em;">Guarda tu pase para el día del evento</p>
             
-            <!-- TARJETA DEL BOLETO CON IMAGEN DE FONDO -->
             <div class="ticket-card" id="ticket-card-capture">
-                <!-- Eliminamos atributos que bloqueaban la imagen -->
-                <img src="enso.png" alt="Pase Ensō">
-                
-                <!-- El texto se imprime encima del espacio libre de la imagen -->
+                <!-- Se corrigió el nombre de archivo a tu original enso.png -->
+                <img src="enso.png" alt="Pase Ensō" crossorigin="anonymous">
                 <div class="ticket-overlay">
                     <div id="ticket-guest-name" class="ticket-guest-name">Nombre del Invitado</div>
                     <div id="ticket-table-num" class="ticket-table-num">Mesa X</div>
@@ -545,296 +425,374 @@
             </div>
             
             <div style="display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%;">
-                <button id="btn-download" class="btn-outline" style="background: rgba(212,175,55,0.1); border-color: var(--gold-light); color: var(--gold-light); width: 80%;" onclick="downloadTicket()">↓ Descargar Imagen</button>
-                <button class="btn-outline" style="border: none; background: transparent; padding: 8px; color: rgba(212,175,55,0.6);" onclick="finalizeRSVP()">Finalizar y Cerrar</button>
+                <button id="btn-download" class="btn-outline" style="background: rgba(212,175,55,0.1); border-color: var(--gold-light); color: var(--gold-light); width: 80%;" onclick="window.downloadTicket()">↓ Descargar Imagen</button>
+                <button class="btn-outline" style="border: none; background: transparent; padding: 8px; color: rgba(212,175,55,0.6);" onclick="window.finalizeRSVP()">Finalizar y Cerrar</button>
             </div>
         </div>
     </div>
 
-    <script>
-    // ── BASE DE DATOS JS ──────────────────────────────────────
-    const database = {
-        // --- INVITADOS ESPECIALES (VIPs) ---
-        "VENTURA2022": {
-            type: "special",
-            name: "Chef Ventura",
-            fullName: "Jose Ventura Huerta Gonzalez",
-            table: 1,
-            text: "Querido Chef Ventura:<br><br>Antes de aprender recetas, aprendimos de usted. Antes de servir un plato, fue usted quien nos enseñó a respetar el fuego, el cuchillo y el oficio que cambiaría nuestras vidas.<br><br>Han pasado cuatro años y medio desde aquella primera clase, pero nunca olvidamos quién encendió la primera llama. Hoy, al llegar al final de este camino, queremos pedirle el honor de acompañarnos una vez más. Porque esta historia comenzó frente a usted, y no podríamos cerrar el círculo sin la presencia de quien nos enseñó a dar el primer paso.<br><br>Con profunda gratitud y cariño, sus alumnos de D5 Gastronomía."
-        },
-        "MARTHA3032": {
-            type: "special",
-            name: "Chef Martha",
-            fullName: "Martha Jazmín Acero Garcia",
-            table: 1,
-            text: "Querida Chef Martha:<br><br>A lo largo de estos cuatro años y medio compartimos mucho más que clases, cocinas y proyectos. Compartimos aprendizajes, desafíos, sonrisas, nervios y también momentos difíciles que marcaron nuestro camino.<br><br>Gracias por su paciencia, por su tiempo, por acompañarnos en tantas materias y proyectos integradores, y por enseñarnos siempre con el corazón. Gracias por permitirnos conocer no solo a la chef, sino también a la persona, a la madre y a la mujer que enfrentó cada etapa con fortaleza y generosidad.<br><br>Nos quedará para siempre el recuerdo de los hornos encendidos, el aroma de los postres recién horneados, las risas compartidas y las conversaciones que hicieron de esta experiencia algo mucho más grande que una carrera.<br><br>Hoy llegamos al final de un camino que usted ayudó a construir día con día. Por eso, nos haría profundamente feliz contar con su presencia mientras cerramos el círculo que juntos comenzamos a trazar hace cuatro años y medio."
-        },
+    <!-- ── MODAL 5: ADMIN LOGIN ── -->
+    <div id="modal-admin-login" class="modal-overlay">
+        <div class="modal-box">
+            <span class="modal-close" onclick="window.closeModals()">×</span>
+            <h3 class="modal-title">Seguridad</h3>
+            <p class="modal-text">Ingresa la clave de administrador.</p>
+            <div class="code-input-wrap">
+                <input type="password" id="admin-pass-input" class="code-input" autocomplete="off" style="letter-spacing: 0.5em;">
+                <div id="admin-error" class="code-error">Clave incorrecta.</div>
+            </div>
+            <button class="btn-outline" onclick="window.verifyAdmin()">Acceder</button>
+        </div>
+    </div>
 
-        // --- ALUMNOS (Distribución) ---
-        "ARON26":       { type: "standard", name: "Aron Rafael Bañuelos Cortez", table: 2 },
-        "BRANDON26":    { type: "standard", name: "Brandon Jaramillo Rosas", table: 8 },
-        "CARLOS26":     { type: "standard", name: "Carlos Isac Luna", table: 5 },
-        "CRISTHIAN26":  { type: "standard", name: "Cristhian Iván López Ponce", table: 6 },
-        "DANIELA26":    { type: "standard", name: "Daniela Rivera Carrillo", table: 9 },
-        "DAVID26":      { type: "standard", name: "David Villagrana Ibarra", table: 10 },
-        "DIEGO26":      { type: "standard", name: "Diego De La Rosa Torres", table: 11 },
-        "FATIMA26":     { type: "standard", name: "Fátima Lizbeth Gómez Flores", table: 3 },
-        "FERNANDO26":   { type: "standard", name: "Fernando Rincon Mendiola", table: 12 },
-        "FRANCISCO26":  { type: "standard", name: "Francisco Sepulveda Paredes", table: 5 },
-        "GERARDO26":    { type: "standard", name: "Gerardo Tovar Estrada", table: 8 },
-        "GISELLE26":    { type: "standard", name: "Giselle Fabiola Jiménez Silva", table: 4 },
-        "GLORIA26":     { type: "standard", name: "Gloria Estefanía Barraza Taracena", table: 3 },
-        "HEIDI26":      { type: "standard", name: "Heidi Gisela Castillo Ramírez", table: 2 },
-        "IVAN26":       { type: "standard", name: "Iván Salinas Rosales", table: 6 },
-        "JULIETA26":    { type: "standard", name: "Julieta Esmeralda Hernández", table: 13 },
-        "KESTIN26":     { type: "standard", name: "Kestin Yaletzi Gutiérrez Álvarez", table: 4 },
-        "LEONEL26":     { type: "standard", name: "Leonel Aldair Arroyo Soria", table: 9 },
-        "LUIS26":       { type: "standard", name: "Luis Armando Santiago Gonzalez", table: 11 },
-        "MARTIN26":     { type: "standard", name: "Martin Enrique Márquez Abascal", table: 13 },
-        "NAZBITH26":    { type: "standard", name: "Nazbith Adilene Fletes Guardado", table: 12 },
-        "ZULLY26":      { type: "standard", name: "Zully Adolfo Gonzalez Hernández", table: 10 }
-    };
+    <!-- ── MODAL 6: ADMIN DASHBOARD ── -->
+    <div id="modal-admin" class="modal-overlay">
+        <div class="modal-box" style="max-width: 800px; padding: 32px;">
+            <span class="modal-close" onclick="window.closeModals()">×</span>
+            <h3 class="modal-title" style="margin-bottom: 24px;">Panel de Control</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <p class="modal-text" style="margin:0; text-align:left;">Total confirmados: <strong style="color:var(--gold-light);" id="admin-total">0</strong></p>
+                <button class="btn-outline" style="padding: 8px 16px;" onclick="window.print()">🖨️ Imprimir Lista</button>
+            </div>
+            <div style="max-height: 50vh; overflow-y:auto; border: 1px solid rgba(212,175,55,0.2);">
+                <table class="admin-table">
+                    <thead style="position: sticky; top: 0; background: var(--parchment);">
+                        <tr><th>Invitado</th><th>Mesa</th><th>Anfitrión</th><th>Acción</th></tr>
+                    </thead>
+                    <tbody id="admin-table-body">
+                        <!-- Llenado automático con Firebase -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-    // ── LÓGICA DE MODALES Y TICKETS ───────────────────────────
-    let currentValidData = null; // Guardará temporalmente los datos de quien ingrese
+    <!-- ── FIREBASE & LÓGICA PRINCIPAL ── -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const modalCode = document.getElementById('modal-code');
-    const modalMessage = document.getElementById('modal-message');
-    const modalName = document.getElementById('modal-name');
-    const modalTicket = document.getElementById('modal-ticket');
-    
-    const codeInput = document.getElementById('invite-code-input');
-    const guestNameInput = document.getElementById('guest-name-input');
-    const errorText = document.getElementById('code-error');
-    const nameErrorText = document.getElementById('name-error');
+        // ============================================================================
+        // CONFIGURACIÓN OFICIAL DE FIREBASE PARA ENSŌ GALA 2026
+        // ============================================================================
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyAd_rViRrwdsigVaJNJO82nvVpGzywQT30",
+            authDomain: "enso-gala-2026.firebaseapp.com",
+            projectId: "enso-gala-2026",
+            storageBucket: "enso-gala-2026.firebasestorage.app",
+            messagingSenderId: "413676120292",
+            appId: "1:413676120292:web:b052eb281e1c32553de4f1"
+        };
 
-    function openCodeModal() {
-        modalCode.classList.add('active');
-        codeInput.value = '';
-        errorText.style.opacity = '0';
-        codeInput.focus();
-    }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'enso-uatyg-gala';
 
-    function closeModals() {
-        document.querySelectorAll('.modal-overlay').forEach(modal => modal.classList.remove('active'));
-    }
-
-    // Paso 1: Validar código ingresado
-    function validateCode() {
-        const code = codeInput.value.trim().toUpperCase();
-        currentValidData = database[code];
-
-        if (currentValidData) {
-            errorText.style.opacity = '0';
-            modalCode.classList.remove('active');
-            
-            const messageContainer = document.getElementById('personal-message');
-
-            if (currentValidData.type === 'standard') {
-                messageContainer.innerHTML = `
-                    "Yo, <strong style="color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;">${currentValidData.name}</strong>, tengo el honor de invitarte a mi último proyecto integrador. <br><br>
-                    Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."
-                `;
-            } else if (currentValidData.type === 'special') {
-                messageContainer.innerHTML = `"${currentValidData.text}"`;
+        // Autenticación Silenciosa
+        const initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
             }
+        };
+        initAuth();
 
-            setTimeout(() => modalMessage.classList.add('active'), 400);
+        let allConfirmations = [];
+        let unsubscribe = null;
 
-        } else {
-            errorText.style.opacity = '1';
-            codeInput.focus();
-        }
-    }
-
-    // Permitir "Enter" en los inputs
-    codeInput.addEventListener("keypress", (e) => { if (e.key === "Enter") { e.preventDefault(); validateCode(); } });
-    guestNameInput.addEventListener("keypress", (e) => { if (e.key === "Enter") { e.preventDefault(); generateStandardTicket(); } });
-
-    // Paso 2: Acción al dar "Aceptar Invitación" en la carta
-    function handleMessageAccept() {
-        modalMessage.classList.remove('active');
-
-        if (currentValidData.type === 'special') {
-            // Es VIP: Conocemos su nombre, saltamos directo al Ticket
-            setTimeout(() => {
-                showTicket(currentValidData.fullName, currentValidData.table);
-            }, 400);
-        } else {
-            // Es invitado general: No sabemos su nombre, debemos preguntarlo
-            setTimeout(() => {
-                guestNameInput.value = '';
-                nameErrorText.style.opacity = '0';
-                modalName.classList.add('active');
-                guestNameInput.focus();
-            }, 400);
-        }
-    }
-
-    // Paso 3: Generar ticket para invitado general (tras escribir su nombre)
-    function generateStandardTicket() {
-        const guestName = guestNameInput.value.trim().toUpperCase();
-        if (guestName === "") {
-            nameErrorText.style.opacity = '1';
-            guestNameInput.focus();
-            return;
-        }
-        
-        nameErrorText.style.opacity = '0';
-        modalName.classList.remove('active');
-        
-        // Mostrar el ticket usando la mesa del alumno que lo invitó
-        setTimeout(() => {
-            showTicket(guestName, currentValidData.table);
-        }, 400);
-    }
-
-    // Paso 4: Mostrar la pantalla final del Ticket (Impreso en la imagen)
-    function showTicket(nameToDisplay, tableNum) {
-        document.getElementById('ticket-guest-name').innerText = nameToDisplay;
-        document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
-        
-        modalTicket.classList.add('active');
-    }
-
-    // Paso 4.5: Descargar Ticket como imagen
-    function downloadTicket() {
-        const btn = document.getElementById('btn-download');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = 'Generando...';
-        btn.disabled = true;
-
-        const ticketCard = document.getElementById('ticket-card-capture');
-        
-        // Convertimos el HTML de la tarjeta a una imagen
-        html2canvas(ticketCard, { 
-            scale: 3, // Alta calidad para que no se pixele al hacer zoom
-            useCORS: true, // Permite cargar la imagen desde GitHub Pages sin bloqueos
-            backgroundColor: "#050505"
-        }).then(canvas => {
-            // Crear un enlace temporal para forzar la descarga
-            const link = document.createElement('a');
-            link.download = 'Pase_Enso_Gala.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+        // Escuchar Firebase en vivo
+        onAuthStateChanged(auth, (user) => {
+            if (!user) return;
+            const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
             
-            // Retroalimentación visual en el botón
-            btn.innerHTML = '¡Descargado!';
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }, 2500);
-        }).catch(err => {
-            console.error("Error al generar imagen:", err);
-            btn.innerHTML = 'Error al descargar';
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }, 2500);
-        });
-    }
-
-    // Paso 5: Cerrar todo y marcar como "Confirmado" en la web
-    function finalizeRSVP() {
-        closeModals();
-        
-        const btn = document.getElementById('main-confirm-btn');
-        btn.textContent = '✓  Confirmado';
-        btn.style.background = 'linear-gradient(105deg, #2a1a00, #3a2400, #4a3000)';
-        btn.style.color = '#D4AF37';
-        btn.style.letterSpacing = '0.3em';
-        btn.style.cursor = 'default';
-        btn.onclick = null;
-        btn.style.boxShadow = '0 0 30px rgba(212,175,55,0.15)';
-    }
-
-    // ── ANIMACIONES GENERALES ─────────────────────────────────
-    function initParticles() {
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-        let W = window.innerWidth, H = window.innerHeight;
-        canvas.width = W; canvas.height = H;
-
-        window.addEventListener('resize', () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; });
-
-        const particles = Array.from({ length: 45 }, () => ({
-            x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.2 + 0.3,
-            a: Math.random() * Math.PI * 2, speed: Math.random() * 0.18 + 0.06,
-            opacity: Math.random() * 0.25 + 0.05, drift: (Math.random() - 0.5) * 0.3,
-        }));
-
-        function draw() {
-            ctx.clearRect(0, 0, W, H);
-            particles.forEach(p => {
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(212,175,55,${p.opacity})`; ctx.fill();
-                p.y -= p.speed; p.x += p.drift;
-                if (p.y < -4) { p.y = H + 4; p.x = Math.random() * W; }
-            });
-            requestAnimationFrame(draw);
-        }
-        draw();
-    }
-
-    const btnEnter          = document.getElementById('btn-enter');
-    const introOverlay      = document.getElementById('intro-overlay');
-    const loadingText       = document.getElementById('loading-text');
-    const cinematicContainer= document.getElementById('cinematic-container');
-    const heroVideo         = document.getElementById('hero-video');
-    const scrollIndicator   = document.getElementById('scroll-down');
-    const mainContent       = document.getElementById('main-content');
-    const particleCanvas    = document.getElementById('particle-canvas');
-
-    window.addEventListener('load', () => {
-        setTimeout(() => { document.getElementById('intro-line-top').classList.add('grow'); document.getElementById('intro-line-bot').classList.add('grow'); }, 300);
-        setTimeout(() => { document.getElementById('intro-title').classList.add('show'); document.getElementById('intro-subtitle').classList.add('show'); }, 600);
-    });
-
-    let videoYaFinalizado = false;
-
-    btnEnter.addEventListener('click', () => {
-        btnEnter.disabled = true; btnEnter.style.opacity = '0'; loadingText.style.opacity = '1'; introOverlay.style.opacity = '0';
-
-        setTimeout(() => {
-            introOverlay.style.display = 'none'; cinematicContainer.classList.add('play');
-            document.getElementById('skip-video-btn').classList.add('show');
-            
-            let isVideoPlaying = false;
-            const playPromise = heroVideo.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => { isVideoPlaying = true; }).catch(() => { if (!videoYaFinalizado) finalizarVideo(); });
-            }
-            setTimeout(() => { if (!isVideoPlaying && !videoYaFinalizado) finalizarVideo(); }, 2500);
-        }, 1800);
-    });
-
-    document.getElementById('skip-video-btn').addEventListener('click', () => { if (!videoYaFinalizado) finalizarVideo(); });
-    heroVideo.addEventListener('ended', () => { if (!videoYaFinalizado) finalizarVideo(); });
-
-    function finalizarVideo() {
-        videoYaFinalizado = true; 
-        document.getElementById('skip-video-btn').classList.remove('show');
-        heroVideo.pause();
-        scrollIndicator.classList.add('show'); mainContent.classList.add('visible'); document.body.style.overflowY = 'auto';
-        initParticles(); particleCanvas.classList.add('visible');
-        setTimeout(() => triggerReveal(), 400);
-    }
-
-    scrollIndicator.addEventListener('click', () => { window.scrollTo({ top: window.innerHeight, behavior: 'smooth' }); });
-
-    function triggerReveal() {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    if (entry.target.classList.contains('prose-block')) setTimeout(() => { document.getElementById('seal').classList.add('stamped'); }, 700);
-                    if (entry.target.classList.contains('enso-footer')) setTimeout(() => { document.getElementById('enso-stroke').classList.add('draw'); }, 300);
-                    observer.unobserve(entry.target);
+            unsubscribe = onSnapshot(colRef, (snapshot) => {
+                allConfirmations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (document.getElementById('modal-admin').classList.contains('active')) {
+                    window.renderAdminTable();
                 }
+            }, (err) => console.error("Error Firebase:", err));
+        });
+
+        // ── BASE DE DATOS (Códigos) ──
+        const database = {
+            "VENTURA2022": { type: "special", name: "Chef Ventura", fullName: "Jose Ventura Huerta Gonzalez", table: 1, text: "Querido Chef Ventura:<br><br>Antes de aprender recetas, aprendimos de usted. Antes de servir un plato, fue usted quien nos enseñó a respetar el fuego, el cuchillo y el oficio que cambiaría nuestras vidas.<br><br>Han pasado cuatro años y medio desde aquella primera clase, pero nunca olvidamos quién encendió la primera llama. Hoy, al llegar al final de este camino, queremos pedirle el honor de acompañarnos una vez más. Porque esta historia comenzó frente a usted, y no podríamos cerrar el círculo sin la presencia de quien nos enseñó a dar el primer paso.<br><br>Con profunda gratitud y cariño, sus alumnos de D5 Gastronomía." },
+            "MARTHA3032": { type: "special", name: "Chef Martha", fullName: "Martha Jazmín Acero Garcia", table: 1, text: "Querida Chef Martha:<br><br>A lo largo de estos cuatro años y medio compartimos mucho más que clases, cocinas y proyectos. Compartimos aprendizajes, desafíos, sonrisas, nervios y también momentos difíciles que marcaron nuestro camino.<br><br>Gracias por su paciencia, por su tiempo, por acompañarnos en tantas materias y proyectos integradores, y por enseñarnos siempre con el corazón. Gracias por permitirnos conocer no solo a la chef, sino también a la persona, a la madre y a la mujer que enfrentó cada etapa con fortaleza y generosidad.<br><br>Nos quedará para siempre el recuerdo de los hornos encendidos, el aroma de los postres recién horneados, las risas compartidas y las conversaciones que hicieron de esta experiencia algo mucho más grande que una carrera.<br><br>Hoy llegamos al final de un camino que usted ayudó a construir día con día. Por eso, nos haría profundamente feliz contar con su presencia mientras cerramos el círculo que juntos comenzamos a trazar hace cuatro años y medio." },
+            "ARON26":       { type: "standard", name: "Aron Rafael Bañuelos Cortez", table: 2 },
+            "BRANDON26":    { type: "standard", name: "Brandon Jaramillo Rosas", table: 8 },
+            "CARLOS26":     { type: "standard", name: "Carlos Isac Luna", table: 5 },
+            "CRISTHIAN26":  { type: "standard", name: "Cristhian Iván López Ponce", table: 6 },
+            "DANIELA26":    { type: "standard", name: "Daniela Rivera Carrillo", table: 9 },
+            "DAVID26":      { type: "standard", name: "David Villagrana Ibarra", table: 10 },
+            "DIEGO26":      { type: "standard", name: "Diego De La Rosa Torres", table: 11 },
+            "FATIMA26":     { type: "standard", name: "Fátima Lizbeth Gómez Flores", table: 3 },
+            "FERNANDO26":   { type: "standard", name: "Fernando Rincon Mendiola", table: 12 },
+            "FRANCISCO26":  { type: "standard", name: "Francisco Sepulveda Paredes", table: 5 },
+            "GERARDO26":    { type: "standard", name: "Gerardo Tovar Estrada", table: 8 },
+            "GISELLE26":    { type: "standard", name: "Giselle Fabiola Jiménez Silva", table: 4 },
+            "GLORIA26":     { type: "standard", name: "Gloria Estefanía Barraza Taracena", table: 3 },
+            "HEIDI26":      { type: "standard", name: "Heidi Gisela Castillo Ramírez", table: 2 },
+            "IVAN26":       { type: "standard", name: "Iván Salinas Rosales", table: 6 },
+            "JULIETA26":    { type: "standard", name: "Julieta Esmeralda Hernández", table: 13 },
+            "KESTIN26":     { type: "standard", name: "Kestin Yaletzi Gutiérrez Álvarez", table: 4 },
+            "LEONEL26":     { type: "standard", name: "Leonel Aldair Arroyo Soria", table: 9 },
+            "LUIS26":       { type: "standard", name: "Luis Armando Santiago Gonzalez", table: 11 },
+            "MARTIN26":     { type: "standard", name: "Martin Enrique Márquez Abascal", table: 13 },
+            "NAZBITH26":    { type: "standard", name: "Nazbith Adilene Fletes Guardado", table: 12 },
+            "ZULLY26":      { type: "standard", name: "Zully Adolfo Gonzalez Hernández", table: 10 }
+        };
+
+        let currentValidData = null; 
+        let currentValidDataCode = "";
+
+        const codeInput = document.getElementById('invite-code-input');
+        const guestNameInput = document.getElementById('guest-name-input');
+        const adminPassInput = document.getElementById('admin-pass-input');
+        const errorText = document.getElementById('code-error');
+        const nameErrorText = document.getElementById('name-error');
+
+        window.openCodeModal = function() {
+            document.getElementById('modal-code').classList.add('active');
+            codeInput.value = ''; errorText.style.opacity = '0'; codeInput.focus();
+        };
+
+        window.closeModals = function() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        };
+
+        // 1. Validar Código (y Aforo para Estudiantes)
+        window.validateCode = function() {
+            currentValidDataCode = codeInput.value.trim().toUpperCase();
+            currentValidData = database[currentValidDataCode];
+
+            if (currentValidData) {
+                // Validación de Aforo (Límite 4)
+                if (currentValidData.type === 'standard') {
+                    const count = allConfirmations.filter(c => c.hostCode === currentValidDataCode).length;
+                    if (count >= 4) {
+                        errorText.innerText = "Este anfitrión ya ha completado su aforo máximo de 4 invitados.";
+                        errorText.style.opacity = '1';
+                        return; // Se detiene aquí, no avanza
+                    }
+                }
+
+                errorText.style.opacity = '0';
+                document.getElementById('modal-code').classList.remove('active');
+                
+                const messageContainer = document.getElementById('personal-message');
+                if (currentValidData.type === 'standard') {
+                    messageContainer.innerHTML = `"Yo, <strong style="color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;">${currentValidData.name}</strong>, tengo el honor de invitarte a mi último proyecto integrador. <br><br>Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."`;
+                } else if (currentValidData.type === 'special') {
+                    messageContainer.innerHTML = `"${currentValidData.text}"`;
+                }
+                setTimeout(() => document.getElementById('modal-message').classList.add('active'), 400);
+            } else {
+                errorText.innerText = "Código no reconocido. Intenta nuevamente.";
+                errorText.style.opacity = '1';
+                codeInput.focus();
+            }
+        };
+
+        // 2. Aceptar Invitación
+        window.handleMessageAccept = async function() {
+            const btnAccept = document.getElementById('btn-accept-invite');
+            btnAccept.disabled = true; btnAccept.innerText = "Registrando...";
+
+            if (currentValidData.type === 'special') {
+                const exists = allConfirmations.find(c => c.hostCode === currentValidDataCode);
+                if (!exists) {
+                    try {
+                        const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
+                        await addDoc(colRef, {
+                            guestName: currentValidData.fullName, hostCode: currentValidDataCode,
+                            hostName: "Invitado VIP", table: currentValidData.table, timestamp: new Date().toISOString()
+                        });
+                    } catch(e) { console.error(e); }
+                }
+                document.getElementById('modal-message').classList.remove('active');
+                setTimeout(() => showTicket(currentValidData.fullName, currentValidData.table), 400);
+            } else {
+                document.getElementById('modal-message').classList.remove('active');
+                setTimeout(() => {
+                    guestNameInput.value = ''; nameErrorText.style.opacity = '0';
+                    document.getElementById('modal-name').classList.add('active'); guestNameInput.focus();
+                }, 400);
+            }
+            btnAccept.disabled = false; btnAccept.innerText = "Aceptar Invitación";
+        };
+
+        // 3. Generar Pase Estándar
+        window.generateStandardTicket = async function() {
+            const guestName = guestNameInput.value.trim().toUpperCase();
+            if (guestName === "") {
+                nameErrorText.innerText = "Por favor ingresa tu nombre para continuar.";
+                nameErrorText.style.opacity = '1'; guestNameInput.focus(); return;
+            }
+
+            const btnGen = document.getElementById('btn-generate-ticket');
+            btnGen.disabled = true; btnGen.innerText = "Verificando...";
+
+            // Doble chequeo de aforo por si se llenó mientras escribía el nombre
+            const count = allConfirmations.filter(c => c.hostCode === currentValidDataCode).length;
+            if (count >= 4) {
+                nameErrorText.innerText = "Lo sentimos, el aforo de este anfitrión se acaba de completar.";
+                nameErrorText.style.opacity = '1';
+                btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
+                return;
+            }
+
+            try {
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
+                await addDoc(colRef, {
+                    guestName: guestName, hostCode: currentValidDataCode, hostName: currentValidData.name,
+                    table: currentValidData.table, timestamp: new Date().toISOString()
+                });
+                nameErrorText.style.opacity = '0';
+                document.getElementById('modal-name').classList.remove('active');
+                setTimeout(() => showTicket(guestName, currentValidData.table), 400);
+            } catch(e) {
+                console.error(e);
+                nameErrorText.innerText = "Error de conexión. Intenta nuevamente.";
+                nameErrorText.style.opacity = '1';
+            }
+            btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
+        };
+
+        // 4. Pantalla de Ticket
+        function showTicket(nameToDisplay, tableNum) {
+            document.getElementById('ticket-guest-name').innerText = nameToDisplay;
+            document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
+            document.getElementById('modal-ticket').classList.add('active');
+        }
+
+        window.downloadTicket = function() {
+            const btn = document.getElementById('btn-download');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Generando...'; btn.disabled = true;
+            html2canvas(document.getElementById('ticket-card-capture'), { scale: 3, useCORS: true, backgroundColor: "#050505" })
+            .then(canvas => {
+                const link = document.createElement('a'); link.download = 'Pase_Enso_Gala.png';
+                link.href = canvas.toDataURL('image/png'); link.click();
+                btn.innerHTML = '¡Descargado!';
+                setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
+            }).catch(err => {
+                btn.innerHTML = 'Error'; setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
             });
-        }, { threshold: 0.15 });
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    }
+        };
+
+        window.finalizeRSVP = function() {
+            window.closeModals();
+            const btn = document.getElementById('main-confirm-btn');
+            btn.textContent = '✓  Confirmado'; btn.style.background = 'linear-gradient(105deg, #2a1a00, #3a2400, #4a3000)';
+            btn.style.color = '#D4AF37'; btn.style.letterSpacing = '0.3em'; btn.style.cursor = 'default';
+            btn.onclick = null; btn.style.boxShadow = '0 0 30px rgba(212,175,55,0.15)';
+        };
+
+        // ── LÓGICA DE ADMIN Y TECLADO ──
+        window.openAdminLogin = function() {
+            adminPassInput.value = ''; document.getElementById('admin-error').style.opacity = '0';
+            document.getElementById('modal-admin-login').classList.add('active'); adminPassInput.focus();
+        };
+
+        window.verifyAdmin = function() {
+            if (adminPassInput.value === "TESTIGO2027") {
+                document.getElementById('modal-admin-login').classList.remove('active');
+                window.renderAdminTable();
+                document.getElementById('modal-admin').classList.add('active');
+            } else { document.getElementById('admin-error').style.opacity = '1'; }
+        };
+
+        window.renderAdminTable = function() {
+            const tbody = document.getElementById('admin-table-body');
+            tbody.innerHTML = '';
+            document.getElementById('admin-total').innerText = allConfirmations.length;
+            const sorted = [...allConfirmations].sort((a, b) => a.hostName.localeCompare(b.hostName));
+            sorted.forEach(g => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${g.guestName}</td><td>Mesa ${g.table}</td><td><small style="color:rgba(212,175,55,0.8);">${g.hostName}</small></td><td><button class="btn-delete" onclick="window.deleteGuest('${g.id}')">Eliminar</button></td>`;
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.deleteGuest = async function(docId) {
+            if(confirm("¿Estás seguro de eliminar esta confirmación? Esto liberará su lugar.")){
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId));
+                } catch(e) { console.error(e); }
+            }
+        };
+
+        codeInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.validateCode(); });
+        guestNameInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.generateStandardTicket(); });
+        adminPassInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.verifyAdmin(); });
+
+        // ── ANIMACIONES VISUALES ──
+        function initParticles() {
+            const canvas = document.getElementById('particle-canvas'); const ctx = canvas.getContext('2d');
+            let W = window.innerWidth, H = window.innerHeight; canvas.width = W; canvas.height = H;
+            window.addEventListener('resize', () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; });
+            const particles = Array.from({ length: 45 }, () => ({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.2 + 0.3, a: Math.random() * Math.PI * 2, speed: Math.random() * 0.18 + 0.06, opacity: Math.random() * 0.25 + 0.05, drift: (Math.random() - 0.5) * 0.3 }));
+            function draw() {
+                ctx.clearRect(0, 0, W, H);
+                particles.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = `rgba(212,175,55,${p.opacity})`; ctx.fill(); p.y -= p.speed; p.x += p.drift; if (p.y < -4) { p.y = H + 4; p.x = Math.random() * W; }});
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+
+        const btnEnter = document.getElementById('btn-enter');
+        const introOverlay = document.getElementById('intro-overlay');
+        const loadingText = document.getElementById('loading-text');
+        const cinematicContainer = document.getElementById('cinematic-container');
+        const heroVideo = document.getElementById('hero-video');
+        const scrollIndicator = document.getElementById('scroll-down');
+        const mainContent = document.getElementById('main-content');
+        
+        window.addEventListener('load', () => {
+            setTimeout(() => { document.getElementById('intro-line-top').classList.add('grow'); document.getElementById('intro-line-bot').classList.add('grow'); }, 300);
+            setTimeout(() => { document.getElementById('intro-title').classList.add('show'); document.getElementById('intro-subtitle').classList.add('show'); }, 600);
+        });
+
+        let videoYaFinalizado = false;
+        btnEnter.addEventListener('click', () => {
+            btnEnter.disabled = true; btnEnter.style.opacity = '0'; loadingText.style.opacity = '1'; introOverlay.style.opacity = '0';
+            setTimeout(() => {
+                introOverlay.style.display = 'none'; cinematicContainer.classList.add('play');
+                document.getElementById('skip-video-btn').classList.add('show');
+                let isVideoPlaying = false;
+                const playPromise = heroVideo.play();
+                if (playPromise !== undefined) { playPromise.then(() => { isVideoPlaying = true; }).catch(() => { if (!videoYaFinalizado) finalizarVideo(); }); }
+                setTimeout(() => { if (!isVideoPlaying && !videoYaFinalizado) finalizarVideo(); }, 2500);
+            }, 1800);
+        });
+
+        document.getElementById('skip-video-btn').addEventListener('click', () => { if (!videoYaFinalizado) finalizarVideo(); });
+        heroVideo.addEventListener('ended', () => { if (!videoYaFinalizado) finalizarVideo(); });
+
+        function finalizarVideo() {
+            videoYaFinalizado = true; document.getElementById('skip-video-btn').classList.remove('show'); heroVideo.pause();
+            scrollIndicator.classList.add('show'); mainContent.classList.add('visible'); document.body.style.overflowY = 'auto';
+            initParticles(); document.getElementById('particle-canvas').classList.add('visible');
+            setTimeout(() => triggerReveal(), 400);
+        }
+
+        scrollIndicator.addEventListener('click', () => { window.scrollTo({ top: window.innerHeight, behavior: 'smooth' }); });
+
+        function triggerReveal() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        if (entry.target.classList.contains('prose-block')) setTimeout(() => { document.getElementById('seal').classList.add('stamped'); }, 700);
+                        if (entry.target.classList.contains('enso-footer')) setTimeout(() => { document.getElementById('enso-stroke').classList.add('draw'); }, 300);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
     </script>
 </body>
 </html>
