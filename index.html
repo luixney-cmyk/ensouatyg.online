@@ -179,10 +179,6 @@
         .confirm-btn:active { transform: scale(0.98); }
         .confirm-btn::after { content: ''; position: absolute; inset: -4px; border: 1px solid rgba(212,175,55,0.3); pointer-events: none; }
 
-        /* Botón elegante para abrir menú en la sección hero */
-        .btn-menu-reveal { margin-top: 40px; display: inline-block; border: 1px solid rgba(212,175,55,0.4); padding: 10px 30px; font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(212,175,55,0.8); cursor: pointer; transition: all 0.3s ease; }
-        .btn-menu-reveal:hover { background: rgba(212,175,55,0.1); border-color: var(--gold); color: #fff; }
-
         .enso-footer { display: flex; flex-direction: column; align-items: center; padding: 80px 0 64px; gap: 20px; }
         .enso-svg-container { position: relative; width: 140px; height: 140px; }
         .enso-path { stroke-dasharray: 900; stroke-dashoffset: 900; transition: stroke-dashoffset 3s ease; }
@@ -355,8 +351,6 @@
                     <span class="line-gold text-gold">El Banquete<br>de Banquetes</span>
                     <span class="line-white">Cena de Gala · Alta Gastronomía Oriental</span>
                 </h2>
-                <!-- BOTÓN PARA ABRIR MENÚ -->
-                <button onclick="window.openMenuModal()" class="btn-menu-reveal">Descubrir el Menú</button>
             </div>
         </div>
 
@@ -390,7 +384,7 @@
                     </div>
                 </div>
 
-                <!-- BOTÓN DEL MENÚ (REUBICADO Y ARREGLADO) -->
+                <!-- BOTÓN DEL MENÚ -->
                 <div class="reveal" style="text-align: center; margin: 40px 0 64px;">
                     <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.9rem; color:rgba(212,175,55,0.7); margin-bottom: 16px;">Conoce nuestra narrativa gastronómica</p>
                     <button onclick="window.openMenuModal()" class="btn-outline" style="padding: 14px 40px; font-size: 0.75rem;">Ver Menú Degustación</button>
@@ -434,19 +428,16 @@
         </div>
     </main>
 
-    <!-- ── MODAL MENÚ (REDISEÑADO Y ARREGLADO) ── -->
+    <!-- ── MODAL MENÚ ── -->
     <div id="modal-menu" class="modal-overlay">
-        <!-- El box ahora usa flexbox para manejar el scroll interno correctamente -->
         <div class="modal-box" style="max-width: 600px; padding: 0; background: var(--parchment); overflow: hidden; display: flex; flex-direction: column; max-height: 85vh;">
             
-            <!-- HEADER FIJO -->
             <div style="padding: 24px 32px 16px; border-bottom: 1px solid rgba(212, 175, 55, 0.2); background: #0a0806; flex-shrink: 0; position: relative;">
                 <span class="modal-close" onclick="window.closeModals()" style="top: 16px; right: 20px;">×</span>
                 <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.4em; text-transform: uppercase; margin-bottom: 8px;">Menú Degustación</p>
                 <h3 style="font-family:'Cinzel', serif; font-size: 1.4rem; color: var(--off-white); letter-spacing: 0.1em; line-height: 1.2;">Nueve Semestres,<br>Un Solo Camino</h3>
             </div>
 
-            <!-- CONTENIDO DESLIZABLE (SCROLL) -->
             <div id="menu-scroll-container" style="overflow-y: auto; padding: 24px 32px 32px; flex-grow: 1; text-align: center;" class="custom-scrollbar">
                 
                 <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: rgba(210, 200, 185, 0.7); line-height: 1.6; margin-bottom: 12px; margin-top: 0;">
@@ -459,7 +450,6 @@
                     Esta noche presentamos el último de esos trazos.<br>Bienvenidos a ENSŌ.
                 </p>
                 
-                <!-- TIEMPO 1 -->
                 <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
                     <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">一</span>
                     <div style="position: relative; z-index: 10;">
@@ -472,7 +462,6 @@
                     </div>
                 </div>
 
-                <!-- TIEMPO 2 -->
                 <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
                     <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">二</span>
                     <div style="position: relative; z-index: 10;">
@@ -485,7 +474,6 @@
                     </div>
                 </div>
 
-                <!-- TIEMPO 3 -->
                 <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
                     <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">三</span>
                     <div style="position: relative; z-index: 10;">
@@ -498,7 +486,6 @@
                     </div>
                 </div>
 
-                <!-- TIEMPO 4 -->
                 <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
                     <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">四</span>
                     <div style="position: relative; z-index: 10;">
@@ -511,7 +498,6 @@
                     </div>
                 </div>
 
-                <!-- TIEMPO 5 -->
                 <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
                     <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">五</span>
                     <div style="position: relative; z-index: 10;">
@@ -524,7 +510,6 @@
                     </div>
                 </div>
 
-                <!-- TIEMPO 6 -->
                 <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
                     <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">六</span>
                     <div style="position: relative; z-index: 10;">
@@ -537,7 +522,6 @@
                     </div>
                 </div>
 
-                <!-- TIEMPO 7 -->
                 <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
                     <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">七</span>
                     <div style="position: relative; z-index: 10;">
@@ -550,7 +534,6 @@
                     </div>
                 </div>
 
-                <!-- TIEMPO 8 -->
                 <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
                     <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">八</span>
                     <div style="position: relative; z-index: 10;">
@@ -563,7 +546,6 @@
                     </div>
                 </div>
 
-                <!-- TIEMPO 9 -->
                 <div style="position: relative; padding: 40px 0 20px;">
                     <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.06); user-select: none; z-index: 0;">九</span>
                     <div style="position: relative; z-index: 10;">
@@ -578,7 +560,6 @@
 
             </div>
             
-            <!-- FOOTER FIJO -->
             <div style="padding: 16px 32px; background: #0a0806; border-top: 1px solid rgba(212, 175, 55, 0.2); flex-shrink: 0;">
                 <button class="btn-outline" style="width: 100%;" onclick="window.closeModals()">Cerrar Menú</button>
             </div>
