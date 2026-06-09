@@ -391,7 +391,7 @@
         <div class="modal-box" style="max-width: 520px; padding-top: 56px;">
             <span class="modal-close" onclick="window.closeModals()">×</span>
             <div id="personal-message"></div>
-            <button id="btn-accept-invite" class="btn-outline" style="background:var(--gold); color:var(--ink); font-weight:bold; border:none; margin-top: auto;" onclick="window.handleMessageAccept()">Aceptar Invitación</button>
+            <button id="btn-accept-invite" class="btn-outline" style="margin-top: auto;"></button>
         </div>
     </div>
 
@@ -416,7 +416,6 @@
             <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.85rem; color:rgba(212,175,55,0.7); margin-bottom: 24px; letter-spacing: 0.05em;">Guarda tu pase para el día del evento</p>
             
             <div class="ticket-card" id="ticket-card-capture">
-                <!-- Se corrigió el nombre de archivo a tu original enso.png -->
                 <img src="enso.png" alt="Pase Ensō" crossorigin="anonymous" onerror="this.style.display='none'">
                 <div class="ticket-overlay">
                     <div id="ticket-guest-name" class="ticket-guest-name">Nombre del Invitado</div>
@@ -568,7 +567,7 @@
             currentValidData = database[currentValidDataCode];
 
             if (currentValidData) {
-                // Validación de Aforo (Límite 4)
+                // Validación de Aforo (Límite 4 para estándar)
                 if (currentValidData.type === 'standard') {
                     const count = allConfirmations.filter(c => c.hostCode === currentValidDataCode).length;
                     if (count >= 4) {
@@ -582,10 +581,39 @@
                 document.getElementById('modal-code').classList.remove('active');
                 
                 const messageContainer = document.getElementById('personal-message');
+                const btnAccept = document.getElementById('btn-accept-invite'); // Referencia al botón
+                
                 if (currentValidData.type === 'standard') {
                     messageContainer.innerHTML = `"Yo, <strong style="color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;">${currentValidData.name}</strong>, tengo el honor de invitarte a mi último proyecto integrador. <br><br>Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."`;
+                    
+                    // Configuración del botón para Estándar
+                    btnAccept.innerText = "Aceptar Invitación";
+                    btnAccept.style.background = "var(--gold)";
+                    btnAccept.style.border = "none";
+                    btnAccept.style.color = "var(--ink)";
+                    btnAccept.onclick = window.handleMessageAccept;
+                    
                 } else if (currentValidData.type === 'special') {
                     messageContainer.innerHTML = `"${currentValidData.text}"`;
+                    
+                    // Verificar si este VIP ya está registrado
+                    const isVIPConfirmed = allConfirmations.some(c => c.hostCode === currentValidDataCode);
+                    
+                    if (isVIPConfirmed) {
+                        // Cambiar la apariencia y función del botón si ya confirmó
+                        btnAccept.innerText = "Asistencia Confirmada (Cerrar)";
+                        btnAccept.style.background = "transparent";
+                        btnAccept.style.border = "1px solid rgba(212, 175, 55, 0.5)";
+                        btnAccept.style.color = "rgba(212, 175, 55, 0.8)";
+                        btnAccept.onclick = window.closeModals; // Solo cierra el modal, no hace registro
+                    } else {
+                        // Configuración del botón normal si aún no confirma
+                        btnAccept.innerText = "Aceptar Invitación";
+                        btnAccept.style.background = "var(--gold)";
+                        btnAccept.style.border = "none";
+                        btnAccept.style.color = "var(--ink)";
+                        btnAccept.onclick = window.handleMessageAccept;
+                    }
                 }
                 setTimeout(() => document.getElementById('modal-message').classList.add('active'), 400);
             } else {
