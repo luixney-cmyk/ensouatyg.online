@@ -262,14 +262,15 @@
         
         /* OVERLAY RE-DISEÑADO: Solo Nombre y Mesa Centrados hasta abajo */
         .ticket-overlay { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 24px; 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            padding: 24px 24px 10px 24px; /* <-- Reducimos el espacio de abajo para que baje el texto */
             display: flex; flex-direction: column; justify-content: flex-end; align-items: center; z-index: 2; 
         }
         
-        .ticket-info { text-align: center; width: 100%; margin-bottom: 12px; }
+        .ticket-info { text-align: center; width: 100%; margin-bottom: 0px; } /* <-- Quitamos el margen inferior extra */
         .ticket-guest-name { 
             font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 4.5vw, 1.4rem); color: var(--gold-light); 
-            letter-spacing: 0.1em; line-height: 1.2; margin-bottom: 8px; text-shadow: 0 2px 6px rgba(0,0,0,0.9); 
+            letter-spacing: 0.1em; line-height: 1.2; margin-bottom: 4px; text-shadow: 0 2px 6px rgba(0,0,0,0.9); 
             text-align: center;
         }
         .ticket-table-num { 
