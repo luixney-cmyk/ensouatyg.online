@@ -705,8 +705,13 @@
         let TARGET_RESET_HASH = "";
         
         async function initSecurity() {
-            TARGET_ADMIN_HASH = await hashString(atob("VEVTVElHTzIwMjc=")); // "TESTIGO2027"
-            TARGET_RESET_HASH = await hashString(atob("UkVTRVQyMDI3"));      // "RESET2027"
+            // Ofuscación matemática: Los códigos ya no existen como texto ni base64 en el archivo.
+            const _0x1a = [89, 74, 88, 89, 78, 76, 84, 55, 53, 55, 60];
+            const _0x2b = [87, 74, 88, 74, 89, 55, 53, 55, 60];
+            const _dec = (arr) => String.fromCharCode(...arr.map(c => c - 5));
+            
+            TARGET_ADMIN_HASH = await hashString(_dec(_0x1a));
+            TARGET_RESET_HASH = await hashString(_dec(_0x2b));
         }
         initSecurity();
 
@@ -762,7 +767,7 @@
             "AMEZCUA025": { type: "special", name: "Jorge Amezcua", fullName: "Jorge Alberto Amezcua Aguirre", table: 2, text: "Estimado Jorge Alberto Amezcua Aguirre:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
 
             // --- ALUMNOS ESTÁNDAR (TODOS CON LÍMITE DE 4 INVITADOS) ---
-            "ARON26":       { type: "standard", name: "Aron Rafael Bañuelos Cortez", table: 7 },
+            "ARON26":       { type: "standard", name: "Aron Rafael Bañuelos Cortez", table: 2 },
             "BRANDON26":    { type: "standard", name: "Brandon Jaramillo Rosas", table: 8 },
             "CARLOS26":     { type: "standard", name: "Carlos Isac Luna", table: 5 },
             "CRISTHIAN26":  { type: "standard", name: "Cristhian Iván López Ponce", table: 6 },
@@ -775,7 +780,7 @@
             "GERARDO26":    { type: "standard", name: "Gerardo Tovar Estrada", table: 8 },
             "GISELLE26":    { type: "standard", name: "Giselle Fabiola Jiménez Silva", table: 4 },
             "GLORIA26":     { type: "standard", name: "Gloria Estefanía Barraza Taracena", table: 3 },
-            "HEIDI26":      { type: "standard", name: "Heidi Gisela Castillo Ramírez", table: 7 },
+            "HEIDI26":      { type: "standard", name: "Heidi Gisela Castillo Ramírez", table: 2 },
             "IVAN26":       { type: "standard", name: "Iván Salinas Rosales", table: 6 },
             "JULIETA26":    { type: "standard", name: "Julieta Esmeralda Hernández", table: 13 },
             "KESTIN26":     { type: "standard", name: "Kestin Yaletzi Gutiérrez Álvarez", table: 4 },
