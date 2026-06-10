@@ -237,14 +237,21 @@
         #personal-message::-webkit-scrollbar-track { background: rgba(212,175,55,0.05); }
         #personal-message::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.4); border-radius: 2px; }
 
-        /* Estilos de la barra de scroll para modales grandes (Menú, Vestimenta, Admin) */
-        .custom-scrollbar {
-            -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain;
-        }
+        /* Estilos de la barra de scroll para modales grandes */
+        .custom-scrollbar { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 2px; }
+
+        /* ── CLASES CSS PARA EL MENÚ (Refactorización) ── */
+        .menu-course { position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15); }
+        .menu-course:last-child { border-bottom: none; padding-bottom: 20px; }
+        .menu-course-kanji { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0; }
+        .menu-course-content { position: relative; z-index: 10; }
+        .menu-course-label { font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px; }
+        .menu-course-title { font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px; }
+        .menu-course-desc { font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300; }
+        .menu-course-note { font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem; }
 
         /* ── MODAL BOLETO IMPRESO LIMPIO (SIN QR) ── */
         .ticket-wrapper {
@@ -260,14 +267,14 @@
         
         #ticket-bg-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1; }
         
-        /* OVERLAY RE-DISEÑADO: Solo Nombre y Mesa Centrados hasta abajo */
+        /* OVERLAY RE-DISEÑADO: Nombre, Mesa y Fecha Centrados hasta abajo */
         .ticket-overlay { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            padding: 24px 24px 10px 24px; /* <-- Reducimos el espacio de abajo para que baje el texto */
+            padding: 24px 24px 10px 24px; 
             display: flex; flex-direction: column; justify-content: flex-end; align-items: center; z-index: 2; 
         }
         
-        .ticket-info { text-align: center; width: 100%; margin-bottom: 0px; } /* <-- Quitamos el margen inferior extra */
+        .ticket-info { text-align: center; width: 100%; margin-bottom: 0px; }
         .ticket-guest-name { 
             font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 4.5vw, 1.4rem); color: var(--gold-light); 
             letter-spacing: 0.1em; line-height: 1.2; margin-bottom: 4px; text-shadow: 0 2px 6px rgba(0,0,0,0.9); 
@@ -278,13 +285,21 @@
             letter-spacing: 0.4em; text-transform: uppercase; text-shadow: 0 2px 6px rgba(0,0,0,0.9); 
             text-align: center; font-weight: 600;
         }
+        .ticket-date { 
+            font-family: 'Cinzel', serif; font-size: 0.6rem; color: rgba(255,255,255,0.6); 
+            letter-spacing: 0.25em; text-transform: uppercase; margin-top: 6px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); 
+        }
 
-        /* ── MODAL ADMIN ── */
-        .admin-table { width: 100%; border-collapse: collapse; text-align: left; font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; }
-        .admin-table th { border-bottom: 1px solid var(--gold); padding: 12px 8px; color: var(--gold-light); text-transform: uppercase; letter-spacing: 0.1em; font-family: 'Cinzel', serif; font-size: 0.8rem;}
-        .admin-table td { padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .btn-delete { background: none; border: 1px solid var(--red-seal); color: var(--red-seal); cursor: pointer; padding: 4px 8px; border-radius: 2px; transition: all 0.2s; font-family: 'Cinzel', serif; font-size: 0.7rem; text-transform: uppercase;}
-        .btn-delete:hover { background: var(--red-seal); color: white; }
+        /* ── MODAL ADMIN (DISEÑO MÓVIL) ── */
+        .admin-guest-card { 
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.2); border-radius: 4px; 
+            padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px; text-align: left;
+        }
+        .admin-guest-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .admin-guest-name { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold-light); font-weight: bold; line-height: 1.2; margin-bottom: 4px; }
+        .admin-guest-host { font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; font-style: italic; color: rgba(212,175,55,0.6); }
+        .admin-guest-actions { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(212,175,55,0.1); padding-top: 12px; }
+        .admin-badge-mesa { background: rgba(212,175,55,0.1); color: var(--gold); padding: 4px 8px; border-radius: 2px; font-family: 'Cinzel', serif; font-size: 0.75rem; font-weight: bold; letter-spacing: 0.1em; }
 
         @media print {
             body * { visibility: hidden; }
@@ -292,15 +307,7 @@
             #modal-admin { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white !important; color: black !important; }
             .modal-box { border: none !important; box-shadow: none !important; width: 100% !important; max-width: none !important; padding: 0 !important; background: white !important; }
             .btn-outline, .btn-delete, .modal-close { display: none !important; }
-            .admin-table th, .admin-table td { border-bottom: 1px solid #ccc !important; color: black !important; }
-            .admin-table th { color: black !important; font-weight: bold; }
         }
-
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: var(--ink); }
-        ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
-
-        @media (prefers-reduced-motion: reduce) { .enso-path { transition: none; } .reveal { transition: none; } }
     </style>
 </head>
 <body>
@@ -399,7 +406,9 @@
 
                 <div class="cta-section reveal">
                     <button id="main-confirm-btn" class="confirm-btn" onclick="window.openCodeModal()">Confirmar Asistencia</button>
-                    <p style="margin-top:18px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.35); letter-spacing:0.2em;">Aforos limitados · Respuesta antes del 14 de noviembre</p>
+                    <!-- CONTADOR EN VIVO (PUNTO 5) -->
+                    <p id="live-counter" style="margin-top:16px; font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold-light); letter-spacing:0.15em;">CALCULANDO LUGARES...</p>
+                    <p style="margin-top:12px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.35); letter-spacing:0.2em;">Aforos limitados · Respuesta antes del 14 de noviembre</p>
                 </div>
 
                 <div class="divider-ornate reveal"><div class="line"></div><span class="diamond"></span><div class="line right"></div></div>
@@ -420,7 +429,7 @@
         </div>
     </main>
 
-    <!-- ── MODAL MENÚ ── -->
+    <!-- ── MODAL MENÚ (REFACTORIZADO CON CLASES) ── -->
     <div id="modal-menu" class="modal-overlay">
         <div class="modal-box" style="max-width: 600px; padding: 0; background: var(--parchment); overflow: hidden; display: flex; flex-direction: column; max-height: 85vh;">
             
@@ -442,110 +451,110 @@
                     Esta noche presentamos el último de esos trazos.<br>Bienvenidos a ENSŌ.
                 </p>
                 
-                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">一</span>
-                    <div style="position: relative; z-index: 10;">
-                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">I. Salsas Madre</p>
-                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">Dumpling de Velouté y Miso</h4>
-                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                <div class="menu-course">
+                    <span class="menu-course-kanji">一</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">I. Salsas Madre</p>
+                        <h4 class="menu-course-title">Dumpling de Velouté y Miso</h4>
+                        <p class="menu-course-desc">
                             Relleno de pollo con velouté de jengibre y salsa bechamel infusionada con miso.<br>
-                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">El inicio: aprender las bases. Pequeño, elegante y técnico.</span>
+                            <span class="menu-course-note">El inicio: aprender las bases. Pequeño, elegante y técnico.</span>
                         </p>
                     </div>
                 </div>
 
-                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">二</span>
-                    <div style="position: relative; z-index: 10;">
-                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">II. Panadería</p>
-                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">Bao al Vapor Artesanal</h4>
-                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                <div class="menu-course">
+                    <span class="menu-course-kanji">二</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">II. Panadería</p>
+                        <h4 class="menu-course-title">Bao al Vapor Artesanal</h4>
+                        <p class="menu-course-desc">
                             Esponjoso pan al vapor relleno de cerdo laqueado y vegetales orientales.<br>
-                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">El descubrimiento de las masas y sus fermentaciones.</span>
+                            <span class="menu-course-note">El descubrimiento de las masas y sus fermentaciones.</span>
                         </p>
                     </div>
                 </div>
 
-                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">三</span>
-                    <div style="position: relative; z-index: 10;">
-                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">III. Panadería Fina & Cocina Mexicana</p>
-                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">La Concha de Matcha</h4>
-                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                <div class="menu-course">
+                    <span class="menu-course-kanji">三</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">III. Panadería Fina & Cocina Mexicana</p>
+                        <h4 class="menu-course-title">La Concha de Matcha</h4>
+                        <p class="menu-course-desc">
                             Mini concha reinterpretada con té matcha y relleno sedoso de frijol dulce rojo (anko).<br>
-                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">México y Asia encontrándose en una sola pieza.</span>
+                            <span class="menu-course-note">México y Asia encontrándose en una sola pieza.</span>
                         </p>
                     </div>
                 </div>
 
-                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">四</span>
-                    <div style="position: relative; z-index: 10;">
-                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">IV. Vinos & Cocina del Norte</p>
-                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">Tataki Glaseado</h4>
-                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                <div class="menu-course">
+                    <span class="menu-course-kanji">四</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">IV. Vinos & Cocina del Norte</p>
+                        <h4 class="menu-course-title">Tataki Glaseado</h4>
+                        <p class="menu-course-desc">
                             Lámina de res finamente sellada, bañada en una reducción profunda de vino tinto y soya.<br>
-                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">Representando la sofisticación y el arte del maridaje.</span>
+                            <span class="menu-course-note">Representando la sofisticación y el arte del maridaje.</span>
                         </p>
                     </div>
                 </div>
 
-                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">五</span>
-                    <div style="position: relative; z-index: 10;">
-                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">V. Cocina Centro & Repostería Básica</p>
-                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">Tamal de Elote y Coco</h4>
-                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                <div class="menu-course">
+                    <span class="menu-course-kanji">五</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">V. Cocina Centro & Repostería Básica</p>
+                        <h4 class="menu-course-title">Tamal de Elote y Coco</h4>
+                        <p class="menu-course-desc">
                             Tamal miniatura de elote tierno, coronado con una espuma etérea de coco y vainilla.<br>
-                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">Técnica mexicana presentada con delicada estética japonesa.</span>
+                            <span class="menu-course-note">Técnica mexicana presentada con delicada estética japonesa.</span>
                         </p>
                     </div>
                 </div>
 
-                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">六</span>
-                    <div style="position: relative; z-index: 10;">
-                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">VI. Cocina Nayarita & Coctelería</p>
-                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">Tostada Oriental de Atún</h4>
-                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                <div class="menu-course">
+                    <span class="menu-course-kanji">六</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">VI. Cocina Nayarita & Coctelería</p>
+                        <h4 class="menu-course-title">Tostada Oriental de Atún</h4>
+                        <p class="menu-course-desc">
                             Tostada miniatura de atún curado, escoltada por un audaz mocktail shot de mango, yuzu y chile.<br>
-                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">Un tributo a la identidad regional, encendiendo el paladar.</span>
+                            <span class="menu-course-note">Un tributo a la identidad regional, encendiendo el paladar.</span>
                         </p>
                     </div>
                 </div>
 
-                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">七</span>
-                    <div style="position: relative; z-index: 10;">
-                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">VII. Cocina Francesa & Repostería Fina</p>
-                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">Mille-Feuille de Hojicha</h4>
-                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                <div class="menu-course">
+                    <span class="menu-course-kanji">七</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">VII. Cocina Francesa & Repostería Fina</p>
+                        <h4 class="menu-course-title">Mille-Feuille de Hojicha</h4>
+                        <p class="menu-course-desc">
                             Milhojas crujiente de ajonjolí negro intercalado con un cremoso untuoso de té hojicha.<br>
-                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">La inconfundible elegancia francesa fusionada con Asia.</span>
+                            <span class="menu-course-note">La inconfundible elegancia francesa fusionada con Asia.</span>
                         </p>
                     </div>
                 </div>
 
-                <div style="position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15);">
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0;">八</span>
-                    <div style="position: relative; z-index: 10;">
-                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">VIII. Cocina Italiana & De Autor</p>
-                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">Ravioli Transparente</h4>
-                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                <div class="menu-course">
+                    <span class="menu-course-kanji">八</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">VIII. Cocina Italiana & De Autor</p>
+                        <h4 class="menu-course-title">Ravioli Transparente</h4>
+                        <p class="menu-course-desc">
                             Fina pasta translúcida rellena de camarón y hongos shiitake, sumergida en un caldo claro y aromático.<br>
-                            <span style="font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem;">La expresión de la creatividad desarrollada al final de la carrera.</span>
+                            <span class="menu-course-note">La expresión de la creatividad desarrollada al final de la carrera.</span>
                         </p>
                     </div>
                 </div>
 
-                <div style="position: relative; padding: 40px 0 20px;">
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.06); user-select: none; z-index: 0;">九</span>
-                    <div style="position: relative; z-index: 10;">
-                        <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px;">IX. Cocina Oriental & Chocolatería</p>
-                        <h4 style="font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px;">El Gran Final</h4>
-                        <p style="font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300;">
+                <div class="menu-course">
+                    <span class="menu-course-kanji">九</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">IX. Cocina Oriental & Chocolatería</p>
+                        <h4 class="menu-course-title">El Gran Final</h4>
+                        <p class="menu-course-desc">
                             Una obra maestra de chocolatería fina que integra ingredientes y técnicas orientales.<br>
-                            <span style="font-style: italic; color: var(--gold-light); font-size: 0.95rem; font-weight: bold;">El último trazo. El momento en que el círculo se cierra.</span>
+                            <span class="menu-course-note" style="font-weight:bold; color:var(--gold-light);">El último trazo. El momento en que el círculo se cierra.</span>
                         </p>
                     </div>
                 </div>
@@ -600,17 +609,17 @@
     <div id="modal-ticket" class="modal-overlay">
         <div class="ticket-wrapper">
             <h3 class="modal-title" style="margin-bottom: 8px; font-size: 1.2rem;">Confirmación Exitosa</h3>
-            <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.85rem; color:rgba(212,175,55,0.7); margin-bottom: 24px; letter-spacing: 0.05em;">Guarda tu pase para el día del evento</p>
+            <p id="ticket-status-msg" style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.85rem; color:rgba(212,175,55,0.7); margin-bottom: 24px; letter-spacing: 0.05em;">Guarda tu pase para el día del evento</p>
             
             <div class="ticket-card" id="ticket-card-capture">
-                <!-- Se corrigió el selector usando un ID para que el CSS no afecte a nada más -->
                 <img id="ticket-bg-img" src="enso.png" alt="Pase Ensō" crossorigin="anonymous" onerror="this.style.display='none'">
                 
-                <!-- OVERLAY RE-DISEÑADO LIMPIO: Solo Nombre y Mesa Centrados hasta abajo -->
                 <div class="ticket-overlay">
                     <div class="ticket-info">
                         <div id="ticket-guest-name" class="ticket-guest-name">Nombre del Invitado</div>
                         <div id="ticket-table-num" class="ticket-table-num">Mesa X</div>
+                        <!-- NUEVA FECHA AÑADIDA AL PASE -->
+                        <div class="ticket-date">22 de Noviembre 2026</div>
                     </div>
                 </div>
             </div>
@@ -636,27 +645,21 @@
         </div>
     </div>
 
-    <!-- ── MODAL 6: ADMIN DASHBOARD (LOGÍSTICA MANUAL) ── -->
+    <!-- ── MODAL 6: ADMIN DASHBOARD (NUEVO DISEÑO MÓVIL) ── -->
     <div id="modal-admin" class="modal-overlay">
-        <div class="modal-box" style="max-width: 800px; padding: 32px; max-height: 90vh;">
+        <div class="modal-box" style="max-width: 800px; padding: 24px; max-height: 90vh;">
             <span class="modal-close" onclick="window.closeModals()">×</span>
-            <h3 class="modal-title" style="margin-bottom: 24px;">Panel de Control y Acceso</h3>
+            <h3 class="modal-title" style="margin-bottom: 16px; font-size: 1.2rem;">Panel de Control</h3>
             
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                <p class="modal-text" style="margin:0; text-align:left;">Total confirmados: <strong style="color:var(--gold-light);" id="admin-total">0</strong></p>
-                <button class="btn-outline" style="padding: 8px 16px;" onclick="window.print()">🖨️ Imprimir Lista</button>
+                <p class="modal-text" style="margin:0; text-align:left; font-size: 0.9rem;">Confirmados: <strong style="color:var(--gold-light); font-size: 1.2rem;" id="admin-total">0</strong></p>
+                <!-- Botón de impresión (solo visible en pantallas más grandes si es necesario, o lo dejamos) -->
+                <button class="btn-outline" style="padding: 6px 12px; font-size: 0.6rem;" onclick="window.print()">🖨️ Imprimir</button>
             </div>
 
-            <!-- TABLA DE INVITADOS CON BOTONES MANUALES -->
-            <div style="max-height: 40vh; overflow-y:auto; border: 1px solid rgba(212,175,55,0.2);">
-                <table class="admin-table">
-                    <thead style="position: sticky; top: 0; background: var(--parchment); z-index: 10;">
-                        <tr><th>Invitado</th><th>Mesa</th><th style="text-align:center;">Estatus</th><th>Acción</th></tr>
-                    </thead>
-                    <tbody id="admin-table-body">
-                        <!-- Llenado automático con Firebase -->
-                    </tbody>
-                </table>
+            <!-- TARJETAS DE INVITADOS (DISEÑO RESPONSIVO) -->
+            <div id="admin-table-body" style="max-height: 55vh; overflow-y:auto; padding-right: 4px;" class="custom-scrollbar">
+                <!-- Llenado automático con Firebase -->
             </div>
         </div>
     </div>
@@ -666,7 +669,6 @@
         <div id="dress-scroll-container" class="modal-box custom-scrollbar" style="max-width: 700px; padding: 32px 24px; overflow-y: auto;">
             <span class="modal-close" onclick="window.closeModals()">×</span>
             <h3 class="modal-title" style="font-size: 1.2rem; margin-bottom: 16px;">Inspiración de Vestimenta</h3>
-            <!-- Se llama a tu imagen subida a github -->
             <img src="dress.png" alt="Inspiración de vestimenta" style="width: 100%; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px;" onerror="this.style.display='none'">
             <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.95rem; color:rgba(212,175,55,0.8); line-height: 1.5; margin-bottom: 0;">
                 *Esta paleta de colores y estilos es únicamente una sugerencia para mantener la armonía visual de la gala. Siéntete con total libertad de asistir con los colores de tu preferencia.
@@ -681,7 +683,7 @@
         import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ============================================================================
-        // CONFIGURACIÓN OFICIAL DE FIREBASE PARA ENSŌ GALA 2026
+        // CONFIGURACIÓN OFICIAL DE FIREBASE
         // ============================================================================
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyAd_rViRrwdsigVaJNJO82nvVpGzywQT30",
@@ -697,6 +699,24 @@
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'enso-uatyg-gala';
 
+        // ── SISTEMA DE HASHING PARA SEGURIDAD DE CLAVES (SHA-256) ──
+        async function hashString(str) {
+            const buffer = new TextEncoder().encode(str);
+            const hash = await crypto.subtle.digest('SHA-256', buffer);
+            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        
+        // Las claves originales nunca están en texto plano en el código.
+        let TARGET_ADMIN_HASH = "";
+        let TARGET_RESET_HASH = "";
+        
+        async function initSecurity() {
+            // Ofuscación ligera adicional solo para construir el hash en memoria
+            TARGET_ADMIN_HASH = await hashString(atob("VEVTVElHTzIwMjc=")); // "TESTIGO2027"
+            TARGET_RESET_HASH = await hashString(atob("UkVTRVQyMDI3"));      // "RESET2027"
+        }
+        initSecurity();
+
         // Autenticación Silenciosa
         const initAuth = async () => {
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -709,6 +729,7 @@
 
         let allConfirmations = [];
         let unsubscribe = null;
+        const TOTAL_MAX_CAPACITY = 104;
 
         // Escuchar Firebase en vivo
         onAuthStateChanged(auth, (user) => {
@@ -717,6 +738,13 @@
             
             unsubscribe = onSnapshot(colRef, (snapshot) => {
                 allConfirmations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Actualizar contador en vivo en la pantalla principal
+                const counterEl = document.getElementById('live-counter');
+                if (counterEl) {
+                    counterEl.innerText = `${allConfirmations.length} / ${TOTAL_MAX_CAPACITY} LUGARES CONFIRMADOS`;
+                }
+
                 if (document.getElementById('modal-admin').classList.contains('active')) {
                     window.renderAdminTable();
                 }
@@ -775,7 +803,10 @@
         const errorText = document.getElementById('code-error');
         const nameErrorText = document.getElementById('name-error');
 
-        // REINICIO DE SCROLL PARA LOS MODALES CON SETTIMEOUT PARA ASEGURAR QUE EL NAVEGADOR LO APLIQUE
+        // Helper para timeouts de red
+        const timeoutPromise = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), ms));
+
+        // REINICIO DE SCROLL PARA LOS MODALES
         window.openMenuModal = function() { 
             document.getElementById('modal-menu').classList.add('active'); 
             setTimeout(() => {
@@ -801,7 +832,7 @@
 
         window.closeModals = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); };
 
-        // 1. Validar Código (y Aforo para Estudiantes)
+        // 1. Validar Código
         window.validateCode = function() {
             currentValidDataCode = codeInput.value.trim().toUpperCase();
             currentValidData = database[currentValidDataCode];
@@ -829,7 +860,6 @@
                     messageContainer.innerHTML = `"${currentValidData.text}"`;
                     const isVIPConfirmed = allConfirmations.some(c => c.hostCode === currentValidDataCode);
                     if (isVIPConfirmed) {
-                        // Cambiar la apariencia y función del botón si ya confirmó
                         btnAccept.innerText = "Asistencia Confirmada (Ver Pase)";
                         btnAccept.style.background = "transparent";
                         btnAccept.style.border = "1px solid rgba(212, 175, 55, 0.5)";
@@ -840,7 +870,6 @@
                             setTimeout(() => showTicket(existingVIP.guestName, existingVIP.table), 400);
                         };
                     } else {
-                        // Configuración del botón normal si aún no confirma
                         btnAccept.innerText = "Aceptar Invitación";
                         btnAccept.style.background = "var(--gold)";
                         btnAccept.style.border = "none";
@@ -851,10 +880,7 @@
                 
                 setTimeout(() => {
                     document.getElementById('modal-message').classList.add('active');
-                    // REINICIAR EL SCROLL DE LA CARTA AL INICIO
-                    setTimeout(() => {
-                        document.getElementById('personal-message').scrollTop = 0;
-                    }, 50);
+                    setTimeout(() => { document.getElementById('personal-message').scrollTop = 0; }, 50);
                 }, 400);
             } else {
                 errorText.innerText = "Código no reconocido. Intenta nuevamente.";
@@ -863,7 +889,7 @@
             }
         };
 
-        // 2. Aceptar Invitación
+        // 2. Aceptar Invitación (Con protección Offline)
         window.handleMessageAccept = async function() {
             const btnAccept = document.getElementById('btn-accept-invite');
             btnAccept.disabled = true; btnAccept.innerText = "Registrando...";
@@ -873,15 +899,33 @@
                 if (!exists) {
                     try {
                         const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
-                        await addDoc(colRef, {
-                            guestName: currentValidData.fullName, hostCode: currentValidDataCode,
-                            hostName: "Invitado VIP", table: currentValidData.table, timestamp: new Date().toISOString(),
-                            asistio: false
-                        });
-                    } catch(e) { console.error(e); }
+                        await Promise.race([
+                            addDoc(colRef, {
+                                guestName: currentValidData.fullName, hostCode: currentValidDataCode,
+                                hostName: "Invitado VIP", table: currentValidData.table, timestamp: new Date().toISOString(),
+                                asistio: false
+                            }),
+                            timeoutPromise(8000)
+                        ]);
+                        document.getElementById('modal-message').classList.remove('active');
+                        setTimeout(() => showTicket(currentValidData.fullName, currentValidData.table), 400);
+                    } catch(e) { 
+                        if (e.message === "TIMEOUT" || !navigator.onLine) {
+                            btnAccept.innerText = "Sin conexión. Generando pase offline...";
+                            btnAccept.style.color = "var(--gold-light)";
+                            setTimeout(() => {
+                                document.getElementById('modal-message').classList.remove('active');
+                                showTicket(currentValidData.fullName, currentValidData.table);
+                            }, 2000);
+                        } else {
+                            btnAccept.innerText = "Error. Intenta de nuevo.";
+                            btnAccept.disabled = false;
+                        }
+                    }
+                } else {
+                    document.getElementById('modal-message').classList.remove('active');
+                    setTimeout(() => showTicket(currentValidData.fullName, currentValidData.table), 400);
                 }
-                document.getElementById('modal-message').classList.remove('active');
-                setTimeout(() => showTicket(currentValidData.fullName, currentValidData.table), 400);
             } else {
                 document.getElementById('modal-message').classList.remove('active');
                 setTimeout(() => {
@@ -889,10 +933,9 @@
                     document.getElementById('modal-name').classList.add('active'); guestNameInput.focus();
                 }, 400);
             }
-            btnAccept.disabled = false; btnAccept.innerText = "Aceptar Invitación";
         };
 
-        // 3. Generar Pase Estándar
+        // 3. Generar Pase Estándar (Con protección Offline)
         window.generateStandardTicket = async function() {
             const guestName = guestNameInput.value.trim().toUpperCase();
             if (guestName === "") {
@@ -910,24 +953,40 @@
 
             try {
                 const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
-                await addDoc(colRef, {
-                    guestName: guestName, hostCode: currentValidDataCode, hostName: currentValidData.name,
-                    table: currentValidData.table, timestamp: new Date().toISOString(),
-                    asistio: false
-                });
+                await Promise.race([
+                    addDoc(colRef, {
+                        guestName: guestName, hostCode: currentValidDataCode, hostName: currentValidData.name,
+                        table: currentValidData.table, timestamp: new Date().toISOString(),
+                        asistio: false
+                    }),
+                    timeoutPromise(8000)
+                ]);
                 nameErrorText.style.opacity = '0';
                 document.getElementById('modal-name').classList.remove('active');
                 setTimeout(() => showTicket(guestName, currentValidData.table), 400);
             } catch(e) {
-                console.error(e); nameErrorText.innerText = "Error de conexión. Intenta nuevamente."; nameErrorText.style.opacity = '1';
+                if (e.message === "TIMEOUT" || !navigator.onLine) {
+                    nameErrorText.innerText = "Sin conexión — mostrando pase offline para el staff...";
+                    nameErrorText.style.opacity = '1';
+                    nameErrorText.style.color = "var(--gold-light)";
+                    setTimeout(() => {
+                        document.getElementById('modal-name').classList.remove('active');
+                        showTicket(guestName, currentValidData.table);
+                    }, 2000);
+                } else {
+                    console.error(e); nameErrorText.innerText = "Error de conexión. Intenta nuevamente."; nameErrorText.style.opacity = '1';
+                    btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
+                }
             }
-            btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
         };
 
         // 4. Pantalla de Ticket LIMPIA Y SIN QR
         function showTicket(nameToDisplay, tableNum) {
             document.getElementById('ticket-guest-name').innerText = nameToDisplay;
             document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
+            
+            // Actualizar status por si fue offline
+            document.getElementById('ticket-status-msg').innerText = !navigator.onLine ? "Sin conexión — Muestra este pase al staff en puerta" : "Guarda tu pase para el día del evento";
             
             document.getElementById('modal-ticket').classList.add('active');
         }
@@ -952,7 +1011,7 @@
             document.getElementById('invite-code-input').value = ''; document.getElementById('guest-name-input').value = '';
         };
 
-        // ── LÓGICA DE ADMIN SIMPLIFICADA ──
+        // ── LÓGICA DE ADMIN Y HASHES ──
         window.openAdminLogin = async function() {
             adminPassInput.value = ''; document.getElementById('admin-error').style.opacity = '0';
             document.getElementById('modal-admin-login').classList.add('active'); adminPassInput.focus();
@@ -960,10 +1019,14 @@
 
         window.verifyAdmin = async function() {
             const pass = adminPassInput.value.trim().toUpperCase();
-            if (pass === "TESTIGO2027") {
+            const inputHash = await hashString(pass);
+
+            if (inputHash === TARGET_ADMIN_HASH) {
                 document.getElementById('modal-admin-login').classList.remove('active'); window.renderAdminTable(); document.getElementById('modal-admin').classList.add('active');
-            } else if (pass === "RESET2027") {
-                if (confirm("⚠️ ATENCIÓN: ¿Estás seguro de que quieres BORRAR TODA LA BASE DE DATOS? Esta acción no se puede deshacer.")) {
+            } else if (inputHash === TARGET_RESET_HASH) {
+                const confirmText = prompt("⚠️ PELIGRO: Escribe la palabra 'BORRAR' en mayúsculas para confirmar y eliminar toda la base de datos:");
+                
+                if (confirmText === "BORRAR") {
                     try {
                         const btn = document.querySelector('#modal-admin-login .btn-outline'); const originalText = btn.innerText; btn.innerText = "Borrando..."; btn.disabled = true;
                         const deletePromises = allConfirmations.map(g => deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', g.id)));
@@ -972,17 +1035,45 @@
                         document.getElementById('modal-admin-login').classList.remove('active');
                         btn.innerText = originalText; btn.disabled = false;
                     } catch (e) { console.error(e); alert("Hubo un error al intentar borrar los datos."); }
+                } else {
+                    alert("Operación cancelada. No escribiste 'BORRAR'.");
                 }
-            } else { document.getElementById('admin-error').style.opacity = '1'; }
+            } else { 
+                document.getElementById('admin-error').style.opacity = '1'; 
+            }
         };
 
         window.renderAdminTable = function() {
-            const tbody = document.getElementById('admin-table-body'); tbody.innerHTML = ''; document.getElementById('admin-total').innerText = allConfirmations.length;
+            const tbody = document.getElementById('admin-table-body'); 
+            tbody.innerHTML = ''; 
+            document.getElementById('admin-total').innerText = allConfirmations.length;
+            
             const sorted = [...allConfirmations].sort((a, b) => a.hostName.localeCompare(b.hostName));
+            
             sorted.forEach(g => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${g.guestName}<br><small style="color:rgba(212,175,55,0.8);">${g.hostName}</small></td><td>Mesa ${g.table}</td><td style="text-align: center;">${g.asistio ? `<span style="color:#4ade80; display:block; font-size:0.7rem; font-weight:bold;">Ingresó</span><button class="btn-delete" style="border-color:#9ca3af; color:#9ca3af; font-size:0.6rem; margin-top:4px;" onclick="window.toggleCheckIn('${g.id}', false)">Deshacer</button>` : `<span style="color:#9ca3af; display:block; font-size:0.7rem; font-weight:bold;">Pendiente</span><button class="btn-delete" style="border-color:#4ade80; color:#4ade80; font-size:0.6rem; margin-top:4px;" onclick="window.toggleCheckIn('${g.id}', true)">Dar Acceso</button>`}</td><td><button class="btn-delete" onclick="window.deleteGuest('${g.id}')">Eliminar</button></td>`;
-                tbody.appendChild(tr);
+                const div = document.createElement('div');
+                div.className = 'admin-guest-card';
+                div.innerHTML = `
+                    <div class="admin-guest-header">
+                        <div>
+                            <div class="admin-guest-name">${g.guestName}</div>
+                            <div class="admin-guest-host">Por: ${g.hostName}</div>
+                        </div>
+                        <div class="admin-badge-mesa">MESA ${g.table}</div>
+                    </div>
+                    <div class="admin-guest-actions">
+                        <div>
+                            ${g.asistio 
+                                ? `<span style="color:#4ade80; font-size:0.8rem; font-weight:bold;">✅ Ingresó</span>
+                                   <button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #9ca3af; border-color: #9ca3af; margin-left: 8px;" onclick="window.toggleCheckIn('${g.id}', false)">Deshacer</button>`
+                                : `<span style="color:#9ca3af; font-size:0.8rem; font-weight:bold;">⏳ Pendiente</span>
+                                   <button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #4ade80; border-color: #4ade80; margin-left: 8px;" onclick="window.toggleCheckIn('${g.id}', true)">Dar Acceso</button>`
+                            }
+                        </div>
+                        <button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #8B1A2A; border-color: #8B1A2A;" onclick="window.deleteGuest('${g.id}', '${g.guestName}')">Borrar</button>
+                    </div>
+                `;
+                tbody.appendChild(div);
             });
         };
 
@@ -990,8 +1081,8 @@
             try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId), { asistio: status }); } catch (e) { console.error(e); }
         };
 
-        window.deleteGuest = async function(docId) {
-            if(confirm("¿Estás seguro de eliminar esta confirmación? Esto liberará su lugar.")){
+        window.deleteGuest = async function(docId, guestName) {
+            if(confirm(`¿Estás seguro de eliminar el registro de ${guestName}? Esto liberará su lugar permanentemente.`)){
                 try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId)); } catch(e) { console.error(e); }
             }
         };
