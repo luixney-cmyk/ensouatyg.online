@@ -299,14 +299,16 @@
         .admin-guest-name { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold-light); font-weight: bold; line-height: 1.2; margin-bottom: 4px; }
         .admin-guest-host { font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; font-style: italic; color: rgba(212,175,55,0.6); }
         .admin-guest-actions { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(212,175,55,0.1); padding-top: 12px; }
-        .admin-badge-mesa { background: rgba(212,175,55,0.1); color: var(--gold); padding: 4px 8px; border-radius: 2px; font-family: 'Cinzel', serif; font-size: 0.75rem; font-weight: bold; letter-spacing: 0.1em; }
+        
+        /* Ocultamos las reglas de tabla tradicional que ya no usamos */
+        .admin-table { display: none; }
 
         @media print {
             body * { visibility: hidden; }
             #modal-admin, #modal-admin * { visibility: visible; }
             #modal-admin { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white !important; color: black !important; }
             .modal-box { border: none !important; box-shadow: none !important; width: 100% !important; max-width: none !important; padding: 0 !important; background: white !important; }
-            .btn-outline, .btn-delete, .modal-close { display: none !important; }
+            .btn-outline { display: none !important; }
         }
     </style>
 </head>
@@ -646,7 +648,7 @@
         </div>
     </div>
 
-    <!-- ── MODAL 6: ADMIN DASHBOARD (LOGÍSTICA MANUAL) ── -->
+    <!-- ── MODAL 6: ADMIN DASHBOARD (AGRUPADO POR MESA) ── -->
     <div id="modal-admin" class="modal-overlay">
         <div class="modal-box" style="max-width: 800px; padding: 24px; max-height: 90vh;">
             <span class="modal-close" onclick="window.closeModals()">×</span>
@@ -1023,7 +1025,7 @@
             document.getElementById('invite-code-input').value = ''; document.getElementById('guest-name-input').value = '';
         };
 
-        // ── LÓGICA DE ADMIN SIMPLIFICADA CON HASHEO (SIN QR) ──
+        // ── LÓGICA DE ADMIN SIMPLIFICADA CON HASHEO (SIN QR) Y AGRUPADA POR MESAS ──
         window.openAdminLogin = async function() {
             adminPassInput.value = ''; document.getElementById('admin-error').style.opacity = '0';
             document.getElementById('modal-admin-login').classList.add('active'); adminPassInput.focus();
@@ -1054,9 +1056,43 @@
         };
 
         window.renderAdminTable = function() {
-            const tbody = document.getElementById('admin-table-body'); tbody.innerHTML = ''; document.getElementById('admin-total').innerText = allConfirmations.length;
-            const sorted = [...allConfirmations].sort((a, b) => a.hostName.localeCompare(b.hostName));
-            sorted.forEach(g => {
+            const tbody = document.getElementById('admin-table-body'); 
+            tbody.innerHTML = ''; 
+            document.getElementById('admin-total').innerText = allConfirmations.length;
+            
+            // Lógica de ordenamiento: 1º Mesas (números, luego letras), 2º Nombre Alfabético
+            const sorted = [...allConfirmations].sort((a, b) => {
+                const tA = Number(a.table) || a.table;
+                const tB = Number(b.table) || b.table;
+                if (tA !== tB) {
+                    if (typeof tA === 'number' && typeof tB === 'number') return tA - tB;
+                    if (typeof tA === 'number') return -1;
+                    if (typeof tB === 'number') return 1;
+                    return String(tA).localeCompare(String(tB));
+                }
+                return String(a.guestName).localeCompare(String(b.guestName));
+            });
+
+            let currentTable = null;
+
+            sorted.forEach((g, index) => {
+                // Generar encabezado separador si la mesa cambia
+                if (g.table !== currentTable) {
+                    currentTable = g.table;
+                    const header = document.createElement('div');
+                    header.style.cssText = `
+                        background: rgba(212,175,55,0.1); 
+                        border: 1px solid rgba(212,175,55,0.2); 
+                        border-left: 4px solid var(--gold); 
+                        padding: 8px 12px; 
+                        margin: ${index === 0 ? '0' : '20px'} 0 12px 0; 
+                        border-radius: 2px;
+                    `;
+                    header.innerHTML = `<h4 style="font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold-light); letter-spacing: 0.15em; margin: 0; text-align: left;">MESA ${currentTable}</h4>`;
+                    tbody.appendChild(header);
+                }
+
+                // Tarjeta del invitado sin la insignia de mesa porque ya está en el grupo
                 const div = document.createElement('div');
                 div.className = 'admin-guest-card';
                 div.innerHTML = `
@@ -1065,7 +1101,6 @@
                             <div class="admin-guest-name">${g.guestName}</div>
                             <div class="admin-guest-host">Por: ${g.hostName}</div>
                         </div>
-                        <div class="admin-badge-mesa">MESA ${g.table}</div>
                     </div>
                     <div class="admin-guest-actions">
                         <div>
