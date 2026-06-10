@@ -243,7 +243,7 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 2px; }
 
-        /* ── CLASES CSS PARA EL MENÚ (Refactorización) ── */
+        /* ── CLASES CSS PARA EL MENÚ ── */
         .menu-course { position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15); }
         .menu-course:last-child { border-bottom: none; padding-bottom: 20px; }
         .menu-course-kanji { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0; }
@@ -406,7 +406,7 @@
 
                 <div class="cta-section reveal">
                     <button id="main-confirm-btn" class="confirm-btn" onclick="window.openCodeModal()">Confirmar Asistencia</button>
-                    <!-- CONTADOR EN VIVO (PUNTO 5) -->
+                    <!-- CONTADOR EN VIVO -->
                     <p id="live-counter" style="margin-top:16px; font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold-light); letter-spacing:0.15em;">CALCULANDO LUGARES...</p>
                     <p style="margin-top:12px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.35); letter-spacing:0.2em;">Aforos limitados · Respuesta antes del 14 de noviembre</p>
                 </div>
@@ -612,13 +612,14 @@
             <p id="ticket-status-msg" style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.85rem; color:rgba(212,175,55,0.7); margin-bottom: 24px; letter-spacing: 0.05em;">Guarda tu pase para el día del evento</p>
             
             <div class="ticket-card" id="ticket-card-capture">
+                <!-- Se corrigió el selector usando un ID para que el CSS no afecte a nada más -->
                 <img id="ticket-bg-img" src="enso.png" alt="Pase Ensō" crossorigin="anonymous" onerror="this.style.display='none'">
                 
+                <!-- OVERLAY RE-DISEÑADO LIMPIO: Solo Nombre y Mesa Centrados hasta abajo -->
                 <div class="ticket-overlay">
                     <div class="ticket-info">
                         <div id="ticket-guest-name" class="ticket-guest-name">Nombre del Invitado</div>
                         <div id="ticket-table-num" class="ticket-table-num">Mesa X</div>
-                        <!-- NUEVA FECHA AÑADIDA AL PASE -->
                         <div class="ticket-date">22 de Noviembre 2026</div>
                     </div>
                 </div>
@@ -645,7 +646,7 @@
         </div>
     </div>
 
-    <!-- ── MODAL 6: ADMIN DASHBOARD (NUEVO DISEÑO MÓVIL) ── -->
+    <!-- ── MODAL 6: ADMIN DASHBOARD (LOGÍSTICA MANUAL) ── -->
     <div id="modal-admin" class="modal-overlay">
         <div class="modal-box" style="max-width: 800px; padding: 24px; max-height: 90vh;">
             <span class="modal-close" onclick="window.closeModals()">×</span>
@@ -653,11 +654,10 @@
             
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                 <p class="modal-text" style="margin:0; text-align:left; font-size: 0.9rem;">Confirmados: <strong style="color:var(--gold-light); font-size: 1.2rem;" id="admin-total">0</strong></p>
-                <!-- Botón de impresión (solo visible en pantallas más grandes si es necesario, o lo dejamos) -->
                 <button class="btn-outline" style="padding: 6px 12px; font-size: 0.6rem;" onclick="window.print()">🖨️ Imprimir</button>
             </div>
 
-            <!-- TARJETAS DE INVITADOS (DISEÑO RESPONSIVO) -->
+            <!-- TARJETAS DE INVITADOS CON BOTONES MANUALES -->
             <div id="admin-table-body" style="max-height: 55vh; overflow-y:auto; padding-right: 4px;" class="custom-scrollbar">
                 <!-- Llenado automático con Firebase -->
             </div>
@@ -669,6 +669,7 @@
         <div id="dress-scroll-container" class="modal-box custom-scrollbar" style="max-width: 700px; padding: 32px 24px; overflow-y: auto;">
             <span class="modal-close" onclick="window.closeModals()">×</span>
             <h3 class="modal-title" style="font-size: 1.2rem; margin-bottom: 16px;">Inspiración de Vestimenta</h3>
+            <!-- Se llama a tu imagen subida a github -->
             <img src="dress.png" alt="Inspiración de vestimenta" style="width: 100%; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px;" onerror="this.style.display='none'">
             <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.95rem; color:rgba(212,175,55,0.8); line-height: 1.5; margin-bottom: 0;">
                 *Esta paleta de colores y estilos es únicamente una sugerencia para mantener la armonía visual de la gala. Siéntete con total libertad de asistir con los colores de tu preferencia.
@@ -706,12 +707,10 @@
             return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
         
-        // Las claves originales nunca están en texto plano en el código.
         let TARGET_ADMIN_HASH = "";
         let TARGET_RESET_HASH = "";
         
         async function initSecurity() {
-            // Ofuscación ligera adicional solo para construir el hash en memoria
             TARGET_ADMIN_HASH = await hashString(atob("VEVTVElHTzIwMjc=")); // "TESTIGO2027"
             TARGET_RESET_HASH = await hashString(atob("UkVTRVQyMDI3"));      // "RESET2027"
         }
@@ -739,7 +738,6 @@
             unsubscribe = onSnapshot(colRef, (snapshot) => {
                 allConfirmations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
-                // Actualizar contador en vivo en la pantalla principal
                 const counterEl = document.getElementById('live-counter');
                 if (counterEl) {
                     counterEl.innerText = `${allConfirmations.length} / ${TOTAL_MAX_CAPACITY} LUGARES CONFIRMADOS`;
@@ -751,7 +749,7 @@
             }, (err) => console.error("Error Firebase:", err));
         });
 
-        // ── BASE DE DATOS (Códigos) ──
+        // ── BASE DE DATOS Y LÍMITES POR ALUMNO ──
         const database = {
             // --- MESA 1 ---
             "VENTURA2022": { type: "special", name: "Chef Ventura", fullName: "Jose Ventura Huerta Gonzalez", table: 1, text: "Querido Chef Ventura:<br><br>Hay personas que llegan a nuestra vida para enseñarnos una materia. Otras, para enseñarnos un oficio. Pero existen unas pocas que dejan una huella tan profunda que terminan formando parte de quienes somos.<br><br>Hace cuatro años y medio cruzamos por primera vez la puerta de una cocina con más dudas que certezas. No sabíamos sostener correctamente un cuchillo, desconocíamos el lenguaje de los fogones y apenas comenzábamos a imaginar el camino que teníamos por delante. Usted estuvo ahí desde el primer día.<br><br>Fue el primer chef que nos habló de respeto antes que de recetas, de disciplina antes que de reconocimiento y de pasión antes que de técnica. Nos enseñó que cocinar no consiste únicamente en transformar ingredientes, sino en transformar personas. Nos mostró que detrás de cada plato existe historia, esfuerzo, carácter y corazón.<br><br>Con el paso de los semestres llegaron nuevos maestros, nuevas cocinas y nuevos desafíos, pero siempre recordamos que fue usted quien encendió la primera llama. Quien nos enseñó a confiar en nuestras manos cuando aún temblaban. Quien corrigió nuestros errores cuando apenas comenzábamos a caminar. Quien sembró en nosotros el amor y el respeto por esta profesión que hoy elegimos como proyecto de vida.<br><br>Gracias por su paciencia, por su exigencia, por sus enseñanzas y por creer en nosotros cuando todavía éramos jóvenes aprendices intentando descubrir nuestro lugar en el mundo.<br><br>Hace cuatro años y medio, frente a usted, comenzamos a trazar los primeros pasos de esta historia. Hoy deseamos compartir con quien encendió la primera llama el instante en que ese trazo finalmente se completa.<br><br>Porque algunos círculos no pueden cerrarse sin las personas que les dieron origen.<br><br>Y porque esta historia comenzó frente a usted, nos llenaría de orgullo, emoción y gratitud poder contar con su presencia en la noche en que, después de cuatro años y medio de aprendizaje, esfuerzo y sueños compartidos, finalmente cerremos el círculo." },
@@ -769,7 +767,7 @@
             "YURI200": { type: "special", name: "Maestra Yuri", fullName: "Yuri Vannesa Berumen Delgado", table: 2, text: "Querida Maestra Yuri:<br><br>Hay personas que pasan por nuestra vida dejando enseñanzas. Y hay otras que dejan una huella tan profunda que terminan formando parte de quienes somos.<br><br>Usted estuvo con nosotros desde el principio.<br><br>Nos acompañó en los primeros semestres, en los proyectos integradores, en las semanas culturales, en los eventos, en retos, en triunfos y también en momentos difíciles. Incluso cuando ya no nos impartía clases, siempre encontraba la manera de estar cerca, de acompañarnos, de escucharnos y de alentarnos a seguir adelante.<br><br>Por eso, cuando pensamos en nuestra historia como generación, es imposible imaginarla sin usted.<br><br>Porque más allá de las aulas, de las calificaciones o de las actividades, nos regaló algo mucho más valioso: su tiempo, su cariño, su confianza y su presencia constante.<br><br>En una etapa de la vida donde tantas personas van y vienen, usted eligió quedarse. Estuvo ahí cuando celebramos, cuando tropezamos, cuando soñamos y cuando dudamos. Siempre estuvo ahí.<br><br>Nos llevamos innumerables recuerdos, pero sobre todo nos llevamos el privilegio de haber conocido a una persona extraordinaria. Una maestra excepcional, sí, pero también una amiga, una guía y uno de los corazones más nobles que hemos encontrado en este camino.<br><br>Cuando los años pasen y recordemos esta generación, recordaremos muchas clases, muchos proyectos y muchas experiencias. Pero también recordaremos a una mujer que creyó en nosotros incluso cuando nosotros mismos no estábamos seguros de poder lograrlo.<br><br>Con usted comenzaron muchos de los momentos más importantes de esta historia. Y por eso, en esta noche tan significativa, deseamos compartirle el honor de acompañarnos una vez más.<br><br>Porque algunos maestros enseñan una materia. Otros enseñan una profesión. Pero usted nos enseñó, con su ejemplo, el valor de acompañar a las personas.<br><br>Y porque fue una parte indispensable de nuestro camino, nos haría profundamente felices que estuviera presente cuando, después de cuatro años y medio de historia, finalmente cerremos el círculo." },
             "AMEZCUA025": { type: "special", name: "Jorge Amezcua", fullName: "Jorge Alberto Amezcua Aguirre", table: 2, text: "Estimado Jorge Alberto Amezcua Aguirre:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
 
-            // --- ALUMNOS ---
+            // --- ALUMNOS ESTÁNDAR (TODOS CON LÍMITE DE 4 INVITADOS) ---
             "ARON26":       { type: "standard", name: "Aron Rafael Bañuelos Cortez", table: 2 },
             "BRANDON26":    { type: "standard", name: "Brandon Jaramillo Rosas", table: 8 },
             "CARLOS26":     { type: "standard", name: "Carlos Isac Luna", table: 5 },
@@ -803,10 +801,8 @@
         const errorText = document.getElementById('code-error');
         const nameErrorText = document.getElementById('name-error');
 
-        // Helper para timeouts de red
         const timeoutPromise = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), ms));
 
-        // REINICIO DE SCROLL PARA LOS MODALES
         window.openMenuModal = function() { 
             document.getElementById('modal-menu').classList.add('active'); 
             setTimeout(() => {
@@ -839,9 +835,10 @@
 
             if (currentValidData) {
                 if (currentValidData.type === 'standard') {
+                    const limit = 4; // Límite estricto de 4 para todos los alumnos
                     const count = allConfirmations.filter(c => c.hostCode === currentValidDataCode).length;
-                    if (count >= 4) {
-                        errorText.innerText = "Este anfitrión ya ha completado su aforo máximo de 4 invitados.";
+                    if (count >= limit) {
+                        errorText.innerText = `Este anfitrión ya ha completado su aforo máximo de ${limit} invitados.`;
                         errorText.style.opacity = '1';
                         return; 
                     }
@@ -889,7 +886,7 @@
             }
         };
 
-        // 2. Aceptar Invitación (Con protección Offline)
+        // 2. Aceptar Invitación VIP (Protección contra fallos y límite)
         window.handleMessageAccept = async function() {
             const btnAccept = document.getElementById('btn-accept-invite');
             btnAccept.disabled = true; btnAccept.innerText = "Registrando...";
@@ -897,6 +894,9 @@
             if (currentValidData.type === 'special') {
                 const exists = allConfirmations.find(c => c.hostCode === currentValidDataCode);
                 if (!exists) {
+                    let timeoutId;
+                    const safeTimeoutPromise = new Promise((_, reject) => { timeoutId = setTimeout(() => reject(new Error("TIMEOUT")), 8000); });
+
                     try {
                         const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
                         await Promise.race([
@@ -905,11 +905,14 @@
                                 hostName: "Invitado VIP", table: currentValidData.table, timestamp: new Date().toISOString(),
                                 asistio: false
                             }),
-                            timeoutPromise(8000)
+                            safeTimeoutPromise
                         ]);
+                        clearTimeout(timeoutId); // Mata el timer para que no estorbe en el fondo
+                        
                         document.getElementById('modal-message').classList.remove('active');
                         setTimeout(() => showTicket(currentValidData.fullName, currentValidData.table), 400);
                     } catch(e) { 
+                        clearTimeout(timeoutId); // Mata el timer por seguridad
                         if (e.message === "TIMEOUT" || !navigator.onLine) {
                             btnAccept.innerText = "Sin conexión. Generando pase offline...";
                             btnAccept.style.color = "var(--gold-light)";
@@ -921,6 +924,7 @@
                             btnAccept.innerText = "Error. Intenta de nuevo.";
                             btnAccept.disabled = false;
                         }
+                        return;
                     }
                 } else {
                     document.getElementById('modal-message').classList.remove('active');
@@ -933,9 +937,10 @@
                     document.getElementById('modal-name').classList.add('active'); guestNameInput.focus();
                 }, 400);
             }
+            btnAccept.disabled = false; btnAccept.innerText = "Aceptar Invitación";
         };
 
-        // 3. Generar Pase Estándar (Con protección Offline)
+        // 3. Generar Pase Estándar (Protección contra fallos y candado estricto)
         window.generateStandardTicket = async function() {
             const guestName = guestNameInput.value.trim().toUpperCase();
             if (guestName === "") {
@@ -945,11 +950,15 @@
             const btnGen = document.getElementById('btn-generate-ticket');
             btnGen.disabled = true; btnGen.innerText = "Verificando...";
 
+            const limit = 4; // CANDADO ESTRICTO DE 4 INVITADOS
             const count = allConfirmations.filter(c => c.hostCode === currentValidDataCode).length;
-            if (count >= 4) {
+            if (count >= limit) {
                 nameErrorText.innerText = "Lo sentimos, el aforo de este anfitrión se acaba de completar."; nameErrorText.style.opacity = '1';
                 btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase"; return;
             }
+
+            let timeoutId;
+            const safeTimeoutPromise = new Promise((_, reject) => { timeoutId = setTimeout(() => reject(new Error("TIMEOUT")), 8000); });
 
             try {
                 const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
@@ -959,12 +968,15 @@
                         table: currentValidData.table, timestamp: new Date().toISOString(),
                         asistio: false
                     }),
-                    timeoutPromise(8000)
+                    safeTimeoutPromise
                 ]);
+                clearTimeout(timeoutId); // Mata el reloj fantasma
+                
                 nameErrorText.style.opacity = '0';
                 document.getElementById('modal-name').classList.remove('active');
                 setTimeout(() => showTicket(guestName, currentValidData.table), 400);
             } catch(e) {
+                clearTimeout(timeoutId); // Mata el reloj por seguridad
                 if (e.message === "TIMEOUT" || !navigator.onLine) {
                     nameErrorText.innerText = "Sin conexión — mostrando pase offline para el staff...";
                     nameErrorText.style.opacity = '1';
@@ -975,8 +987,9 @@
                     }, 2000);
                 } else {
                     console.error(e); nameErrorText.innerText = "Error de conexión. Intenta nuevamente."; nameErrorText.style.opacity = '1';
-                    btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
                 }
+            } finally {
+                btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
             }
         };
 
@@ -985,7 +998,6 @@
             document.getElementById('ticket-guest-name').innerText = nameToDisplay;
             document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
             
-            // Actualizar status por si fue offline
             document.getElementById('ticket-status-msg').innerText = !navigator.onLine ? "Sin conexión — Muestra este pase al staff en puerta" : "Guarda tu pase para el día del evento";
             
             document.getElementById('modal-ticket').classList.add('active');
@@ -1011,7 +1023,7 @@
             document.getElementById('invite-code-input').value = ''; document.getElementById('guest-name-input').value = '';
         };
 
-        // ── LÓGICA DE ADMIN Y HASHES ──
+        // ── LÓGICA DE ADMIN SIMPLIFICADA CON HASHEO (SIN QR) ──
         window.openAdminLogin = async function() {
             adminPassInput.value = ''; document.getElementById('admin-error').style.opacity = '0';
             document.getElementById('modal-admin-login').classList.add('active'); adminPassInput.focus();
@@ -1038,18 +1050,12 @@
                 } else {
                     alert("Operación cancelada. No escribiste 'BORRAR'.");
                 }
-            } else { 
-                document.getElementById('admin-error').style.opacity = '1'; 
-            }
+            } else { document.getElementById('admin-error').style.opacity = '1'; }
         };
 
         window.renderAdminTable = function() {
-            const tbody = document.getElementById('admin-table-body'); 
-            tbody.innerHTML = ''; 
-            document.getElementById('admin-total').innerText = allConfirmations.length;
-            
+            const tbody = document.getElementById('admin-table-body'); tbody.innerHTML = ''; document.getElementById('admin-total').innerText = allConfirmations.length;
             const sorted = [...allConfirmations].sort((a, b) => a.hostName.localeCompare(b.hostName));
-            
             sorted.forEach(g => {
                 const div = document.createElement('div');
                 div.className = 'admin-guest-card';
