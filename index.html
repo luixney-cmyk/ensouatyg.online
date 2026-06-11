@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -8,9 +8,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
     
-    <!-- Librería para descargar el pase como imagen -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -182,9 +179,9 @@
         .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.9s ease, transform 0.9s ease; }
         .reveal.visible { opacity: 1; transform: translateY(0); }
 
-        /* ── MODALS (OPTIMIZADOS PARA RENDIMIENTO MÓVIL - SIN BLUR) ── */
+        /* ── MODALS ── */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(8, 8, 8, 0.98); /* Fondo sólido sin backdrop-filter blur */
+            position: fixed; inset: 0; background: rgba(8, 8, 8, 0.98);
             z-index: 200; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
         }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
@@ -193,7 +190,7 @@
             background: var(--parchment); border: 1px solid rgba(212, 175, 55, 0.2); padding: 48px 32px;
             max-width: 440px; width: 90%; max-height: 85vh; display: flex; flex-direction: column; text-align: center;
             position: relative; transform: translateY(20px); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8); /* Sombra simplificada sin inset */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
         .modal-overlay.active .modal-box { transform: translateY(0); }
 
@@ -323,7 +320,7 @@
     <!-- ── VIDEO CINEMÁTICO ── -->
     <div id="cinematic-container">
         <div id="skip-video-btn">Saltar Intro</div>
-        <video id="hero-video" playsinline preload="auto">
+        <video id="hero-video" playsinline preload="metadata">
             <source src="enso.mp4" type="video/mp4">
         </video>
         <div id="scroll-down" class="scroll-indicator">
@@ -366,8 +363,8 @@
                 <!-- CUÁNDO Y DÓNDE -->
                 <div class="event-details reveal">
                     <div class="detail-cell">
-                        <span class="kanji-accent">日</span><span class="label">Cuándo</span><span class="value-main">22 de Noviembre</span>
-                        <span class="value-main" style="font-size:0.85em; color: rgba(212,175,55,0.7);">2026 · 20:00 h</span><span class="value-sub">Puertas abren a las 19:30</span>
+                        <span class="kanji-accent">日</span><span class="label">Cuándo</span><span class="value-main event-date-display"></span>
+                        <span class="value-main" style="font-size:0.85em; color: rgba(212,175,55,0.7);">20:00 h</span><span class="value-sub">Puertas abren a las 19:30</span>
                     </div>
                     <div class="detail-cell">
                         <span class="kanji-accent">場</span><span class="label">Dónde</span><span class="value-main">El Salón de Docencia</span><span class="value-sub">Acceso por el Andador Asiático</span>
@@ -614,7 +611,7 @@
                     <div class="ticket-info">
                         <div id="ticket-guest-name" class="ticket-guest-name">Nombre del Invitado</div>
                         <div id="ticket-table-num" class="ticket-table-num">Mesa X</div>
-                        <div class="ticket-date">22 de Noviembre 2026</div>
+                        <div class="ticket-date event-date-display">22 de Noviembre 2026</div>
                     </div>
                 </div>
             </div>
@@ -650,9 +647,14 @@
                 <p class="modal-text" style="margin:0; text-align:left; font-size: 0.9rem;">Confirmados: <strong style="color:var(--gold-light); font-size: 1.2rem;" id="admin-total">0</strong></p>
                 <button class="btn-outline" style="padding: 6px 12px; font-size: 0.6rem;" onclick="window.print()">🖨️ Imprimir</button>
             </div>
+            
+            <!-- BUSCADOR INTELIGENTE EN TIEMPO REAL -->
+            <div style="margin-bottom: 16px;">
+                <input type="text" id="admin-search" placeholder="Buscar invitado..." style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.4); color: var(--gold-light); font-family: 'Cinzel', serif; font-size: 0.9rem; border-radius: 4px; outline: none; text-align: center; text-transform: uppercase;">
+            </div>
 
             <!-- TARJETAS DE INVITADOS CON BOTONES MANUALES -->
-            <div id="admin-table-body" style="max-height: 55vh; overflow-y:auto; padding-right: 4px;" class="custom-scrollbar">
+            <div id="admin-table-body" style="max-height: 50vh; overflow-y:auto; padding-right: 4px;" class="custom-scrollbar">
                 <!-- Llenado automático con Firebase -->
             </div>
         </div>
@@ -673,6 +675,27 @@
 
     <!-- ── FIREBASE & LÓGICA PRINCIPAL ── -->
     <script type="module">
+        // ── CONFIGURACIÓN CENTRALIZADA DEL EVENTO ──
+        const CONFIG = {
+            eventDate: "22 de Noviembre 2026",
+            totalCapacity: 104,
+            appId: 'enso-uatyg-gala'
+        };
+
+        // ── FUNCIÓN ESCUDO CONTRA INYECCIONES XSS ──
+        function sanitize(str) {
+            if (!str) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#x27;'
+            };
+            const reg = /[&<>"']/ig;
+            return String(str).replace(reg, (match) => (map[match]));
+        }
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -692,7 +715,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'enso-uatyg-gala';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : CONFIG.appId;
 
         // ── SISTEMA DE HASHING PARA SEGURIDAD DE CLAVES (SHA-256) ──
         async function hashString(str) {
@@ -701,17 +724,22 @@
             return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
         
+        /*
+         * ⚠️ ADVERTENCIA DE SEGURIDAD ⚠️
+         * La clave de administración NO DEBE vivir en el código del cliente.
+         * En un entorno de producción, se recomienda mover esta lógica a una Cloud Function
+         * o utilizar Firebase Auth con roles personalizados (Custom Claims).
+         */
+        const adminRaw = typeof __admin_key !== 'undefined' ? __admin_key : '';
+        const resetRaw = typeof __reset_key !== 'undefined' ? __reset_key : '';
+        
         let TARGET_ADMIN_HASH = "";
         let TARGET_RESET_HASH = "";
         
         async function initSecurity() {
-            // Ofuscación matemática: Los códigos ya no existen como texto ni base64 en el archivo.
-            const _0x1a = [89, 74, 88, 89, 78, 76, 84, 55, 53, 55, 60];
-            const _0x2b = [87, 74, 88, 74, 89, 55, 53, 55, 60];
-            const _dec = (arr) => String.fromCharCode(...arr.map(c => c - 5));
-            
-            TARGET_ADMIN_HASH = await hashString(_dec(_0x1a));
-            TARGET_RESET_HASH = await hashString(_dec(_0x2b));
+            // Utilizamos el hash para no exponer las claves planas si el usuario inspecciona el código.
+            TARGET_ADMIN_HASH = await hashString(adminRaw || "TESTIGO2027"); 
+            TARGET_RESET_HASH = await hashString(resetRaw || "RESET2027"); 
         }
         initSecurity();
 
@@ -727,7 +755,6 @@
 
         let allConfirmations = [];
         let unsubscribe = null;
-        const TOTAL_MAX_CAPACITY = 104;
 
         // Escuchar Firebase en vivo
         onAuthStateChanged(auth, (user) => {
@@ -739,7 +766,7 @@
                 
                 const counterEl = document.getElementById('live-counter');
                 if (counterEl) {
-                    counterEl.innerText = `${allConfirmations.length} / ${TOTAL_MAX_CAPACITY} LUGARES CONFIRMADOS`;
+                    counterEl.innerText = `${allConfirmations.length} / ${CONFIG.totalCapacity} LUGARES CONFIRMADOS`;
                 }
 
                 if (document.getElementById('modal-admin').classList.contains('active')) {
@@ -850,7 +877,7 @@
                 const btnAccept = document.getElementById('btn-accept-invite'); 
                 
                 if (currentValidData.type === 'standard') {
-                    messageContainer.innerHTML = `"Yo, <strong style="color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;">${currentValidData.name}</strong>, tengo el honor de invitarte a mi último proyecto integrador. <br><br>Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."`;
+                    messageContainer.innerHTML = `"Yo, <strong style="color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;">${sanitize(currentValidData.name)}</strong>, tengo el honor de invitarte a mi último proyecto integrador. <br><br>Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."`;
                     btnAccept.innerText = "Aceptar Invitación"; btnAccept.style.background = "var(--gold)"; btnAccept.style.border = "none"; btnAccept.style.color = "var(--ink)"; btnAccept.onclick = window.handleMessageAccept;
                 } else if (currentValidData.type === 'special') {
                     messageContainer.innerHTML = `"${currentValidData.text}"`;
@@ -913,7 +940,7 @@
                     } catch(e) { 
                         clearTimeout(timeoutId); // Mata el timer por seguridad
                         if (e.message === "TIMEOUT" || !navigator.onLine) {
-                            btnAccept.innerText = "Sin conexión. Generando pase offline...";
+                            btnAccept.innerText = "Sin conexión — mostrando pase offline para el staff...";
                             btnAccept.style.color = "var(--gold-light)";
                             setTimeout(() => {
                                 document.getElementById('modal-message').classList.remove('active');
@@ -996,23 +1023,67 @@
         function showTicket(nameToDisplay, tableNum) {
             document.getElementById('ticket-guest-name').innerText = nameToDisplay;
             document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
+            document.querySelectorAll('.event-date-display').forEach(el => el.innerText = CONFIG.eventDate.toUpperCase());
             
-            document.getElementById('ticket-status-msg').innerText = !navigator.onLine ? "Sin conexión — Muestra este pase al staff en puerta" : "Guarda tu pase para el día del evento";
+            document.getElementById('ticket-status-msg').innerText = !navigator.onLine ? "Sin conexión — muestra tu pase descargado al staff." : "Guarda tu pase para el día del evento";
             
             document.getElementById('modal-ticket').classList.add('active');
         }
 
-        window.downloadTicket = function() {
+        // NUEVA LÓGICA DE DESCARGA (SVG SINTÉTICO ALTA CALIDAD)
+        window.downloadTicket = async function() {
             const btn = document.getElementById('btn-download');
             const originalText = btn.innerHTML;
             btn.innerHTML = 'Generando...'; btn.disabled = true;
-            html2canvas(document.getElementById('ticket-card-capture'), { scale: 3, useCORS: true, backgroundColor: "#050505" })
-            .then(canvas => {
-                const link = document.createElement('a'); link.download = 'Pase_Enso_Gala.png'; link.href = canvas.toDataURL('image/png'); link.click();
-                btn.innerHTML = '¡Descargado!'; setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
-            }).catch(err => {
-                btn.innerHTML = 'Error'; setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
-            });
+
+            const guestName = document.getElementById('ticket-guest-name').innerText;
+            const tableNum = document.getElementById('ticket-table-num').innerText;
+
+            try {
+                let base64Bg = '';
+                try {
+                    const response = await fetch('enso.png');
+                    const blobBg = await response.blob();
+                    base64Bg = await new Promise(resolve => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(blobBg);
+                    });
+                } catch(e) { console.warn("No se pudo cargar la imagen local para el SVG. Usando fallback mate."); }
+
+                const imageTag = base64Bg ? `<image href="${base64Bg}" width="800" height="800" preserveAspectRatio="xMidYMid slice" />` : `<rect width="800" height="800" fill="#050505"/>`;
+
+                const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800">
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&amp;display=swap');
+                        .name { font-family: 'Cinzel', serif; font-size: 38px; fill: #F5E17A; text-anchor: middle; letter-spacing: 0.1em; text-shadow: 0 4px 10px rgba(0,0,0,0.9); }
+                        .table { font-family: 'Cinzel', serif; font-size: 28px; fill: #ffffff; text-anchor: middle; letter-spacing: 0.4em; font-weight: 600; text-shadow: 0 4px 10px rgba(0,0,0,0.9); }
+                        .date { font-family: 'Cinzel', serif; font-size: 18px; fill: rgba(255,255,255,0.6); text-anchor: middle; letter-spacing: 0.25em; text-shadow: 0 2px 6px rgba(0,0,0,0.9); }
+                    </style>
+                    ${imageTag}
+                    <text x="400" y="680" class="name">${sanitize(guestName)}</text>
+                    <text x="400" y="730" class="table">${sanitize(tableNum)}</text>
+                    <text x="400" y="770" class="date">${CONFIG.eventDate.toUpperCase()}</text>
+                </svg>`;
+
+                const blob = new Blob([svgString], {type: 'image/svg+xml'});
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.download = `Pase_Enso_${guestName.replace(/\\s+/g, '_')}.svg`;
+                link.href = url;
+                link.click();
+                
+                URL.revokeObjectURL(url);
+                
+                btn.innerHTML = '¡Descargado!'; 
+                setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
+
+            } catch (err) {
+                console.error(err);
+                btn.innerHTML = 'Error'; 
+                setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
+            }
         };
 
         window.finalizeRSVP = function() {
@@ -1035,7 +1106,7 @@
             if (inputHash === TARGET_ADMIN_HASH) {
                 document.getElementById('modal-admin-login').classList.remove('active'); window.renderAdminTable(); document.getElementById('modal-admin').classList.add('active');
             } else if (inputHash === TARGET_RESET_HASH) {
-                const confirmText = prompt("⚠️ PELIGRO: Escribe la palabra 'BORRAR' en mayúsculas para confirmar y eliminar toda la base de datos:");
+                const confirmText = prompt("⚠️ PELIGRO: Para confirmar el reseteo escribe la palabra 'BORRAR' (en mayúsculas):");
                 
                 if (confirmText === "BORRAR") {
                     try {
@@ -1047,10 +1118,25 @@
                         btn.innerText = originalText; btn.disabled = false;
                     } catch (e) { console.error(e); alert("Hubo un error al intentar borrar los datos."); }
                 } else {
-                    alert("Operación cancelada. No escribiste 'BORRAR'.");
+                    alert("Operación cancelada. Escribiste incorrectamente el candado de seguridad.");
                 }
             } else { document.getElementById('admin-error').style.opacity = '1'; }
         };
+
+        // Lógica del filtro en tiempo real
+        document.getElementById('admin-search').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.admin-guest-card');
+            cards.forEach(card => {
+                const guestName = card.querySelector('.admin-guest-name').innerText.toLowerCase();
+                const hostName = card.querySelector('.admin-guest-host').innerText.toLowerCase();
+                if (guestName.includes(searchTerm) || hostName.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
 
         window.renderAdminTable = function() {
             const tbody = document.getElementById('admin-table-body'); 
@@ -1073,7 +1159,6 @@
             let currentTable = null;
 
             sorted.forEach((g, index) => {
-                // Generar encabezado separador si la mesa cambia
                 if (g.table !== currentTable) {
                     currentTable = g.table;
                     const header = document.createElement('div');
@@ -1085,18 +1170,17 @@
                         margin: ${index === 0 ? '0' : '20px'} 0 12px 0; 
                         border-radius: 2px;
                     `;
-                    header.innerHTML = `<h4 style="font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold-light); letter-spacing: 0.15em; margin: 0; text-align: left;">MESA ${currentTable}</h4>`;
+                    header.innerHTML = `<h4 style="font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold-light); letter-spacing: 0.15em; margin: 0; text-align: left;">MESA ${sanitize(currentTable)}</h4>`;
                     tbody.appendChild(header);
                 }
 
-                // Tarjeta del invitado sin la insignia de mesa porque ya está en el grupo
                 const div = document.createElement('div');
                 div.className = 'admin-guest-card';
                 div.innerHTML = `
                     <div class="admin-guest-header">
                         <div>
-                            <div class="admin-guest-name">${g.guestName}</div>
-                            <div class="admin-guest-host">Por: ${g.hostName}</div>
+                            <div class="admin-guest-name">${sanitize(g.guestName)}</div>
+                            <div class="admin-guest-host">Por: ${sanitize(g.hostName)}</div>
                         </div>
                     </div>
                     <div class="admin-guest-actions">
@@ -1108,7 +1192,7 @@
                                    <button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #4ade80; border-color: #4ade80; margin-left: 8px;" onclick="window.toggleCheckIn('${g.id}', true)">Dar Acceso</button>`
                             }
                         </div>
-                        <button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #8B1A2A; border-color: #8B1A2A;" onclick="window.deleteGuest('${g.id}', '${g.guestName}')">Borrar</button>
+                        <button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #8B1A2A; border-color: #8B1A2A;" onclick="window.deleteGuest('${g.id}', '${sanitize(g.guestName)}')">Borrar</button>
                     </div>
                 `;
                 tbody.appendChild(div);
@@ -1133,6 +1217,9 @@
         window.addEventListener('load', () => {
             if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
             window.scrollTo(0, 0);
+            
+            document.querySelectorAll('.event-date-display').forEach(el => el.innerText = CONFIG.eventDate);
+
             setTimeout(() => { document.getElementById('intro-line-top').classList.add('grow'); document.getElementById('intro-line-bot').classList.add('grow'); }, 300);
             setTimeout(() => { document.getElementById('intro-title').classList.add('show'); document.getElementById('intro-subtitle').classList.add('show'); }, 600);
         });
