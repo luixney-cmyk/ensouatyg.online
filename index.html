@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -724,22 +724,18 @@
             return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
         
-        /*
-         * ⚠️ ADVERTENCIA DE SEGURIDAD ⚠️
-         * La clave de administración NO DEBE vivir en el código del cliente.
-         * En un entorno de producción, se recomienda mover esta lógica a una Cloud Function
-         * o utilizar Firebase Auth con roles personalizados (Custom Claims).
-         */
-        const adminRaw = typeof __admin_key !== 'undefined' ? __admin_key : '';
-        const resetRaw = typeof __reset_key !== 'undefined' ? __reset_key : '';
-        
         let TARGET_ADMIN_HASH = "";
         let TARGET_RESET_HASH = "";
         
         async function initSecurity() {
-            // Utilizamos el hash para no exponer las claves planas si el usuario inspecciona el código.
-            TARGET_ADMIN_HASH = await hashString(adminRaw || "TESTIGO2027"); 
-            TARGET_RESET_HASH = await hashString(resetRaw || "RESET2027"); 
+            // Utilizamos hashes pre-calculados para NO exponer las contraseñas en el código fuente.
+            // Los valores reales NUNCA están en este archivo.
+            
+            // Hash correspondiente a la clave de Admin
+            TARGET_ADMIN_HASH = "80f682cbac9938b80e8e4588e36785bbaab5efbaefec82b4cc4cebb3057e93dc"; 
+            
+            // Hash correspondiente a la clave de Reset
+            TARGET_RESET_HASH = "b328a6fcf4aeb91e92d95e00346c1e34360341e97669d031e847cd691d09e53b"; 
         }
         initSecurity();
 
