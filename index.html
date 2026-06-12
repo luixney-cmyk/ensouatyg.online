@@ -587,7 +587,7 @@
         <div class="modal-box" style="max-width: 520px; padding-top: 56px;">
             <span class="modal-close" onclick="window.closeModals()">×</span>
             <div id="personal-message"></div>
-            <button id="btn-accept-invite" class="btn-outline" style="margin-top: auto;"></button>
+            <button id="btn-accept-invite" class="btn-outline" style="margin-top: auto;" onclick="window.handleMessageAccept()"></button>
         </div>
     </div>
 
@@ -831,7 +831,7 @@
                     if (currentValidData.usado) {
                         const guestDoc = allConfirmations.find(c => c.hostCode === currentValidDataCode);
                         if(guestDoc) {
-                            errorText.innerHTML = `Código ya utilizado por <b>${sanitize(guestDoc.guestName)}</b>.<br>Generando pase anterior...`;
+                            errorText.innerHTML = `Este código ya fue utilizado por <b>${sanitize(guestDoc.guestName)}</b>.<br>Generando pase anterior...`;
                             errorText.style.opacity = '1'; errorText.style.color = '#10b981';
                             setTimeout(() => {
                                 document.getElementById('modal-code').classList.remove('active');
@@ -852,12 +852,21 @@
                     const messageContainer = document.getElementById('personal-message');
                     const btnAccept = document.getElementById('btn-accept-invite'); 
                     
+                    // Asegurar que el botón se habilite siempre que abrimos este modal
+                    btnAccept.disabled = false;
+                    
                     if (currentValidData.type === 'standard') {
                         messageContainer.innerHTML = `"Yo, <strong style="color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;">${sanitize(currentValidData.hostName)}</strong>, tengo el honor de invitarte a mi último proyecto integrador. <br><br>Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."`;
-                        btnAccept.innerText = "Aceptar Invitación"; btnAccept.style.background = "var(--gold)"; btnAccept.style.border = "none"; btnAccept.style.color = "var(--ink)"; btnAccept.onclick = window.handleMessageAccept;
+                        btnAccept.innerText = "Aceptar Invitación"; 
+                        btnAccept.style.background = "var(--gold)"; 
+                        btnAccept.style.border = "none"; 
+                        btnAccept.style.color = "var(--ink)"; 
                     } else if (currentValidData.type === 'special') {
                         messageContainer.innerHTML = `"${currentValidData.text}"`;
-                        btnAccept.innerText = "Aceptar Invitación"; btnAccept.style.background = "var(--gold)"; btnAccept.style.border = "none"; btnAccept.style.color = "var(--ink)"; btnAccept.onclick = window.handleMessageAccept;
+                        btnAccept.innerText = "Aceptar Invitación"; 
+                        btnAccept.style.background = "var(--gold)"; 
+                        btnAccept.style.border = "none"; 
+                        btnAccept.style.color = "var(--ink)"; 
                     }
                     
                     setTimeout(() => {
@@ -866,25 +875,27 @@
                     }, 400);
 
                 } else {
-                    errorText.innerText = "Código no encontrado. Recuerda incluir los 4 números al final (Ej. LUIS4021).";
+                    // Mensaje limpio tal como solicitaste
+                    errorText.innerText = "Código no encontrado.";
                     errorText.style.opacity = '1';
                     codeInput.focus();
                 }
             } catch (error) {
-                errorText.innerText = "Error Firebase: " + error.message;
+                errorText.innerText = "Error de conexión: " + error.message;
                 errorText.style.opacity = '1';
             } finally {
                 btn.innerText = originalText; btn.disabled = false;
             }
         };
 
-        // 2. Aceptar Invitación VIP (Registro y quemado de código)
+        // 2. Aceptar Invitación VIP o Estándar (Redirigir)
         window.handleMessageAccept = async function() {
             const btnAccept = document.getElementById('btn-accept-invite');
-            btnAccept.disabled = true; btnAccept.innerText = "Registrando...";
+            btnAccept.disabled = true; 
+            btnAccept.innerText = "Procesando...";
 
-            if (currentValidData.type === 'special') {
-                try {
+            try {
+                if (currentValidData.type === 'special') {
                     const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
                     const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
                     
@@ -903,15 +914,22 @@
                     
                     document.getElementById('modal-message').classList.remove('active');
                     setTimeout(() => showTicket(currentValidData.fullName, currentValidData.table), 400);
-                } catch(e) { 
-                    btnAccept.innerText = "Error: " + e.message; btnAccept.disabled = false;
+                } else {
+                    document.getElementById('modal-message').classList.remove('active');
+                    setTimeout(() => {
+                        guestNameInput.value = ''; 
+                        nameErrorText.style.opacity = '0';
+                        document.getElementById('modal-name').classList.add('active'); 
+                        guestNameInput.focus();
+                        
+                        // Reiniciar el botón del mensaje para la próxima vez
+                        btnAccept.disabled = false;
+                        btnAccept.innerText = "Aceptar Invitación";
+                    }, 400);
                 }
-            } else {
-                document.getElementById('modal-message').classList.remove('active');
-                setTimeout(() => {
-                    guestNameInput.value = ''; nameErrorText.style.opacity = '0';
-                    document.getElementById('modal-name').classList.add('active'); guestNameInput.focus();
-                }, 400);
+            } catch (e) {
+                btnAccept.innerText = "Error: " + e.message; 
+                btnAccept.disabled = false;
             }
         };
 
@@ -943,7 +961,11 @@
                 
                 nameErrorText.style.opacity = '0';
                 document.getElementById('modal-name').classList.remove('active');
-                setTimeout(() => showTicket(guestName, currentValidData.table), 400);
+                setTimeout(() => {
+                    showTicket(guestName, currentValidData.table);
+                    // Habilitar botón para la próxima vez
+                    btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
+                }, 400);
             } catch(e) {
                 nameErrorText.innerText = "Error: " + e.message; nameErrorText.style.opacity = '1';
                 btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
@@ -1094,15 +1116,16 @@
 
         window.toggleCheckIn = async function(docId, status) { try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId), { asistio: status }); } catch(e){} };
 
-        // Al borrar un invitado, liberamos su código!
+        // Al borrar un invitado, primero se borra, y si era un registro nuevo también libera el código.
         window.deleteGuest = async function(docId, guestName, hostCode) {
             if(confirm(`¿Eliminar a ${guestName}? Su código de invitación (${hostCode}) volverá a estar libre.`)){
                 try { 
-                    const batch = writeBatch(db);
-                    batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId));
-                    // USAMOS 'set' con 'merge' para evitar que Firebase crashee si el código viejo no existía
-                    batch.set(doc(db, 'artifacts', appId, 'public', 'data', 'invites', hostCode), { usado: false, guestName: "" }, { merge: true });
-                    await batch.commit();
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId));
+                    try {
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'invites', hostCode), { usado: false, guestName: "" });
+                    } catch(err) {
+                        console.log("No se pudo liberar el código (probablemente es un registro antiguo previo a la actualización).", err);
+                    }
                 } catch(e) {
                     alert("Error al borrar el registro: " + e.message);
                 }
