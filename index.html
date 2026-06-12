@@ -866,12 +866,12 @@
                     }, 400);
 
                 } else {
-                    errorText.innerText = "Código no reconocido. Verifica e intenta nuevamente.";
+                    errorText.innerText = "Código no encontrado. Recuerda incluir los 4 números al final (Ej. LUIS4021).";
                     errorText.style.opacity = '1';
                     codeInput.focus();
                 }
             } catch (error) {
-                errorText.innerText = "Error de conexión. Intenta nuevamente.";
+                errorText.innerText = "Error Firebase: " + error.message;
                 errorText.style.opacity = '1';
             } finally {
                 btn.innerText = originalText; btn.disabled = false;
@@ -904,7 +904,7 @@
                     document.getElementById('modal-message').classList.remove('active');
                     setTimeout(() => showTicket(currentValidData.fullName, currentValidData.table), 400);
                 } catch(e) { 
-                    btnAccept.innerText = "Error. Intenta de nuevo."; btnAccept.disabled = false;
+                    btnAccept.innerText = "Error: " + e.message; btnAccept.disabled = false;
                 }
             } else {
                 document.getElementById('modal-message').classList.remove('active');
@@ -945,7 +945,7 @@
                 document.getElementById('modal-name').classList.remove('active');
                 setTimeout(() => showTicket(guestName, currentValidData.table), 400);
             } catch(e) {
-                nameErrorText.innerText = "Error de conexión. Intenta nuevamente."; nameErrorText.style.opacity = '1';
+                nameErrorText.innerText = "Error: " + e.message; nameErrorText.style.opacity = '1';
                 btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
             }
         };
@@ -1028,15 +1028,24 @@
                 } else if (pass === configSnap.data().resetPass) {
                     if (prompt("⚠️ Para confirmar el reseteo escribe 'BORRAR':") === "BORRAR") {
                         btn.innerText = "Borrando..."; 
-                        const gPro = allConfirmations.map(g => deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', g.id)));
-                        const cPro = allCodes.map(c => deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'invites', c.codigo)));
-                        await Promise.all([...gPro, ...cPro]);
-                        alert("✅ Base de datos reiniciada con éxito."); document.getElementById('modal-admin-login').classList.remove('active');
+                        try {
+                            const guestsSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'guests'));
+                            const invitesSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'invites'));
+                            const batch = writeBatch(db);
+                            guestsSnap.forEach(d => batch.delete(d.ref));
+                            invitesSnap.forEach(d => batch.delete(d.ref));
+                            await batch.commit();
+                            alert("✅ Base de datos reiniciada con éxito."); document.getElementById('modal-admin-login').classList.remove('active');
+                        } catch (e) {
+                            alert("Error al intentar borrar los datos: " + e.message);
+                        }
+                    } else {
+                        alert("Operación cancelada. Escribiste incorrectamente el candado de seguridad.");
                     }
                 } else { 
                     document.getElementById('admin-error').innerText = "Clave incorrecta."; document.getElementById('admin-error').style.opacity = '1'; 
                 }
-            } catch (error) { document.getElementById('admin-error').innerText = "Error de conexión."; document.getElementById('admin-error').style.opacity = '1'; } 
+            } catch (error) { document.getElementById('admin-error').innerText = "Error de conexión: " + error.message; document.getElementById('admin-error').style.opacity = '1'; } 
             finally { btn.innerText = originalText; btn.disabled = false; }
         };
 
@@ -1091,9 +1100,12 @@
                 try { 
                     const batch = writeBatch(db);
                     batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId));
-                    batch.update(doc(db, 'artifacts', appId, 'public', 'data', 'invites', hostCode), { usado: false, guestName: "" });
+                    // USAMOS 'set' con 'merge' para evitar que Firebase crashee si el código viejo no existía
+                    batch.set(doc(db, 'artifacts', appId, 'public', 'data', 'invites', hostCode), { usado: false, guestName: "" }, { merge: true });
                     await batch.commit();
-                } catch(e) {}
+                } catch(e) {
+                    alert("Error al borrar el registro: " + e.message);
+                }
             }
         };
 
