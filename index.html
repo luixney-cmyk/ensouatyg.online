@@ -827,39 +827,17 @@
                 if (inviteSnap.exists()) {
                     currentValidData = inviteSnap.data();
 
-                    // Si el código ya se usó, comprobamos si es VIP o Estándar
+                    // Si el código ya se usó, no permite registrar, PERO muestra el ticket de nuevo si es el dueño
                     if (currentValidData.usado) {
                         const guestDoc = allConfirmations.find(c => c.hostCode === currentValidDataCode);
                         if(guestDoc) {
-                            if (currentValidData.type === 'special') {
-                                // Es un invitado VIP: mostrar la carta de nuevo
-                                errorText.style.opacity = '0';
+                            errorText.innerHTML = `Este código ya fue utilizado por <b>${sanitize(guestDoc.guestName)}</b>.<br>Generando pase anterior...`;
+                            errorText.style.opacity = '1'; errorText.style.color = '#10b981';
+                            setTimeout(() => {
                                 document.getElementById('modal-code').classList.remove('active');
-                                
-                                const messageContainer = document.getElementById('personal-message');
-                                const btnAccept = document.getElementById('btn-accept-invite'); 
-                                
-                                btnAccept.disabled = false;
-                                messageContainer.innerHTML = `"${currentValidData.text}"`;
-                                btnAccept.innerText = "Ver Pase de Acceso"; 
-                                btnAccept.style.background = "transparent"; 
-                                btnAccept.style.border = "1px solid rgba(212, 175, 55, 0.5)"; 
-                                btnAccept.style.color = "rgba(212, 175, 55, 0.8)"; 
-                                
-                                setTimeout(() => {
-                                    document.getElementById('modal-message').classList.add('active');
-                                    setTimeout(() => { document.getElementById('personal-message').scrollTop = 0; }, 50);
-                                }, 400);
-                            } else {
-                                // Es un invitado estándar: saltar directo al ticket
-                                errorText.innerHTML = `Código ya utilizado por <b>${sanitize(guestDoc.guestName)}</b>.<br>Generando pase anterior...`;
-                                errorText.style.opacity = '1'; errorText.style.color = '#10b981';
-                                setTimeout(() => {
-                                    document.getElementById('modal-code').classList.remove('active');
-                                    showTicket(guestDoc.guestName, guestDoc.table);
-                                    errorText.style.color = '#8B1A2A'; // reset color
-                                }, 2500);
-                            }
+                                showTicket(guestDoc.guestName, guestDoc.table);
+                                errorText.style.color = '#8B1A2A'; // reset color
+                            }, 2500);
                         } else {
                             errorText.innerText = "Este código ya ha sido utilizado.";
                             errorText.style.opacity = '1';
@@ -897,7 +875,8 @@
                     }, 400);
 
                 } else {
-                    errorText.innerText = "Código no encontrado. Intenta nuevamente.";
+                    // Mensaje limpio tal como solicitaste
+                    errorText.innerText = "Código no encontrado.";
                     errorText.style.opacity = '1';
                     codeInput.focus();
                 }
@@ -909,24 +888,169 @@
             }
         };
 
-        // 2. Aceptar Invitación VIP (Registro y quemado de código)
+        // 2. Aceptar Invitación VIP o Estándar (Redirigir)
         window.handleMessageAccept = async function() {
             const btnAccept = document.getElementById('btn-accept-invite');
-            btnAccept.disabled = true; btnAccept.innerText = "Registrando...";
+            btnAccept.disabled = true; 
+            btnAccept.innerText = "Procesando...";
 
-            // Si es un VIP que ya estaba registrado y solo quería releer su carta
-            if (currentValidData.usado && currentValidData.type === 'special') {
-                const guestDoc = allConfirmations.find(c => c.hostCode === currentValidDataCode);
-                document.getElementById('modal-message').classList.remove('active');
-                setTimeout(() => {
-                    showTicket(guestDoc.guestName, guestDoc.table);
-                    btnAccept.disabled = false;
-                }, 400);
-                return;
+            try {
+                if (currentValidData.type === 'special') {
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
+                    const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
+                    
+                    // Transacción en lote: Agrega invitado Y quema el código
+                    const batch = writeBatch(db);
+                    batch.set(doc(colRef), {
+                        guestName: currentValidData.fullName,
+                        hostCode: currentValidDataCode,
+                        hostName: "Invitado VIP",
+                        table: currentValidData.table,
+                        timestamp: new Date().toISOString(),
+                        asistio: false
+                    });
+                    batch.update(inviteRef, { usado: true, guestName: currentValidData.fullName });
+                    await batch.commit();
+                    
+                    document.getElementById('modal-message').classList.remove('active');
+                    setTimeout(() => showTicket(currentValidData.fullName, currentValidData.table), 400);
+                } else {
+                    document.getElementById('modal-message').classList.remove('active');
+                    setTimeout(() => {
+                        guestNameInput.value = ''; 
+                        nameErrorText.style.opacity = '0';
+                        document.getElementById('modal-name').classList.add('active'); 
+                        guestNameInput.focus();
+                        
+                        // Reiniciar el botón del mensaje para la próxima vez
+                        btnAccept.disabled = false;
+                        btnAccept.innerText = "Aceptar Invitación";
+                    }, 400);
+                }
+            } catch (e) {
+                btnAccept.innerText = "Error: " + e.message; 
+                btnAccept.disabled = false;
+            }
+        };
+
+        // 3. Generar Pase Estándar (Registro y quemado de código)
+        window.generateStandardTicket = async function() {
+            const guestName = guestNameInput.value.trim().toUpperCase();
+            if (guestName === "") {
+                nameErrorText.innerText = "Por favor ingresa tu nombre para continuar."; nameErrorText.style.opacity = '1'; guestNameInput.focus(); return;
             }
 
-            if (currentValidData.type === 'special') {
-                try {
+            const btnGen = document.getElementById('btn-generate-ticket');
+            btnGen.disabled = true; btnGen.innerText = "Verificando...";
+
+            try {
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
+                const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
+                
+                const batch = writeBatch(db);
+                batch.set(doc(colRef), {
+                    guestName: guestName,
+                    hostCode: currentValidDataCode,
+                    hostName: currentValidData.hostName,
+                    table: currentValidData.table,
+                    timestamp: new Date().toISOString(),
+                    asistio: false
+                });
+                batch.update(inviteRef, { usado: true, guestName: guestName });
+                await batch.commit();
+                
+                nameErrorText.style.opacity = '0';
+                document.getElementById('modal-name').classList.remove('active');
+                setTimeout(() => {
+                    showTicket(guestName, currentValidData.table);
+                    // Habilitar botón para la próxima vez
+                    btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
+                }, 400);
+            } catch(e) {
+                nameErrorText.innerText = "Error: " + e.message; nameErrorText.style.opacity = '1';
+                btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
+            }
+        };
+
+        function showTicket(nameToDisplay, tableNum) {
+            document.getElementById('ticket-guest-name').innerText = nameToDisplay;
+            document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
+            document.querySelectorAll('.event-date-display').forEach(el => el.innerText = CONFIG.eventDate.toUpperCase());
+            document.getElementById('ticket-status-msg').innerText = !navigator.onLine ? "Sin conexión — muestra tu pase descargado al staff." : "Guarda tu pase para el día del evento";
+            
+            const img = document.getElementById('ticket-bg-img');
+            const downloadBtn = document.getElementById('btn-download');
+            if (img && !img.complete) {
+                downloadBtn.disabled = true; downloadBtn.innerHTML = 'Cargando pase...';
+                img.onload = () => { downloadBtn.disabled = false; downloadBtn.innerHTML = '↓ Descargar Imagen'; };
+                img.onerror = () => { downloadBtn.disabled = false; downloadBtn.innerHTML = '↓ Descargar Imagen'; };
+            }
+            document.getElementById('modal-ticket').classList.add('active');
+        }
+
+        window.downloadTicket = async function() {
+            const btn = document.getElementById('btn-download'); const originalText = btn.innerHTML;
+            btn.innerHTML = 'Generando...'; btn.disabled = true;
+            const captureDiv = document.getElementById('ticket-card-capture');
+            const guestName = document.getElementById('ticket-guest-name').innerText;
+            const tableNum = document.getElementById('ticket-table-num').innerText;
+
+            try {
+                const canvas = await html2canvas(captureDiv, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#050505', logging: false, imageTimeout: 0 });
+                const link = document.createElement('a');
+                link.download = `Pase_Enso_${guestName.replace(/\s+/g, '_')}_${tableNum.replace(/\s+/g, '_')}.png`;
+                link.href = canvas.toDataURL('image/png'); link.click();
+                btn.innerHTML = '¡Descargado!'; setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
+            } catch (err) { btn.innerHTML = 'Error'; setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500); }
+        };
+
+        window.finalizeRSVP = function() {
+            window.closeModals();
+            document.getElementById('invite-code-input').value = ''; document.getElementById('guest-name-input').value = '';
+        };
+
+        // ── LÓGICA DE ADMIN (CONTRASEÑA EN FIREBASE Y TABS) ──
+        window.openAdminLogin = async function() {
+            adminPassInput.value = ''; document.getElementById('admin-error').style.opacity = '0';
+            document.getElementById('modal-admin-login').classList.add('active'); adminPassInput.focus();
+        };
+
+        window.switchAdminTab = function(tabName) {
+            document.getElementById('tab-guests').classList.remove('active');
+            document.getElementById('tab-codes').classList.remove('active');
+            document.getElementById('view-guests').style.display = 'none';
+            document.getElementById('view-codes').style.display = 'none';
+
+            if(tabName === 'guests') {
+                document.getElementById('tab-guests').classList.add('active');
+                document.getElementById('view-guests').style.display = 'block';
+                window.renderAdminTable();
+            } else {
+                document.getElementById('tab-codes').classList.add('active');
+                document.getElementById('view-codes').style.display = 'block';
+                window.loadAdminCodes(); // Carga la lista de códigos desde firebase
+            }
+        };
+
+        window.verifyAdmin = async function() {
+            const pass = adminPassInput.value.trim().toUpperCase();
+            const btn = document.querySelector('#modal-admin-login .btn-outline');
+            const originalText = btn.innerText; btn.innerText = "Verificando..."; btn.disabled = true;
+            document.getElementById('admin-error').style.opacity = '0';
+
+            try {
+                const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'security');
+                const configSnap = await getDoc(configRef);
+
+                if (!configSnap.exists()) { alert("⚠️ Seguridad no configurada en Firebase."); btn.innerText = originalText; btn.disabled = false; return; }
+                if (pass === configSnap.data().adminPass) {
+                    document.getElementById('modal-admin-login').classList.remove('active'); 
+                    window.switchAdminTab('guests');
+                    document.getElementById('modal-admin').classList.add('active');
+                } else if (pass === configSnap.data().resetPass) {
+                    if (prompt("⚠️ Para confirmar el reseteo escribe 'BORRAR':") === "BORRAR") {
+                        btn.innerText = "Borrando..."; 
+                        try {
                             const guestsSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'guests'));
                             const invitesSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'invites'));
                             const batch = writeBatch(db);
