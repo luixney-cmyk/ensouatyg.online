@@ -767,7 +767,7 @@
             "CELINA0088": { type: "special", name: "Dra. Celina", fullName: "Dra. María Celina Agraz López", table: 2, text: "Querida maestra Celina:<br><br>Antes de ser nuestra directora, fue nuestra maestra. Con usted vivimos algunas de las primeras clases, los primeros aprendizajes y los primeros pasos dentro de esta universidad. Fue con usted que comenzamos a trazar los primeros caminos de esta historia.<br><br>No fuimos la generación más silenciosa ni la más sencilla. Fuimos la generación de los oficios, de las gestiones, de las visitas a su oficina, de las preguntas, de las exigencias y de las causas que considerábamos justas. Pero también fuimos una generación que aprendió a encontrar su voz, a defender sus ideas y a crecer dentro y fuera de las cocinas.<br><br>Y en cada una de esas etapas, ahí estuvo usted. Como maestra, como guía y como directora. Siempre presente, siempre pendiente, siempre acompañándonos.<br><br>Hoy, al mirar hacia atrás, entendemos que estos años no se construyeron únicamente con clases y proyectos, sino con personas que caminaron junto a nosotros y creyeron en nuestra formación.<br><br>Por eso, nos haría profundamente feliz contar con su presencia en esta noche tan especial. Porque fue con usted que comenzamos a dar los primeros trazos de este círculo, y es con usted con quien deseamos verlo cerrarse." },
             "MAGALLY023": { type: "special", name: "Cinthya Gómez", fullName: "Cinthya Magally Gómez Sánchez", table: 2, text: "Estimada Cinthya Magally Gómez Sánchez:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
             "YURI200": { type: "special", name: "Maestra Yuri", fullName: "Yuri Vannesa Berumen Delgado", table: 2, text: "Querida Maestra Yuri:<br><br>Hay personas que pasan por nuestra vida dejando enseñanzas. Y hay otras que dejan una huella tan profunda que terminan formando parte de quienes somos.<br><br>Usted estuvo con nosotros desde el principio.<br><br>Nos acompañó en los primeros semestres, en los proyectos integradores, en las semanas culturales, en los eventos, en retos, en triunfos y también en momentos difíciles. Incluso cuando ya no nos impartía clases, siempre encontraba la manera de estar cerca, de acompañarnos, de escucharnos y de alentarnos a seguir adelante.<br><br>Por eso, cuando pensamos en nuestra historia como generación, es imposible imaginarla sin usted.<br><br>Porque más allá de las aulas, de las calificaciones o de las actividades, nos regaló algo mucho más valioso: su tiempo, su cariño, su confianza y su presencia constante.<br><br>En una etapa de la vida donde tantas personas van y vienen, usted eligió quedarse. Estuvo ahí cuando celebramos, cuando tropezamos, cuando soñamos y cuando dudamos. Siempre estuvo ahí.<br><br>Nos llevamos innumerables recuerdos, pero sobre todo nos llevamos el privilegio de haber conocido a una persona extraordinaria. Una maestra excepcional, sí, pero también una amiga, una guía y uno de los corazones más nobles que hemos encontrado en este camino.<br><br>Cuando los años pasen y recordemos esta generación, recordaremos muchas clases, muchos proyectos y muchas experiencias. Pero también recordaremos a una mujer que creyó en nosotros incluso cuando nosotros mismos no estábamos seguros de poder lograrlo.<br><br>Con usted comenzaron muchos de los momentos más importantes de esta historia. Y por eso, en esta noche tan significativa, deseamos compartirle el honor de acompañarnos una vez más.<br><br>Porque algunos maestros enseñan una materia. Otros enseñan una profesión. Pero usted nos enseñó, con su ejemplo, el valor de acompañar a las personas.<br><br>Y porque fue una parte indispensable de nuestro camino, nos haría profundamente felices que estuviera presente cuando, después de cuatro años y medio de historia, finalmente cerremos el círculo." },
-            "AMEZCUA025": { type: "special", name: "Jorge Amezcua", fullName: "Jorge Alberto Amezcua Aguirre", table: 2, text: "Estimado Jorge Alberto Amezcua Aguirre:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
+            "AMEZCUA025": { type: "special", name: "Jorge Amezcua", fullName: "Jorge Alberto Amezcua Aguirre", table: 2, text: "Estimado Jorge Alberto Amezcua Aguirre:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generation, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
 
             // --- ALUMNOS ESTÁNDAR (TODOS CON LÍMITE DE 4 INVITADOS) ---
             "ARON26":       { type: "standard", name: "Aron Rafael Bañuelos Cortez", table: 2 },
@@ -1014,14 +1014,17 @@
 
             const captureDiv = document.getElementById('ticket-card-capture');
             const guestName = document.getElementById('ticket-guest-name').innerText;
+            const tableNum = document.getElementById('ticket-table-num').innerText;
 
             try {
                 // html2canvas toma una fotografía del div con todos sus estilos CSS y fuentes cargadas.
                 const canvas = await html2canvas(captureDiv, {
-                    scale: 3, // Multiplica la resolución por 3 para que no se vea pixelada en teléfonos
-                    useCORS: true, // Importante para que la imagen de fondo no bloquee el renderizado
+                    scale: 3,
+                    useCORS: true,
+                    allowTaint: true,
                     backgroundColor: '#050505',
-                    logging: false
+                    logging: false,
+                    imageTimeout: 0
                 });
 
                 // Convertimos el canvas a un archivo PNG
@@ -1029,7 +1032,7 @@
                 
                 // Creamos el enlace invisible de descarga
                 const link = document.createElement('a');
-                link.download = `Pase_Enso_${guestName.replace(/\s+/g, '_')}.png`;
+                link.download = `Pase_Enso_${guestName.replace(/\s+/g, '_')}_${tableNum.replace(/\s+/g, '_')}.png`;
                 link.href = imgData;
                 link.click();
                 
@@ -1185,15 +1188,6 @@
                 `;
                 tbody.appendChild(div);
             });
-            
-            const currentSearch = document.getElementById('admin-search').value.toLowerCase();
-            if (currentSearch) {
-                document.querySelectorAll('.admin-guest-card').forEach(card => {
-                    const name = card.querySelector('.admin-guest-name')?.innerText.toLowerCase() || '';
-                    const host = card.querySelector('.admin-guest-host')?.innerText.toLowerCase() || '';
-                    card.style.display = (name.includes(currentSearch) || host.includes(currentSearch)) ? 'flex' : 'none';
-                });
-            }
         };
 
         window.toggleCheckIn = async function(docId, status) {
