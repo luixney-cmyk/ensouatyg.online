@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ENSŌ - Centro de Impresión Especializado</title>
+    <title>ENSŌ - Centro de Pases Digitales</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
@@ -22,24 +22,6 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 3px; }
 
-        /* Estilos para la hoja de impresion Tamaño Carta (816x1056 px a 96dpi) */
-        .sheet-letter {
-            width: 816px; height: 1056px; background: white; margin: 0 auto; position: relative;
-            padding: 48px; /* Margen de la hoja */
-            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, 1fr);
-            gap: 0px; box-sizing: border-box;
-        }
-        
-        /* Cada tarjeta mide 360x240 px (proporción ideal 3:2) */
-        .card-print {
-            width: 360px; height: 240px; border: 1px dashed #cccccc; box-sizing: border-box;
-            position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background-color: #050505; color: white; margin: auto;
-        }
-        
-        /* Borde interior dorado de la tarjeta impresa */
-        .card-print::after { content:''; position:absolute; inset: 8px; border: 1px solid rgba(212,175,55,0.4); pointer-events: none; }
-
         /* Modales y utilidades */
         .modal-overlay { position: fixed; inset: 0; background: rgba(8,8,8,0.98); z-index: 50; display: flex; justify-content: center; align-items: center; }
         .modal-box { background: var(--parchment); border: 1px solid rgba(212,175,55,0.3); padding: 40px; text-align: center; }
@@ -49,10 +31,6 @@
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 100; display: flex; flex-direction: column; gap: 10px; }
         .toast { background: #0D0B08; border: 1px solid #D4AF37; color: #F5E17A; padding: 12px 24px; font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.1em; opacity: 0; transform: translateY(20px); transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
         .toast.show { opacity: 1; transform: translateY(0); }
-
-        /* Efecto Hover para remover tarjetas de la planilla */
-        .remove-overlay { position: absolute; inset: 0; background: rgba(139,26,42,0.8); display: flex; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.2s; cursor: pointer; z-index: 10;}
-        .card-preview-wrapper:hover .remove-overlay { opacity: 1; }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden text-sm">
@@ -61,7 +39,7 @@
     <div id="auth-modal" class="modal-overlay">
         <div class="modal-box w-[400px] shadow-2xl">
             <h2 class="font-cinzel text-2xl text-[#F5E17A] mb-2 tracking-widest">Seguridad</h2>
-            <p class="font-cormorant text-gray-400 mb-6 italic">Acceso exclusivo al Centro de Impresión.</p>
+            <p class="font-cormorant text-gray-400 mb-6 italic">Acceso exclusivo al Centro de Distribución.</p>
             <input type="password" id="admin-pass" class="input-auth w-full" placeholder="CONTRASEÑA" autocomplete="off">
             <p id="auth-error" class="text-red-500 font-cormorant italic text-sm mb-4 opacity-0 transition-opacity">Clave incorrecta.</p>
             <button id="btn-ingresar" onclick="window.verifyAdmin()" class="border border-[#D4AF37] text-[#D4AF37] px-6 py-2 font-cinzel text-sm tracking-widest hover:bg-[#D4AF37] hover:text-black transition">Ingresar</button>
@@ -74,95 +52,63 @@
     <!-- Header -->
     <header class="border-b border-[#D4AF37]/20 p-4 flex justify-between items-center bg-[#0a0806] shrink-0">
         <div>
-            <h1 class="font-cinzel text-xl text-[#F5E17A] tracking-widest">ENSŌ <span class="text-gray-500 text-sm ml-2 font-cormorant italic">Centro de Impresión (8 Tarjetas por Hoja)</span></h1>
+            <h1 class="font-cinzel text-xl text-[#F5E17A] tracking-widest">ENSŌ <span class="text-gray-500 text-sm ml-2 font-cormorant italic">Centro de Distribución Digital</span></h1>
         </div>
         <button onclick="location.reload()" class="border border-gray-600 text-gray-400 px-4 py-1 font-cinzel text-xs hover:border-white hover:text-white transition">Cerrar Sesión</button>
     </header>
 
-    <!-- Layout a 3 Columnas para Computadora -->
+    <!-- Layout a 2 Columnas -->
     <div class="flex flex-1 overflow-hidden">
         
-        <!-- COLUMNA 1: Lista de Anfitriones (1/4 de pantalla) -->
-        <div class="w-1/4 border-r border-[#D4AF37]/20 bg-[#0a0806] flex flex-col z-10 shadow-xl">
+        <!-- COLUMNA 1: Lista de Anfitriones (1/3 de pantalla) -->
+        <div class="w-1/3 md:w-1/4 border-r border-[#D4AF37]/20 bg-[#0a0806] flex flex-col z-10 shadow-xl">
             <div class="p-4 border-b border-[#D4AF37]/10">
-                <input type="text" id="search-host" oninput="window.filterHosts()" placeholder="Buscar anfitrión..." class="w-full bg-black/50 border border-[#D4AF37]/30 text-[#D4AF37] p-2 font-cinzel text-xs outline-none placeholder:text-[#D4AF37]/30">
+                <input type="text" id="search-host" oninput="window.filterHosts()" placeholder="Buscar anfitrión..." class="w-full bg-black/50 border border-[#D4AF37]/30 text-[#D4AF37] p-3 font-cinzel text-xs outline-none placeholder:text-[#D4AF37]/30">
             </div>
             <div id="host-list" class="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-2">
                 <div class="text-center text-gray-500 font-cormorant mt-10">Cargando base de datos...</div>
             </div>
         </div>
 
-        <!-- COLUMNA 2: Detalles del Anfitrión y Vista Digital (1/3 de pantalla) -->
-        <div class="w-1/3 border-r border-[#D4AF37]/20 bg-[#080705] flex flex-col relative">
-            <div id="host-details-empty" class="absolute inset-0 flex items-center justify-center font-cormorant italic text-gray-500 p-8 text-center">
-                Selecciona un anfitrión a la izquierda para ver sus tarjetas y opciones de descarga.
+        <!-- COLUMNA 2: Espacio de Trabajo Digital (Resto de la pantalla) -->
+        <div class="flex-1 bg-[#080705] flex flex-col relative">
+            <div id="host-details-empty" class="absolute inset-0 flex items-center justify-center font-cormorant italic text-gray-500 p-8 text-center text-lg">
+                Selecciona un anfitrión a la izquierda para generar sus pases digitales.
             </div>
             
-            <div id="host-details-content" class="hidden flex-col h-full overflow-y-auto custom-scrollbar">
-                <div class="p-4 border-b border-[#D4AF37]/20 bg-black/40 sticky top-0 z-20">
-                    <h2 id="detail-host-name" class="font-cinzel text-[#F5E17A] text-lg">Nombre</h2>
-                    <p id="detail-host-info" class="font-cormorant text-gray-400 italic">X Pases</p>
+            <div id="host-details-content" class="hidden h-full flex-col items-center justify-center relative overflow-y-auto custom-scrollbar p-8">
+                
+                <div class="absolute top-0 w-full p-6 border-b border-[#D4AF37]/20 bg-black/40 text-center shadow-lg">
+                    <h2 id="detail-host-name" class="font-cinzel text-[#F5E17A] text-2xl tracking-widest">Nombre</h2>
+                    <p id="detail-host-info" class="font-cormorant text-gray-400 italic text-lg mt-1">X Pases Disponibles</p>
                 </div>
 
-                <!-- Vista Previa Digital para WhatsApp -->
-                <div class="p-6 flex flex-col items-center border-b border-[#D4AF37]/10">
-                    <p class="font-cinzel text-[#D4AF37] text-xs tracking-widest mb-4">Vista Previa Digital (WhatsApp)</p>
+                <div class="flex flex-col items-center mt-20">
+                    <p class="font-cinzel text-[#D4AF37] text-sm tracking-widest mb-6">Vista Previa (Formato WhatsApp)</p>
                     
-                    <!-- CONTENEDOR DIGITAL: Arreglado el problema del texto dorado -->
-                    <div id="capture-digital" style="width: 300px; height: 300px; background-color: #050505; position: relative; border: 1px solid #333; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                    <!-- CONTENEDOR DIGITAL PARA HTML2CANVAS -->
+                    <div id="capture-digital" style="width: 320px; height: 320px; background-color: #050505; position: relative; border: 1px solid #333; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 20px 40px rgba(0,0,0,0.8); padding: 20px; text-align: center;">
                         <div style="position: absolute; inset: 10px; border: 1px dashed rgba(212,175,55,0.4); pointer-events: none;"></div>
-                        <span style="font-family: 'Noto Serif JP', serif; font-size: 6rem; color: rgba(212, 175, 55, 0.05); position: absolute; top:50%; left:50%; transform: translate(-50%, -50%);">円</span>
-                        <h1 style="font-family: 'Cinzel', serif; font-size: 2rem; color: #F5E17A; letter-spacing: 0.2em; margin-bottom: 4px; position:relative; z-index:2;">ENSŌ</h1>
-                        <p style="font-family: 'Cormorant Garamond', serif; font-style: italic; color: rgba(212,175,55,0.8); letter-spacing: 0.3em; text-transform: uppercase; font-size: 0.65rem; margin-bottom: 20px;">El Noveno Trazo</p>
-                        <p style="font-family: 'Cinzel', serif; color: white; font-size: 0.6rem; letter-spacing: 0.2em; margin-bottom: 6px;">CÓDIGO DE ACCESO</p>
+                        <span style="font-family: 'Noto Serif JP', serif; font-size: 7rem; color: rgba(212, 175, 55, 0.05); position: absolute; top:50%; left:50%; transform: translate(-50%, -50%);">円</span>
+                        <h1 style="font-family: 'Cinzel', serif; font-size: 2.2rem; color: #F5E17A; letter-spacing: 0.2em; margin-bottom: 4px; position:relative; z-index:2;">ENSŌ</h1>
+                        <p style="font-family: 'Cormorant Garamond', serif; font-style: italic; color: rgba(212,175,55,0.8); letter-spacing: 0.3em; text-transform: uppercase; font-size: 0.7rem; margin-bottom: 24px;">El Noveno Trazo</p>
                         
-                        <!-- AQUI ESTA LA SOLUCION: Color sólido en lugar de gradiente para html2canvas -->
-                        <div id="digital-code-display" style="color: #D4AF37; text-shadow: 0px 2px 4px rgba(0,0,0,0.8); font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: bold; letter-spacing: 0.15em;">
+                        <p style="font-family: 'Cinzel', serif; color: white; font-size: 0.5rem; letter-spacing: 0.15em; margin-bottom: 6px; max-width: 90%; line-height: 1.4;">CÓDIGO PARA REALIZAR SU CONFIRMACIÓN</p>
+                        
+                        <!-- EL TEXTO SE AJUSTA DINÁMICAMENTE EN JS -->
+                        <div id="digital-code-display" style="color: #D4AF37; text-shadow: 0px 2px 4px rgba(0,0,0,0.8); font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: bold; letter-spacing: 0.1em; max-width: 100%; word-break: break-all; line-height: 1.2;">
                             XXXX
                         </div>
                         
-                        <p style="font-family: 'Cormorant Garamond', serif; color: rgba(255,255,255,0.4); font-size: 0.7rem; margin-top: 20px; font-style: italic;">Pase personal e intransferible</p>
+                        <p style="font-family: 'Cormorant Garamond', serif; color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 24px; font-style: italic;">Pase personal e intransferible</p>
                     </div>
 
-                    <button onclick="window.downloadDigitalWhatsApp()" class="mt-6 w-full bg-[#D4AF37]/10 border border-[#D4AF37] text-[#D4AF37] px-4 py-3 font-cinzel text-xs tracking-widest hover:bg-[#D4AF37] hover:text-black transition">↓ Descargar Imágenes para WhatsApp</button>
-                </div>
-
-                <!-- Lista de tarjetas individuales para la Planilla -->
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <p class="font-cinzel text-[#D4AF37] text-xs tracking-widest">Tarjetas Físicas</p>
-                        <button onclick="window.addAllToSheet()" class="text-xs font-cinzel border-b border-gray-500 text-gray-300 hover:text-white hover:border-white">Añadir todas</button>
-                    </div>
-                    <div id="individual-codes-list" class="flex flex-col gap-2">
-                        <!-- Se llena con JS -->
-                    </div>
+                    <button onclick="window.downloadDigitalWhatsApp()" class="mt-10 bg-[#D4AF37]/10 border border-[#D4AF37] text-[#D4AF37] px-8 py-4 font-cinzel text-sm tracking-widest hover:bg-[#D4AF37] hover:text-black transition shadow-lg">
+                        ↓ Descargar Pases de este Anfitrión
+                    </button>
+                    <p class="font-cormorant italic text-gray-500 mt-4">Se descargarán imágenes individuales por cada código.</p>
                 </div>
             </div>
-        </div>
-
-        <!-- COLUMNA 3: Planilla de Impresión (Resto de la pantalla) -->
-        <div class="flex-1 bg-[#111111] flex flex-col relative">
-            
-            <!-- Toolbar de Planilla -->
-            <div class="p-4 bg-[#0a0806] border-b border-[#D4AF37]/20 flex justify-between items-center shadow-md z-10">
-                <div class="font-cinzel text-[#F5E17A] text-sm">
-                    Cola de Impresión: <span id="queue-count" class="text-white font-bold text-lg">0</span> Tarjetas 
-                    <span class="text-gray-500 font-cormorant text-xs italic ml-2">(8 por hoja)</span>
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="window.clearQueue()" class="text-gray-400 font-cinzel text-xs hover:text-red-400 transition">Vaciar Planilla</button>
-                    <button onclick="window.downloadPrintSheets()" class="bg-white text-black px-6 py-2 font-cinzel text-xs tracking-widest hover:bg-gray-200 transition font-bold shadow-lg">🖨️ Descargar Planilla(s) PNG</button>
-                </div>
-            </div>
-
-            <!-- Contenedor Visual de Hojas -->
-            <div class="flex-1 overflow-y-auto custom-scrollbar p-8 flex flex-col items-center bg-[#1a1a1a]" id="sheets-viewport">
-                <!-- AQUI SE INYECTAN LAS HOJAS TAMAÑO CARTA -->
-                <div id="empty-queue-msg" class="text-gray-500 font-cormorant italic mt-20">
-                    Tu planilla está vacía. Selecciona un anfitrión y añade tarjetas.
-                </div>
-            </div>
-
         </div>
     </div>
 
@@ -186,9 +132,8 @@
         let allCodes = [];
         let groupedCodes = {};
         let currentHostCodes = []; 
-        let printQueue = []; // Arreglo lineal de todas las tarjetas seleccionadas para imprimir
 
-        // Sistema de Toasts
+        // Sistema de Toasts (Notificaciones limpias)
         window.showToast = function(message) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -284,11 +229,11 @@
                 const type = (codes[0] && codes[0].type === 'special') ? '🌟 Docente/VIP' : 'Estándar';
                 
                 const btn = document.createElement('button');
-                btn.className = "text-left p-3 border border-[#D4AF37]/20 bg-[#111] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]/50 transition flex justify-between items-center group";
+                btn.className = "text-left p-4 border border-[#D4AF37]/20 bg-[#111] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]/50 transition flex justify-between items-center group";
                 btn.innerHTML = `
                     <div>
                         <div class="font-cinzel text-sm text-[#F5E17A]">${host}</div>
-                        <div class="font-cormorant text-xs text-gray-400 mt-1">${type} | ${codes.length} Tarjetas</div>
+                        <div class="font-cormorant text-xs text-gray-400 mt-1">${type} | ${codes.length} Pases</div>
                     </div>
                     <div class="font-cinzel text-[#D4AF37] text-xs opacity-50 group-hover:opacity-100 transition">Ver ➔</div>
                 `;
@@ -297,154 +242,54 @@
             });
         };
 
+        // Función Helper para ajustar el tamaño del texto dinámicamente si es muy largo
+        window.updateDigitalPreview = function(codeStr) {
+            const displayEl = document.getElementById('digital-code-display');
+            displayEl.innerText = codeStr;
+            
+            // Ajustar fuente según longitud para evitar que se salga del recuadro
+            if (codeStr.length > 15) {
+                displayEl.style.fontSize = '1.1rem';
+            } else if (codeStr.length > 10) {
+                displayEl.style.fontSize = '1.4rem';
+            } else {
+                displayEl.style.fontSize = '1.8rem';
+            }
+        };
+
         window.selectHost = function(hostName, codes) {
             currentHostCodes = codes;
             
-            // Mostrar UI de detalles
+            // Mostrar UI de detalles (Ocultar estado vacío)
             document.getElementById('host-details-empty').classList.add('hidden');
             document.getElementById('host-details-content').classList.remove('hidden');
             document.getElementById('host-details-content').classList.add('flex');
             
             // Actualizar Textos
             document.getElementById('detail-host-name').innerText = hostName;
-            document.getElementById('detail-host-info').innerText = `${codes.length} Tarjetas de Acceso`;
+            document.getElementById('detail-host-info').innerText = `${codes.length} Pases Asignados`;
             
-            // Actualizar Preview Digital con el primer código
-            document.getElementById('digital-code-display').innerText = codes[0].codigo;
-
-            // Renderizar la lista de tarjetas individuales para agregar a la planilla
-            const listContainer = document.getElementById('individual-codes-list');
-            listContainer.innerHTML = '';
-            
-            codes.forEach(c => {
-                const div = document.createElement('div');
-                div.className = "flex justify-between items-center p-3 border border-gray-800 bg-black";
-                div.innerHTML = `
-                    <span class="font-cinzel text-lg text-white">${c.codigo}</span>
-                    <button onclick='window.addSingleToSheet(${JSON.stringify(c)})' class="bg-gray-800 hover:bg-[#D4AF37] hover:text-black text-gray-300 font-cinzel text-xs px-3 py-1 transition border border-gray-600 hover:border-black">
-                        + Agregar
-                    </button>
-                `;
-                listContainer.appendChild(div);
-            });
+            // Renderizar el primer código con auto-ajuste de texto
+            window.updateDigitalPreview(codes[0].codigo);
         };
 
-        // Funciones del "Carrito" (Cola de Impresión)
-        window.addSingleToSheet = function(codeObj) {
-            printQueue.push(codeObj);
-            window.showToast(`Añadido: ${codeObj.codigo}`);
-            window.renderSheets();
-        };
-
-        window.addAllToSheet = function() {
-            currentHostCodes.forEach(c => printQueue.push(c));
-            window.showToast(`${currentHostCodes.length} tarjetas añadidas.`);
-            window.renderSheets();
-        };
-
-        window.removeCodeFromQueue = function(index) {
-            printQueue.splice(index, 1);
-            window.renderSheets();
-        };
-
-        window.clearQueue = function() {
-            if(printQueue.length === 0) return;
-            if(confirm("¿Seguro que deseas vaciar toda la planilla?")) {
-                printQueue = [];
-                window.renderSheets();
-            }
-        };
-
-        window.renderSheets = function() {
-            const viewport = document.getElementById('sheets-viewport');
-            const countEl = document.getElementById('queue-count');
-            const emptyMsg = document.getElementById('empty-queue-msg');
-            
-            countEl.innerText = printQueue.length;
-
-            if (printQueue.length === 0) {
-                viewport.innerHTML = '';
-                viewport.appendChild(emptyMsg);
-                emptyMsg.style.display = 'block';
-                return;
-            }
-
-            emptyMsg.style.display = 'none';
-            viewport.innerHTML = '';
-
-            // Dividir la cola en grupos de 8 (1 hoja carta = 8 tarjetas)
-            const CARDS_PER_PAGE = 8;
-            const pages = [];
-            for (let i = 0; i < printQueue.length; i += CARDS_PER_PAGE) {
-                pages.push(printQueue.slice(i, i + CARDS_PER_PAGE));
-            }
-
-            pages.forEach((pageArray, pageIndex) => {
-                // Título de la hoja
-                const title = document.createElement('div');
-                title.className = "text-[#D4AF37] font-cinzel text-sm mb-2 mt-8 tracking-widest";
-                title.innerText = `HOJA ${pageIndex + 1} DE ${pages.length}`;
-                viewport.appendChild(title);
-
-                // Contenedor de la Hoja (Lo que se va a capturar)
-                const sheet = document.createElement('div');
-                sheet.className = "sheet-letter capture-target shadow-2xl mb-10 transform scale-[0.6] md:scale-75 origin-top";
-                sheet.id = `sheet-${pageIndex}`;
-
-                // Rellenar las 8 posiciones
-                for (let i = 0; i < CARDS_PER_PAGE; i++) {
-                    const c = pageArray[i];
-                    // Índice global para poder borrar de la cola principal
-                    const globalIndex = (pageIndex * CARDS_PER_PAGE) + i; 
-
-                    if (c) {
-                        // Tarjeta llena
-                        sheet.innerHTML += `
-                            <div class="card-preview-wrapper relative">
-                                <div class="card-print">
-                                    <span style="font-family: 'Noto Serif JP', serif; font-size: 6rem; color: rgba(212, 175, 55, 0.08); position: absolute; top:50%; left:50%; transform: translate(-50%, -50%);">円</span>
-                                    <h2 style="font-family: 'Cinzel', serif; font-size: 1.8rem; color: #F5E17A; letter-spacing: 0.2em; margin-bottom: 2px; position:relative; z-index:2;">ENSŌ</h2>
-                                    <p style="font-family: 'Cormorant Garamond', serif; font-style: italic; color: rgba(212,175,55,0.8); letter-spacing: 0.2em; text-transform: uppercase; font-size: 0.6rem; margin-bottom: 12px;">Cena de Gala</p>
-                                    
-                                    <!-- AQUI ESTA LA SOLUCION PARA HTML2CANVAS IMPRESION: Color Sólido -->
-                                    <div style="color: #D4AF37; text-shadow: 0px 2px 2px rgba(0,0,0,0.5); font-family: 'Cinzel', serif; font-size: 1.6rem; font-weight: bold; letter-spacing: 0.15em;">
-                                        ${c.codigo}
-                                    </div>
-                                </div>
-                                <div class="remove-overlay" onclick="window.removeCodeFromQueue(${globalIndex})">
-                                    <span class="font-cinzel text-white text-sm border border-white px-4 py-1">Quitar</span>
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        // Espacio vacío para rellenar la hoja
-                        sheet.innerHTML += `
-                            <div class="border border-dashed border-gray-300 flex items-center justify-center bg-[#f9f9f9]" style="width: 360px; height: 240px; margin: auto; box-sizing: border-box;">
-                                <span class="font-cormorant italic text-gray-400">Espacio Libre</span>
-                            </div>
-                        `;
-                    }
-                }
-                viewport.appendChild(sheet);
-            });
-        };
-
-        // Descarga 1: DIGITAL (WhatsApp) - Itera sobre el host seleccionado
         window.downloadDigitalWhatsApp = async function() {
             if(currentHostCodes.length === 0) return window.showToast("No hay host seleccionado.");
-            const btn = event.target; const original = btn.innerText; btn.innerText = "Capturando..."; btn.disabled = true;
-            
-            const displayEl = document.getElementById('digital-code-display');
+            const btn = event.target; 
+            const originalText = btn.innerText; 
+            btn.innerText = "Capturando imágenes..."; 
+            btn.disabled = true;
             
             for(let i=0; i<currentHostCodes.length; i++) {
-                // Actualizar texto en pantalla
-                displayEl.innerText = currentHostCodes[i].codigo;
-                // Esperar a que el DOM se actualice
-                await new Promise(r => setTimeout(r, 200)); 
+                // Actualizar texto en pantalla con la función dinámica
+                window.updateDigitalPreview(currentHostCodes[i].codigo);
+                
+                // Esperar a que el DOM se actualice visualmente y las fuentes calculen su espacio
+                await new Promise(r => setTimeout(r, 250)); 
                 
                 try {
                     const canvas = await html2canvas(document.getElementById('capture-digital'), { 
-                        scale: 3, 
+                        scale: 3, // Alta resolución para WhatsApp
                         backgroundColor: '#050505',
                         logging: false
                     });
@@ -452,58 +297,21 @@
                     link.download = `Pase_Digital_${currentHostCodes[i].codigo}.png`;
                     link.href = canvas.toDataURL('image/png'); 
                     link.click();
-                } catch(e) { console.error("Error capturando digital:", e); }
-            }
-            
-            window.showToast("Descargas completadas");
-            btn.innerText = "¡Descargas Listas!"; setTimeout(() => { btn.innerText = original; btn.disabled = false; }, 2000);
-        };
-
-        // Descarga 2: PLANILLA (Impresión Carta) - Captura todas las hojas en pantalla
-        window.downloadPrintSheets = async function() {
-            const targets = document.querySelectorAll('.capture-target');
-            if(targets.length === 0) return window.showToast("La planilla está vacía. Añade tarjetas primero.");
-            
-            const btn = event.target; const original = btn.innerText; btn.innerText = "Procesando Hojas..."; btn.disabled = true;
-
-            // Quitar momentáneamente los hover effects para que no salgan en la foto
-            const overlays = document.querySelectorAll('.remove-overlay');
-            overlays.forEach(el => el.style.display = 'none');
-
-            await new Promise(r => setTimeout(r, 200)); // Esperar actualización visual
-
-            for(let i=0; i<targets.length; i++) {
-                try {
-                    btn.innerText = `Capturando Hoja ${i+1}/${targets.length}...`;
-                    // Remover temporalmente el scale para capturar tamaño real
-                    targets[i].classList.remove('scale-[0.6]', 'md:scale-75', 'transform');
                     
-                    const canvas = await html2canvas(targets[i], { 
-                        scale: 2, // Scale 2 es excelente para impresión tamaño carta
-                        backgroundColor: '#ffffff',
-                        logging: false
-                    });
-                    
-                    // Restaurar scale visual
-                    targets[i].classList.add('scale-[0.6]', 'md:scale-75', 'transform');
-
-                    const link = document.createElement('a');
-                    link.download = `Planilla_ENSO_Hoja_${i+1}.png`;
-                    link.href = canvas.toDataURL('image/png'); 
-                    link.click();
-
-                    await new Promise(r => setTimeout(r, 500)); // Pausa entre descargas múltiples
-                } catch(e) {
-                    console.error("Error en hoja", i, e);
-                    window.showToast("Error al generar hoja " + (i+1));
+                    // Pequeña pausa entre descargas para no saturar el navegador
+                    await new Promise(r => setTimeout(r, 400));
+                } catch(e) { 
+                    console.error("Error capturando digital:", e); 
+                    window.showToast("Hubo un error con " + currentHostCodes[i].codigo);
                 }
             }
-
-            // Restaurar hover effects
-            overlays.forEach(el => el.style.display = 'flex');
-
-            window.showToast("Planillas descargadas exitosamente");
-            btn.innerText = "¡Completado!"; setTimeout(() => { btn.innerText = original; btn.disabled = false; }, 2000);
+            
+            window.showToast("¡Descargas completadas!");
+            btn.innerText = "¡Descargas Listas!"; 
+            setTimeout(() => { 
+                btn.innerText = originalText; 
+                btn.disabled = false; 
+            }, 2000);
         };
 
     </script>
