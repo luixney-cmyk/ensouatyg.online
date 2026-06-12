@@ -1001,7 +1001,20 @@
             document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
             document.querySelectorAll('.event-date-display').forEach(el => el.innerText = CONFIG.eventDate.toUpperCase());
             
-            document.getElementById('ticket-status-msg').innerText = !navigator.onLine ? "Sin conexión — muestra tu pase descargado al staff." : "Guarda tu pase para el día del evento";
+            document.getElementById('ticket-status-msg').innerText = !navigator.onLine 
+                ? "Sin conexión — muestra tu pase descargado al staff." 
+                : "Guarda tu pase para el día del evento";
+            
+            // Precargar la imagen antes de mostrar el botón de descarga
+            const img = document.getElementById('ticket-bg-img');
+            const downloadBtn = document.getElementById('btn-download');
+            
+            if (img && !img.complete) {
+                downloadBtn.disabled = true;
+                downloadBtn.innerHTML = 'Cargando pase...';
+                img.onload = () => { downloadBtn.disabled = false; downloadBtn.innerHTML = '↓ Descargar Imagen'; };
+                img.onerror = () => { downloadBtn.disabled = false; downloadBtn.innerHTML = '↓ Descargar Imagen'; };
+            }
             
             document.getElementById('modal-ticket').classList.add('active');
         }
