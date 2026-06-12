@@ -284,7 +284,7 @@
             letter-spacing: 0.25em; text-transform: uppercase; margin-top: 6px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); 
         }
 
-        /* ── MODAL ADMIN (DISEÑO MÓVIL) ── */
+        /* ── MODAL ADMIN (DISEÑO MÓVIL Y TABS) ── */
         .admin-guest-card { 
             background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.2); border-radius: 4px; 
             padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px; text-align: left;
@@ -294,14 +294,20 @@
         .admin-guest-host { font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; font-style: italic; color: rgba(212,175,55,0.6); }
         .admin-guest-actions { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(212,175,55,0.1); padding-top: 12px; }
         
-        .admin-table { display: none; }
+        .admin-tab { padding: 8px 16px; cursor: pointer; border: 1px solid rgba(212,175,55,0.3); color: rgba(212,175,55,0.5); border-radius: 4px; font-family: 'Cinzel', serif; font-size: 0.7rem; transition: all 0.3s; background: transparent; }
+        .admin-tab.active { background: rgba(212,175,55,0.1); color: var(--gold-light); border-color: var(--gold-light); }
+
+        .admin-code-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid rgba(212,175,55,0.1); align-items: center; font-family: 'Cormorant Garamond', serif;}
+        .admin-code-val { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold-light); letter-spacing: 0.1em; font-weight: bold; }
+        .admin-code-status.usado { color: #ef4444; font-size: 0.8rem; font-weight: bold; }
+        .admin-code-status.libre { color: #10b981; font-size: 0.8rem; font-weight: bold; }
 
         @media print {
             body * { visibility: hidden; }
             #modal-admin, #modal-admin * { visibility: visible; }
             #modal-admin { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white !important; color: black !important; }
             .modal-box { border: none !important; box-shadow: none !important; width: 100% !important; max-width: none !important; padding: 0 !important; background: white !important; }
-            .btn-outline { display: none !important; }
+            .btn-outline, .admin-tab { display: none !important; }
         }
     </style>
 </head>
@@ -567,9 +573,9 @@
             <span class="modal-close" onclick="window.closeModals()">×</span>
             <div style="font-family:'Noto Serif JP',serif; color:var(--red-seal); font-size:2rem; margin-bottom:8px;">招待</div>
             <h3 class="modal-title">Llave de Acceso</h3>
-            <p class="modal-text">Por favor, ingresa el código personal que te ha sido otorgado por tu anfitrión.</p>
+            <p class="modal-text">Por favor, ingresa tu código personal y único.</p>
             <div class="code-input-wrap">
-                <input type="text" id="invite-code-input" class="code-input" placeholder="INGRESA TU CÓDIGO" autocomplete="off" spellcheck="false">
+                <input type="text" id="invite-code-input" class="code-input" placeholder="Ej. LUIS1234" autocomplete="off" spellcheck="false">
                 <div id="code-error" class="code-error">Código no reconocido. Intenta nuevamente.</div>
             </div>
             <button class="btn-outline" onclick="window.validateCode()">Validar Código</button>
@@ -640,25 +646,39 @@
         </div>
     </div>
 
-    <!-- ── MODAL 6: ADMIN DASHBOARD (AGRUPADO POR MESA) ── -->
+    <!-- ── MODAL 6: ADMIN DASHBOARD (AGRUPADO POR MESA Y PESTAÑAS) ── -->
     <div id="modal-admin" class="modal-overlay">
         <div class="modal-box" style="max-width: 800px; padding: 24px; max-height: 90vh;">
             <span class="modal-close" onclick="window.closeModals()">×</span>
             <h3 class="modal-title" style="margin-bottom: 16px; font-size: 1.2rem;">Panel de Control</h3>
             
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                <p class="modal-text" style="margin:0; text-align:left; font-size: 0.9rem;">Confirmados: <strong style="color:var(--gold-light); font-size: 1.2rem;" id="admin-total">0</strong></p>
-                <button class="btn-outline" style="padding: 6px 12px; font-size: 0.6rem;" onclick="window.print()">🖨️ Imprimir</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap: wrap; gap: 12px;">
+                <div class="flex gap-2">
+                    <button id="tab-guests" class="admin-tab active" onclick="window.switchAdminTab('guests')">Confirmados</button>
+                    <button id="tab-codes" class="admin-tab" onclick="window.switchAdminTab('codes')">Códigos (CSV)</button>
+                </div>
+                <p class="modal-text" style="margin:0; text-align:right; font-size: 0.9rem;">Registros: <strong style="color:var(--gold-light); font-size: 1.2rem;" id="admin-total">0</strong></p>
             </div>
             
-            <!-- BUSCADOR INTELIGENTE EN TIEMPO REAL -->
-            <div style="margin-bottom: 16px;">
-                <input type="text" id="admin-search" placeholder="Buscar invitado..." style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.4); color: var(--gold-light); font-family: 'Cinzel', serif; font-size: 0.9rem; border-radius: 4px; outline: none; text-align: center; text-transform: uppercase;">
+            <!-- VISTA INVITADOS CONFIRMADOS -->
+            <div id="view-guests">
+                <div style="margin-bottom: 16px;">
+                    <input type="text" id="admin-search" placeholder="Buscar invitado o anfitrión..." style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.4); color: var(--gold-light); font-family: 'Cinzel', serif; font-size: 0.9rem; border-radius: 4px; outline: none; text-align: center; text-transform: uppercase;">
+                </div>
+                <div id="admin-table-body" style="max-height: 50vh; overflow-y:auto; padding-right: 4px;" class="custom-scrollbar">
+                    <!-- Llenado automático con Firebase -->
+                </div>
             </div>
 
-            <!-- TARJETAS DE INVITADOS CON BOTONES MANUALES -->
-            <div id="admin-table-body" style="max-height: 50vh; overflow-y:auto; padding-right: 4px;" class="custom-scrollbar">
-                <!-- Llenado automático con Firebase -->
+            <!-- VISTA GENERADOR DE CÓDIGOS -->
+            <div id="view-codes" style="display:none;">
+                <div style="margin-bottom: 16px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                    <button id="btn-generate-codes" class="btn-outline" style="border-color: #4ade80; color: #4ade80;" onclick="window.generateCodesBatch()">+ Generar Códigos</button>
+                    <button id="btn-export-csv" class="btn-outline" style="border-color: #60a5fa; color: #60a5fa;" onclick="window.exportCodesCSV()">↓ Exportar a Excel (CSV)</button>
+                </div>
+                <div id="codes-table-body" style="max-height: 50vh; overflow-y:auto; padding-right: 4px; text-align: left;" class="custom-scrollbar">
+                    <!-- Tabla de códigos se llena aquí -->
+                </div>
             </div>
         </div>
     </div>
@@ -668,7 +688,6 @@
         <div id="dress-scroll-container" class="modal-box custom-scrollbar" style="max-width: 700px; padding: 32px 24px; overflow-y: auto;">
             <span class="modal-close" onclick="window.closeModals()">×</span>
             <h3 class="modal-title" style="font-size: 1.2rem; margin-bottom: 16px;">Inspiración de Vestimenta</h3>
-            <!-- Se llama a tu imagen subida a github -->
             <img src="dress.png" alt="Inspiración de vestimenta" style="width: 100%; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px;" onerror="this.style.display='none'">
             <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.95rem; color:rgba(212,175,55,0.8); line-height: 1.5; margin-bottom: 0;">
                 *Esta paleta de colores y estilos es únicamente una sugerencia para mantener la armonía visual de la gala. Siéntete con total libertad de asistir con los colores de tu preferencia.
@@ -678,34 +697,23 @@
 
     <!-- ── FIREBASE & LÓGICA PRINCIPAL ── -->
     <script type="module">
-        // ── CONFIGURACIÓN CENTRALIZADA DEL EVENTO ──
         const CONFIG = {
             eventDate: "22 de Noviembre 2026",
             totalCapacity: 104,
             appId: 'enso-uatyg-gala'
         };
 
-        // ── FUNCIÓN ESCUDO CONTRA INYECCIONES XSS ──
         function sanitize(str) {
             if (!str) return '';
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#x27;'
-            };
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;' };
             const reg = /[&<>"']/ig;
             return String(str).replace(reg, (match) => (map[match]));
         }
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, getDocs, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // ============================================================================
-        // CONFIGURACIÓN OFICIAL DE FIREBASE
-        // ============================================================================
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyAd_rViRrwdsigVaJNJO82nvVpGzywQT30",
             authDomain: "enso-gala-2026.firebaseapp.com",
@@ -720,7 +728,6 @@
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : CONFIG.appId;
 
-        // Autenticación Silenciosa
         const initAuth = async () => {
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 await signInWithCustomToken(auth, __initial_auth_token);
@@ -731,69 +738,62 @@
         initAuth();
 
         let allConfirmations = [];
-        let unsubscribe = null;
+        let allCodes = [];
+        let unsubscribeGuests = null;
 
-        // Escuchar Firebase en vivo
+        // ── BASE DE DATOS MAESTRA PARA GENERAR CÓDIGOS ──
+        // Aquí defines cuántos códigos se le generan a cada persona.
+        const baseDatabase = {
+            // VIPs (Directivos/Chefs) - 1 código cada uno
+            "VENTURA":   { type: "special", name: "Chef Ventura", fullName: "Jose Ventura Huerta Gonzalez", table: 1, count: 1, text: "Querido Chef Ventura:<br><br>Hay personas que llegan a nuestra vida para enseñarnos una materia. Otras, para enseñarnos un oficio. Pero existen unas pocas que dejan una huella tan profunda que terminan formando parte de quienes somos.<br><br>Hace cuatro años y medio cruzamos por primera vez la puerta de una cocina con más dudas que certezas. No sabíamos sostener correctamente un cuchillo, desconocíamos el lenguaje de los fogones y apenas comenzábamos a imaginar el camino que teníamos por delante. Usted estuvo ahí desde el primer día.<br><br>Fue el primer chef que nos habló de respeto antes que de recetas, de disciplina antes que de reconocimiento y de pasión antes que de técnica. Nos enseñó que cocinar no consiste únicamente en transformar ingredientes, sino en transformar personas. Nos mostró que detrás de cada plato existe historia, esfuerzo, carácter y corazón.<br><br>Con el paso de los semestres llegaron nuevos maestros, nuevas cocinas y nuevos desafíos, pero siempre recordamos que fue usted quien encendió la primera llama. Quien nos enseñó a confiar en nuestras manos cuando aún temblaban. Quien corrigió nuestros errores cuando apenas comenzábamos a caminar. Quien sembró en nosotros el amor y el respeto por esta profesión que hoy elegimos como proyecto de vida.<br><br>Gracias por su paciencia, por su exigencia, por sus enseñanzas y por creer en nosotros cuando todavía éramos jóvenes aprendices intentando descubrir nuestro lugar en el mundo.<br><br>Hace cuatro años y medio, frente a usted, comenzamos a trazar los primeros pasos de esta historia. Hoy deseamos compartir con quien encendió la primera llama el instante en que ese trazo finalmente se completa.<br><br>Porque algunos círculos no pueden cerrarse sin las personas que les dieron origen.<br><br>Y porque esta historia comenzó frente a usted, nos llenaría de orgullo, emoción y gratitud poder contar con su presencia en la noche en que, después de cuatro años y medio de aprendizaje, esfuerzo y sueños compartidos, finalmente cerremos el círculo." },
+            "JERAAR":    { type: "special", name: "Dr. Jeraar", fullName: "Dr. Jeraar Atahulpa Ramos García", table: 1, count: 1, text: "Querido Dr. Jeraar:<br><br>Hay profesores que imparten clases. Hay maestros que transmiten conocimientos. Y existen personas extraordinarias que cambian para siempre la forma en que vemos el mundo. Usted fue una de ellas.<br><br>En sus aulas aprendimos que cocinar es mucho más que seguir recetas o menear cazuelas. Aprendimos a cuestionar, a investigar, a pensar, a buscar respuestas y, sobre todo, a nunca conformarnos con lo que ya sabemos. Nos enseñó que el conocimiento no tiene límites para quien conserva la curiosidad y el deseo de aprender.<br><br>Su inteligencia, su pasión, su inmensa capacidad y su forma única de entender la educación le ganaron algo que no se exige ni se impone: nuestro respeto, nuestra admiración y nuestra confianza.<br><br>Para muchos de nosotros fue maestro. Para otros, consejero. Para otros más, amigo y confidente. Pero para todos fue una guía que nos impulsó a mirar más lejos de lo que creíamos posible.<br><br>Cuando nosotros veíamos una puerta, usted nos enseñaba a buscar el camino detrás de ella. Cuando creíamos haber llegado, usted nos recordaba que aún podíamos ir más alto. Nos enseñó a creer, a soñar, a atrevernos a volar.<br><br>Hoy llegamos al final de una etapa, pero también al comienzo de todo aquello para lo que nos preparó.<br><br>Y por eso, en una noche dedicada a cerrar ciclos, nos haría profundamente feliz contar con su presencia. Porque entre los muchos trazos que dieron forma a nuestra historia, algunos de los más importantes llevan su nombre.<br><br>Con usted aprendimos que siempre existe algo más allá del horizonte. Y es con profunda gratitud que deseamos compartirle cómo, finalmente, se cierra el círculo." },
+            "MARTHA":    { type: "special", name: "Chef Martha", fullName: "Martha Jazmín Acero Garcia", table: 1, count: 1, text: "Querida Chef Martha:<br><br>A lo largo de estos cuatro años y medio compartimos mucho más que clases, cocinas y proyectos. Compartimos aprendizajes, desafíos, sonrisas, nervios y también momentos difíciles que marcaron nuestro camino.<br><br>Gracias por su paciencia, por su tiempo, por acompañarnos en tantas materias y proyectos integradores, y por enseñarnos siempre con el corazón. Gracias por permitirnos conocer no solo a la chef, sino también a la persona, a la madre y a la mujer que enfrentó cada etapa con fortaleza y generosidad.<br><br>Nos quedará para siempre el recuerdo de los hornos encendidos, el aroma de los postres recién horneados, las risas compartidas y las conversaciones que hicieron de esta experiencia algo mucho más grande que una carrera.<br><br>Hoy llegamos al final de un camino que usted ayudó a construir día con día. Por eso, nos haría profundamente feliz contar con su presencia mientras cerramos el círculo que juntos comenzamos a trazar hace cuatro años y medio." },
+            "JESUS":     { type: "special", name: "Jesus Lamas", fullName: "Jesus G Lamas", table: 1, count: 1, text: "Estimado Jesus G Lamas:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
+            "MANUEL":    { type: "special", name: "Chef Manuel", fullName: "Chef Manuel Alberto López Díaz", table: 1, count: 1, text: "Estimado Chef Manuel:<br><br>A lo largo de nuestra formación tuvimos la oportunidad de compartir con usted diversas materias y experiencias dentro de la cocina. En cada una de ellas encontramos a un profesional comprometido con la enseñanza, con la técnica y con la búsqueda constante de la excelencia.<br><br>Hoy, al llegar al cierre de esta etapa, nos sentimos especialmente honrados de contar con usted en uno de los momentos más importantes de nuestro proyecto final. La cocina oriental, eje fundamental de esta experiencia, encuentra en su conocimiento y guía a una de sus piezas más importantes.<br><br>Gracias por compartir con nosotros sus enseñanzas, por impulsarnos a perfeccionar nuestra técnica y por contribuir a nuestra formación profesional durante estos años.<br><br>Nos haría muy feliz contar con su presencia en esta noche tan especial.<br><br>Porque cada experiencia, cada aprendizaje y cada maestro han contribuido a dar forma a este camino. Y sería un honor compartir con usted el momento en que, finalmente, cerremos el círculo." },
+            "JAIME":     { type: "special", name: "Jaime Ramos", fullName: "Jaime Ramos", table: 1, count: 1, text: "Estimado Jaime Ramos:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
+            "ALDO":      { type: "special", name: "Aldo Jauregui", fullName: "Aldo Michaelle Jauregui Gutierrez", table: 1, count: 1, text: "Estimado Aldo Michaelle Jauregui Gutierrez:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
+            "ALEJANDRO": { type: "special", name: "Chef Alejandro", fullName: "Chef Kevin Alejandro Flores Carrillo", table: 1, count: 1, text: "Apreciado Chef Alejandro:<br><br>Aunque no estuvo con nosotros desde el primer día, hay personas cuya presencia es tan significativa que terminan sintiéndose parte de toda la historia.<br><br>Usted llegó cuando nuestro camino ya había comenzado, pero bastaron unos cuantos semestres para convertirse en uno de los chefs más importantes, más cercanos y más queridos de esta generación.<br><br>Nos compartió sus conocimientos, pero también algo mucho más valioso: su tiempo, su confianza y su amistad. Siempre creyó en nosotros, nos impulsó a hacer mejor las cosas, nos motivó a ir más allá de lo que pensábamos posible y nos hizo sentir que nuestras ideas valían la pena.<br><br>Con usted aprendimos dentro y fuera de la cocina. Compartimos proyectos, conversaciones, sueños, preocupaciones y momentos que hicieron que la relación entre maestro y alumno se transformara en algo mucho más profundo: respeto, admiración y un cariño genuino.<br><br>Para muchos de nosotros, usted dejó de ser solamente un chef. Se convirtió en un amigo, en una inspiración y en una de esas personas que hacen que una etapa de la vida sea imposible de olvidar.<br><br>Por eso, al mirar hacia atrás, resulta difícil imaginar esta historia sin usted. Porque aunque llegó a la mitad del camino, terminó ocupando un lugar permanente en él.<br><br>Y en una noche dedicada a honrar todo lo vivido, nos haría profundamente felices contar con su presencia.<br><br>Porque los círculos no se cierran únicamente con quienes estuvieron al inicio, sino también con quienes, en el momento justo, llegaron para ayudarnos a completarlos." },
+            "CELINA":    { type: "special", name: "Dra. Celina", fullName: "Dra. María Celina Agraz López", table: 2, count: 1, text: "Querida maestra Celina:<br><br>Antes de ser nuestra directora, fue nuestra maestra. Con usted vivimos algunas de las primeras clases, los primeros aprendizajes y los primeros pasos dentro de esta universidad. Fue con usted que comenzamos a trazar los primeros caminos de esta historia.<br><br>No fuimos la generación más silenciosa ni la más sencilla. Fuimos la generación de los oficios, de las gestiones, de las visitas a su oficina, de las preguntas, de las exigencias y de las causas que considerábamos justas. Pero también fuimos una generación que aprendió a encontrar su voz, a defender sus ideas y a crecer dentro y fuera de las cocinas.<br><br>Y en cada una de esas etapas, ahí estuvo usted. Como maestra, como guía y como directora. Siempre presente, siempre pendiente, siempre acompañándonos.<br><br>Hoy, al mirar hacia atrás, entendemos que estos años no se construyeron únicamente con clases y proyectos, sino con personas que caminaron junto a nosotros y creyeron en nuestra formación.<br><br>Por eso, nos haría profundamente feliz contar con su presencia en esta noche tan especial. Porque fue con usted que comenzamos a dar los primeros trazos de este círculo, y es con usted con quien deseamos verlo cerrarse." },
+            "MAGALLY":   { type: "special", name: "Cinthya Gómez", fullName: "Cinthya Magally Gómez Sánchez", table: 2, count: 1, text: "Estimada Cinthya Magally Gómez Sánchez:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
+            "YURI":      { type: "special", name: "Maestra Yuri", fullName: "Yuri Vannesa Berumen Delgado", table: 2, count: 1, text: "Querida Maestra Yuri:<br><br>Hay personas que pasan por nuestra vida dejando enseñanzas. Y hay otras que dejan una huella tan profunda que terminan formando parte de quienes somos.<br><br>Usted estuvo con nosotros desde el principio.<br><br>Nos acompañó en los primeros semestres, en los proyectos integradores, en las semanas culturales, en los eventos, en retos, en triunfos y también en momentos difíciles. Incluso cuando ya no nos impartía clases, siempre encontraba la manera de estar cerca, de acompañarnos, de escucharnos y de alentarnos a seguir adelante.<br><br>Por eso, cuando pensamos en nuestra historia como generación, es imposible imaginarla sin usted.<br><br>Porque más allá de las aulas, de las calificaciones o de las actividades, nos regaló algo mucho más valioso: su tiempo, su cariño, su confianza y su presencia constante.<br><br>En una etapa de la vida donde tantas personas van y vienen, usted eligió quedarse. Estuvo ahí cuando celebramos, cuando tropezamos, cuando soñamos y cuando dudamos. Siempre estuvo ahí.<br><br>Nos llevamos innumerables recuerdos, pero sobre todo nos llevamos el privilegio de haber conocido a una persona extraordinaria. Una maestra excepcional, sí, pero también una amiga, una guía y uno de los corazones más nobles que hemos encontrado en este camino.<br><br>Cuando los años pasen y recordemos esta generación, recordaremos muchas clases, muchos proyectos y muchas experiencias. Pero también recordaremos a una mujer que creyó en nosotros incluso cuando nosotros mismos no estábamos seguros de poder lograrlo.<br><br>Con usted comenzaron muchos de los momentos más importantes de esta historia. Y por eso, en esta noche tan significativa, deseamos compartirle el honor de acompañarnos una vez más.<br><br>Porque algunos maestros enseñan una materia. Otros enseñan una profesión. Pero usted nos enseñó, con su ejemplo, el valor de acompañar a las personas.<br><br>Y porque fue una parte indispensable de nuestro camino, nos haría profundamente felices que estuviera presente cuando, después de cuatro años y medio de historia, finalmente cerremos el círculo." },
+            "AMEZCUA":   { type: "special", name: "Jorge Amezcua", fullName: "Jorge Alberto Amezcua Aguirre", table: 2, count: 1, text: "Estimado Jorge Alberto Amezcua Aguirre:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generation, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
+
+            // ALUMNOS (4 códigos cada uno)
+            "ARON":       { type: "standard", name: "Aron Rafael Bañuelos Cortez", table: 2, count: 4 },
+            "BRANDON":    { type: "standard", name: "Brandon Jaramillo Rosas", table: 8, count: 4 },
+            "CARLOS":     { type: "standard", name: "Carlos Isac Luna", table: 5, count: 4 },
+            "CRISTHIAN":  { type: "standard", name: "Cristhian Iván López Ponce", table: 6, count: 4 },
+            "DANIELA":    { type: "standard", name: "Daniela Rivera Carrillo", table: 9, count: 4 },
+            "DAVID":      { type: "standard", name: "David Villagrana Ibarra", table: 10, count: 4 },
+            "DIEGO":      { type: "standard", name: "Diego De La Rosa Torres", table: 11, count: 4 },
+            "FATIMA":     { type: "standard", name: "Fátima Lizbeth Gómez Flores", table: 3, count: 4 },
+            "FERNANDO":   { type: "standard", name: "Fernando Rincon Mendiola", table: 12, count: 4 },
+            "FRANCISCO":  { type: "standard", name: "Francisco Sepulveda Paredes", table: 5, count: 4 },
+            "GERARDO":    { type: "standard", name: "Gerardo Tovar Estrada", table: 8, count: 4 },
+            "GISELLE":    { type: "standard", name: "Giselle Fabiola Jiménez Silva", table: 4, count: 4 },
+            "GLORIA":     { type: "standard", name: "Gloria Estefanía Barraza Taracena", table: 3, count: 4 },
+            "HEIDI":      { type: "standard", name: "Heidi Gisela Castillo Ramírez", table: 2, count: 4 },
+            "IVAN":       { type: "standard", name: "Iván Salinas Rosales", table: 6, count: 4 },
+            "JULIETA":    { type: "standard", name: "Julieta Esmeralda Hernández", table: 13, count: 4 },
+            "KESTIN":     { type: "standard", name: "Kestin Yaletzi Gutiérrez Álvarez", table: 4, count: 4 },
+            "LEONEL":     { type: "standard", name: "Leonel Aldair Arroyo Soria", table: 9, count: 4 },
+            "LUIS":       { type: "standard", name: "Luis Armando Santiago Gonzalez", table: 11, count: 4 },
+            "MARTIN":     { type: "standard", name: "Martin Enrique Márquez Abascal", table: 13, count: 4 },
+            "NAZBITH":    { type: "standard", name: "Nazbith Adilene Fletes Guardado", table: 12, count: 4 },
+            "ZULLY":      { type: "standard", name: "Zully Adolfo Gonzalez Hernández", table: 10, count: 4 }
+        };
+
+        // Escuchar Registros (Para mostrar conteos)
         onAuthStateChanged(auth, (user) => {
             if (!user) return;
             const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
-            
-            unsubscribe = onSnapshot(colRef, (snapshot) => {
+            unsubscribeGuests = onSnapshot(colRef, (snapshot) => {
                 allConfirmations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                
                 const counterEl = document.getElementById('live-counter');
-                if (counterEl) {
-                    counterEl.innerText = `${allConfirmations.length} / ${CONFIG.totalCapacity} LUGARES CONFIRMADOS`;
-                }
-
-                if (document.getElementById('modal-admin').classList.contains('active')) {
-                    window.renderAdminTable();
-                }
+                if (counterEl) { counterEl.innerText = `${allConfirmations.length} / ${CONFIG.totalCapacity} LUGARES CONFIRMADOS`; }
+                if (document.getElementById('modal-admin').classList.contains('active')) { window.renderAdminTable(); }
             }, (err) => console.error("Error Firebase:", err));
         });
-
-        // ── BASE DE DATOS Y LÍMITES POR ALUMNO ──
-        const database = {
-            // --- MESA 1 ---
-            "VENTURA2022": { type: "special", name: "Chef Ventura", fullName: "Jose Ventura Huerta Gonzalez", table: 1, text: "Querido Chef Ventura:<br><br>Hay personas que llegan a nuestra vida para enseñarnos una materia. Otras, para enseñarnos un oficio. Pero existen unas pocas que dejan una huella tan profunda que terminan formando parte de quienes somos.<br><br>Hace cuatro años y medio cruzamos por primera vez la puerta de una cocina con más dudas que certezas. No sabíamos sostener correctamente un cuchillo, desconocíamos el lenguaje de los fogones y apenas comenzábamos a imaginar el camino que teníamos por delante. Usted estuvo ahí desde el primer día.<br><br>Fue el primer chef que nos habló de respeto antes que de recetas, de disciplina antes que de reconocimiento y de pasión antes que de técnica. Nos enseñó que cocinar no consiste únicamente en transformar ingredientes, sino en transformar personas. Nos mostró que detrás de cada plato existe historia, esfuerzo, carácter y corazón.<br><br>Con el paso de los semestres llegaron nuevos maestros, nuevas cocinas y nuevos desafíos, pero siempre recordamos que fue usted quien encendió la primera llama. Quien nos enseñó a confiar en nuestras manos cuando aún temblaban. Quien corrigió nuestros errores cuando apenas comenzábamos a caminar. Quien sembró en nosotros el amor y el respeto por esta profesión que hoy elegimos como proyecto de vida.<br><br>Gracias por su paciencia, por su exigencia, por sus enseñanzas y por creer en nosotros cuando todavía éramos jóvenes aprendices intentando descubrir nuestro lugar en el mundo.<br><br>Hace cuatro años y medio, frente a usted, comenzamos a trazar los primeros pasos de esta historia. Hoy deseamos compartir con quien encendió la primera llama el instante en que ese trazo finalmente se completa.<br><br>Porque algunos círculos no pueden cerrarse sin las personas que les dieron origen.<br><br>Y porque esta historia comenzó frente a usted, nos llenaría de orgullo, emoción y gratitud poder contar con su presencia en la noche en que, después de cuatro años y medio de aprendizaje, esfuerzo y sueños compartidos, finalmente cerremos el círculo." },
-            "JERAAR100": { type: "special", name: "Dr. Jeraar", fullName: "Dr. Jeraar Atahulpa Ramos García", table: 1, text: "Querido Dr. Jeraar:<br><br>Hay profesores que imparten clases. Hay maestros que transmiten conocimientos. Y existen personas extraordinarias que cambian para siempre la forma en que vemos el mundo. Usted fue una de ellas.<br><br>En sus aulas aprendimos que cocinar es mucho más que seguir recetas o menear cazuelas. Aprendimos a cuestionar, a investigar, a pensar, a buscar respuestas y, sobre todo, a nunca conformarnos con lo que ya sabemos. Nos enseñó que el conocimiento no tiene límites para quien conserva la curiosidad y el deseo de aprender.<br><br>Su inteligencia, su pasión, su inmensa capacidad y su forma única de entender la educación le ganaron algo que no se exige ni se impone: nuestro respeto, nuestra admiración y nuestra confianza.<br><br>Para muchos de nosotros fue maestro. Para otros, consejero. Para otros más, amigo y confidente. Pero para todos fue una guía que nos impulsó a mirar más lejos de lo que creíamos posible.<br><br>Cuando nosotros veíamos una puerta, usted nos enseñaba a buscar el camino detrás de ella. Cuando creíamos haber llegado, usted nos recordaba que aún podíamos ir más alto. Nos enseñó a creer, a soñar, a atrevernos a volar.<br><br>Hoy llegamos al final de una etapa, pero también al comienzo de todo aquello para lo que nos preparó.<br><br>Y por eso, en una noche dedicada a cerrar ciclos, nos haría profundamente feliz contar con su presencia. Porque entre los muchos trazos que dieron forma a nuestra historia, algunos de los más importantes llevan su nombre.<br><br>Con usted aprendimos que siempre existe algo más allá del horizonte. Y es con profunda gratitud que deseamos compartirle cómo, finalmente, se cierra el círculo." },
-            "MARTHA3032": { type: "special", name: "Chef Martha", fullName: "Martha Jazmín Acero Garcia", table: 1, text: "Querida Chef Martha:<br><br>A lo largo de estos cuatro años y medio compartimos mucho más que clases, cocinas y proyectos. Compartimos aprendizajes, desafíos, sonrisas, nervios y también momentos difíciles que marcaron nuestro camino.<br><br>Gracias por su paciencia, por su tiempo, por acompañarnos en tantas materias y proyectos integradores, y por enseñarnos siempre con el corazón. Gracias por permitirnos conocer no solo a la chef, sino también a la persona, a la madre y a la mujer que enfrentó cada etapa con fortaleza y generosidad.<br><br>Nos quedará para siempre el recuerdo de los hornos encendidos, el aroma de los postres recién horneados, las risas compartidas y las conversaciones que hicieron de esta experiencia algo mucho más grande que una carrera.<br><br>Hoy llegamos al final de un camino que usted ayudó a construir día con día. Por eso, nos haría profundamente feliz contar con su presencia mientras cerramos el círculo que juntos comenzamos a trazar hace cuatro años y medio." },
-            "JESUS022": { type: "special", name: "Jesus Lamas", fullName: "Jesus G Lamas", table: 1, text: "Estimado Jesus G Lamas:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
-            "MANUEL555": { type: "special", name: "Chef Manuel", fullName: "Chef Manuel Alberto López Díaz", table: 1, text: "Estimado Chef Manuel:<br><br>A lo largo de nuestra formación tuvimos la oportunidad de compartir con usted diversas materias y experiencias dentro de la cocina. En cada una de ellas encontramos a un profesional comprometido con la enseñanza, con la técnica y con la búsqueda constante de la excelencia.<br><br>Hoy, al llegar al cierre de esta etapa, nos sentimos especialmente honrados de contar con usted en uno de los momentos más importantes de nuestro proyecto final. La cocina oriental, eje fundamental de esta experiencia, encuentra en su conocimiento y guía a una de sus piezas más importantes.<br><br>Gracias por compartir con nosotros sus enseñanzas, por impulsarnos a perfeccionar nuestra técnica y por contribuir a nuestra formación profesional durante estos años.<br><br>Nos haría muy feliz contar con su presencia en esta noche tan especial.<br><br>Porque cada experiencia, cada aprendizaje y cada maestro han contribuido a dar forma a este camino. Y sería un honor compartir con usted el momento en que, finalmente, cerremos el círculo." },
-            "JAIME024": { type: "special", name: "Jaime Ramos", fullName: "Jaime Ramos", table: 1, text: "Estimado Jaime Ramos:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
-            "ALDO021": { type: "special", name: "Aldo Jauregui", fullName: "Aldo Michaelle Jauregui Gutierrez", table: 1, text: "Estimado Aldo Michaelle Jauregui Gutierrez:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
-            "ALEJANDRO222": { type: "special", name: "Chef Alejandro", fullName: "Chef Kevin Alejandro Flores Carrillo", table: 1, text: "Apreciado Chef Alejandro:<br><br>Aunque no estuvo con nosotros desde el primer día, hay personas cuya presencia es tan significativa que terminan sintiéndose parte de toda la historia.<br><br>Usted llegó cuando nuestro camino ya había comenzado, pero bastaron unos cuantos semestres para convertirse en uno de los chefs más importantes, más cercanos y más queridos de esta generación.<br><br>Nos compartió sus conocimientos, pero también algo mucho más valioso: su tiempo, su confianza y su amistad. Siempre creyó en nosotros, nos impulsó a hacer mejor las cosas, nos motivó a ir más allá de lo que pensábamos posible y nos hizo sentir que nuestras ideas valían la pena.<br><br>Con usted aprendimos dentro y fuera de la cocina. Compartimos proyectos, conversaciones, sueños, preocupaciones y momentos que hicieron que la relación entre maestro y alumno se transformara en algo mucho más profundo: respeto, admiración y un cariño genuino.<br><br>Para muchos de nosotros, usted dejó de ser solamente un chef. Se convirtió en un amigo, en una inspiración y en una de esas personas que hacen que una etapa de la vida sea imposible de olvidar.<br><br>Por eso, al mirar hacia atrás, resulta difícil imaginar esta historia sin usted. Porque aunque llegó a la mitad del camino, terminó ocupando un lugar permanente en él.<br><br>Y en una noche dedicada a honrar todo lo vivido, nos haría profundamente felices contar con su presencia.<br><br>Porque los círculos no se cierran únicamente con quienes estuvieron al inicio, sino también con quienes, en el momento justo, llegaron para ayudarnos a completarlos." },
-
-            // --- MESA 2 ---
-            "CELINA0088": { type: "special", name: "Dra. Celina", fullName: "Dra. María Celina Agraz López", table: 2, text: "Querida maestra Celina:<br><br>Antes de ser nuestra directora, fue nuestra maestra. Con usted vivimos algunas de las primeras clases, los primeros aprendizajes y los primeros pasos dentro de esta universidad. Fue con usted que comenzamos a trazar los primeros caminos de esta historia.<br><br>No fuimos la generación más silenciosa ni la más sencilla. Fuimos la generación de los oficios, de las gestiones, de las visitas a su oficina, de las preguntas, de las exigencias y de las causas que considerábamos justas. Pero también fuimos una generación que aprendió a encontrar su voz, a defender sus ideas y a crecer dentro y fuera de las cocinas.<br><br>Y en cada una de esas etapas, ahí estuvo usted. Como maestra, como guía y como directora. Siempre presente, siempre pendiente, siempre acompañándonos.<br><br>Hoy, al mirar hacia atrás, entendemos que estos años no se construyeron únicamente con clases y proyectos, sino con personas que caminaron junto a nosotros y creyeron en nuestra formación.<br><br>Por eso, nos haría profundamente feliz contar con su presencia en esta noche tan especial. Porque fue con usted que comenzamos a dar los primeros trazos de este círculo, y es con usted con quien deseamos verlo cerrarse." },
-            "MAGALLY023": { type: "special", name: "Cinthya Gómez", fullName: "Cinthya Magally Gómez Sánchez", table: 2, text: "Estimada Cinthya Magally Gómez Sánchez:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
-            "YURI200": { type: "special", name: "Maestra Yuri", fullName: "Yuri Vannesa Berumen Delgado", table: 2, text: "Querida Maestra Yuri:<br><br>Hay personas que pasan por nuestra vida dejando enseñanzas. Y hay otras que dejan una huella tan profunda que terminan formando parte de quienes somos.<br><br>Usted estuvo con nosotros desde el principio.<br><br>Nos acompañó en los primeros semestres, en los proyectos integradores, en las semanas culturales, en los eventos, en retos, en triunfos y también en momentos difíciles. Incluso cuando ya no nos impartía clases, siempre encontraba la manera de estar cerca, de acompañarnos, de escucharnos y de alentarnos a seguir adelante.<br><br>Por eso, cuando pensamos en nuestra historia como generación, es imposible imaginarla sin usted.<br><br>Porque más allá de las aulas, de las calificaciones o de las actividades, nos regaló algo mucho más valioso: su tiempo, su cariño, su confianza y su presencia constante.<br><br>En una etapa de la vida donde tantas personas van y vienen, usted eligió quedarse. Estuvo ahí cuando celebramos, cuando tropezamos, cuando soñamos y cuando dudamos. Siempre estuvo ahí.<br><br>Nos llevamos innumerables recuerdos, pero sobre todo nos llevamos el privilegio de haber conocido a una persona extraordinaria. Una maestra excepcional, sí, pero también una amiga, una guía y uno de los corazones más nobles que hemos encontrado en este camino.<br><br>Cuando los años pasen y recordemos esta generación, recordaremos muchas clases, muchos proyectos y muchas experiencias. Pero también recordaremos a una mujer que creyó en nosotros incluso cuando nosotros mismos no estábamos seguros de poder lograrlo.<br><br>Con usted comenzaron muchos de los momentos más importantes de esta historia. Y por eso, en esta noche tan significativa, deseamos compartirle el honor de acompañarnos una vez más.<br><br>Porque algunos maestros enseñan una materia. Otros enseñan una profesión. Pero usted nos enseñó, con su ejemplo, el valor de acompañar a las personas.<br><br>Y porque fue una parte indispensable de nuestro camino, nos haría profundamente felices que estuviera presente cuando, después de cuatro años y medio de historia, finalmente cerremos el círculo." },
-            "AMEZCUA025": { type: "special", name: "Jorge Amezcua", fullName: "Jorge Alberto Amezcua Aguirre", table: 2, text: "Estimado Jorge Alberto Amezcua Aguirre:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generation, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
-
-            // --- ALUMNOS ESTÁNDAR (TODOS CON LÍMITE DE 4 INVITADOS) ---
-            "ARON26":       { type: "standard", name: "Aron Rafael Bañuelos Cortez", table: 2 },
-            "BRANDON26":    { type: "standard", name: "Brandon Jaramillo Rosas", table: 8 },
-            "CARLOS26":     { type: "standard", name: "Carlos Isac Luna", table: 5 },
-            "CRISTHIAN26":  { type: "standard", name: "Cristhian Iván López Ponce", table: 6 },
-            "DANIELA26":    { type: "standard", name: "Daniela Rivera Carrillo", table: 9 },
-            "DAVID26":      { type: "standard", name: "David Villagrana Ibarra", table: 10 },
-            "DIEGO26":      { type: "standard", name: "Diego De La Rosa Torres", table: 11 },
-            "FATIMA26":     { type: "standard", name: "Fátima Lizbeth Gómez Flores", table: 3 },
-            "FERNANDO26":   { type: "standard", name: "Fernando Rincon Mendiola", table: 12 },
-            "FRANCISCO26":  { type: "standard", name: "Francisco Sepulveda Paredes", table: 5 },
-            "GERARDO26":    { type: "standard", name: "Gerardo Tovar Estrada", table: 8 },
-            "GISELLE26":    { type: "standard", name: "Giselle Fabiola Jiménez Silva", table: 4 },
-            "GLORIA26":     { type: "standard", name: "Gloria Estefanía Barraza Taracena", table: 3 },
-            "HEIDI26":      { type: "standard", name: "Heidi Gisela Castillo Ramírez", table: 2 },
-            "IVAN26":       { type: "standard", name: "Iván Salinas Rosales", table: 6 },
-            "JULIETA26":    { type: "standard", name: "Julieta Esmeralda Hernández", table: 13 },
-            "KESTIN26":     { type: "standard", name: "Kestin Yaletzi Gutiérrez Álvarez", table: 4 },
-            "LEONEL26":     { type: "standard", name: "Leonel Aldair Arroyo Soria", table: 9 },
-            "LUIS26":       { type: "standard", name: "Luis Armando Santiago Gonzalez", table: 11 },
-            "MARTIN26":     { type: "standard", name: "Martin Enrique Márquez Abascal", table: 13 },
-            "NAZBITH26":    { type: "standard", name: "Nazbith Adilene Fletes Guardado", table: 12 },
-            "ZULLY26":      { type: "standard", name: "Zully Adolfo Gonzalez Hernández", table: 10 }
-        };
 
         let currentValidData = null; 
         let currentValidDataCode = "";
@@ -804,134 +804,107 @@
         const errorText = document.getElementById('code-error');
         const nameErrorText = document.getElementById('name-error');
 
-        const timeoutPromise = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), ms));
-
-        window.openMenuModal = function() { 
-            document.getElementById('modal-menu').classList.add('active'); 
-            setTimeout(() => {
-                const menuScroll = document.getElementById('menu-scroll-container');
-                if (menuScroll) menuScroll.scrollTop = 0;
-            }, 50);
-        };
-        
-        window.openCodeModal = function() { 
-            document.getElementById('modal-code').classList.add('active'); 
-            codeInput.value = ''; 
-            errorText.style.opacity = '0'; 
-            codeInput.focus(); 
-        };
-        
-        window.openDressModal = function() { 
-            document.getElementById('modal-dress').classList.add('active'); 
-            setTimeout(() => {
-                const dressScroll = document.getElementById('dress-scroll-container');
-                if (dressScroll) dressScroll.scrollTop = 0;
-            }, 50);
-        };
-
+        window.openMenuModal = function() { document.getElementById('modal-menu').classList.add('active'); setTimeout(() => { const menuScroll = document.getElementById('menu-scroll-container'); if (menuScroll) menuScroll.scrollTop = 0; }, 50); };
+        window.openCodeModal = function() { document.getElementById('modal-code').classList.add('active'); codeInput.value = ''; errorText.style.opacity = '0'; codeInput.focus(); };
+        window.openDressModal = function() { document.getElementById('modal-dress').classList.add('active'); setTimeout(() => { const dressScroll = document.getElementById('dress-scroll-container'); if (dressScroll) dressScroll.scrollTop = 0; }, 50); };
         window.closeModals = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); };
 
-        // 1. Validar Código
-        window.validateCode = function() {
+        // 1. Validar Código Unipersonal en Firebase
+        window.validateCode = async function() {
             currentValidDataCode = codeInput.value.trim().toUpperCase();
-            currentValidData = database[currentValidDataCode];
+            if (!currentValidDataCode) {
+                errorText.innerText = "Por favor ingresa un código."; errorText.style.opacity = '1'; return;
+            }
 
-            if (currentValidData) {
-                if (currentValidData.type === 'standard') {
-                    const limit = 4; // Límite estricto de 4 para todos los alumnos
-                    const count = allConfirmations.filter(c => c.hostCode === currentValidDataCode).length;
-                    if (count >= limit) {
-                        errorText.innerText = `Este anfitrión ya ha completado su aforo máximo de ${limit} invitados.`;
-                        errorText.style.opacity = '1';
-                        return; 
-                    }
-                }
+            const btn = document.querySelector('#modal-code .btn-outline');
+            const originalText = btn.innerText;
+            btn.innerText = "Verificando..."; btn.disabled = true;
 
-                errorText.style.opacity = '0';
-                document.getElementById('modal-code').classList.remove('active');
-                
-                const messageContainer = document.getElementById('personal-message');
-                const btnAccept = document.getElementById('btn-accept-invite'); 
-                
-                if (currentValidData.type === 'standard') {
-                    messageContainer.innerHTML = `"Yo, <strong style="color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;">${sanitize(currentValidData.name)}</strong>, tengo el honor de invitarte a mi último proyecto integrador. <br><br>Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."`;
-                    btnAccept.innerText = "Aceptar Invitación"; btnAccept.style.background = "var(--gold)"; btnAccept.style.border = "none"; btnAccept.style.color = "var(--ink)"; btnAccept.onclick = window.handleMessageAccept;
-                } else if (currentValidData.type === 'special') {
-                    messageContainer.innerHTML = `"${currentValidData.text}"`;
-                    const isVIPConfirmed = allConfirmations.some(c => c.hostCode === currentValidDataCode);
-                    if (isVIPConfirmed) {
-                        btnAccept.innerText = "Asistencia Confirmada (Ver Pase)";
-                        btnAccept.style.background = "transparent";
-                        btnAccept.style.border = "1px solid rgba(212, 175, 55, 0.5)";
-                        btnAccept.style.color = "rgba(212, 175, 55, 0.8)";
-                        btnAccept.onclick = async () => {
-                            window.closeModals();
-                            const existingVIP = allConfirmations.find(c => c.hostCode === currentValidDataCode);
-                            setTimeout(() => showTicket(existingVIP.guestName, existingVIP.table), 400);
-                        };
-                    } else {
-                        btnAccept.innerText = "Aceptar Invitación";
-                        btnAccept.style.background = "var(--gold)";
-                        btnAccept.style.border = "none";
-                        btnAccept.style.color = "var(--ink)";
-                        btnAccept.onclick = window.handleMessageAccept;
+            try {
+                const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
+                const inviteSnap = await getDoc(inviteRef);
+
+                if (inviteSnap.exists()) {
+                    currentValidData = inviteSnap.data();
+
+                    // Si el código ya se usó, no permite registrar, PERO muestra el ticket de nuevo si es el dueño
+                    if (currentValidData.usado) {
+                        const guestDoc = allConfirmations.find(c => c.hostCode === currentValidDataCode);
+                        if(guestDoc) {
+                            errorText.innerHTML = `Código ya utilizado por <b>${sanitize(guestDoc.guestName)}</b>.<br>Generando pase anterior...`;
+                            errorText.style.opacity = '1'; errorText.style.color = '#10b981';
+                            setTimeout(() => {
+                                document.getElementById('modal-code').classList.remove('active');
+                                showTicket(guestDoc.guestName, guestDoc.table);
+                                errorText.style.color = '#8B1A2A'; // reset color
+                            }, 2500);
+                        } else {
+                            errorText.innerText = "Este código ya ha sido utilizado.";
+                            errorText.style.opacity = '1';
+                        }
+                        btn.innerText = originalText; btn.disabled = false; return;
                     }
+
+                    // Si el código está libre, continuamos:
+                    errorText.style.opacity = '0';
+                    document.getElementById('modal-code').classList.remove('active');
+                    
+                    const messageContainer = document.getElementById('personal-message');
+                    const btnAccept = document.getElementById('btn-accept-invite'); 
+                    
+                    if (currentValidData.type === 'standard') {
+                        messageContainer.innerHTML = `"Yo, <strong style="color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;">${sanitize(currentValidData.hostName)}</strong>, tengo el honor de invitarte a mi último proyecto integrador. <br><br>Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."`;
+                        btnAccept.innerText = "Aceptar Invitación"; btnAccept.style.background = "var(--gold)"; btnAccept.style.border = "none"; btnAccept.style.color = "var(--ink)"; btnAccept.onclick = window.handleMessageAccept;
+                    } else if (currentValidData.type === 'special') {
+                        messageContainer.innerHTML = `"${currentValidData.text}"`;
+                        btnAccept.innerText = "Aceptar Invitación"; btnAccept.style.background = "var(--gold)"; btnAccept.style.border = "none"; btnAccept.style.color = "var(--ink)"; btnAccept.onclick = window.handleMessageAccept;
+                    }
+                    
+                    setTimeout(() => {
+                        document.getElementById('modal-message').classList.add('active');
+                        setTimeout(() => { document.getElementById('personal-message').scrollTop = 0; }, 50);
+                    }, 400);
+
+                } else {
+                    errorText.innerText = "Código no reconocido. Verifica e intenta nuevamente.";
+                    errorText.style.opacity = '1';
+                    codeInput.focus();
                 }
-                
-                setTimeout(() => {
-                    document.getElementById('modal-message').classList.add('active');
-                    setTimeout(() => { document.getElementById('personal-message').scrollTop = 0; }, 50);
-                }, 400);
-            } else {
-                errorText.innerText = "Código no reconocido. Intenta nuevamente.";
+            } catch (error) {
+                errorText.innerText = "Error de conexión. Intenta nuevamente.";
                 errorText.style.opacity = '1';
-                codeInput.focus();
+            } finally {
+                btn.innerText = originalText; btn.disabled = false;
             }
         };
 
-        // 2. Aceptar Invitación VIP (Protección contra fallos y límite)
+        // 2. Aceptar Invitación VIP (Registro y quemado de código)
         window.handleMessageAccept = async function() {
             const btnAccept = document.getElementById('btn-accept-invite');
             btnAccept.disabled = true; btnAccept.innerText = "Registrando...";
 
             if (currentValidData.type === 'special') {
-                const exists = allConfirmations.find(c => c.hostCode === currentValidDataCode);
-                if (!exists) {
-                    let timeoutId;
-                    const safeTimeoutPromise = new Promise((_, reject) => { timeoutId = setTimeout(() => reject(new Error("TIMEOUT")), 8000); });
-
-                    try {
-                        const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
-                        await Promise.race([
-                            addDoc(colRef, {
-                                guestName: currentValidData.fullName, hostCode: currentValidDataCode,
-                                hostName: "Invitado VIP", table: currentValidData.table, timestamp: new Date().toISOString(),
-                                asistio: false
-                            }),
-                            safeTimeoutPromise
-                        ]);
-                        clearTimeout(timeoutId); // Mata el timer para que no estorbe en el fondo
-                        
-                        document.getElementById('modal-message').classList.remove('active');
-                        setTimeout(() => showTicket(currentValidData.fullName, currentValidData.table), 400);
-                    } catch(e) { 
-                        clearTimeout(timeoutId); // Mata el timer por seguridad
-                        if (e.message === "TIMEOUT" || !navigator.onLine) {
-                            btnAccept.innerText = "Sin conexión — mostrando pase offline para el staff...";
-                            btnAccept.style.color = "var(--gold-light)";
-                            setTimeout(() => {
-                                document.getElementById('modal-message').classList.remove('active');
-                                showTicket(currentValidData.fullName, currentValidData.table);
-                            }, 2000);
-                        } else {
-                            btnAccept.innerText = "Error. Intenta de nuevo.";
-                            btnAccept.disabled = false;
-                        }
-                        return;
-                    }
-                } else {
+                try {
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
+                    const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
+                    
+                    // Transacción en lote: Agrega invitado Y quema el código
+                    const batch = writeBatch(db);
+                    batch.set(doc(colRef), {
+                        guestName: currentValidData.fullName,
+                        hostCode: currentValidDataCode,
+                        hostName: "Invitado VIP",
+                        table: currentValidData.table,
+                        timestamp: new Date().toISOString(),
+                        asistio: false
+                    });
+                    batch.update(inviteRef, { usado: true, guestName: currentValidData.fullName });
+                    await batch.commit();
+                    
                     document.getElementById('modal-message').classList.remove('active');
                     setTimeout(() => showTicket(currentValidData.fullName, currentValidData.table), 400);
+                } catch(e) { 
+                    btnAccept.innerText = "Error. Intenta de nuevo."; btnAccept.disabled = false;
                 }
             } else {
                 document.getElementById('modal-message').classList.remove('active');
@@ -940,10 +913,9 @@
                     document.getElementById('modal-name').classList.add('active'); guestNameInput.focus();
                 }, 400);
             }
-            btnAccept.disabled = false; btnAccept.innerText = "Aceptar Invitación";
         };
 
-        // 3. Generar Pase Estándar (Protección contra fallos y candado estricto)
+        // 3. Generar Pase Estándar (Registro y quemado de código)
         window.generateStandardTicket = async function() {
             const guestName = guestNameInput.value.trim().toUpperCase();
             if (guestName === "") {
@@ -953,296 +925,272 @@
             const btnGen = document.getElementById('btn-generate-ticket');
             btnGen.disabled = true; btnGen.innerText = "Verificando...";
 
-            const limit = 4; // CANDADO ESTRICTO DE 4 INVITADOS
-            const count = allConfirmations.filter(c => c.hostCode === currentValidDataCode).length;
-            if (count >= limit) {
-                nameErrorText.innerText = "Lo sentimos, el aforo de este anfitrión se acaba de completar."; nameErrorText.style.opacity = '1';
-                btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase"; return;
-            }
-
-            let timeoutId;
-            const safeTimeoutPromise = new Promise((_, reject) => { timeoutId = setTimeout(() => reject(new Error("TIMEOUT")), 8000); });
-
             try {
                 const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
-                await Promise.race([
-                    addDoc(colRef, {
-                        guestName: guestName, hostCode: currentValidDataCode, hostName: currentValidData.name,
-                        table: currentValidData.table, timestamp: new Date().toISOString(),
-                        asistio: false
-                    }),
-                    safeTimeoutPromise
-                ]);
-                clearTimeout(timeoutId); // Mata el reloj fantasma
+                const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
+                
+                const batch = writeBatch(db);
+                batch.set(doc(colRef), {
+                    guestName: guestName,
+                    hostCode: currentValidDataCode,
+                    hostName: currentValidData.hostName,
+                    table: currentValidData.table,
+                    timestamp: new Date().toISOString(),
+                    asistio: false
+                });
+                batch.update(inviteRef, { usado: true, guestName: guestName });
+                await batch.commit();
                 
                 nameErrorText.style.opacity = '0';
                 document.getElementById('modal-name').classList.remove('active');
                 setTimeout(() => showTicket(guestName, currentValidData.table), 400);
             } catch(e) {
-                clearTimeout(timeoutId); // Mata el reloj por seguridad
-                if (e.message === "TIMEOUT" || !navigator.onLine) {
-                    nameErrorText.innerText = "Sin conexión — mostrando pase offline para el staff...";
-                    nameErrorText.style.opacity = '1';
-                    nameErrorText.style.color = "var(--gold-light)";
-                    setTimeout(() => {
-                        document.getElementById('modal-name').classList.remove('active');
-                        showTicket(guestName, currentValidData.table);
-                    }, 2000);
-                } else {
-                    console.error(e); nameErrorText.innerText = "Error de conexión. Intenta nuevamente."; nameErrorText.style.opacity = '1';
-                }
-            } finally {
+                nameErrorText.innerText = "Error de conexión. Intenta nuevamente."; nameErrorText.style.opacity = '1';
                 btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
             }
         };
 
-        // 4. Pantalla de Ticket LIMPIA Y SIN QR
         function showTicket(nameToDisplay, tableNum) {
             document.getElementById('ticket-guest-name').innerText = nameToDisplay;
             document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
             document.querySelectorAll('.event-date-display').forEach(el => el.innerText = CONFIG.eventDate.toUpperCase());
+            document.getElementById('ticket-status-msg').innerText = !navigator.onLine ? "Sin conexión — muestra tu pase descargado al staff." : "Guarda tu pase para el día del evento";
             
-            document.getElementById('ticket-status-msg').innerText = !navigator.onLine 
-                ? "Sin conexión — muestra tu pase descargado al staff." 
-                : "Guarda tu pase para el día del evento";
-            
-            // Precargar la imagen antes de mostrar el botón de descarga
             const img = document.getElementById('ticket-bg-img');
             const downloadBtn = document.getElementById('btn-download');
-            
             if (img && !img.complete) {
-                downloadBtn.disabled = true;
-                downloadBtn.innerHTML = 'Cargando pase...';
+                downloadBtn.disabled = true; downloadBtn.innerHTML = 'Cargando pase...';
                 img.onload = () => { downloadBtn.disabled = false; downloadBtn.innerHTML = '↓ Descargar Imagen'; };
                 img.onerror = () => { downloadBtn.disabled = false; downloadBtn.innerHTML = '↓ Descargar Imagen'; };
             }
-            
             document.getElementById('modal-ticket').classList.add('active');
         }
 
-        // LÓGICA DE DESCARGA MEJORADA CON HTML2CANVAS (ALTA CALIDAD Y FUENTES PRESERVADAS)
         window.downloadTicket = async function() {
-            const btn = document.getElementById('btn-download');
-            const originalText = btn.innerHTML;
+            const btn = document.getElementById('btn-download'); const originalText = btn.innerHTML;
             btn.innerHTML = 'Generando...'; btn.disabled = true;
-
             const captureDiv = document.getElementById('ticket-card-capture');
             const guestName = document.getElementById('ticket-guest-name').innerText;
             const tableNum = document.getElementById('ticket-table-num').innerText;
 
             try {
-                // html2canvas toma una fotografía del div con todos sus estilos CSS y fuentes cargadas.
-                const canvas = await html2canvas(captureDiv, {
-                    scale: 3,
-                    useCORS: true,
-                    allowTaint: true,
-                    backgroundColor: '#050505',
-                    logging: false,
-                    imageTimeout: 0
-                });
-
-                // Convertimos el canvas a un archivo PNG
-                const imgData = canvas.toDataURL('image/png');
-                
-                // Creamos el enlace invisible de descarga
+                const canvas = await html2canvas(captureDiv, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#050505', logging: false, imageTimeout: 0 });
                 const link = document.createElement('a');
                 link.download = `Pase_Enso_${guestName.replace(/\s+/g, '_')}_${tableNum.replace(/\s+/g, '_')}.png`;
-                link.href = imgData;
-                link.click();
-                
-                btn.innerHTML = '¡Descargado!'; 
-                setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
-
-            } catch (err) {
-                console.error("Error al generar la imagen con html2canvas:", err);
-                btn.innerHTML = 'Error'; 
-                setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
-            }
+                link.href = canvas.toDataURL('image/png'); link.click();
+                btn.innerHTML = '¡Descargado!'; setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
+            } catch (err) { btn.innerHTML = 'Error'; setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500); }
         };
 
         window.finalizeRSVP = function() {
             window.closeModals();
-            const btn = document.getElementById('main-confirm-btn');
-            btn.textContent = '+ Registrar Otro Invitado';
             document.getElementById('invite-code-input').value = ''; document.getElementById('guest-name-input').value = '';
         };
 
-        // ── LÓGICA DE ADMIN SIMPLIFICADA CONECTADA A FIREBASE ──
+        // ── LÓGICA DE ADMIN (CONTRASEÑA EN FIREBASE Y TABS) ──
         window.openAdminLogin = async function() {
             adminPassInput.value = ''; document.getElementById('admin-error').style.opacity = '0';
             document.getElementById('modal-admin-login').classList.add('active'); adminPassInput.focus();
         };
 
-        window.verifyAdmin = async function() {
-            const pass = adminPassInput.value.trim().toUpperCase();
-            const btn = document.querySelector('#modal-admin-login .btn-outline');
-            const originalText = btn.innerText;
-            btn.innerText = "Verificando...";
-            btn.disabled = true;
-            document.getElementById('admin-error').style.opacity = '0';
+        window.switchAdminTab = function(tabName) {
+            document.getElementById('tab-guests').classList.remove('active');
+            document.getElementById('tab-codes').classList.remove('active');
+            document.getElementById('view-guests').style.display = 'none';
+            document.getElementById('view-codes').style.display = 'none';
 
-            try {
-                // Ir a Firebase a leer la configuración en tiempo real
-                const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'security');
-                const configSnap = await getDoc(configRef);
-
-                if (!configSnap.exists()) {
-                    alert("⚠️ No se ha configurado la seguridad en la base de datos de Firebase. Revisa las instrucciones.");
-                    btn.innerText = originalText; btn.disabled = false;
-                    return;
-                }
-
-                // Leer las contraseñas oficiales desde Firebase
-                const dbAdminPass = configSnap.data().adminPass;
-                const dbResetPass = configSnap.data().resetPass;
-
-                if (pass === dbAdminPass) {
-                    document.getElementById('modal-admin-login').classList.remove('active'); 
-                    window.renderAdminTable(); 
-                    document.getElementById('modal-admin').classList.add('active');
-                } else if (pass === dbResetPass) {
-                    const confirmText = prompt("⚠️ PELIGRO: Para confirmar el reseteo escribe la palabra 'BORRAR' (en mayúsculas):");
-                    
-                    if (confirmText === "BORRAR") {
-                        try {
-                            btn.innerText = "Borrando..."; 
-                            const deletePromises = allConfirmations.map(g => deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', g.id)));
-                            await Promise.all(deletePromises);
-                            alert("✅ Base de datos reiniciada con éxito.");
-                            document.getElementById('modal-admin-login').classList.remove('active');
-                        } catch (e) { console.error(e); alert("Hubo un error al intentar borrar los datos."); }
-                    } else {
-                        alert("Operación cancelada. Escribiste incorrectamente el candado de seguridad.");
-                    }
-                } else { 
-                    document.getElementById('admin-error').innerText = "Clave incorrecta.";
-                    document.getElementById('admin-error').style.opacity = '1'; 
-                }
-            } catch (error) {
-                console.error("Error consultando Firebase:", error);
-                document.getElementById('admin-error').innerText = "Error de conexión al verificar la clave.";
-                document.getElementById('admin-error').style.opacity = '1';
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
+            if(tabName === 'guests') {
+                document.getElementById('tab-guests').classList.add('active');
+                document.getElementById('view-guests').style.display = 'block';
+                window.renderAdminTable();
+            } else {
+                document.getElementById('tab-codes').classList.add('active');
+                document.getElementById('view-codes').style.display = 'block';
+                window.loadAdminCodes(); // Carga la lista de códigos desde firebase
             }
         };
 
-        // Lógica del filtro en tiempo real
-        document.getElementById('admin-search').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const cards = document.querySelectorAll('.admin-guest-card');
-            cards.forEach(card => {
-                const guestName = card.querySelector('.admin-guest-name').innerText.toLowerCase();
-                const hostName = card.querySelector('.admin-guest-host').innerText.toLowerCase();
-                if (guestName.includes(searchTerm) || hostName.includes(searchTerm)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
+        window.verifyAdmin = async function() {
+            const pass = adminPassInput.value.trim().toUpperCase();
+            const btn = document.querySelector('#modal-admin-login .btn-outline');
+            const originalText = btn.innerText; btn.innerText = "Verificando..."; btn.disabled = true;
+            document.getElementById('admin-error').style.opacity = '0';
+
+            try {
+                const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'security');
+                const configSnap = await getDoc(configRef);
+
+                if (!configSnap.exists()) { alert("⚠️ Seguridad no configurada en Firebase."); btn.innerText = originalText; btn.disabled = false; return; }
+                if (pass === configSnap.data().adminPass) {
+                    document.getElementById('modal-admin-login').classList.remove('active'); 
+                    window.switchAdminTab('guests');
+                    document.getElementById('modal-admin').classList.add('active');
+                } else if (pass === configSnap.data().resetPass) {
+                    if (prompt("⚠️ Para confirmar el reseteo escribe 'BORRAR':") === "BORRAR") {
+                        btn.innerText = "Borrando..."; 
+                        const gPro = allConfirmations.map(g => deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', g.id)));
+                        const cPro = allCodes.map(c => deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'invites', c.codigo)));
+                        await Promise.all([...gPro, ...cPro]);
+                        alert("✅ Base de datos reiniciada con éxito."); document.getElementById('modal-admin-login').classList.remove('active');
+                    }
+                } else { 
+                    document.getElementById('admin-error').innerText = "Clave incorrecta."; document.getElementById('admin-error').style.opacity = '1'; 
                 }
+            } catch (error) { document.getElementById('admin-error').innerText = "Error de conexión."; document.getElementById('admin-error').style.opacity = '1'; } 
+            finally { btn.innerText = originalText; btn.disabled = false; }
+        };
+
+        document.getElementById('admin-search').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('.admin-guest-card').forEach(card => {
+                const name = card.querySelector('.admin-guest-name').innerText.toLowerCase();
+                const host = card.querySelector('.admin-guest-host').innerText.toLowerCase();
+                card.style.display = (name.includes(term) || host.includes(term)) ? 'flex' : 'none';
             });
         });
 
         window.renderAdminTable = function() {
-            const tbody = document.getElementById('admin-table-body'); 
-            tbody.innerHTML = ''; 
+            const tbody = document.getElementById('admin-table-body'); tbody.innerHTML = ''; 
             document.getElementById('admin-total').innerText = allConfirmations.length;
             
-            // Lógica de ordenamiento: 1º Mesas (números, luego letras), 2º Nombre Alfabético
             const sorted = [...allConfirmations].sort((a, b) => {
-                const tA = Number(a.table) || a.table;
-                const tB = Number(b.table) || b.table;
-                if (tA !== tB) {
-                    if (typeof tA === 'number' && typeof tB === 'number') return tA - tB;
-                    if (typeof tA === 'number') return -1;
-                    if (typeof tB === 'number') return 1;
-                    return String(tA).localeCompare(String(tB));
-                }
+                const tA = Number(a.table) || a.table, tB = Number(b.table) || b.table;
+                if (tA !== tB) { if (typeof tA === 'number' && typeof tB === 'number') return tA - tB; if (typeof tA === 'number') return -1; if (typeof tB === 'number') return 1; return String(tA).localeCompare(String(tB)); }
                 return String(a.guestName).localeCompare(String(b.guestName));
             });
 
             let currentTable = null;
-
             sorted.forEach((g, index) => {
                 if (g.table !== currentTable) {
                     currentTable = g.table;
                     const header = document.createElement('div');
-                    header.style.cssText = `
-                        background: rgba(212,175,55,0.1); 
-                        border: 1px solid rgba(212,175,55,0.2); 
-                        border-left: 4px solid var(--gold); 
-                        padding: 8px 12px; 
-                        margin: ${index === 0 ? '0' : '20px'} 0 12px 0; 
-                        border-radius: 2px;
-                    `;
+                    header.style.cssText = `background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.2); border-left: 4px solid var(--gold); padding: 8px 12px; margin: ${index === 0 ? '0' : '20px'} 0 12px 0; border-radius: 2px;`;
                     header.innerHTML = `<h4 style="font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold-light); letter-spacing: 0.15em; margin: 0; text-align: left;">MESA ${sanitize(currentTable)}</h4>`;
                     tbody.appendChild(header);
                 }
 
-                const div = document.createElement('div');
-                div.className = 'admin-guest-card';
+                const div = document.createElement('div'); div.className = 'admin-guest-card';
                 div.innerHTML = `
-                    <div class="admin-guest-header">
-                        <div>
-                            <div class="admin-guest-name">${sanitize(g.guestName)}</div>
-                            <div class="admin-guest-host">Por: ${sanitize(g.hostName)}</div>
-                        </div>
-                    </div>
+                    <div class="admin-guest-header"><div><div class="admin-guest-name">${sanitize(g.guestName)}</div><div class="admin-guest-host">Por: ${sanitize(g.hostName)} [${sanitize(g.hostCode)}]</div></div></div>
                     <div class="admin-guest-actions">
                         <div>
-                            ${g.asistio 
-                                ? `<span style="color:#4ade80; font-size:0.8rem; font-weight:bold;">✅ Ingresó</span>
-                                   <button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #9ca3af; border-color: #9ca3af; margin-left: 8px;" onclick="window.toggleCheckIn('${g.id}', false)">Deshacer</button>`
-                                : `<span style="color:#9ca3af; font-size:0.8rem; font-weight:bold;">⏳ Pendiente</span>
-                                   <button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #4ade80; border-color: #4ade80; margin-left: 8px;" onclick="window.toggleCheckIn('${g.id}', true)">Dar Acceso</button>`
-                            }
+                            ${g.asistio ? `<span style="color:#4ade80; font-size:0.8rem; font-weight:bold;">✅ Ingresó</span><button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #9ca3af; border-color: #9ca3af; margin-left: 8px;" onclick="window.toggleCheckIn('${g.id}', false)">Deshacer</button>`
+                                : `<span style="color:#9ca3af; font-size:0.8rem; font-weight:bold;">⏳ Pendiente</span><button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #4ade80; border-color: #4ade80; margin-left: 8px;" onclick="window.toggleCheckIn('${g.id}', true)">Dar Acceso</button>` }
                         </div>
-                        <button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #8B1A2A; border-color: #8B1A2A;" onclick="window.deleteGuest('${g.id}', '${sanitize(g.guestName)}')">Borrar</button>
-                    </div>
-                `;
+                        <button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #8B1A2A; border-color: #8B1A2A;" onclick="window.deleteGuest('${g.id}', '${sanitize(g.guestName)}', '${sanitize(g.hostCode)}')">Borrar</button>
+                    </div>`;
                 tbody.appendChild(div);
             });
         };
 
-        window.toggleCheckIn = async function(docId, status) {
-            try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId), { asistio: status }); } catch (e) { console.error(e); }
+        window.toggleCheckIn = async function(docId, status) { try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId), { asistio: status }); } catch(e){} };
+
+        // Al borrar un invitado, liberamos su código!
+        window.deleteGuest = async function(docId, guestName, hostCode) {
+            if(confirm(`¿Eliminar a ${guestName}? Su código de invitación (${hostCode}) volverá a estar libre.`)){
+                try { 
+                    const batch = writeBatch(db);
+                    batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId));
+                    batch.update(doc(db, 'artifacts', appId, 'public', 'data', 'invites', hostCode), { usado: false, guestName: "" });
+                    await batch.commit();
+                } catch(e) {}
+            }
         };
 
-        window.deleteGuest = async function(docId, guestName) {
-            if(confirm(`¿Estás seguro de eliminar el registro de ${guestName}? Esto liberará su lugar permanentemente.`)){
-                try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId)); } catch(e) { console.error(e); }
-            }
+        // ── GENERADOR Y GESTOR DE CÓDIGOS ──
+        function get4Digits() { return Math.floor(1000 + Math.random() * 9000).toString(); }
+
+        window.generateCodesBatch = async function() {
+            const btn = document.getElementById('btn-generate-codes');
+            if(!confirm("¿Deseas generar los códigos? Esto creará los códigos faltantes (100+) en la base de datos para alumnos y maestros.")) return;
+            
+            btn.innerText = "Generando..."; btn.disabled = true;
+            try {
+                const invitesRef = collection(db, 'artifacts', appId, 'public', 'data', 'invites');
+                const existingSnap = await getDocs(invitesRef);
+                const existing = new Set();
+                existingSnap.forEach(d => existing.add(d.id));
+
+                const batch = writeBatch(db);
+                let added = 0;
+
+                for (const [basePrefix, data] of Object.entries(baseDatabase)) {
+                    for(let i=0; i<data.count; i++) {
+                        let newCode;
+                        let attempts = 0;
+                        do { newCode = basePrefix + get4Digits(); attempts++; } while(existing.has(newCode) && attempts < 100);
+                        
+                        existing.add(newCode);
+                        const docRef = doc(invitesRef, newCode);
+                        batch.set(docRef, {
+                            codigo: newCode, type: data.type, hostCode: basePrefix, hostName: data.name,
+                            fullName: data.fullName || '', table: data.table, text: data.text || '',
+                            usado: false, guestName: ""
+                        });
+                        added++;
+                    }
+                }
+
+                if(added > 0) {
+                    await batch.commit(); alert(`✅ Se generaron ${added} códigos exitosamente.`); window.loadAdminCodes();
+                } else { alert("ℹ️ No se requirieron nuevos códigos (ya todos están generados)."); }
+            } catch(e) { alert("Error al generar códigos."); } 
+            finally { btn.innerText = "+ Generar Códigos"; btn.disabled = false; }
+        };
+
+        window.loadAdminCodes = async function() {
+            const tbody = document.getElementById('codes-table-body');
+            tbody.innerHTML = '<div style="padding: 20px; text-align: center;">Cargando códigos de Firebase...</div>';
+            try {
+                const qSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'invites'));
+                allCodes = []; qSnap.forEach(d => allCodes.push(d.data()));
+                
+                // Ordenar: primero base, luego alfabético
+                allCodes.sort((a,b) => a.codigo.localeCompare(b.codigo));
+                
+                let html = '';
+                allCodes.forEach(c => {
+                    const status = c.usado ? `<span class="admin-code-status usado">❌ Usado (${sanitize(c.guestName)})</span>` : `<span class="admin-code-status libre">✅ Libre</span>`;
+                    html += `<div class="admin-code-row"><div class="admin-code-val">${c.codigo}</div><div>${status}</div></div>`;
+                });
+                
+                tbody.innerHTML = html || '<div style="padding: 20px; text-align: center;">No hay códigos. Haz clic en Generar.</div>';
+                document.getElementById('admin-total').innerText = allCodes.length;
+            } catch(e) { tbody.innerHTML = '<div style="color:red; text-align:center;">Error al cargar.</div>'; }
+        };
+
+        window.exportCodesCSV = function() {
+            if(allCodes.length === 0) return alert("No hay códigos para exportar.");
+            let csvContent = "data:text/csv;charset=utf-8,Codigo,Anfitrion,Mesa,Tipo,Estado,InvitadoRegistrado\n";
+            allCodes.forEach(c => {
+                const row = [ c.codigo, c.hostName, c.table, c.type, c.usado ? "Usado" : "Libre", c.guestName || "" ].map(item => `"${String(item).replace(/"/g, '""')}"`).join(",");
+                csvContent += row + "\r\n";
+            });
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", `Codigos_ENSO_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
         };
 
         codeInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.validateCode(); });
         guestNameInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.generateStandardTicket(); });
         adminPassInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.verifyAdmin(); });
 
-        // ── ANIMACIONES VISUALES ──
         window.addEventListener('load', () => {
             if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
             window.scrollTo(0, 0);
-            
             document.querySelectorAll('.event-date-display').forEach(el => el.innerText = CONFIG.eventDate);
-
             setTimeout(() => { document.getElementById('intro-line-top').classList.add('grow'); document.getElementById('intro-line-bot').classList.add('grow'); }, 300);
             setTimeout(() => { document.getElementById('intro-title').classList.add('show'); document.getElementById('intro-subtitle').classList.add('show'); }, 600);
         });
 
-        const btnEnter = document.getElementById('btn-enter');
-        const introOverlay = document.getElementById('intro-overlay');
-        const loadingText = document.getElementById('loading-text');
-        const cinematicContainer = document.getElementById('cinematic-container');
-        const heroVideo = document.getElementById('hero-video');
-        const scrollIndicator = document.getElementById('scroll-down');
-        const mainContent = document.getElementById('main-content');
-        
+        const btnEnter = document.getElementById('btn-enter'), introOverlay = document.getElementById('intro-overlay'), loadingText = document.getElementById('loading-text'), cinematicContainer = document.getElementById('cinematic-container'), heroVideo = document.getElementById('hero-video'), scrollIndicator = document.getElementById('scroll-down'), mainContent = document.getElementById('main-content');
         let videoYaFinalizado = false;
+        
         btnEnter.addEventListener('click', () => {
             btnEnter.disabled = true; btnEnter.style.opacity = '0'; loadingText.style.opacity = '1'; introOverlay.style.opacity = '0';
             setTimeout(() => {
-                introOverlay.style.display = 'none'; cinematicContainer.classList.add('play');
-                document.getElementById('skip-video-btn').classList.add('show');
+                introOverlay.style.display = 'none'; cinematicContainer.classList.add('play'); document.getElementById('skip-video-btn').classList.add('show');
                 let isVideoPlaying = false;
                 const playPromise = heroVideo.play();
                 if (playPromise !== undefined) { playPromise.then(() => { isVideoPlaying = true; }).catch(() => { if (!videoYaFinalizado) finalizarVideo(); }); }
@@ -1255,17 +1203,9 @@
 
         function finalizarVideo() {
             videoYaFinalizado = true; document.getElementById('skip-video-btn').classList.remove('show'); heroVideo.pause();
-            
-            const videoContainer = document.getElementById('cinematic-container');
-            videoContainer.style.opacity = '0';
-            setTimeout(() => { 
-                videoContainer.style.display = 'none'; 
-                heroVideo.removeAttribute('src'); // Libera la memoria del video
-                heroVideo.load();
-            }, 1000);
-            
-            window.scrollTo(0, 0);
-            scrollIndicator.classList.add('show'); mainContent.classList.add('visible'); document.body.style.overflowY = 'auto';
+            const videoContainer = document.getElementById('cinematic-container'); videoContainer.style.opacity = '0';
+            setTimeout(() => { videoContainer.style.display = 'none'; heroVideo.removeAttribute('src'); heroVideo.load(); }, 1000);
+            window.scrollTo(0, 0); scrollIndicator.classList.add('show'); mainContent.classList.add('visible'); document.body.style.overflowY = 'auto';
             setTimeout(() => triggerReveal(), 400);
         }
 
