@@ -7,6 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Importamos html2canvas para generar imágenes PNG perfectas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -602,7 +604,7 @@
             <h3 class="modal-title" style="margin-bottom: 8px; font-size: 1.2rem;">Confirmación Exitosa</h3>
             <p id="ticket-status-msg" style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.85rem; color:rgba(212,175,55,0.7); margin-bottom: 24px; letter-spacing: 0.05em;">Guarda tu pase para el día del evento</p>
             
-            <div class="ticket-card" id="ticket-card-capture">
+            <div class="ticket-card" id="ticket-card-capture" style="background-color: #050505;">
                 <!-- Se corrigió el selector usando un ID para que el CSS no afecte a nada más -->
                 <img id="ticket-bg-img" src="enso.png" alt="Pase Ensō" crossorigin="anonymous" onerror="this.style.display='none'">
                 
@@ -1004,57 +1006,38 @@
             document.getElementById('modal-ticket').classList.add('active');
         }
 
-        // NUEVA LÓGICA DE DESCARGA (SVG SINTÉTICO ALTA CALIDAD)
+        // LÓGICA DE DESCARGA MEJORADA CON HTML2CANVAS (ALTA CALIDAD Y FUENTES PRESERVADAS)
         window.downloadTicket = async function() {
             const btn = document.getElementById('btn-download');
             const originalText = btn.innerHTML;
             btn.innerHTML = 'Generando...'; btn.disabled = true;
 
+            const captureDiv = document.getElementById('ticket-card-capture');
             const guestName = document.getElementById('ticket-guest-name').innerText;
-            const tableNum = document.getElementById('ticket-table-num').innerText;
 
             try {
-                let base64Bg = '';
-                try {
-                    const response = await fetch('enso.png');
-                    const blobBg = await response.blob();
-                    base64Bg = await new Promise(resolve => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result);
-                        reader.readAsDataURL(blobBg);
-                    });
-                } catch(e) { console.warn("No se pudo cargar la imagen local para el SVG. Usando fallback mate."); }
+                // html2canvas toma una fotografía del div con todos sus estilos CSS y fuentes cargadas.
+                const canvas = await html2canvas(captureDiv, {
+                    scale: 3, // Multiplica la resolución por 3 para que no se vea pixelada en teléfonos
+                    useCORS: true, // Importante para que la imagen de fondo no bloquee el renderizado
+                    backgroundColor: '#050505',
+                    logging: false
+                });
 
-                const imageTag = base64Bg ? `<image href="${base64Bg}" width="800" height="800" preserveAspectRatio="xMidYMid slice" />` : `<rect width="800" height="800" fill="#050505"/>`;
-
-                const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800">
-                    <style>
-                        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&amp;display=swap');
-                        .name { font-family: 'Cinzel', serif; font-size: 38px; fill: #F5E17A; text-anchor: middle; letter-spacing: 0.1em; text-shadow: 0 4px 10px rgba(0,0,0,0.9); }
-                        .table { font-family: 'Cinzel', serif; font-size: 28px; fill: #ffffff; text-anchor: middle; letter-spacing: 0.4em; font-weight: 600; text-shadow: 0 4px 10px rgba(0,0,0,0.9); }
-                        .date { font-family: 'Cinzel', serif; font-size: 18px; fill: rgba(255,255,255,0.6); text-anchor: middle; letter-spacing: 0.25em; text-shadow: 0 2px 6px rgba(0,0,0,0.9); }
-                    </style>
-                    ${imageTag}
-                    <text x="400" y="680" class="name">${sanitize(guestName)}</text>
-                    <text x="400" y="730" class="table">${sanitize(tableNum)}</text>
-                    <text x="400" y="770" class="date">${CONFIG.eventDate.toUpperCase()}</text>
-                </svg>`;
-
-                const blob = new Blob([svgString], {type: 'image/svg+xml'});
-                const url = URL.createObjectURL(blob);
+                // Convertimos el canvas a un archivo PNG
+                const imgData = canvas.toDataURL('image/png');
                 
+                // Creamos el enlace invisible de descarga
                 const link = document.createElement('a');
-                link.download = `Pase_Enso_${guestName.replace(/\\s+/g, '_')}.svg`;
-                link.href = url;
+                link.download = `Pase_Enso_${guestName.replace(/\s+/g, '_')}.png`;
+                link.href = imgData;
                 link.click();
-                
-                URL.revokeObjectURL(url);
                 
                 btn.innerHTML = '¡Descargado!'; 
                 setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
 
             } catch (err) {
-                console.error(err);
+                console.error("Error al generar la imagen con html2canvas:", err);
                 btn.innerHTML = 'Error'; 
                 setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
             }
