@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENSŌ - Centro de Impresión</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        :root {
+            --gold: #D4AF37; --gold-light: #F5E17A; --ink: #050505; --parchment: #0D0B08;
+        }
+        body { background-color: var(--ink); color: #D9D0C0; font-family: 'Cormorant Garamond', serif; }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        .font-cormorant { font-family: 'Cormorant Garamond', serif; }
+        .font-kanji { font-family: 'Noto Serif JP', serif; }
+        .text-gold { background: linear-gradient(105deg, #BF953F 0%, #FCF6BA 40%, #B38728 70%, #FBF5B7 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 2px; }
+
+        .sheet-letter {
+            width: 816px; height: 1056px; background: white; margin: 0 auto; position: relative;
+            padding: 48px 72px; /* Márgenes para cuadrar 10 tarjetas */
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(5, 1fr);
+            gap: 0px; box-sizing: border-box;
+        }
+        
+        .card-print {
+            width: 336px; height: 192px; border: 1px dashed #ccc; box-sizing: border-box;
+            position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        .card-front { background-color: #050505; color: white; border: 1px solid #333; }
+        .card-front::after { content:''; position:absolute; top:8px; left:8px; right:8px; bottom:8px; border: 1px solid rgba(212,175,55,0.3); pointer-events: none; }
+        
+        .card-back { background-color: #111; color: white; border: 1px solid #333; position: relative;}
+        .card-back-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.8; z-index: 1;}
+        .card-back-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(8,8,8,0.98); z-index: 50; display: flex; justify-content: center; align-items: center; }
+        .modal-box { background: var(--parchment); border: 1px solid rgba(212,175,55,0.3); padding: 40px; text-align: center; }
+        .input-auth { background: transparent; border: none; border-bottom: 1px solid var(--gold); color: white; font-family: 'Cinzel', serif; text-align: center; outline: none; margin-bottom: 20px; font-size: 1.2rem; letter-spacing: 0.3em;}
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-box w-[400px] shadow-2xl">
+            <h2 class="font-cinzel text-2xl text-[#F5E17A] mb-2 tracking-widest">Seguridad</h2>
+            <p class="font-cormorant text-gray-400 mb-6 italic">Acceso exclusivo al Centro de Impresión ENSŌ.</p>
+            <input type="password" id="admin-pass" class="input-auth w-full" placeholder="CONTRASEÑA" autocomplete="off">
+            <p id="auth-error" class="text-red-500 font-cormorant italic text-sm mb-4 opacity-0 transition-opacity">Clave incorrecta.</p>
+            <button id="btn-ingresar" onclick="window.verifyAdmin()" class="border border-[#D4AF37] text-[#D4AF37] px-6 py-2 font-cinzel text-sm tracking-widest hover:bg-[#D4AF37] hover:text-black transition">Ingresar</button>
+        </div>
+    </div>
+
+    <header class="border-b border-[#D4AF37]/20 p-4 flex justify-between items-center bg-[#0a0806] shrink-0">
+        <div>
+            <h1 class="font-cinzel text-xl text-[#F5E17A] tracking-widest">ENSŌ <span class="text-gray-500 text-sm ml-2">Centro de Impresión y Pases</span></h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="text-right flex flex-col">
+                <label class="font-cormorant text-[10px] text-gray-400 uppercase tracking-widest">Enlace para QR de tarjetas</label>
+                <input type="text" id="site-url" class="bg-transparent border-b border-gray-600 text-white font-cormorant text-sm w-64 outline-none focus:border-[#D4AF37]" value="https://tudominio.github.io/enso">
+            </div>
+            <button onclick="location.reload()" class="border border-gray-600 text-gray-400 px-4 py-1 font-cinzel text-xs hover:border-white hover:text-white transition">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar: Lista de Hosts -->
+        <div class="w-1/3 border-r border-[#D4AF37]/20 bg-[#0a0806] flex flex-col">
+            <div class="p-4 border-b border-[#D4AF37]/10">
+                <input type="text" id="search-host" oninput="window.filterHosts()" placeholder="Buscar anfitrión..." class="w-full bg-black/50 border border-[#D4AF37]/30 text-[#D4AF37] p-2 font-cinzel text-sm outline-none placeholder:text-[#D4AF37]/30">
+            </div>
+            <div id="host-list" class="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-2">
+                <div class="text-center text-gray-500 font-cormorant mt-10">Cargando códigos...</div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Previews y Botones -->
+        <div class="w-2/3 flex flex-col bg-[#050505]">
+            <!-- Barra de Herramientas -->
+            <div class="p-4 border-b border-[#D4AF37]/20 flex gap-4 bg-[#0a0806] justify-between items-center shrink-0">
+                <div class="font-cinzel text-sm text-[#F5E17A]">
+                    Anfitrión Seleccionado: <span id="current-host-label" class="text-white">Ninguno</span>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="window.downloadDigital()" class="bg-[#D4AF37]/10 border border-[#D4AF37] text-[#D4AF37] px-4 py-2 font-cinzel text-xs tracking-widest hover:bg-[#D4AF37] hover:text-black transition">↓ Digital (PNG)</button>
+                    <button onclick="window.downloadSheet('front')" class="bg-white/5 border border-white/20 text-white px-4 py-2 font-cinzel text-xs tracking-widest hover:bg-white hover:text-black transition">🖨️ Hoja Frente</button>
+                    <button onclick="window.downloadSheet('back')" class="bg-white/5 border border-white/20 text-white px-4 py-2 font-cinzel text-xs tracking-widest hover:bg-white hover:text-black transition">🖨️ Hoja Atrás (Espejo)</button>
+                </div>
+            </div>
+
+            <!-- Canvas Area -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-8 flex justify-center bg-gray-900 relative">
+                
+                <div class="text-center font-cormorant text-gray-400 italic mt-10 absolute top-10" id="preview-placeholder">
+                    Selecciona un anfitrión a la izquierda para previsualizar los pases.
+                </div>
+
+                <!-- CONTENEDOR DIGITAL (Para enviar por WhatsApp) -->
+                <div id="digital-preview" class="hidden mb-12">
+                    <!-- Se inyecta dinámicamente el primero de la lista -->
+                </div>
+
+                <!-- CONTENEDOR PLANILLA (Para imprimir hoja carta) -->
+                <div id="sheet-preview" class="hidden transform scale-[0.6] origin-top">
+                    <!-- Se inyecta la hoja carta (frente o atrás) -->
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Configuración Global
+        const CONFIG = { appId: 'enso-uatyg-gala' };
+
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyAd_rViRrwdsigVaJNJO82nvVpGzywQT30", authDomain: "enso-gala-2026.firebaseapp.com",
+            projectId: "enso-gala-2026", storageBucket: "enso-gala-2026.firebasestorage.app", messagingSenderId: "413676120292", appId: "1:413676120292:web:b052eb281e1c32553de4f1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Variables de Estado
+        let allCodes = [];
+        let groupedCodes = {};
+        let selectedHostCodes = []; 
+
+        // 1. Iniciar Auth
+        let authPromise = null;
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch(e) { console.error("Error Auth:", e); }
+        };
+        authPromise = initAuth();
+
+        // Detectar tecla Enter en el input de contraseña para facilitar acceso
+        document.getElementById('admin-pass').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') { window.verifyAdmin(); }
+        });
+
+        // 2. Verificar Admin Login
+        window.verifyAdmin = async function() {
+            const pass = document.getElementById('admin-pass').value.trim().toUpperCase();
+            const errEl = document.getElementById('auth-error');
+            const btn = document.getElementById('btn-ingresar');
+            
+            if(!pass) return;
+
+            const originalText = btn.innerText;
+            btn.innerText = "Verificando...";
+            btn.disabled = true;
+            errEl.style.opacity = '0';
+
+            try {
+                await authPromise; // Asegurar que Firebase Auth ya despertó
+                
+                const configSnap = await getDoc(doc(db, 'artifacts', CONFIG.appId, 'public', 'data', 'config', 'security'));
+                
+                if (!configSnap.exists()) {
+                    throw new Error("No se ha configurado la seguridad en Firebase.");
+                }
+
+                if (pass === configSnap.data().adminPass) {
+                    document.getElementById('auth-modal').style.display = 'none';
+                    window.loadCodes();
+                } else {
+                    errEl.innerText = "Clave incorrecta.";
+                    errEl.style.opacity = '1';
+                }
+            } catch (error) { 
+                console.error("Error validando:", error);
+                errEl.innerText = "Error: " + error.message; 
+                errEl.style.opacity = '1'; 
+            } finally {
+                // Solo restablecer botón si no avanzó a la siguiente pantalla
+                if(document.getElementById('auth-modal').style.display !== 'none') {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            }
+        };
+
+        // 3. Cargar Códigos de Firebase
+        window.loadCodes = async function() {
+            const listEl = document.getElementById('host-list');
+            try {
+                const qSnap = await getDocs(collection(db, 'artifacts', CONFIG.appId, 'public', 'data', 'invites'));
+                allCodes = []; 
+                qSnap.forEach(d => allCodes.push(d.data()));
+                
+                groupedCodes = {};
+                allCodes.forEach(c => {
+                    if(!groupedCodes[c.hostName]) groupedCodes[c.hostName] = [];
+                    groupedCodes[c.hostName].push(c);
+                });
+
+                window.renderHostList(Object.keys(groupedCodes));
+            } catch (e) {
+                listEl.innerHTML = '<div class="text-red-500 font-cormorant text-center mt-4">Error al cargar la base de datos de Firebase: ' + e.message + '</div>';
+            }
+        };
+
+        // 4. Renderizar Lista en el Sidebar
+        window.filterHosts = function() {
+            const term = document.getElementById('search-host').value.toLowerCase();
+            const filtered = Object.keys(groupedCodes).filter(name => name.toLowerCase().includes(term));
+            window.renderHostList(filtered);
+        };
+
+        window.renderHostList = function(hostNames) {
+            const listEl = document.getElementById('host-list');
+            listEl.innerHTML = '';
+            
+            hostNames.sort().forEach(host => {
+                const codes = groupedCodes[host];
+                // Evitamos que falle si un código no tiene tipo
+                const type = (codes[0] && codes[0].type === 'special') ? '🌟 VIP/Especial' : 'Estándar';
+                
+                const btn = document.createElement('button');
+                btn.className = "text-left p-3 border border-[#D4AF37]/20 hover:bg-[#D4AF37]/10 transition rounded flex justify-between items-center";
+                btn.innerHTML = `
+                    <div>
+                        <div class="font-cinzel text-sm text-[#F5E17A]">${host}</div>
+                        <div class="font-cormorant text-xs text-gray-400">${type} | ${codes.length} Pases</div>
+                    </div>
+                    <div class="font-cinzel text-[#D4AF37] text-xs">Ver →</div>
+                `;
+                btn.onclick = () => window.selectHost(host, codes);
+                listEl.appendChild(btn);
+            });
+        };
+
+        // 5. Seleccionar un Anfitrión y generar Previews
+        window.selectHost = function(hostName, codes) {
+            selectedHostCodes = codes;
+            document.getElementById('current-host-label').innerText = `${hostName} (${codes.length} pases)`;
+            document.getElementById('preview-placeholder').classList.add('hidden');
+            
+            const digPreview = document.getElementById('digital-preview');
+            const sheetPreview = document.getElementById('sheet-preview');
+            digPreview.classList.remove('hidden');
+            sheetPreview.classList.remove('hidden');
+
+            window.renderDigitalPreview(codes[0]);
+            window.renderSheetPreview(codes, 'front');
+        };
+
+        window.renderDigitalPreview = function(codeData) {
+            const container = document.getElementById('digital-preview');
+            if(!codeData) return;
+            container.innerHTML = `
+                <div class="text-center font-cormorant text-[#D4AF37] mb-2 italic text-sm">Vista Previa Digital (WhatsApp)</div>
+                <div id="capture-digital" style="width: 400px; height: 400px; background-color: #050505; position: relative; border: 1px solid #333; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <div style="position: absolute; inset: 12px; border: 1px dashed rgba(212,175,55,0.4); pointer-events: none;"></div>
+                    <span style="font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.05); position: absolute; top:50%; left:50%; transform: translate(-50%, -50%);">円</span>
+                    <h1 style="font-family: 'Cinzel', serif; font-size: 2.5rem; color: #F5E17A; letter-spacing: 0.2em; margin-bottom: 4px; position:relative; z-index:2;">ENSŌ</h1>
+                    <p style="font-family: 'Cormorant Garamond', serif; font-style: italic; color: rgba(212,175,55,0.8); letter-spacing: 0.3em; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 24px;">El Noveno Trazo</p>
+                    <p style="font-family: 'Cinzel', serif; color: white; font-size: 0.7rem; letter-spacing: 0.2em; margin-bottom: 8px;">CÓDIGO DE ACCESO</p>
+                    <div style="background: linear-gradient(105deg, #BF953F 0%, #FCF6BA 40%, #B38728 70%, #FBF5B7 100%); -webkit-background-clip: text; background-clip: text; color: transparent; font-family: 'Cinzel', serif; font-size: 2.2rem; font-weight: bold; letter-spacing: 0.15em;">
+                        ${codeData.codigo || 'XXXX'}
+                    </div>
+                    <p style="font-family: 'Cormorant Garamond', serif; color: rgba(255,255,255,0.4); font-size: 0.8rem; margin-top: 24px; font-style: italic;">Pase personal e intransferible</p>
+                </div>
+            `;
+        };
+
+        window.renderSheetPreview = function(codesArray, side) {
+            const container = document.getElementById('sheet-preview');
+            const title = side === 'front' ? 'Vista Previa: Planilla Frente' : 'Vista Previa: Planilla Reverso (Espejo)';
+            
+            let sheetHTML = `<div class="text-center font-cormorant text-[#D4AF37] mb-2 italic text-sm mt-8">${title}</div>
+                             <div id="capture-sheet" class="sheet-letter">`;
+            
+            const totalCards = 10;
+            const linkUrl = document.getElementById('site-url').value.trim();
+
+            for (let i = 0; i < totalCards; i++) {
+                let codeIndex = i;
+                if (side === 'back') {
+                    // Espejo (Col 1 -> Col 2 y viceversa)
+                    codeIndex = i % 2 === 0 ? i + 1 : i - 1; 
+                }
+                
+                const c = codesArray[codeIndex];
+                
+                if (!c) {
+                    sheetHTML += `<div class="card-print bg-white"></div>`;
+                } else {
+                    if (side === 'front') {
+                        sheetHTML += `
+                            <div class="card-print card-front">
+                                <span style="font-family: 'Noto Serif JP', serif; font-size: 5rem; color: rgba(212, 175, 55, 0.08); position: absolute; top:50%; left:50%; transform: translate(-50%, -50%);">円</span>
+                                <h2 style="font-family: 'Cinzel', serif; font-size: 1.5rem; color: #F5E17A; letter-spacing: 0.2em; margin-bottom: 2px; position:relative; z-index:2;">ENSŌ</h2>
+                                <p style="font-family: 'Cormorant Garamond', serif; font-style: italic; color: rgba(212,175,55,0.8); letter-spacing: 0.2em; text-transform: uppercase; font-size: 0.55rem; margin-bottom: 12px;">Cena de Gala</p>
+                                <div style="background: linear-gradient(105deg, #BF953F 0%, #FCF6BA 40%, #B38728 70%, #FBF5B7 100%); -webkit-background-clip: text; background-clip: text; color: transparent; font-family: 'Cinzel', serif; font-size: 1.4rem; font-weight: bold; letter-spacing: 0.15em;">
+                                    ${c.codigo}
+                                </div>
+                            </div>`;
+                    } else {
+                        sheetHTML += `
+                            <div class="card-print card-back">
+                                <img src="atras.png" class="card-back-img" onerror="this.style.display='none'">
+                                <div class="card-back-content">
+                                    <div id="qr-${codeIndex}" class="bg-white p-1 rounded"></div>
+                                    <p style="font-family: 'Cinzel', serif; color: white; font-size: 0.5rem; letter-spacing: 0.15em;">${linkUrl}</p>
+                                    <p style="font-family: 'Cinzel', serif; color: #D4AF37; font-size: 0.6rem; letter-spacing: 0.2em; font-weight: bold; margin-top:4px;">${c.codigo}</p>
+                                </div>
+                            </div>`;
+                    }
+                }
+            }
+            
+            sheetHTML += `</div>`;
+            container.innerHTML = sheetHTML;
+
+            // Generar QRs para la cara trasera
+            if (side === 'back') {
+                for (let i = 0; i < totalCards; i++) {
+                    let codeIndex = i % 2 === 0 ? i + 1 : i - 1;
+                    const c = codesArray[codeIndex];
+                    if (c) {
+                        new QRCode(document.getElementById(`qr-${codeIndex}`), {
+                            text: linkUrl, width: 60, height: 60, colorDark : "#050505", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.M
+                        });
+                    }
+                }
+            }
+        };
+
+        window.downloadDigital = async function() {
+            if(selectedHostCodes.length === 0) return alert("Selecciona un anfitrión primero.");
+            const btn = event.target; const original = btn.innerText; btn.innerText = "Generando..."; btn.disabled = true;
+            
+            for(let i=0; i<selectedHostCodes.length; i++) {
+                window.renderDigitalPreview(selectedHostCodes[i]);
+                await new Promise(r => setTimeout(r, 200));
+                try {
+                    const canvas = await html2canvas(document.getElementById('capture-digital'), { scale: 3, backgroundColor: '#050505' });
+                    const link = document.createElement('a');
+                    link.download = `Pase_Digital_${selectedHostCodes[i].codigo}.png`;
+                    link.href = canvas.toDataURL('image/png'); 
+                    link.click();
+                } catch(e) {
+                    console.error("Error capturando digital:", e);
+                }
+            }
+            
+            btn.innerText = "¡Descargados!"; setTimeout(() => { btn.innerText = original; btn.disabled = false; }, 2000);
+        };
+
+        window.downloadSheet = async function(side) {
+            if(selectedHostCodes.length === 0) return alert("Selecciona un anfitrión primero.");
+            const btn = event.target; const original = btn.innerText; btn.innerText = "Preparando Hoja..."; btn.disabled = true;
+
+            window.renderSheetPreview(selectedHostCodes, side);
+            
+            setTimeout(async () => {
+                try {
+                    btn.innerText = "Capturando...";
+                    const captureDiv = document.getElementById('capture-sheet');
+                    
+                    const canvas = await html2canvas(captureDiv, { 
+                        scale: 3, 
+                        useCORS: true, 
+                        allowTaint: true,
+                        backgroundColor: '#ffffff'
+                    });
+                    
+                    const link = document.createElement('a');
+                    const hostName = selectedHostCodes[0].hostName.replace(/\s+/g, '_');
+                    link.download = `Planilla_${hostName}_${side.toUpperCase()}.png`;
+                    link.href = canvas.toDataURL('image/png'); 
+                    link.click();
+
+                    btn.innerText = "¡Listo!";
+                } catch(e) {
+                    console.error(e);
+                    alert("Error al generar la imagen. Intenta de nuevo.");
+                    btn.innerText = "Error";
+                } finally {
+                    setTimeout(() => { btn.innerText = original; btn.disabled = false; }, 2000);
+                }
+            }, 800); // 800ms de retraso para QRs e Imágenes
+        };
+
+    </script>
+</body>
+</html>
