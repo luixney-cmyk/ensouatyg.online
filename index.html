@@ -698,7 +698,7 @@
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, query, where, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ============================================================================
         // CONFIGURACIÓN OFICIAL DE FIREBASE
@@ -716,32 +716,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : CONFIG.appId;
-
-        // ── SISTEMA DE HASHING PARA SEGURIDAD DE CLAVES (SHA-256) ──
-        async function hashString(str) {
-            const buffer = new TextEncoder().encode(str);
-            const hash = await crypto.subtle.digest('SHA-256', buffer);
-            return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-        
-        /*
-         * ⚠️ ADVERTENCIA DE SEGURIDAD ⚠️
-         * La clave de administración NO DEBE vivir en el código del cliente.
-         * En un entorno de producción, se recomienda mover esta lógica a una Cloud Function
-         * o utilizar Firebase Auth con roles personalizados (Custom Claims).
-         */
-        const adminRaw = typeof __admin_key !== 'undefined' ? __admin_key : '';
-        const resetRaw = typeof __reset_key !== 'undefined' ? __reset_key : '';
-        
-        let TARGET_ADMIN_HASH = "";
-        let TARGET_RESET_HASH = "";
-        
-        async function initSecurity() {
-            // Utilizamos el hash para no exponer las claves planas si el usuario inspecciona el código.
-            TARGET_ADMIN_HASH = await hashString(adminRaw || "TESTIGO2027"); 
-            TARGET_RESET_HASH = await hashString(resetRaw || "RESET2027"); 
-        }
-        initSecurity();
 
         // Autenticación Silenciosa
         const initAuth = async () => {
@@ -1093,7 +1067,7 @@
             document.getElementById('invite-code-input').value = ''; document.getElementById('guest-name-input').value = '';
         };
 
-        // ── LÓGICA DE ADMIN SIMPLIFICADA CON HASHEO (SIN QR) Y AGRUPADA POR MESAS ──
+        // ── LÓGICA DE ADMIN SIMPLIFICADA CONECTADA A FIREBASE ──
         window.openAdminLogin = async function() {
             adminPassInput.value = ''; document.getElementById('admin-error').style.opacity = '0';
             document.getElementById('modal-admin-login').classList.add('active'); adminPassInput.focus();
@@ -1101,26 +1075,57 @@
 
         window.verifyAdmin = async function() {
             const pass = adminPassInput.value.trim().toUpperCase();
-            const inputHash = await hashString(pass);
+            const btn = document.querySelector('#modal-admin-login .btn-outline');
+            const originalText = btn.innerText;
+            btn.innerText = "Verificando...";
+            btn.disabled = true;
+            document.getElementById('admin-error').style.opacity = '0';
 
-            if (inputHash === TARGET_ADMIN_HASH) {
-                document.getElementById('modal-admin-login').classList.remove('active'); window.renderAdminTable(); document.getElementById('modal-admin').classList.add('active');
-            } else if (inputHash === TARGET_RESET_HASH) {
-                const confirmText = prompt("⚠️ PELIGRO: Para confirmar el reseteo escribe la palabra 'BORRAR' (en mayúsculas):");
-                
-                if (confirmText === "BORRAR") {
-                    try {
-                        const btn = document.querySelector('#modal-admin-login .btn-outline'); const originalText = btn.innerText; btn.innerText = "Borrando..."; btn.disabled = true;
-                        const deletePromises = allConfirmations.map(g => deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', g.id)));
-                        await Promise.all(deletePromises);
-                        alert("✅ Base de datos reiniciada con éxito.");
-                        document.getElementById('modal-admin-login').classList.remove('active');
-                        btn.innerText = originalText; btn.disabled = false;
-                    } catch (e) { console.error(e); alert("Hubo un error al intentar borrar los datos."); }
-                } else {
-                    alert("Operación cancelada. Escribiste incorrectamente el candado de seguridad.");
+            try {
+                // Ir a Firebase a leer la configuración en tiempo real
+                const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'security');
+                const configSnap = await getDoc(configRef);
+
+                if (!configSnap.exists()) {
+                    alert("⚠️ No se ha configurado la seguridad en la base de datos de Firebase. Revisa las instrucciones.");
+                    btn.innerText = originalText; btn.disabled = false;
+                    return;
                 }
-            } else { document.getElementById('admin-error').style.opacity = '1'; }
+
+                // Leer las contraseñas oficiales desde Firebase
+                const dbAdminPass = configSnap.data().adminPass;
+                const dbResetPass = configSnap.data().resetPass;
+
+                if (pass === dbAdminPass) {
+                    document.getElementById('modal-admin-login').classList.remove('active'); 
+                    window.renderAdminTable(); 
+                    document.getElementById('modal-admin').classList.add('active');
+                } else if (pass === dbResetPass) {
+                    const confirmText = prompt("⚠️ PELIGRO: Para confirmar el reseteo escribe la palabra 'BORRAR' (en mayúsculas):");
+                    
+                    if (confirmText === "BORRAR") {
+                        try {
+                            btn.innerText = "Borrando..."; 
+                            const deletePromises = allConfirmations.map(g => deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', g.id)));
+                            await Promise.all(deletePromises);
+                            alert("✅ Base de datos reiniciada con éxito.");
+                            document.getElementById('modal-admin-login').classList.remove('active');
+                        } catch (e) { console.error(e); alert("Hubo un error al intentar borrar los datos."); }
+                    } else {
+                        alert("Operación cancelada. Escribiste incorrectamente el candado de seguridad.");
+                    }
+                } else { 
+                    document.getElementById('admin-error').innerText = "Clave incorrecta.";
+                    document.getElementById('admin-error').style.opacity = '1'; 
+                }
+            } catch (error) {
+                console.error("Error consultando Firebase:", error);
+                document.getElementById('admin-error').innerText = "Error de conexión al verificar la clave.";
+                document.getElementById('admin-error').style.opacity = '1';
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         };
 
         // Lógica del filtro en tiempo real
@@ -1197,6 +1202,15 @@
                 `;
                 tbody.appendChild(div);
             });
+            
+            const currentSearch = document.getElementById('admin-search').value.toLowerCase();
+            if (currentSearch) {
+                document.querySelectorAll('.admin-guest-card').forEach(card => {
+                    const name = card.querySelector('.admin-guest-name')?.innerText.toLowerCase() || '';
+                    const host = card.querySelector('.admin-guest-host')?.innerText.toLowerCase() || '';
+                    card.style.display = (name.includes(currentSearch) || host.includes(currentSearch)) ? 'flex' : 'none';
+                });
+            }
         };
 
         window.toggleCheckIn = async function(docId, status) {
