@@ -21,7 +21,7 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 3px; }
-f
+
         /* Modales y utilidades */
         .modal-overlay { position: fixed; inset: 0; background: rgba(8,8,8,0.98); z-index: 50; display: flex; justify-content: center; align-items: center; }
         .modal-box { background: var(--parchment); border: 1px solid rgba(212,175,55,0.3); padding: 40px; text-align: center; }
@@ -295,7 +295,7 @@ f
                         letterRendering: true // EVITA QUE LAS LETRAS SE ENSANCHEN DURANTE LA CAPTURA
                     });
                     const link = document.createElement('a');
-                    link.download = `codigo_De_acceso_${currentHostCodes[i].codigo}.png`;
+                    link.download = `Pase_De_acceso_${currentHostCodes[i].codigo}.png`;
                     link.href = canvas.toDataURL('image/png'); 
                     link.click();
                     
