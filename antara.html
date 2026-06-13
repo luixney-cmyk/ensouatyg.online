@@ -86,17 +86,17 @@
                 <div class="flex flex-col items-center mt-20">
                     <p class="font-cinzel text-[#D4AF37] text-sm tracking-widest mb-6">Vista Previa (Formato WhatsApp)</p>
                     
-                    <!-- CONTENEDOR DIGITAL PARA HTML2CANVAS -->
-                    <div id="capture-digital" style="width: 400px; height: 400px; background-color: #050505; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 20px 40px rgba(0,0,0,0.8); text-align: center; overflow: hidden;">
+                    <!-- CONTENEDOR DIGITAL PARA HTML2CANVAS (Usando enso2.png) -->
+                    <div id="capture-digital" style="width: 400px; height: 400px; background-color: #050505; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 20px 40px rgba(0,0,0,0.8); text-align: center; overflow: hidden; border-radius: 4px;">
                         
                         <!-- Imagen de fondo provista por ti -->
                         <img src="enso2.png" alt="Fondo Enso" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;" crossorigin="anonymous" onerror="this.style.display='none'">
 
                         <!-- Texto superior -->
-                        <p style="font-family: 'Cinzel', serif; color: rgba(255,255,255,0.9); font-size: 0.75rem; letter-spacing: 0.25em; position: absolute; top: 40px; width: 100%; left: 0; line-height: 1.6; text-shadow: 0 2px 6px rgba(0,0,0,0.9); z-index: 1;">CÓDIGO PARA REALIZAR<br>SU CONFIRMACIÓN</p>
+                        <p style="font-family: 'Cinzel', serif; color: rgba(255,255,255,0.95); font-size: 0.75rem; letter-spacing: 0.25em; position: absolute; top: 40px; width: 100%; left: 0; line-height: 1.6; text-shadow: 0 2px 8px rgba(0,0,0,0.9); z-index: 1;">CÓDIGO PARA REALIZAR<br>SU CONFIRMACIÓN</p>
                         
                         <!-- EL TEXTO SE AJUSTA DINÁMICAMENTE EN JS (Código inferior) - AHORA CON BOTTOM: 20PX -->
-                        <div id="digital-code-display" style="position: absolute; bottom: 20px; width: 100%; left: 0; padding: 0 20px; box-sizing: border-box; color: #D4AF37; text-shadow: 0px 4px 15px rgba(0,0,0,1), 0px 0px 5px rgba(212,175,55,0.5); font-family: 'Cinzel', serif; font-size: 2.2rem; font-weight: bold; letter-spacing: 0.1em; word-break: break-all; line-height: 1.2; z-index: 1;">
+                        <div id="digital-code-display" style="position: absolute; bottom: 20px; width: 100%; left: 0; padding: 0 20px; box-sizing: border-box; color: #D4AF37; font-family: 'Cinzel', serif; font-size: 2.2rem; font-weight: bold; letter-spacing: 0.1em; word-break: break-all; line-height: 1.2; z-index: 1; font-variant-ligatures: none; text-shadow: 0 2px 8px rgba(0,0,0,0.9);">
                             XXXX
                         </div>
                     </div>
@@ -291,7 +291,8 @@
                         backgroundColor: '#050505',
                         useCORS: true,     // Permite cargar tu imagen enso2.png correctamente en el lienzo
                         allowTaint: true,
-                        logging: false
+                        logging: false,
+                        letterRendering: true // EVITA QUE LAS LETRAS SE ENSANCHEN DURANTE LA CAPTURA
                     });
                     const link = document.createElement('a');
                     link.download = `Pase_Digital_${currentHostCodes[i].codigo}.png`;
