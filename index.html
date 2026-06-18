@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Metaetiquetas Open Graph (Social Sharing) -->
+    <meta property="og:title" content="ENSŌ - El Noveno Trazo | Cena de Gala">
+    <meta property="og:description" content="El Banquete de Banquetes. La culminación de 9 semestres de Alta Gastronomía Oriental.">
+    <meta property="og:image" content="enso.png">
+    <meta property="og:type" content="website">
+    
     <title>ENSŌ - El Noveno Trazo</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
@@ -372,7 +380,9 @@
                 <div class="event-details reveal">
                     <div class="detail-cell">
                         <span class="kanji-accent">日</span><span class="label">Cuándo</span><span class="value-main event-date-display"></span>
-                        <span class="value-main" style="font-size:0.85em; color: rgba(212,175,55,0.7);">19:00 h</span><span class="value-sub">Puertas abren a las 18:30</span>
+                        <span class="value-main" style="font-size:0.85em; color: rgba(212,175,55,0.7);">19:00 h</span>
+                        <span class="value-sub">Puertas abren a las 18:30</span>
+                        <span class="value-sub" style="margin-top:4px;">Término estimado: 23:30 h</span>
                     </div>
                     <div class="detail-cell">
                         <span class="kanji-accent">場</span><span class="label">Dónde</span><span class="value-main">El Salón de Docencia</span><span class="value-sub">Acceso por el Andador Asiático</span>
@@ -801,6 +811,13 @@
 
         // 1. Validar Código Unipersonal en Firebase
         window.validateCode = async function() {
+            // Validación Offline
+            if (!navigator.onLine) {
+                errorText.innerText = "Sin conexión a internet. Revisa tu red y vuelve a intentar.";
+                errorText.style.opacity = '1';
+                return;
+            }
+
             currentValidDataCode = codeInput.value.trim().toUpperCase();
             if (!currentValidDataCode) {
                 errorText.innerText = "Por favor ingresa un código."; errorText.style.opacity = '1'; return;
@@ -940,9 +957,25 @@
 
         // 3. Generar Pase Estándar
         window.generateStandardTicket = async function() {
+            // Validación Offline
+            if (!navigator.onLine) {
+                nameErrorText.innerText = "Sin conexión a internet. Revisa tu red y vuelve a intentar.";
+                nameErrorText.style.opacity = '1';
+                return;
+            }
+
             const guestName = guestNameInput.value.trim().toUpperCase();
             if (guestName === "") {
                 nameErrorText.innerText = "Por favor ingresa tu nombre para continuar."; nameErrorText.style.opacity = '1'; guestNameInput.focus(); return;
+            }
+
+            // Validación estricta con Regex (solo letras y espacios permitidos)
+            const nameRegex = /^[A-ZÁÉÍÓÚÜÑ\s]+$/i;
+            if (!nameRegex.test(guestName)) {
+                nameErrorText.innerText = "El nombre solo puede contener letras y espacios.";
+                nameErrorText.style.opacity = '1';
+                guestNameInput.focus();
+                return;
             }
 
             const btnGen = document.getElementById('btn-generate-ticket');
@@ -997,6 +1030,9 @@
             const tableNum = document.getElementById('ticket-table-num').innerText;
 
             try {
+                // Sincronización estricta de fuentes previo a renderizar el Canvas
+                await document.fonts.ready;
+                
                 const canvas = await html2canvas(captureDiv, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#050505', logging: false, imageTimeout: 0 });
                 const link = document.createElement('a');
                 link.download = `Pase_Enso_${guestName.replace(/\s+/g, '_')}_${tableNum.replace(/\s+/g, '_')}.png`;
