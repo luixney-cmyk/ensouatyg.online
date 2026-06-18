@@ -641,17 +641,24 @@
         </div>
     </div>
 
-    <!-- ── MODAL 5: ADMIN LOGIN ── -->
+    <!-- ── MODAL 5: ADMIN LOGIN REFACTORIZADO PARA GOOGLE ── -->
     <div id="modal-admin-login" class="modal-overlay">
         <div class="modal-box">
             <span class="modal-close" onclick="window.closeModals()">×</span>
-            <h3 class="modal-title">Seguridad</h3>
-            <p class="modal-text">Ingresa la clave de administrador.</p>
-            <div class="code-input-wrap">
-                <input type="password" id="admin-pass-input" class="code-input" autocomplete="off" style="letter-spacing: 0.5em;">
-                <div id="admin-error" class="code-error">Clave incorrecta.</div>
+            <h3 class="modal-title">Acceso Restringido</h3>
+            <p class="modal-text">Autenticación requerida para acceder al panel.</p>
+            <div class="code-input-wrap" style="border: none; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center;">
+                <button class="btn-outline" style="display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; font-size: 0.8rem; padding: 14px 24px; background: rgba(255,255,255,0.03);" onclick="window.verifyAdminGoogle()">
+                    <svg width="18" height="18" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M47.532 24.5528C47.532 22.9214 47.3997 21.2811 47.1175 19.6761H24.48V28.5181H37.4434C36.9055 31.3393 35.177 33.8239 32.6461 35.5056V41.4107H40.4001C44.9468 37.229 47.532 31.4239 47.532 24.5528Z" fill="#4285F4"/>
+                        <path d="M24.48 48.0016C30.9529 48.0016 36.4116 45.8764 40.4088 41.4107L32.6549 35.5056C30.5038 36.958 27.7552 37.8687 24.48 37.8687C18.132 37.8687 12.756 33.5936 10.8228 27.8385H2.8941V33.993C7.0255 42.195 15.3402 48.0016 24.48 48.0016Z" fill="#34A853"/>
+                        <path d="M10.8142 27.8385C9.82424 24.8967 9.82424 21.657 10.8142 18.7153V12.5608H2.88554C-0.961846 20.219 -0.961846 29.3548 2.88554 37.0131L10.8142 27.8385Z" fill="#FBBC05"/>
+                        <path d="M24.48 10.1329C27.9158 10.054 31.2389 11.3655 33.6826 13.7235L40.573 6.83315C36.2307 2.76632 30.4357 0.448564 24.48 0.480021C15.3402 0.480021 7.0255 6.28665 2.8941 14.4886L10.8228 20.6432C12.7473 14.8794 18.1233 10.1329 24.48 10.1329Z" fill="#EA4335"/>
+                    </svg>
+                    <span style="font-family: 'Cinzel', serif; letter-spacing: 0.15em;">Ingresar con Google</span>
+                </button>
+                <div id="admin-error" class="code-error"></div>
             </div>
-            <button class="btn-outline" onclick="window.verifyAdmin()">Acceder</button>
         </div>
     </div>
 
@@ -706,6 +713,9 @@
             appId: 'enso-uatyg-gala'
         };
 
+        // CONSTANTE DE ADMIN: Coloca aquí el correo electrónico que tendrá acceso al panel
+        const ADMIN_EMAIL = "admin@tucorreo.com";
+
         function sanitize(str) {
             if (!str) return '';
             const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;' };
@@ -713,8 +723,9 @@
             return String(str).replace(reg, (match) => (map[match]));
         }
 
+        // Importaciones actualizadas de Firebase Auth (incluye GoogleAuthProvider, signInWithPopup y signOut)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, getDocs, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
@@ -800,7 +811,6 @@
 
         const codeInput = document.getElementById('invite-code-input');
         const guestNameInput = document.getElementById('guest-name-input');
-        const adminPassInput = document.getElementById('admin-pass-input');
         const errorText = document.getElementById('code-error');
         const nameErrorText = document.getElementById('name-error');
 
@@ -1046,10 +1056,10 @@
             document.getElementById('invite-code-input').value = ''; document.getElementById('guest-name-input').value = '';
         };
 
-        // ── LÓGICA DE ADMIN (CONTRASEÑA EN FIREBASE Y TABS) ──
+        // ── LÓGICA DE ADMIN (AUTENTICACIÓN CON GOOGLE) ──
         window.openAdminLogin = async function() {
-            adminPassInput.value = ''; document.getElementById('admin-error').style.opacity = '0';
-            document.getElementById('modal-admin-login').classList.add('active'); adminPassInput.focus();
+            document.getElementById('admin-error').style.opacity = '0';
+            document.getElementById('modal-admin-login').classList.add('active');
         };
 
         window.switchAdminTab = function(tabName) {
@@ -1069,43 +1079,46 @@
             }
         };
 
-        window.verifyAdmin = async function() {
-            const pass = adminPassInput.value.trim().toUpperCase();
+        // Nueva lógica de seguridad con Google PopUp
+        window.verifyAdminGoogle = async function() {
             const btn = document.querySelector('#modal-admin-login .btn-outline');
-            const originalText = btn.innerText; btn.innerText = "Verificando..."; btn.disabled = true;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = "Verificando..."; 
+            btn.disabled = true;
             document.getElementById('admin-error').style.opacity = '0';
 
             try {
-                const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'security');
-                const configSnap = await getDoc(configRef);
+                const provider = new GoogleAuthProvider();
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
 
-                if (!configSnap.exists()) { alert("⚠️ Seguridad no configurada en Firebase."); btn.innerText = originalText; btn.disabled = false; return; }
-                if (pass === configSnap.data().adminPass) {
+                if (user.email === ADMIN_EMAIL) {
+                    // Acceso concedido
                     document.getElementById('modal-admin-login').classList.remove('active'); 
                     window.switchAdminTab('guests');
                     document.getElementById('modal-admin').classList.add('active');
-                } else if (pass === configSnap.data().resetPass) {
-                    if (prompt("⚠️ Para confirmar el reseteo escribe 'BORRAR':") === "BORRAR") {
-                        btn.innerText = "Borrando..."; 
-                        try {
-                            const guestsSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'guests'));
-                            const invitesSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'invites'));
-                            const batch = writeBatch(db);
-                            guestsSnap.forEach(d => batch.delete(d.ref));
-                            invitesSnap.forEach(d => batch.delete(d.ref));
-                            await batch.commit();
-                            alert("✅ Base de datos reiniciada con éxito."); document.getElementById('modal-admin-login').classList.remove('active');
-                        } catch (e) {
-                            alert("Error al intentar borrar los datos: " + e.message);
-                        }
-                    } else {
-                        alert("Operación cancelada. Escribiste incorrectamente el candado de seguridad.");
-                    }
                 } else { 
-                    document.getElementById('admin-error').innerText = "Clave incorrecta."; document.getElementById('admin-error').style.opacity = '1'; 
+                    // Acceso denegado: correo no coincide
+                    document.getElementById('admin-error').innerText = "Acceso denegado: Correo no autorizado."; 
+                    document.getElementById('admin-error').style.opacity = '1';
+                    await signOut(auth); // Cerramos la sesión de Google
+                    await signInAnonymously(auth); // Restauramos la sesión anónima necesaria para confirmar códigos
                 }
-            } catch (error) { document.getElementById('admin-error').innerText = "Error de conexión: " + error.message; document.getElementById('admin-error').style.opacity = '1'; } 
-            finally { btn.innerText = originalText; btn.disabled = false; }
+            } catch (error) { 
+                console.error(error);
+                // Evitamos mostrar error si el usuario simplemente cerró la ventana emergente
+                if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+                    document.getElementById('admin-error').innerText = "Error: " + error.message; 
+                    document.getElementById('admin-error').style.opacity = '1'; 
+                }
+                // Si hubo error, aseguramos mantener la sesión anónima activa
+                try {
+                    if (!auth.currentUser) await signInAnonymously(auth);
+                } catch(e) {}
+            } finally { 
+                btn.innerHTML = originalHTML; 
+                btn.disabled = false; 
+            }
         };
 
         document.getElementById('admin-search').addEventListener('input', (e) => {
@@ -1245,7 +1258,7 @@
 
         codeInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.validateCode(); });
         guestNameInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.generateStandardTicket(); });
-        adminPassInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.verifyAdmin(); });
+        // EventListener de contraseña de admin eliminado en la migración a Google Auth
 
         window.addEventListener('load', () => {
             if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
