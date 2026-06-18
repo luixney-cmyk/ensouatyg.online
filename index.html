@@ -684,9 +684,11 @@
             </div>
 
             <div id="view-codes" style="display:none;">
+                <!-- SE AGREGÓ EL BOTÓN RESETEAR BASE DE DATOS AQUÍ -->
                 <div style="margin-bottom: 16px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
                     <button id="btn-generate-codes" class="btn-outline" style="border-color: #4ade80; color: #4ade80;" onclick="window.generateCodesBatch()">+ Generar Códigos</button>
                     <button id="btn-export-csv" class="btn-outline" style="border-color: #60a5fa; color: #60a5fa;" onclick="window.exportCodesCSV()">↓ Exportar a Excel (CSV)</button>
+                    <button id="btn-reset-db" class="btn-outline" style="border-color: #ef4444; color: #ef4444;" onclick="window.resetDatabase()">⚠️ Resetear Base de Datos</button>
                 </div>
                 <div id="codes-table-body" style="max-height: 50vh; overflow-y:auto; padding-right: 4px; text-align: left;" class="custom-scrollbar"></div>
             </div>
@@ -723,7 +725,7 @@
             return String(str).replace(reg, (match) => (map[match]));
         }
 
-        // Importaciones actualizadas de Firebase Auth (incluye GoogleAuthProvider, signInWithPopup y signOut)
+        // Importaciones actualizadas de Firebase Auth
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, getDocs, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -1256,10 +1258,52 @@
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         };
 
+        // NUEVO: Lógica del botón para Resetear Toda la Base de Datos
+        window.resetDatabase = async function() {
+            const confirmText = prompt("⚠️ PELIGRO: Esto borrará permanentemente TODOS los invitados y TODOS los códigos generados de la base de datos.\n\nPara confirmar, escribe la palabra BORRAR:");
+            
+            if (confirmText && confirmText.trim().toLowerCase() === "borrar") {
+                try {
+                    // Obtener todas las invitaciones
+                    const guestsSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'guests'));
+                    // Obtener todos los códigos
+                    const invitesSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'invites'));
+
+                    const batch = writeBatch(db);
+                    let count = 0;
+
+                    guestsSnap.forEach(docSnap => {
+                        batch.delete(docSnap.ref);
+                        count++;
+                    });
+                    
+                    invitesSnap.forEach(docSnap => {
+                        batch.delete(docSnap.ref);
+                        count++;
+                    });
+
+                    if (count > 0) {
+                        await batch.commit();
+                        alert("✅ Base de datos reseteada correctamente. Todo ha sido borrado.");
+                        // Refrescar vistas
+                        window.renderAdminTable(); 
+                        if (document.getElementById('view-codes').style.display === 'block') {
+                            window.loadAdminCodes();
+                        }
+                    } else {
+                        alert("La base de datos ya está completamente vacía.");
+                    }
+                } catch(e) {
+                    alert("Error al resetear la base de datos: " + e.message);
+                }
+            } else if (confirmText !== null) {
+                alert("Palabra incorrecta. No se ha borrado ningún dato.");
+            }
+        };
+
         codeInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.validateCode(); });
         guestNameInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.generateStandardTicket(); });
-        // EventListener de contraseña de admin eliminado en la migración a Google Auth
-
+        
         window.addEventListener('load', () => {
             if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
             window.scrollTo(0, 0);
