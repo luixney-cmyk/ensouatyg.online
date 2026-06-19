@@ -337,7 +337,6 @@
     <!-- ── VIDEO CINEMÁTICO ── -->
     <div id="cinematic-container">
         <div id="skip-video-btn" role="button" tabindex="0" aria-label="Saltar video introductorio">Saltar Intro</div>
-        <!-- Manejo de errores visual en caso de fallar video -->
         <video id="hero-video" playsinline preload="metadata">
             <source src="enso.mp4" type="video/mp4">
             Tu navegador no soporta el formato de video.
@@ -419,7 +418,7 @@
 
                 <div class="cta-section reveal">
                     <button id="main-confirm-btn" class="confirm-btn" aria-haspopup="dialog" onclick="window.openCodeModal()">Confirmar Asistencia</button>
-                    <!-- CONTADOR EN VIVO REFACTORIZADO (Lee desde stats) -->
+                    <!-- CONTADOR EN VIVO (Lee de estadísticas) -->
                     <p id="live-counter" style="margin-top:16px; font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold-light); letter-spacing:0.15em;" aria-live="polite">CALCULANDO LUGARES...</p>
                     <p style="margin-top:12px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.35); letter-spacing:0.2em;">Aforos limitados · Respuesta antes del 14 de noviembre</p>
                 </div>
@@ -442,7 +441,7 @@
         </div>
     </main>
 
-    <!-- ── MODAL MENÚ ── -->
+    <!-- ── MODAL MENÚ COMPLETO ── -->
     <div id="modal-menu" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="menu-title">
         <div class="modal-box" style="max-width: 600px; padding: 0; background: var(--parchment); overflow: hidden; display: flex; flex-direction: column; max-height: 85vh;">
             
@@ -453,11 +452,15 @@
             </div>
 
             <div id="menu-scroll-container" style="overflow-y: auto; padding: 24px 32px 32px; flex-grow: 1; text-align: center;" class="custom-scrollbar">
+                
                 <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: rgba(210, 200, 185, 0.7); line-height: 1.6; margin-bottom: 12px; margin-top: 0;">
                     El Ensō es un círculo realizado con un único trazo en la tradición zen. Representa plenitud, armonía y el final de un proceso. Sin embargo, para nuestra generación, este círculo no se construyó en un solo movimiento.
                 </p>
                 <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: rgba(210, 200, 185, 0.7); line-height: 1.6; margin-bottom: 16px;">
                     Se construyó a través de nueve trazos.<br>Nueve semestres.<br>Nueve etapas de aprendizaje.<br>Nueve experiencias gastronómicas.
+                </p>
+                <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: var(--gold-light); line-height: 1.6; margin-bottom: 40px; font-weight: bold;">
+                    Esta noche presentamos el último de esos trazos.<br>Bienvenidos a ENSŌ.
                 </p>
                 
                 <div class="menu-course">
@@ -465,10 +468,97 @@
                     <div class="menu-course-content">
                         <p class="menu-course-label">I. Salsas Madre</p>
                         <h4 class="menu-course-title">Dumpling de Velouté y Miso</h4>
-                        <p class="menu-course-desc">Relleno de pollo con velouté de jengibre y salsa bechamel infusionada con miso.</p>
+                        <p class="menu-course-desc">
+                            Relleno de pollo con velouté de jengibre y salsa bechamel infusionada con miso.<br>
+                            <span class="menu-course-note">El inicio: aprender las bases. Pequeño, elegante y técnico.</span>
+                        </p>
                     </div>
                 </div>
-                <!-- Resumen de menú para mantener consistencia visual -->
+
+                <div class="menu-course">
+                    <span class="menu-course-kanji">二</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">II. Panadería</p>
+                        <h4 class="menu-course-title">Bao al Vapor Artesanal</h4>
+                        <p class="menu-course-desc">
+                            Esponjoso pan al vapor relleno de cerdo laqueado y vegetales orientales.<br>
+                            <span class="menu-course-note">El descubrimiento de las masas y sus fermentaciones.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="menu-course">
+                    <span class="menu-course-kanji">三</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">III. Panadería Fina & Cocina Mexicana</p>
+                        <h4 class="menu-course-title">La Concha de Matcha</h4>
+                        <p class="menu-course-desc">
+                            Mini concha reinterpretada con té matcha y relleno sedoso de frijol dulce rojo (anko).<br>
+                            <span class="menu-course-note">México y Asia encontrándose en una sola pieza.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="menu-course">
+                    <span class="menu-course-kanji">四</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">IV. Vinos & Cocina del Norte</p>
+                        <h4 class="menu-course-title">Tataki Glaseado</h4>
+                        <p class="menu-course-desc">
+                            Lámina de res finamente sellada, bañada en una reducción profunda de vino tinto y soya.<br>
+                            <span class="menu-course-note">Representando la sofisticación y el arte del maridaje.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="menu-course">
+                    <span class="menu-course-kanji">五</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">V. Cocina Centro & Repostería Básica</p>
+                        <h4 class="menu-course-title">Tamal de Elote y Coco</h4>
+                        <p class="menu-course-desc">
+                            Tamal miniatura de elote tierno, coronado con una espuma etérea de coco y vainilla.<br>
+                            <span class="menu-course-note">Técnica mexicana presentada con delicada estética japonesa.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="menu-course">
+                    <span class="menu-course-kanji">六</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">VI. Cocina Nayarita & Coctelería</p>
+                        <h4 class="menu-course-title">Tostada Oriental de Atún</h4>
+                        <p class="menu-course-desc">
+                            Tostada miniatura de atún curado, escoltada por un audaz mocktail shot de mango, yuzu y chile.<br>
+                            <span class="menu-course-note">Un tributo a la identidad regional, encendiendo el paladar.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="menu-course">
+                    <span class="menu-course-kanji">七</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">VII. Cocina Francesa & Repostería Fina</p>
+                        <h4 class="menu-course-title">Mille-Feuille de Hojicha</h4>
+                        <p class="menu-course-desc">
+                            Milhojas crujiente de ajonjolí negro intercalado con un cremoso untuoso de té hojicha.<br>
+                            <span class="menu-course-note">La inconfundible elegancia francesa fusionada con Asia.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="menu-course">
+                    <span class="menu-course-kanji">八</span>
+                    <div class="menu-course-content">
+                        <p class="menu-course-label">VIII. Cocina Italiana & De Autor</p>
+                        <h4 class="menu-course-title">Ravioli Transparente</h4>
+                        <p class="menu-course-desc">
+                            Fina pasta translúcida rellena de camarón y hongos shiitake, sumergida en un caldo claro y aromático.<br>
+                            <span class="menu-course-note">La expresión de la creatividad desarrollada al final de la carrera.</span>
+                        </p>
+                    </div>
+                </div>
+
                 <div class="menu-course">
                     <span class="menu-course-kanji">九</span>
                     <div class="menu-course-content">
@@ -665,6 +755,7 @@
         let unsubscribeGuests = null;
         let unsubscribeStats = null;
 
+        // Base de Datos íntegra con todos los alumnos y cartas VIP
         const baseDatabase = {
             // VIPs
             "VENTURA":   { type: "special", name: "Chef Ventura", fullName: "Jose Ventura Huerta Gonzalez", table: 1, count: 1, text: "Querido Chef Ventura:<br><br>Hay personas que llegan a nuestra vida para enseñarnos una materia. Otras, para enseñarnos un oficio. Pero existen unas pocas que dejan una huella tan profunda que terminan formando parte de quienes somos.<br><br>Hace cuatro años y medio cruzamos por primera vez la puerta de una cocina con más dudas que certezas. No sabíamos sostener correctamente un cuchillo, desconocíamos el lenguaje de los fogones y apenas comenzábamos a imaginar el camino que teníamos por delante. Usted estuvo ahí desde el primer día.<br><br>Fue el primer chef que nos habló de respeto antes que de recetas, de disciplina antes que de reconocimiento y de pasión antes que de técnica. Nos enseñó que cocinar no consiste únicamente en transformar ingredientes, sino en transformar personas. Nos mostró que detrás de cada plato existe historia, esfuerzo, carácter y corazón.<br><br>Con el paso de los semestres llegaron nuevos maestros, nuevas cocinas y nuevos desafíos, pero siempre recordamos que fue usted quien encendió la primera llama. Quien nos enseñó a confiar en nuestras manos cuando aún temblaban. Quien corrigió nuestros errores cuando apenas comenzábamos a caminar. Quien sembró en nosotros el amor y el respeto por esta profesión que hoy elegimos como proyecto de vida.<br><br>Gracias por su paciencia, por su exigencia, por sus enseñanzas y por creer en nosotros cuando todavía éramos jóvenes aprendices intentando descubrir nuestro lugar en el mundo.<br><br>Hace cuatro años y medio, frente a usted, comenzamos a trazar los primeros pasos de esta historia. Hoy deseamos compartir con quien encendió la primera llama el instante en que ese trazo finalmente se completa.<br><br>Porque algunos círculos no pueden cerrarse sin las personas que les dieron origen.<br><br>Y porque esta historia comenzó frente a usted, nos llenaría de orgullo, emoción y gratitud poder contar con su presencia en la noche en que, después de cuatro años y medio de aprendizaje, esfuerzo y sueños compartidos, finalmente cerremos el círculo." },
