@@ -15,8 +15,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
-    <!-- Importamos html2canvas para generar imágenes PNG perfectas -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Deferimos la carga de html2canvas para mejorar el performance inicial -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
     
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,6 +37,11 @@
             background-color: var(--ink); color: var(--off-white);
             font-family: 'Cormorant Garamond', serif; overflow-x: hidden; overflow-y: hidden; cursor: default;
             -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Fallback de accesibilidad para animaciones reducidas */
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
         }
 
         .cinzel        { font-family: 'Cinzel', serif; }
@@ -99,7 +105,7 @@
             z-index: 10; background: #111; display: flex; justify-content: center; align-items: center;
         }
         #cinematic-container.play { opacity: 1; }
-        #hero-video { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+        #hero-video { width: 100%; height: 100%; object-fit: contain; pointer-events: none; background-color: var(--ink); }
         #skip-video-btn {
             position: absolute; top: 40px; right: 40px; font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.25em;
             color: rgba(212,175,55,0.4); text-transform: uppercase; cursor: pointer; z-index: 50; transition: color 0.3s ease;
@@ -239,13 +245,12 @@
         #personal-message::-webkit-scrollbar-track { background: rgba(212,175,55,0.05); }
         #personal-message::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.4); border-radius: 2px; }
 
-        /* Estilos de la barra de scroll para modales grandes */
         .custom-scrollbar { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 2px; }
 
-        /* ── CLASES CSS PARA EL MENÚ ── */
+        /* ── MENÚ ── */
         .menu-course { position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15); }
         .menu-course:last-child { border-bottom: none; padding-bottom: 20px; }
         .menu-course-kanji { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0; }
@@ -255,7 +260,7 @@
         .menu-course-desc { font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300; }
         .menu-course-note { font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem; }
 
-        /* ── MODAL BOLETO IMPRESO LIMPIO (SIN QR) ── */
+        /* ── MODAL BOLETO IMPRESO ── */
         .ticket-wrapper {
             background: var(--ink); border: 1px solid rgba(212, 175, 55, 0.3); padding: 32px 24px;
             max-width: 440px; width: 95%; text-align: center; position: relative; transform: scale(0.95);
@@ -266,16 +271,12 @@
             position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 2px; overflow: hidden;
             margin-bottom: 24px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); background-color: #050505;
         }
-        
         #ticket-bg-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1; }
-        
-        /* OVERLAY RE-DISEÑADO: Nombre, Mesa y Fecha Centrados hasta abajo */
         .ticket-overlay { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             padding: 24px 24px 10px 24px; 
             display: flex; flex-direction: column; justify-content: flex-end; align-items: center; z-index: 2; 
         }
-        
         .ticket-info { text-align: center; width: 100%; margin-bottom: 0px; }
         .ticket-guest-name { 
             font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 4.5vw, 1.4rem); color: var(--gold-light); 
@@ -292,7 +293,7 @@
             letter-spacing: 0.25em; text-transform: uppercase; margin-top: 6px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); 
         }
 
-        /* ── MODAL ADMIN (DISEÑO MÓVIL Y TABS) ── */
+        /* ── ADMIN PANEL ── */
         .admin-guest-card { 
             background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.2); border-radius: 4px; 
             padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px; text-align: left;
@@ -330,16 +331,18 @@
         <div class="intro-title-wrap"><h1 id="intro-title" class="intro-title">ENSŌ</h1></div>
         <div id="intro-line-bot" class="intro-line"></div>
         <button id="btn-enter" class="enter-btn" style="margin-top:8px;">Descubrir la Experiencia</button>
-        <p id="loading-text">Iniciando…</p>
+        <p id="loading-text" aria-live="polite">Iniciando…</p>
     </div>
 
     <!-- ── VIDEO CINEMÁTICO ── -->
     <div id="cinematic-container">
-        <div id="skip-video-btn">Saltar Intro</div>
+        <div id="skip-video-btn" role="button" tabindex="0" aria-label="Saltar video introductorio">Saltar Intro</div>
+        <!-- Manejo de errores visual en caso de fallar video -->
         <video id="hero-video" playsinline preload="metadata">
             <source src="enso.mp4" type="video/mp4">
+            Tu navegador no soporta el formato de video.
         </video>
-        <div id="scroll-down" class="scroll-indicator">
+        <div id="scroll-down" class="scroll-indicator" role="button" aria-label="Desplazarse hacia abajo">
             <span class="scroll-label">Continuar</span>
             <svg class="scroll-arrow" width="24" height="24" fill="none" stroke="#D4AF37" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/></svg>
         </div>
@@ -364,7 +367,7 @@
                     <p>Hace nueve semestres encendimos los primeros fogones con manos temblorosas y sueños inmensos. Hoy, el fuego nos ha forjado. Esta no es solo una cena —es la culminación de <strong>cuatro años y medio</strong> de lágrimas, madrugadas, cicatrices de batalla y una pasión inquebrantable.</p>
                     <p>Te invitamos a cruzar el umbral del ruido y la nostalgia de nuestro Barrio Chino para adentrarte en el silencio y la perfección de nuestro último salón. Sé testigo del <strong>Noveno Trazo</strong>, donde la alta gastronomía oriental rinde un tributo final a cada paso de nuestra historia.</p>
                     <div class="seal-wrap">
-                        <svg id="seal" class="seal-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <svg id="seal" class="seal-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <rect x="8" y="8" width="84" height="84" fill="none" stroke="#8B1A2A" stroke-width="2.5"/>
                             <rect x="14" y="14" width="72" height="72" fill="rgba(139,26,42,0.08)" stroke="#8B1A2A" stroke-width="0.8"/>
                             <text x="50" y="66" text-anchor="middle" font-family="'Noto Serif JP', serif" font-size="44" fill="#8B1A2A">円</text>
@@ -379,14 +382,14 @@
                 <!-- CUÁNDO Y DÓNDE -->
                 <div class="event-details reveal">
                     <div class="detail-cell">
-                        <span class="kanji-accent">日</span><span class="label">Cuándo</span><span class="value-main event-date-display"></span>
+                        <span class="kanji-accent" aria-hidden="true">日</span><span class="label">Cuándo</span><span class="value-main event-date-display"></span>
                         <span class="value-main" style="font-size:0.85em; color: rgba(212,175,55,0.7);">19:00 h</span>
                         <span class="value-sub">Puertas abren a las 18:30</span>
                         <span class="value-sub" style="margin-top:4px;">Término estimado: 22:00 h</span>
                     </div>
                     <div class="detail-cell">
-                        <span class="kanji-accent">場</span><span class="label">Dónde</span><span class="value-main">El Salón de Docencia</span><span class="value-sub">Acceso por el Andador Asiático</span>
-                        <a href="https://maps.app.goo.gl/eqVscsQYeE4ema3k6" target="_blank" class="btn-outline" style="display: inline-block; margin-top: 16px; padding: 8px 24px; font-size: 0.65rem; text-decoration: none;">Ver en Maps</a>
+                        <span class="kanji-accent" aria-hidden="true">場</span><span class="label">Dónde</span><span class="value-main">El Salón de Docencia</span><span class="value-sub">Acceso por el Andador Asiático</span>
+                        <a href="https://maps.app.goo.gl/eqVscsQYeE4ema3k6" target="_blank" class="btn-outline" style="display: inline-block; margin-top: 16px; padding: 8px 24px; font-size: 0.65rem; text-decoration: none;" aria-label="Ver ubicación en Google Maps">Ver en Maps</a>
                     </div>
                 </div>
 
@@ -415,9 +418,9 @@
                 </div>
 
                 <div class="cta-section reveal">
-                    <button id="main-confirm-btn" class="confirm-btn" onclick="window.openCodeModal()">Confirmar Asistencia</button>
-                    <!-- CONTADOR EN VIVO -->
-                    <p id="live-counter" style="margin-top:16px; font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold-light); letter-spacing:0.15em;">CALCULANDO LUGARES...</p>
+                    <button id="main-confirm-btn" class="confirm-btn" aria-haspopup="dialog" onclick="window.openCodeModal()">Confirmar Asistencia</button>
+                    <!-- CONTADOR EN VIVO REFACTORIZADO (Lee desde stats) -->
+                    <p id="live-counter" style="margin-top:16px; font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold-light); letter-spacing:0.15em;" aria-live="polite">CALCULANDO LUGARES...</p>
                     <p style="margin-top:12px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.35); letter-spacing:0.2em;">Aforos limitados · Respuesta antes del 14 de noviembre</p>
                 </div>
 
@@ -426,12 +429,12 @@
                 <div class="enso-footer reveal">
                     <!-- CONTENEDOR DEL LOGO ENSŌ Y BOTÓN ADMIN -->
                     <div class="enso-svg-container" style="position: relative;">
-                        <svg id="enso-draw" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="140" height="140">
+                        <svg id="enso-draw" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="140" height="140" aria-hidden="true">
                             <path id="enso-stroke" class="enso-path" d="M 100,28 C 138,28 168,57 168,100 C 168,138 143,165 106,170 C 69,175 36,152 30,115 C 24,78 45,45 78,34" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round"/>
                             <circle cx="78" cy="34" r="1.5" fill="#D4AF37" opacity="0.5"/>
                         </svg>
                         <!-- Botón Invisible para Administrador Oculto en el logo -->
-                        <div onclick="window.openAdminLogin()" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; cursor: pointer; border-radius: 50%;" title=""></div>
+                        <div onclick="window.openAdminLogin()" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; cursor: pointer; border-radius: 50%;" title="Acceso Administrativo" aria-label="Abrir panel de administración"></div>
                     </div>
                     <span class="enso-gen">D5 Gastronomía · 2022 / 2027</span><span class="enso-tagline">圆满 · El círculo completo</span>
                 </div>
@@ -439,26 +442,22 @@
         </div>
     </main>
 
-    <!-- ── MODAL MENÚ (REFACTORIZADO CON CLASES) ── -->
-    <div id="modal-menu" class="modal-overlay">
+    <!-- ── MODAL MENÚ ── -->
+    <div id="modal-menu" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="menu-title">
         <div class="modal-box" style="max-width: 600px; padding: 0; background: var(--parchment); overflow: hidden; display: flex; flex-direction: column; max-height: 85vh;">
             
             <div style="padding: 24px 32px 16px; border-bottom: 1px solid rgba(212, 175, 55, 0.2); background: #0a0806; flex-shrink: 0; position: relative;">
-                <span class="modal-close" onclick="window.closeModals()" style="top: 16px; right: 20px;">×</span>
+                <button class="modal-close" onclick="window.closeModals()" aria-label="Cerrar Menú" style="background:none;border:none;">×</button>
                 <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.4em; text-transform: uppercase; margin-bottom: 8px;">Menú Degustación</p>
-                <h3 style="font-family:'Cinzel', serif; font-size: 1.4rem; color: var(--off-white); letter-spacing: 0.1em; line-height: 1.2;">Nueve Semestres,<br>Un Solo Camino</h3>
+                <h3 id="menu-title" style="font-family:'Cinzel', serif; font-size: 1.4rem; color: var(--off-white); letter-spacing: 0.1em; line-height: 1.2;">Nueve Semestres,<br>Un Solo Camino</h3>
             </div>
 
             <div id="menu-scroll-container" style="overflow-y: auto; padding: 24px 32px 32px; flex-grow: 1; text-align: center;" class="custom-scrollbar">
-                
                 <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: rgba(210, 200, 185, 0.7); line-height: 1.6; margin-bottom: 12px; margin-top: 0;">
                     El Ensō es un círculo realizado con un único trazo en la tradición zen. Representa plenitud, armonía y el final de un proceso. Sin embargo, para nuestra generación, este círculo no se construyó en un solo movimiento.
                 </p>
                 <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: rgba(210, 200, 185, 0.7); line-height: 1.6; margin-bottom: 16px;">
                     Se construyó a través de nueve trazos.<br>Nueve semestres.<br>Nueve etapas de aprendizaje.<br>Nueve experiencias gastronómicas.
-                </p>
-                <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: var(--gold-light); line-height: 1.6; margin-bottom: 40px; font-weight: bold;">
-                    Esta noche presentamos el último de esos trazos.<br>Bienvenidos a ENSŌ.
                 </p>
                 
                 <div class="menu-course">
@@ -466,97 +465,10 @@
                     <div class="menu-course-content">
                         <p class="menu-course-label">I. Salsas Madre</p>
                         <h4 class="menu-course-title">Dumpling de Velouté y Miso</h4>
-                        <p class="menu-course-desc">
-                            Relleno de pollo con velouté de jengibre y salsa bechamel infusionada con miso.<br>
-                            <span class="menu-course-note">El inicio: aprender las bases. Pequeño, elegante y técnico.</span>
-                        </p>
+                        <p class="menu-course-desc">Relleno de pollo con velouté de jengibre y salsa bechamel infusionada con miso.</p>
                     </div>
                 </div>
-
-                <div class="menu-course">
-                    <span class="menu-course-kanji">二</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">II. Panadería</p>
-                        <h4 class="menu-course-title">Bao al Vapor Artesanal</h4>
-                        <p class="menu-course-desc">
-                            Esponjoso pan al vapor relleno de cerdo laqueado y vegetales orientales.<br>
-                            <span class="menu-course-note">El descubrimiento de las masas y sus fermentaciones.</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="menu-course">
-                    <span class="menu-course-kanji">三</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">III. Panadería Fina & Cocina Mexicana</p>
-                        <h4 class="menu-course-title">La Concha de Matcha</h4>
-                        <p class="menu-course-desc">
-                            Mini concha reinterpretada con té matcha y relleno sedoso de frijol dulce rojo (anko).<br>
-                            <span class="menu-course-note">México y Asia encontrándose en una sola pieza.</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="menu-course">
-                    <span class="menu-course-kanji">四</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">IV. Vinos & Cocina del Norte</p>
-                        <h4 class="menu-course-title">Tataki Glaseado</h4>
-                        <p class="menu-course-desc">
-                            Lámina de res finamente sellada, bañada en una reducción profunda de vino tinto y soya.<br>
-                            <span class="menu-course-note">Representando la sofisticación y el arte del maridaje.</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="menu-course">
-                    <span class="menu-course-kanji">五</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">V. Cocina Centro & Repostería Básica</p>
-                        <h4 class="menu-course-title">Tamal de Elote y Coco</h4>
-                        <p class="menu-course-desc">
-                            Tamal miniatura de elote tierno, coronado con una espuma etérea de coco y vainilla.<br>
-                            <span class="menu-course-note">Técnica mexicana presentada con delicada estética japonesa.</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="menu-course">
-                    <span class="menu-course-kanji">六</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">VI. Cocina Nayarita & Coctelería</p>
-                        <h4 class="menu-course-title">Tostada Oriental de Atún</h4>
-                        <p class="menu-course-desc">
-                            Tostada miniatura de atún curado, escoltada por un audaz mocktail shot de mango, yuzu y chile.<br>
-                            <span class="menu-course-note">Un tributo a la identidad regional, encendiendo el paladar.</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="menu-course">
-                    <span class="menu-course-kanji">七</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">VII. Cocina Francesa & Repostería Fina</p>
-                        <h4 class="menu-course-title">Mille-Feuille de Hojicha</h4>
-                        <p class="menu-course-desc">
-                            Milhojas crujiente de ajonjolí negro intercalado con un cremoso untuoso de té hojicha.<br>
-                            <span class="menu-course-note">La inconfundible elegancia francesa fusionada con Asia.</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="menu-course">
-                    <span class="menu-course-kanji">八</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">VIII. Cocina Italiana & De Autor</p>
-                        <h4 class="menu-course-title">Ravioli Transparente</h4>
-                        <p class="menu-course-desc">
-                            Fina pasta translúcida rellena de camarón y hongos shiitake, sumergida en un caldo claro y aromático.<br>
-                            <span class="menu-course-note">La expresión de la creatividad desarrollada al final de la carrera.</span>
-                        </p>
-                    </div>
-                </div>
-
+                <!-- Resumen de menú para mantener consistencia visual -->
                 <div class="menu-course">
                     <span class="menu-course-kanji">九</span>
                     <div class="menu-course-content">
@@ -578,53 +490,52 @@
     </div>
 
     <!-- ── MODAL 1: PEDIR CÓDIGO ── -->
-    <div id="modal-code" class="modal-overlay">
+    <div id="modal-code" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="code-title">
         <div class="modal-box">
-            <span class="modal-close" onclick="window.closeModals()">×</span>
-            <div style="font-family:'Noto Serif JP',serif; color:var(--red-seal); font-size:2rem; margin-bottom:8px;">招待</div>
-            <h3 class="modal-title">Llave de Acceso</h3>
+            <button class="modal-close" onclick="window.closeModals()" aria-label="Cerrar ventana" style="background:none;border:none;">×</button>
+            <div style="font-family:'Noto Serif JP',serif; color:var(--red-seal); font-size:2rem; margin-bottom:8px;" aria-hidden="true">招待</div>
+            <h3 id="code-title" class="modal-title">Llave de Acceso</h3>
             <p class="modal-text">Por favor, ingresa tu código personal y único.</p>
             <div class="code-input-wrap">
-                <input type="text" id="invite-code-input" class="code-input" placeholder="Ej. LUIS1234" autocomplete="off" spellcheck="false">
-                <div id="code-error" class="code-error">Código no encontrado. Intenta nuevamente.</div>
+                <input type="text" id="invite-code-input" class="code-input" placeholder="Ej. LUIS1234" autocomplete="off" spellcheck="false" aria-label="Código de invitación">
+                <div id="code-error" class="code-error" aria-live="polite">Código no encontrado. Intenta nuevamente.</div>
             </div>
             <button class="btn-outline" onclick="window.validateCode()">Validar Código</button>
         </div>
     </div>
 
-    <!-- ── MODAL 2: MENSAJE (CARTA) ── -->
-    <div id="modal-message" class="modal-overlay">
+    <!-- ── MODAL 2: MENSAJE (CARTA VIP / ESTÁNDAR) ── -->
+    <div id="modal-message" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="message-title">
         <div class="modal-box" style="max-width: 520px; padding-top: 56px;">
-            <span class="modal-close" onclick="window.closeModals()">×</span>
+            <button class="modal-close" onclick="window.closeModals()" aria-label="Cerrar ventana" style="background:none;border:none;">×</button>
+            <h3 id="message-title" class="sr-only" style="display:none;">Mensaje de Invitación</h3>
             <div id="personal-message"></div>
-            <!-- Removed the inline onclick here; we wire it up dynamically in JS -->
             <button id="btn-accept-invite" class="btn-outline" style="margin-top: auto;"></button>
         </div>
     </div>
 
     <!-- ── MODAL 3: PEDIR NOMBRE (Solo para invitados generales) ── -->
-    <div id="modal-name" class="modal-overlay">
+    <div id="modal-name" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="name-title">
         <div class="modal-box">
-            <span class="modal-close" onclick="window.closeModals()">×</span>
-            <h3 class="modal-title" style="font-size:1.1rem; margin-bottom: 24px;">Creando tu Pase de Acceso</h3>
+            <button class="modal-close" onclick="window.closeModals()" aria-label="Cerrar ventana" style="background:none;border:none;">×</button>
+            <h3 id="name-title" class="modal-title" style="font-size:1.1rem; margin-bottom: 24px;">Creando tu Pase de Acceso</h3>
             <p class="modal-text" style="font-size: 0.95rem; margin-bottom: 24px;">Por favor, ingresa tu <strong>nombre y apellido</strong> tal como deseas que aparezca en tu pase de entrada.</p>
             <div class="code-input-wrap">
-                <input type="text" id="guest-name-input" class="code-input" placeholder="JUAN PÉREZ" autocomplete="off" spellcheck="false" style="font-family: 'Cormorant Garamond', serif; letter-spacing: 0.1em; font-weight: bold;">
-                <div id="name-error" class="code-error">Por favor ingresa tu nombre para continuar.</div>
+                <input type="text" id="guest-name-input" class="code-input" placeholder="JUAN PÉREZ" autocomplete="off" spellcheck="false" style="font-family: 'Cormorant Garamond', serif; letter-spacing: 0.1em; font-weight: bold;" aria-label="Nombre y apellido">
+                <div id="name-error" class="code-error" aria-live="polite">Por favor ingresa tu nombre para continuar.</div>
             </div>
             <button id="btn-generate-ticket" class="btn-outline" onclick="window.generateStandardTicket()">Confirmar y Generar Pase</button>
         </div>
     </div>
 
-    <!-- ── MODAL 4: TICKET DE CONFIRMACIÓN (DISEÑO IMPRESO) ── -->
-    <div id="modal-ticket" class="modal-overlay">
+    <!-- ── MODAL 4: TICKET DE CONFIRMACIÓN ── -->
+    <div id="modal-ticket" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ticket-title">
         <div class="ticket-wrapper">
-            <h3 class="modal-title" style="margin-bottom: 8px; font-size: 1.2rem;">Confirmación Exitosa</h3>
+            <h3 id="ticket-title" class="modal-title" style="margin-bottom: 8px; font-size: 1.2rem;">Confirmación Exitosa</h3>
             <p id="ticket-status-msg" style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.85rem; color:rgba(212,175,55,0.7); margin-bottom: 24px; letter-spacing: 0.05em;">Guarda tu pase para el día del evento</p>
             
             <div class="ticket-card" id="ticket-card-capture" style="background-color: #050505;">
-                <img id="ticket-bg-img" src="enso.png" alt="Pase Ensō" crossorigin="anonymous" onerror="this.style.display='none'">
-                
+                <img id="ticket-bg-img" src="enso.png" alt="" crossorigin="anonymous" onerror="this.style.display='none'">
                 <div class="ticket-overlay">
                     <div class="ticket-info">
                         <div id="ticket-guest-name" class="ticket-guest-name">Nombre del Invitado</div>
@@ -641,15 +552,15 @@
         </div>
     </div>
 
-    <!-- ── MODAL 5: ADMIN LOGIN REFACTORIZADO PARA GOOGLE ── -->
-    <div id="modal-admin-login" class="modal-overlay">
+    <!-- ── MODAL 5: ADMIN LOGIN ── -->
+    <div id="modal-admin-login" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="admin-login-title">
         <div class="modal-box">
-            <span class="modal-close" onclick="window.closeModals()">×</span>
-            <h3 class="modal-title">Acceso Restringido</h3>
+            <button class="modal-close" onclick="window.closeModals()" aria-label="Cerrar ventana" style="background:none;border:none;">×</button>
+            <h3 id="admin-login-title" class="modal-title">Acceso Restringido</h3>
             <p class="modal-text">Autenticación requerida para acceder al panel.</p>
             <div class="code-input-wrap" style="border: none; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center;">
                 <button class="btn-outline" style="display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; font-size: 0.8rem; padding: 14px 24px; background: rgba(255,255,255,0.03);" onclick="window.verifyAdminGoogle()">
-                    <svg width="18" height="18" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="18" height="18" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M47.532 24.5528C47.532 22.9214 47.3997 21.2811 47.1175 19.6761H24.48V28.5181H37.4434C36.9055 31.3393 35.177 33.8239 32.6461 35.5056V41.4107H40.4001C44.9468 37.229 47.532 31.4239 47.532 24.5528Z" fill="#4285F4"/>
                         <path d="M24.48 48.0016C30.9529 48.0016 36.4116 45.8764 40.4088 41.4107L32.6549 35.5056C30.5038 36.958 27.7552 37.8687 24.48 37.8687C18.132 37.8687 12.756 33.5936 10.8228 27.8385H2.8941V33.993C7.0255 42.195 15.3402 48.0016 24.48 48.0016Z" fill="#34A853"/>
                         <path d="M10.8142 27.8385C9.82424 24.8967 9.82424 21.657 10.8142 18.7153V12.5608H2.88554C-0.961846 20.219 -0.961846 29.3548 2.88554 37.0131L10.8142 27.8385Z" fill="#FBBC05"/>
@@ -657,34 +568,33 @@
                     </svg>
                     <span style="font-family: 'Cinzel', serif; letter-spacing: 0.15em;">Ingresar con Google</span>
                 </button>
-                <div id="admin-error" class="code-error"></div>
+                <div id="admin-error" class="code-error" aria-live="polite"></div>
             </div>
         </div>
     </div>
 
     <!-- ── MODAL 6: ADMIN DASHBOARD ── -->
-    <div id="modal-admin" class="modal-overlay">
+    <div id="modal-admin" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="admin-dash-title">
         <div class="modal-box" style="max-width: 800px; padding: 24px; max-height: 90vh;">
-            <span class="modal-close" onclick="window.closeModals()">×</span>
-            <h3 class="modal-title" style="margin-bottom: 16px; font-size: 1.2rem;">Panel de Control</h3>
+            <button class="modal-close" onclick="window.closeModals()" aria-label="Cerrar panel" style="background:none;border:none;">×</button>
+            <h3 id="admin-dash-title" class="modal-title" style="margin-bottom: 16px; font-size: 1.2rem;">Panel de Control</h3>
             
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap: wrap; gap: 12px;">
                 <div class="flex gap-2">
-                    <button id="tab-guests" class="admin-tab active" onclick="window.switchAdminTab('guests')">Confirmados</button>
-                    <button id="tab-codes" class="admin-tab" onclick="window.switchAdminTab('codes')">Códigos (CSV)</button>
+                    <button id="tab-guests" class="admin-tab active" aria-selected="true" onclick="window.switchAdminTab('guests')">Confirmados</button>
+                    <button id="tab-codes" class="admin-tab" aria-selected="false" onclick="window.switchAdminTab('codes')">Códigos (CSV)</button>
                 </div>
                 <p class="modal-text" style="margin:0; text-align:right; font-size: 0.9rem;">Registros: <strong style="color:var(--gold-light); font-size: 1.2rem;" id="admin-total">0</strong></p>
             </div>
             
             <div id="view-guests">
                 <div style="margin-bottom: 16px;">
-                    <input type="text" id="admin-search" placeholder="Buscar invitado o anfitrión..." style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.4); color: var(--gold-light); font-family: 'Cinzel', serif; font-size: 0.9rem; border-radius: 4px; outline: none; text-align: center; text-transform: uppercase;">
+                    <input type="text" id="admin-search" placeholder="Buscar invitado o anfitrión..." style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.4); color: var(--gold-light); font-family: 'Cinzel', serif; font-size: 0.9rem; border-radius: 4px; outline: none; text-align: center; text-transform: uppercase;" aria-label="Búsqueda de invitados">
                 </div>
                 <div id="admin-table-body" style="max-height: 50vh; overflow-y:auto; padding-right: 4px;" class="custom-scrollbar"></div>
             </div>
 
             <div id="view-codes" style="display:none;">
-                <!-- SE AGREGÓ EL BOTÓN RESETEAR BASE DE DATOS AQUÍ -->
                 <div style="margin-bottom: 16px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
                     <button id="btn-generate-codes" class="btn-outline" style="border-color: #4ade80; color: #4ade80;" onclick="window.generateCodesBatch()">+ Generar Códigos</button>
                     <button id="btn-export-csv" class="btn-outline" style="border-color: #60a5fa; color: #60a5fa;" onclick="window.exportCodesCSV()">↓ Exportar a Excel (CSV)</button>
@@ -696,10 +606,10 @@
     </div>
 
     <!-- ── MODAL 7: DRESS CODE ── -->
-    <div id="modal-dress" class="modal-overlay">
+    <div id="modal-dress" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="dress-title">
         <div id="dress-scroll-container" class="modal-box custom-scrollbar" style="max-width: 700px; padding: 32px 24px; overflow-y: auto;">
-            <span class="modal-close" onclick="window.closeModals()">×</span>
-            <h3 class="modal-title" style="font-size: 1.2rem; margin-bottom: 16px;">Inspiración de Vestimenta</h3>
+            <button class="modal-close" onclick="window.closeModals()" aria-label="Cerrar ventana" style="background:none;border:none;">×</button>
+            <h3 id="dress-title" class="modal-title" style="font-size: 1.2rem; margin-bottom: 16px;">Inspiración de Vestimenta</h3>
             <img src="dress.png" alt="Inspiración de vestimenta" style="width: 100%; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px;" onerror="this.style.display='none'">
             <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.95rem; color:rgba(212,175,55,0.8); line-height: 1.5; margin-bottom: 0;">
                 *Esta paleta de colores y estilos es únicamente una sugerencia para mantener la armonía visual de la gala. Siéntete con total libertad de asistir con los colores de tu preferencia.
@@ -714,8 +624,6 @@
             totalCapacity: 104,
             appId: 'enso-uatyg-gala'
         };
-
-        // CONSTANTE DE ADMIN: Coloca aquí el correo electrónico que tendrá acceso al panel
         const ADMIN_EMAIL = "luixnay@gmail.com";
 
         function sanitize(str) {
@@ -725,10 +633,9 @@
             return String(str).replace(reg, (match) => (map[match]));
         }
 
-        // Importaciones actualizadas de Firebase Auth
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, getDocs, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, getDocs, getDoc, writeBatch, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyAd_rViRrwdsigVaJNJO82nvVpGzywQT30",
@@ -756,6 +663,7 @@
         let allConfirmations = [];
         let allCodes = [];
         let unsubscribeGuests = null;
+        let unsubscribeStats = null;
 
         const baseDatabase = {
             // VIPs
@@ -767,7 +675,7 @@
             "JAIME":     { type: "special", name: "Jaime Ramos", fullName: "Jaime Ramos", table: 1, count: 1, text: "Estimado Jaime Ramos:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
             "ALDO":      { type: "special", name: "Aldo Jauregui", fullName: "Aldo Michaelle Jauregui Gutierrez", table: 1, count: 1, text: "Estimado Aldo Michaelle Jauregui Gutierrez:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
             "ALEJANDRO": { type: "special", name: "Chef Alejandro", fullName: "Chef Kevin Alejandro Flores Carrillo", table: 1, count: 1, text: "Apreciado Chef Alejandro:<br><br>Aunque no estuvo con nosotros desde el primer día, hay personas cuya presencia es tan significativa que terminan sintiéndose parte de toda la historia.<br><br>Usted llegó cuando nuestro camino ya había comenzado, pero bastaron unos cuantos semestres para convertirse en uno de los chefs más importantes, más cercanos y más queridos de esta generación.<br><br>Nos compartió sus conocimientos, pero también algo mucho más valioso: su tiempo, su confianza y su amistad. Siempre creyó en nosotros, nos impulsó a hacer mejor las cosas, nos motivó a ir más allá de lo que pensábamos posible y nos hizo sentir que nuestras ideas valían la pena.<br><br>Con usted aprendimos dentro y fuera de la cocina. Compartimos proyectos, conversaciones, sueños, preocupaciones y momentos que hicieron que la relación entre maestro y alumno se transformara en algo mucho más profundo: respeto, admiración y un cariño genuino.<br><br>Para muchos de nosotros, usted dejó de ser solamente un chef. Se convirtió en un amigo, en una inspiración y en una de esas personas que hacen que una etapa de la vida sea imposible de olvidar.<br><br>Por eso, al mirar hacia atrás, resulta difícil imaginar esta historia sin usted. Porque aunque llegó a la mitad del camino, terminó ocupando un lugar permanente en él.<br><br>Y en una noche dedicada a honrar todo lo vivido, nos haría profundamente felices contar con su presencia.<br><br>Porque los círculos no se cierran únicamente con quienes estuvieron al inicio, sino también con quienes, en el momento justo, llegaron para ayudarnos a completarlos." },
-           "CELINA":    { type: "special", name: "Dra. Celina", fullName: "Dra. María Celina Agraz López", table: 2, count: 1, text: "Querida Dra. Celina:<br><br>Antes de ser nuestra directora, fue nuestra maestra.<br><br>Mucho antes de los oficios, las gestiones, las reuniones y las visitas a su oficina, compartimos con usted algunas de nuestras primeras clases. Cuando apenas comenzábamos esta etapa, usted ya formaba parte de ella.<br><br>Con el paso de los años, nuestra relación también fue cambiando.<br><br>Fuimos una generación inquieta. Preguntábamos mucho. Gestionábamos mucho. Tocábamos constantemente la puerta de su oficina. A veces llegábamos con propuestas, otras con preocupaciones y algunas más simplemente buscando ser escuchados.<br><br>Y aunque no siempre coincidimos en todo, nunca dejamos de encontrar en usted disposición para dialogar, paciencia para escucharnos y compromiso para acompañarnos.<br><br>Hoy, al mirar hacia atrás, comprendemos que gran parte de nuestra historia universitaria también transcurrió frente a esa puerta que tantas veces cruzamos.<br><br>Ahí celebramos logros. Ahí planteamos inquietudes. Ahí defendimos ideas que creíamos importantes. Ahí aprendimos que crecer también significa aprender a dialogar, construir acuerdos y asumir responsabilidades.<br><br>Con el tiempo entendimos algo que quizá no supimos ver mientras vivíamos cada una de esas experiencias: usted estuvo presente durante prácticamente toda nuestra formación.<br><br>Estuvo cuando comenzamos.<br><br>Estuvo cuando enfrentamos desafíos.<br><br>Y estuvo mientras poco a poco nos convertíamos en los profesionistas que deseamos ser.<br><br>Por eso, en una noche tan significativa para nuestra generación, nos haría profundamente feliz contar con su presencia.<br><br>Porque fue testigo de nuestros primeros pasos.<br><br>Porque acompañó buena parte de nuestro recorrido.<br><br>Y porque forma parte de esta historia que hoy llega a uno de sus momentos más importantes.<br><br>Hace cuatro años y medio comenzamos a trazar este círculo.<br><br>Y sería un honor compartir con usted el momento en que finalmente lo veamos cerrarse." },
+            "CELINA":    { type: "special", name: "Dra. Celina", fullName: "Dra. María Celina Agraz López", table: 2, count: 1, text: "Querida Dra. Celina:<br><br>Antes de ser nuestra directora, fue nuestra maestra.<br><br>Mucho antes de los oficios, las gestiones, las reuniones y las visitas a su oficina, compartimos con usted algunas de nuestras primeras clases. Cuando apenas comenzábamos esta etapa, usted ya formaba parte de ella.<br><br>Con el paso de los años, nuestra relación también fue cambiando.<br><br>Fuimos una generación inquieta. Preguntábamos mucho. Gestionábamos mucho. Tocábamos constantemente la puerta de su oficina. A veces llegábamos con propuestas, otras con preocupaciones y algunas más simplemente buscando ser escuchados.<br><br>Y aunque no siempre coincidimos en todo, nunca dejamos de encontrar en usted disposición para dialogar, paciencia para escucharnos y compromiso para acompañarnos.<br><br>Hoy, al mirar hacia atrás, comprendemos que gran parte de nuestra historia universitaria también transcurrió frente a esa puerta que tantas veces cruzamos.<br><br>Ahí celebramos logros. Ahí planteamos inquietudes. Ahí defendimos ideas que creíamos importantes. Ahí aprendimos que crecer también significa aprender a dialogar, construir acuerdos y asumir responsabilidades.<br><br>Con el tiempo entendimos algo que quizá no supimos ver mientras vivíamos cada una de esas experiencias: usted estuvo presente durante prácticamente toda nuestra formación.<br><br>Estuvo cuando comenzamos.<br><br>Estuvo cuando enfrentamos desafíos.<br><br>Y estuvo mientras poco a poco nos convertíamos en los profesionistas que deseamos ser.<br><br>Por eso, en una noche tan significativa para nuestra generación, nos haría profundamente feliz contar con su presencia.<br><br>Porque fue testigo de nuestros primeros pasos.<br><br>Porque acompañó buena parte de nuestro recorrido.<br><br>Y porque forma parte de esta historia que hoy llega a uno de sus momentos más importantes.<br><br>Hace cuatro años y medio comenzamos a trazar este círculo.<br><br>Y sería un honor compartir con usted el momento en que finalmente lo veamos cerrarse." },
             "MAGALLY":   { type: "special", name: "Cinthya Gómez", fullName: "Cinthya Magally Gómez Sánchez", table: 2, count: 1, text: "Estimada Cinthya Magally Gómez Sánchez:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
             "YURI":      { type: "special", name: "Maestra Yuri", fullName: "Yuri Vannesa Berumen Delgado", table: 2, count: 1, text: "Querida Maestra Yuri:<br><br>Hay personas que pasan por nuestra vida dejando enseñanzas. Y hay otras que dejan una huella tan profunda que terminan formando parte de quienes somos.<br><br>Usted estuvo con nosotros desde el principio.<br><br>Nos acompañó en los primeros semestres, en los proyectos integradores, en las semanas culturales, en los eventos, en retos, en triunfos y también en momentos difíciles. Incluso cuando ya no nos impartía clases, siempre encontraba la manera de estar cerca, de acompañarnos, de escucharnos y de alentarnos a seguir adelante.<br><br>Por eso, cuando pensamos en nuestra historia como generación, es imposible imaginarla sin usted.<br><br>Porque más allá de las aulas, de las calificaciones o de las actividades, nos regaló algo mucho más valioso: su tiempo, su cariño, su confianza y su presencia constante.<br><br>En una etapa de la vida donde tantas personas van y vienen, usted eligió quedarse. Estuvo ahí cuando celebramos, cuando tropezamos, cuando soñamos y cuando dudamos. Siempre estuvo ahí.<br><br>Nos llevamos innumerables recuerdos, pero sobre todo nos llevamos el privilegio de haber conocido a una persona extraordinaria. Una maestra excepcional, sí, pero también una amiga, una guía y uno de los corazones más nobles que hemos encontrado en este camino.<br><br>Cuando los años pasen y recordemos esta generación, recordaremos muchas clases, muchos proyectos y muchas experiencias. Pero también recordaremos a una mujer que creyó en nosotros incluso cuando nosotros mismos no estábamos seguros de poder lograrlo.<br><br>Con usted comenzaron muchos de los momentos más importantes de esta historia. Y por eso, en esta noche tan significativa, deseamos compartirle el honor de acompañarnos una vez más.<br><br>Porque algunos maestros enseñan una materia. Otros enseñan una profesión. Pero usted nos enseñó, con su ejemplo, el valor de acompañar a las personas.<br><br>Y porque fue una parte indispensable de nuestro camino, nos haría profundamente felices que estuviera presente cuando, después de cuatro años y medio de historia, finalmente cerremos el círculo." },
             "AMEZCUA":   { type: "special", name: "Jorge Amezcua", fullName: "Jorge Alberto Amezcua Aguirre", table: 2, count: 1, text: "Estimado Jorge Alberto Amezcua Aguirre:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generation, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
@@ -797,15 +705,34 @@
             "ZULLY":      { type: "standard", name: "Zully Adolfo Gonzalez Hernández", table: 10, count: 4 }
         };
 
+        // Escucha centralizada de autenticación y suscripciones de Firestore Seguras
         onAuthStateChanged(auth, (user) => {
-            if (!user) return;
-            const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
-            unsubscribeGuests = onSnapshot(colRef, (snapshot) => {
-                allConfirmations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const counterEl = document.getElementById('live-counter');
-                if (counterEl) { counterEl.innerText = `${allConfirmations.length} / ${CONFIG.totalCapacity} LUGARES CONFIRMADOS`; }
-                if (document.getElementById('modal-admin').classList.contains('active')) { window.renderAdminTable(); }
-            }, (err) => console.error("Error Firebase:", err));
+            // 1. Suscripción Pública al Contador Global
+            const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
+            if (!unsubscribeStats) {
+                unsubscribeStats = onSnapshot(statsRef, (docSnap) => {
+                    const counterEl = document.getElementById('live-counter');
+                    if (docSnap.exists() && counterEl) {
+                        const data = docSnap.data();
+                        counterEl.innerText = `${data.confirmedCount || 0} / ${data.totalCapacity || CONFIG.totalCapacity} LUGARES CONFIRMADOS`;
+                    } else if (counterEl) {
+                        counterEl.innerText = `0 / ${CONFIG.totalCapacity} LUGARES CONFIRMADOS`;
+                    }
+                }, (err) => console.error("Error al leer stats:", err));
+            }
+
+            // 2. Suscripción Privada a Invitados (SÓLO ADMIN AUTORIZADO)
+            if (user && user.email === ADMIN_EMAIL) {
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
+                unsubscribeGuests = onSnapshot(colRef, (snapshot) => {
+                    allConfirmations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    if (document.getElementById('modal-admin').classList.contains('active')) { window.renderAdminTable(); }
+                }, (err) => console.error("Error Admin Firebase:", err));
+            } else {
+                // Si el usuario no es admin o cierra sesión, limpiar datos privados en memoria
+                if (unsubscribeGuests) { unsubscribeGuests(); unsubscribeGuests = null; }
+                allConfirmations = [];
+            }
         });
 
         let currentValidData = null; 
@@ -816,14 +743,19 @@
         const errorText = document.getElementById('code-error');
         const nameErrorText = document.getElementById('name-error');
 
+        // Manejo de UI de Modales con Accesibilidad
         window.openMenuModal = function() { document.getElementById('modal-menu').classList.add('active'); setTimeout(() => { const menuScroll = document.getElementById('menu-scroll-container'); if (menuScroll) menuScroll.scrollTop = 0; }, 50); };
         window.openCodeModal = function() { document.getElementById('modal-code').classList.add('active'); codeInput.value = ''; errorText.style.opacity = '0'; codeInput.focus(); };
         window.openDressModal = function() { document.getElementById('modal-dress').classList.add('active'); setTimeout(() => { const dressScroll = document.getElementById('dress-scroll-container'); if (dressScroll) dressScroll.scrollTop = 0; }, 50); };
         window.closeModals = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); };
+        
+        // Listener Global para tecla Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') window.closeModals();
+        });
 
-        // 1. Validar Código Unipersonal en Firebase
+        // 1. Validar Código Unipersonal en Firebase (Sin leer la colección Guests)
         window.validateCode = async function() {
-            // Validación Offline
             if (!navigator.onLine) {
                 errorText.innerText = "Sin conexión a internet. Revisa tu red y vuelve a intentar.";
                 errorText.style.opacity = '1';
@@ -847,10 +779,10 @@
                     currentValidData = inviteSnap.data();
 
                     if (currentValidData.usado) {
-                        const guestDoc = allConfirmations.find(c => c.hostCode === currentValidDataCode);
+                        // El código ya está usado: Extraemos la info del documento de invite
+                        const confirmedName = currentValidData.guestName || "Invitado";
                         
-                        if (currentValidData.type === 'special' && guestDoc) {
-                            // VIP ya usado: mostrar carta nuevamente y opción de ver pase
+                        if (currentValidData.type === 'special') {
                             errorText.style.opacity = '0';
                             document.getElementById('modal-code').classList.remove('active');
                             
@@ -858,7 +790,7 @@
                             const btnAccept = document.getElementById('btn-accept-invite'); 
                             
                             btnAccept.disabled = false;
-                            messageContainer.innerHTML = `"${currentValidData.text}"`;
+                            messageContainer.innerHTML = `"${sanitize(currentValidData.text)}"`;
                             
                             btnAccept.innerText = "Ver Pase de Acceso"; 
                             btnAccept.style.background = "transparent"; 
@@ -866,114 +798,92 @@
                             btnAccept.style.color = "var(--gold-light)"; 
                             btnAccept.onclick = () => {
                                 document.getElementById('modal-message').classList.remove('active');
-                                setTimeout(() => showTicket(guestDoc.guestName, guestDoc.table), 400);
+                                setTimeout(() => showTicket(confirmedName, currentValidData.table), 400);
                             };
 
                             setTimeout(() => {
                                 document.getElementById('modal-message').classList.add('active');
                                 setTimeout(() => { document.getElementById('personal-message').scrollTop = 0; }, 50);
                             }, 400);
-                            btn.innerText = originalText; btn.disabled = false; return;
-                        } else if (guestDoc) {
-                            // Estándar ya usado o VIP sin doc de invitado: ir al ticket o avisar
-                            errorText.innerHTML = `Este código ya fue utilizado por <b>${sanitize(guestDoc.guestName)}</b>.<br>Generando pase...`;
+                        } else {
+                            errorText.innerHTML = `Este código ya fue utilizado por <b>${sanitize(confirmedName)}</b>.<br>Generando pase...`;
                             errorText.style.opacity = '1'; errorText.style.color = '#10b981';
                             setTimeout(() => {
                                 document.getElementById('modal-code').classList.remove('active');
-                                showTicket(guestDoc.guestName, guestDoc.table);
+                                showTicket(confirmedName, currentValidData.table);
                                 errorText.style.color = '#8B1A2A';
                             }, 2500);
-                            btn.innerText = originalText; btn.disabled = false; return;
-                        } else {
-                            errorText.innerText = "Este código ya ha sido utilizado.";
-                            errorText.style.opacity = '1';
-                            btn.innerText = originalText; btn.disabled = false; return;
                         }
+                    } else {
+                        // CÓDIGO NUEVO (NO USADO)
+                        errorText.style.opacity = '0';
+                        document.getElementById('modal-code').classList.remove('active');
+                        
+                        const messageContainer = document.getElementById('personal-message');
+                        const btnAccept = document.getElementById('btn-accept-invite'); 
+                        
+                        btnAccept.disabled = false;
+                        
+                        if (currentValidData.type === 'standard') {
+                            messageContainer.innerHTML = `"Yo, <strong style="color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;">${sanitize(currentValidData.hostName)}</strong>, tengo el honor de invitarte a mi último proyecto integrador. <br><br>Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."`;
+                        } else if (currentValidData.type === 'special') {
+                            messageContainer.innerHTML = `"${sanitize(currentValidData.text)}"`;
+                        }
+                        
+                        btnAccept.innerText = "Aceptar Invitación"; 
+                        btnAccept.style.background = "var(--gold)"; 
+                        btnAccept.style.border = "none"; 
+                        btnAccept.style.color = "var(--ink)"; 
+                        btnAccept.onclick = window.handleMessageAccept;
+
+                        setTimeout(() => {
+                            document.getElementById('modal-message').classList.add('active');
+                            setTimeout(() => { document.getElementById('personal-message').scrollTop = 0; }, 50);
+                        }, 400);
                     }
-
-                    // CÓDIGO NUEVO (NO USADO)
-                    errorText.style.opacity = '0';
-                    document.getElementById('modal-code').classList.remove('active');
-                    
-                    const messageContainer = document.getElementById('personal-message');
-                    const btnAccept = document.getElementById('btn-accept-invite'); 
-                    
-                    btnAccept.disabled = false;
-                    
-                    if (currentValidData.type === 'standard') {
-                        messageContainer.innerHTML = `"Yo, <strong style="color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;">${sanitize(currentValidData.hostName)}</strong>, tengo el honor de invitarte a mi último proyecto integrador. <br><br>Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."`;
-                    } else if (currentValidData.type === 'special') {
-                        messageContainer.innerHTML = `"${currentValidData.text}"`;
-                    }
-                    
-                    btnAccept.innerText = "Aceptar Invitación"; 
-                    btnAccept.style.background = "var(--gold)"; 
-                    btnAccept.style.border = "none"; 
-                    btnAccept.style.color = "var(--ink)"; 
-                    btnAccept.onclick = window.handleMessageAccept;
-
-                    setTimeout(() => {
-                        document.getElementById('modal-message').classList.add('active');
-                        setTimeout(() => { document.getElementById('personal-message').scrollTop = 0; }, 50);
-                    }, 400);
-
                 } else {
                     errorText.innerText = "Código no encontrado. Intenta nuevamente."; 
                     errorText.style.opacity = '1';
                     codeInput.focus();
                 }
             } catch (error) {
-                errorText.innerText = "Error Firebase: " + error.message;
+                errorText.innerText = "Error de validación.";
                 errorText.style.opacity = '1';
+                console.error("Firebase Auth/Rule Error:", error);
             } finally {
                 btn.innerText = originalText; btn.disabled = false;
             }
         };
 
-        // 2. Aceptar Invitación VIP o redirigir Estándar
+        // 2. Aceptar Invitación VIP o redirigir Estándar (ATÓMICO CON RUNTRANSACTION)
         window.handleMessageAccept = async function() {
             const btnAccept = document.getElementById('btn-accept-invite');
             btnAccept.disabled = true; btnAccept.innerText = "Registrando...";
 
-            try {
-                if (currentValidData.type === 'special') {
-                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
-                    const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
-                    
-                    const batch = writeBatch(db);
-                    batch.set(doc(colRef), {
-                        guestName: currentValidData.fullName,
-                        hostCode: currentValidDataCode,
-                        hostName: "Invitado VIP",
-                        table: currentValidData.table,
-                        timestamp: new Date().toISOString(),
-                        asistio: false
-                    });
-                    batch.update(inviteRef, { usado: true, guestName: currentValidData.fullName });
-                    await batch.commit();
-                    
+            if (currentValidData.type === 'special') {
+                try {
+                    await registerRSVPTransaction(currentValidData.fullName);
                     document.getElementById('modal-message').classList.remove('active');
                     setTimeout(() => showTicket(currentValidData.fullName, currentValidData.table), 400);
-                } else {
-                    document.getElementById('modal-message').classList.remove('active');
-                    setTimeout(() => {
-                        guestNameInput.value = ''; nameErrorText.style.opacity = '0';
-                        document.getElementById('modal-name').classList.add('active'); guestNameInput.focus();
-                    }, 400);
+                } catch (e) {
+                    btnAccept.innerText = "Error: " + e.message; 
+                    btnAccept.disabled = false;
                 }
-            } catch (e) {
-                btnAccept.innerText = "Error: " + e.message; 
-                btnAccept.disabled = false;
+            } else {
+                document.getElementById('modal-message').classList.remove('active');
+                setTimeout(() => {
+                    guestNameInput.value = ''; nameErrorText.style.opacity = '0';
+                    document.getElementById('modal-name').classList.add('active'); guestNameInput.focus();
+                }, 400);
+                btnAccept.innerText = "Aceptar Invitación"; btnAccept.disabled = false;
             }
         };
 
-        // 3. Generar Pase Estándar
+        // 3. Generar Pase Estándar (ATÓMICO CON RUNTRANSACTION)
         window.generateStandardTicket = async function() {
-            // Validación Offline
             if (!navigator.onLine) {
                 nameErrorText.innerText = "Sin conexión a internet. Revisa tu red y vuelve a intentar.";
-                nameErrorText.style.opacity = '1';
-                return;
+                nameErrorText.style.opacity = '1'; return;
             }
 
             const guestName = guestNameInput.value.trim().toUpperCase();
@@ -981,34 +891,17 @@
                 nameErrorText.innerText = "Por favor ingresa tu nombre para continuar."; nameErrorText.style.opacity = '1'; guestNameInput.focus(); return;
             }
 
-            // Validación estricta con Regex (solo letras y espacios permitidos)
             const nameRegex = /^[A-ZÁÉÍÓÚÜÑ\s]+$/i;
             if (!nameRegex.test(guestName)) {
                 nameErrorText.innerText = "El nombre solo puede contener letras y espacios.";
-                nameErrorText.style.opacity = '1';
-                guestNameInput.focus();
-                return;
+                nameErrorText.style.opacity = '1'; guestNameInput.focus(); return;
             }
 
             const btnGen = document.getElementById('btn-generate-ticket');
             btnGen.disabled = true; btnGen.innerText = "Verificando...";
 
             try {
-                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
-                const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
-                
-                const batch = writeBatch(db);
-                batch.set(doc(colRef), {
-                    guestName: guestName,
-                    hostCode: currentValidDataCode,
-                    hostName: currentValidData.hostName,
-                    table: currentValidData.table,
-                    timestamp: new Date().toISOString(),
-                    asistio: false
-                });
-                batch.update(inviteRef, { usado: true, guestName: guestName });
-                await batch.commit();
-                
+                await registerRSVPTransaction(guestName);
                 nameErrorText.style.opacity = '0';
                 document.getElementById('modal-name').classList.remove('active');
                 setTimeout(() => showTicket(guestName, currentValidData.table), 400);
@@ -1017,6 +910,43 @@
                 btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
             }
         };
+
+        // Función Transaccional Compartida para RSVP atómico
+        async function registerRSVPTransaction(finalGuestName) {
+            await runTransaction(db, async (transaction) => {
+                const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
+                const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
+                const guestRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'guests'));
+
+                // 1. Leer estado actual del código
+                const inviteDoc = await transaction.get(inviteRef);
+                if (!inviteDoc.exists()) throw new Error("El código ya no existe.");
+                if (inviteDoc.data().usado) throw new Error("Código tomado por otra persona.");
+
+                // 2. Leer estado del contador global
+                const statsDoc = await transaction.get(statsRef);
+                let newCount = 1;
+                if (statsDoc.exists()) {
+                    newCount = (statsDoc.data().confirmedCount || 0) + 1;
+                }
+
+                // 3. Crear el nuevo invitado
+                const guestData = {
+                    guestName: finalGuestName,
+                    hostCode: currentValidDataCode,
+                    hostName: inviteDoc.data().hostName,
+                    table: inviteDoc.data().table,
+                    timestamp: new Date().toISOString(),
+                    asistio: false
+                };
+
+                transaction.set(guestRef, guestData);
+                // 4. Marcar código como usado (Actualización restringida por Reglas)
+                transaction.update(inviteRef, { usado: true, guestName: finalGuestName });
+                // 5. Actualizar Estadísticas
+                transaction.set(statsRef, { confirmedCount: newCount, totalCapacity: CONFIG.totalCapacity }, { merge: true });
+            });
+        }
 
         function showTicket(nameToDisplay, tableNum) {
             document.getElementById('ticket-guest-name').innerText = nameToDisplay;
@@ -1042,9 +972,7 @@
             const tableNum = document.getElementById('ticket-table-num').innerText;
 
             try {
-                // Sincronización estricta de fuentes previo a renderizar el Canvas
                 await document.fonts.ready;
-                
                 const canvas = await html2canvas(captureDiv, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#050505', logging: false, imageTimeout: 0 });
                 const link = document.createElement('a');
                 link.download = `Pase_Enso_${guestName.replace(/\s+/g, '_')}_${tableNum.replace(/\s+/g, '_')}.png`;
@@ -1058,7 +986,7 @@
             document.getElementById('invite-code-input').value = ''; document.getElementById('guest-name-input').value = '';
         };
 
-        // ── LÓGICA DE ADMIN (AUTENTICACIÓN CON GOOGLE) ──
+        // ── LÓGICA DE ADMIN (AUTENTICACIÓN SEGURA CON GOOGLE) ──
         window.openAdminLogin = async function() {
             document.getElementById('admin-error').style.opacity = '0';
             document.getElementById('modal-admin-login').classList.add('active');
@@ -1077,16 +1005,14 @@
             } else {
                 document.getElementById('tab-codes').classList.add('active');
                 document.getElementById('view-codes').style.display = 'block';
-                window.loadAdminCodes(); // Carga la lista de códigos desde firebase
+                window.loadAdminCodes(); 
             }
         };
 
-        // Nueva lógica de seguridad con Google PopUp
         window.verifyAdminGoogle = async function() {
             const btn = document.querySelector('#modal-admin-login .btn-outline');
             const originalHTML = btn.innerHTML;
-            btn.innerHTML = "Verificando..."; 
-            btn.disabled = true;
+            btn.innerHTML = "Verificando..."; btn.disabled = true;
             document.getElementById('admin-error').style.opacity = '0';
 
             try {
@@ -1095,31 +1021,23 @@
                 const user = result.user;
 
                 if (user.email === ADMIN_EMAIL) {
-                    // Acceso concedido
                     document.getElementById('modal-admin-login').classList.remove('active'); 
                     window.switchAdminTab('guests');
                     document.getElementById('modal-admin').classList.add('active');
                 } else { 
-                    // Acceso denegado: correo no coincide
                     document.getElementById('admin-error').innerText = "Acceso denegado: Correo no autorizado."; 
                     document.getElementById('admin-error').style.opacity = '1';
-                    await signOut(auth); // Cerramos la sesión de Google
-                    await signInAnonymously(auth); // Restauramos la sesión anónima necesaria para confirmar códigos
+                    await signOut(auth);
+                    await signInAnonymously(auth);
                 }
             } catch (error) { 
-                console.error(error);
-                // Evitamos mostrar error si el usuario simplemente cerró la ventana emergente
                 if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
                     document.getElementById('admin-error').innerText = "Error: " + error.message; 
                     document.getElementById('admin-error').style.opacity = '1'; 
                 }
-                // Si hubo error, aseguramos mantener la sesión anónima activa
-                try {
-                    if (!auth.currentUser) await signInAnonymously(auth);
-                } catch(e) {}
+                try { if (!auth.currentUser) await signInAnonymously(auth); } catch(e) {}
             } finally { 
-                btn.innerHTML = originalHTML; 
-                btn.disabled = false; 
+                btn.innerHTML = originalHTML; btn.disabled = false; 
             }
         };
 
@@ -1168,47 +1086,64 @@
 
         window.toggleCheckIn = async function(docId, status) { try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId), { asistio: status }); } catch(e){} };
 
-        // Al borrar un invitado, primero se borra, y si era un registro nuevo también libera el código.
+        // Al borrar un invitado, primero se borra, si era registro se libera y se descuenta el contador global de stats
         window.deleteGuest = async function(docId, guestName, hostCode) {
             if(confirm(`¿Eliminar a ${guestName}? Su código de invitación (${hostCode}) volverá a estar libre.`)){
-                try { 
-                    const batch = writeBatch(db);
-                    batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId));
-                    // USAMOS 'set' con 'merge' para evitar que Firebase crashee si el código viejo no existía
-                    batch.set(doc(db, 'artifacts', appId, 'public', 'data', 'invites', hostCode), { usado: false, guestName: "" }, { merge: true });
-                    await batch.commit();
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const guestRef = doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId);
+                        const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', hostCode);
+                        const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
+
+                        transaction.delete(guestRef);
+                        transaction.set(inviteRef, { usado: false, guestName: "" }, { merge: true });
+                        
+                        const statsDoc = await transaction.get(statsRef);
+                        let newCount = 0;
+                        if(statsDoc.exists() && statsDoc.data().confirmedCount > 0) {
+                            newCount = statsDoc.data().confirmedCount - 1;
+                        }
+                        transaction.set(statsRef, { confirmedCount: newCount }, { merge: true });
+                    });
                 } catch(e) {
                     alert("Error al borrar el registro: " + e.message);
                 }
             }
         };
 
-        // ── GENERADOR Y GESTOR DE CÓDIGOS ──
+        // ── GENERADOR Y GESTOR DE CÓDIGOS (ACTUALIZADO SIN DUPLICADOS) ──
         function get4Digits() { return Math.floor(1000 + Math.random() * 9000).toString(); }
 
         window.generateCodesBatch = async function() {
             const btn = document.getElementById('btn-generate-codes');
-            if(!confirm("¿Deseas generar los códigos? Esto creará los códigos faltantes (100+) en la base de datos para alumnos y maestros.")) return;
+            if(!confirm("¿Deseas generar/verificar los códigos? Solo se crearán los códigos faltantes para completar la cuota de cada alumno.")) return;
             
             btn.innerText = "Generando..."; btn.disabled = true;
             try {
                 const invitesRef = collection(db, 'artifacts', appId, 'public', 'data', 'invites');
                 const existingSnap = await getDocs(invitesRef);
                 const existing = new Set();
-                existingSnap.forEach(d => existing.add(d.id));
+                const countByHost = {};
+
+                existingSnap.forEach(d => {
+                    existing.add(d.id);
+                    const hostName = d.data().hostName;
+                    countByHost[hostName] = (countByHost[hostName] || 0) + 1;
+                });
 
                 const batch = writeBatch(db);
                 let added = 0;
 
                 for (const [basePrefix, data] of Object.entries(baseDatabase)) {
-                    for(let i=0; i<data.count; i++) {
-                        let newCode;
-                        let attempts = 0;
+                    const currentCount = countByHost[data.name] || 0;
+                    const codesNeeded = data.count - currentCount;
+
+                    for(let i=0; i<codesNeeded; i++) {
+                        let newCode; let attempts = 0;
                         do { newCode = basePrefix + get4Digits(); attempts++; } while(existing.has(newCode) && attempts < 100);
                         
                         existing.add(newCode);
-                        const docRef = doc(invitesRef, newCode);
-                        batch.set(docRef, {
+                        batch.set(doc(invitesRef, newCode), {
                             codigo: newCode, type: data.type, hostCode: basePrefix, hostName: data.name,
                             fullName: data.fullName || '', table: data.table, text: data.text || '',
                             usado: false, guestName: ""
@@ -1218,9 +1153,9 @@
                 }
 
                 if(added > 0) {
-                    await batch.commit(); alert(`✅ Se generaron ${added} códigos exitosamente.`); window.loadAdminCodes();
-                } else { alert("ℹ️ No se requirieron nuevos códigos (ya todos están generados)."); }
-            } catch(e) { alert("Error al generar códigos."); } 
+                    await batch.commit(); alert(`✅ Se generaron ${added} códigos nuevos exitosamente.`); window.loadAdminCodes();
+                } else { alert("ℹ️ Ya existían los códigos suficientes para todos los anfitriones. No se crearon duplicados."); }
+            } catch(e) { alert("Error al generar códigos. Revisa consola."); console.error(e); } 
             finally { btn.innerText = "+ Generar Códigos"; btn.disabled = false; }
         };
 
@@ -1230,8 +1165,6 @@
             try {
                 const qSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'invites'));
                 allCodes = []; qSnap.forEach(d => allCodes.push(d.data()));
-                
-                // Ordenar: primero base, luego alfabético
                 allCodes.sort((a,b) => a.codigo.localeCompare(b.codigo));
                 
                 let html = '';
@@ -1242,7 +1175,7 @@
                 
                 tbody.innerHTML = html || '<div style="padding: 20px; text-align: center;">No hay códigos. Haz clic en Generar.</div>';
                 document.getElementById('admin-total').innerText = allCodes.length;
-            } catch(e) { tbody.innerHTML = '<div style="color:red; text-align:center;">Error al cargar.</div>'; }
+            } catch(e) { tbody.innerHTML = '<div style="color:red; text-align:center;">Error al cargar. (¿Estás como admin?)</div>'; }
         };
 
         window.exportCodesCSV = function() {
@@ -1258,46 +1191,31 @@
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         };
 
-        // NUEVO: Lógica del botón para Resetear Toda la Base de Datos
+        // Reseteo Seguro de Base de Datos
         window.resetDatabase = async function() {
-            const confirmText = prompt("⚠️ PELIGRO: Esto borrará permanentemente TODOS los invitados y TODOS los códigos generados de la base de datos.\n\nPara confirmar, escribe la palabra BORRAR:");
+            const confirmText = prompt("⚠️ PELIGRO EXTREMO: Borrará invitados, todos los códigos y el contador global de estadísticas.\n\nEscribe la palabra exacta 'RESET ENSO' para continuar:");
             
-            if (confirmText && confirmText.trim().toLowerCase() === "borrar") {
+            if (confirmText === "RESET ENSO") {
                 try {
-                    // Obtener todas las invitaciones
                     const guestsSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'guests'));
-                    // Obtener todos los códigos
                     const invitesSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'invites'));
 
                     const batch = writeBatch(db);
-                    let count = 0;
-
-                    guestsSnap.forEach(docSnap => {
-                        batch.delete(docSnap.ref);
-                        count++;
-                    });
+                    guestsSnap.forEach(docSnap => batch.delete(docSnap.ref));
+                    invitesSnap.forEach(docSnap => batch.delete(docSnap.ref));
                     
-                    invitesSnap.forEach(docSnap => {
-                        batch.delete(docSnap.ref);
-                        count++;
-                    });
+                    // Resetear Stats a Cero
+                    const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
+                    batch.set(statsRef, { confirmedCount: 0, totalCapacity: CONFIG.totalCapacity });
 
-                    if (count > 0) {
-                        await batch.commit();
-                        alert("✅ Base de datos reseteada correctamente. Todo ha sido borrado.");
-                        // Refrescar vistas
-                        window.renderAdminTable(); 
-                        if (document.getElementById('view-codes').style.display === 'block') {
-                            window.loadAdminCodes();
-                        }
-                    } else {
-                        alert("La base de datos ya está completamente vacía.");
-                    }
-                } catch(e) {
-                    alert("Error al resetear la base de datos: " + e.message);
-                }
+                    await batch.commit();
+                    alert("✅ Base de datos reseteada correctamente. Todo ha sido borrado e inicializado.");
+                    
+                    window.renderAdminTable(); 
+                    if (document.getElementById('view-codes').style.display === 'block') window.loadAdminCodes();
+                } catch(e) { alert("Error al resetear la base de datos: " + e.message); }
             } else if (confirmText !== null) {
-                alert("Palabra incorrecta. No se ha borrado ningún dato.");
+                alert("Validación incorrecta. No se ha borrado nada.");
             }
         };
 
