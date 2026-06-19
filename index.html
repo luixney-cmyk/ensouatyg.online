@@ -881,7 +881,7 @@
                             const btnAccept = document.getElementById('btn-accept-invite'); 
                             
                             btnAccept.disabled = false;
-                            messageContainer.innerHTML = `"${sanitize(currentValidData.text)}"`;
+                            messageContainer.innerHTML = `"${currentValidData.text}"`;
                             
                             btnAccept.innerText = "Ver Pase de Acceso"; 
                             btnAccept.style.background = "transparent"; 
@@ -918,7 +918,7 @@
                         if (currentValidData.type === 'standard') {
                             messageContainer.innerHTML = `"Yo, <strong style="color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;">${sanitize(currentValidData.hostName)}</strong>, tengo el honor de invitarte a mi último proyecto integrador. <br><br>Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."`;
                         } else if (currentValidData.type === 'special') {
-                            messageContainer.innerHTML = `"${sanitize(currentValidData.text)}"`;
+                            messageContainer.innerHTML = `"${currentValidData.text}"`;
                         }
                         
                         btnAccept.innerText = "Aceptar Invitación"; 
