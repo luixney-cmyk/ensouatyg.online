@@ -16,6 +16,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
     
+    <!-- Deferimos la carga de html2canvas para mejorar el performance inicial -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
     
     <style>
@@ -38,6 +39,7 @@
             -webkit-font-smoothing: antialiased;
         }
         
+        /* Fallback de accesibilidad para animaciones reducidas */
         @media (prefers-reduced-motion: reduce) {
             * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
         }
@@ -232,6 +234,7 @@
             background: transparent; cursor: pointer; transition: all 0.3s ease;
         }
         .btn-outline:hover { background: rgba(212, 175, 55, 0.1); border-color: var(--gold); color: #fff; }
+        .btn-outline:disabled { opacity: 0.5; cursor: not-allowed; border-color: rgba(212, 175, 55, 0.2); }
 
         #personal-message {
             font-family: 'Cormorant Garamond', serif; font-size: clamp(1rem, 4vw, 1.15rem); font-style: italic;
@@ -742,6 +745,7 @@
         };
         const ADMIN_EMAIL = "luixnay@gmail.com";
 
+        // Función para sanear strings del usuario y evitar inyecciones XSS
         function sanitize(str) {
             if (!str) return '';
             const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;' };
@@ -805,9 +809,9 @@
         let unsubscribeGuests = null;
         let unsubscribeStats = null;
 
-        // ── BASE DE DATOS COMPLETA RESTAURADA ──
+        // ── BASE DE DATOS COMPLETA (INCLUYE LOS 4 NUEVOS VIPs MESA 2 = 104 LUGARES EXACTOS) ──
         const baseDatabase = {
-            // VIPs
+            // VIPs MESA 1
             "VENTURA":   { type: "special", name: "Chef Ventura", fullName: "Jose Ventura Huerta Gonzalez", table: 1, count: 1, text: "Querido Chef Ventura:<br><br>Hay personas que llegan a nuestra vida para enseñarnos una materia. Otras, para enseñarnos un oficio. Pero existen unas pocas que dejan una huella tan profunda que terminan formando parte de quienes somos.<br><br>Hace cuatro años y medio cruzamos por primera vez la puerta de una cocina con más dudas que certezas. No sabíamos sostener correctamente un cuchillo, desconocíamos el lenguaje de los fogones y apenas comenzábamos a imaginar el camino que teníamos por delante. Usted estuvo ahí desde el primer día.<br><br>Fue el primer chef que nos habló de respeto antes que de recetas, de disciplina antes que de reconocimiento y de pasión antes que de técnica. Nos enseñó que cocinar no consiste únicamente en transformar ingredientes, sino en transformar personas. Nos mostró que detrás de cada plato existe historia, esfuerzo, carácter y corazón.<br><br>Con el paso de los semestres llegaron nuevos maestros, nuevas cocinas y nuevos desafíos, pero siempre recordamos que fue usted quien encendió la primera llama. Quien nos enseñó a confiar en nuestras manos cuando aún temblaban. Quien corrigió nuestros errores cuando apenas comenzábamos a caminar. Quien sembró en nosotros el amor y el respeto por esta profesión que hoy elegimos como proyecto de vida.<br><br>Gracias por su paciencia, por su exigencia, por sus enseñanzas y por creer en nosotros cuando todavía éramos jóvenes aprendices intentando descubrir nuestro lugar en el mundo.<br><br>Hace cuatro años y medio, frente a usted, comenzamos a trazar los primeros pasos de esta historia. Hoy deseamos compartir con quien encendió la primera llama el instante en que ese trazo finalmente se completa.<br><br>Porque algunos círculos no pueden cerrarse sin las personas que les dieron origen.<br><br>Y porque esta historia comenzó frente a usted, nos llenaría de orgullo, emoción y gratitud poder contar con su presencia en la noche en que, después de cuatro años y medio de aprendizaje, esfuerzo y sueños compartidos, finalmente cerremos el círculo." },
             "JERAAR":    { type: "special", name: "Dr. Jeraar", fullName: "Dr. Jeraar Atahulpa Ramos García", table: 1, count: 1, text: "Querido Dr. Jeraar:<br><br>Hay profesores que imparten clases. Hay maestros que transmiten conocimientos. Y existen personas extraordinarias que cambian para siempre la forma en que vemos el mundo. Usted fue una de ellas.<br><br>En sus aulas aprendimos que cocinar es mucho más que seguir recetas o menear cazuelas. Aprendimos a cuestionar, a investigar, a pensar, a buscar respuestas y, sobre todo, a nunca conformarnos con lo que ya sabemos. Nos enseñó que el conocimiento no tiene límites para quien conserva la curiosidad y el deseo de aprender.<br><br>Su inteligencia, su pasión, su inmensa capacidad y su forma única de entender la educación le ganaron algo que no se exige ni se impone: nuestro respeto, nuestra admiración y nuestra confianza.<br><br>Para muchos de nosotros fue maestro. Para otros, consejero. Para otros más, amigo y confidente. Pero para todos fue una guía que nos impulsó a mirar más lejos de lo que creíamos posible.<br><br>Cuando nosotros veíamos una puerta, usted nos enseñaba a buscar el camino detrás de ella. Cuando creíamos haber llegado, usted nos recordaba que aún podíamos ir más alto. Nos enseñó a creer, a soñar, a atrevernos a volar.<br><br>Hoy llegamos al final de una etapa, pero también al comienzo de todo aquello para lo que nos preparó.<br><br>Y por eso, en una noche dedicada a cerrar ciclos, nos haría profundamente feliz contar con su presencia. Porque entre los muchos trazos que dieron forma a nuestra historia, algunos de los más importantes llevan su nombre.<br><br>Con usted aprendimos que siempre existe algo más allá del horizonte. Y es con profunda gratitud que deseamos compartirle cómo, finalmente, se cierra el círculo." },
             "MARTHA":    { type: "special", name: "Chef Martha", fullName: "Martha Jazmín Acero Garcia", table: 1, count: 1, text: "Querida Chef Martha:<br><br>A lo largo de estos cuatro años y medio compartimos mucho más que clases, cocinas y proyectos. Compartimos aprendizajes, desafíos, sonrisas, nervios y también momentos difíciles que marcaron nuestro camino.<br><br>Gracias por su paciencia, por su tiempo, por acompañarnos en tantas materias y proyectos integradores, y por enseñarnos siempre con el corazón. Gracias por permitirnos conocer no solo a la chef, sino también a la persona, a la madre y a la mujer que enfrentó cada etapa con fortaleza y generosidad.<br><br>Nos quedará para siempre el recuerdo de los hornos encendidos, el aroma de los postres recién horneados, las risas compartidas y las conversaciones que hicieron de esta experiencia algo mucho más grande que una carrera.<br><br>Hoy llegamos al final de un camino que usted ayudó a construir día con día. Por eso, nos haría profundamente feliz contar con su presencia mientras cerramos el círculo que juntos comenzamos a trazar hace cuatro años y medio." },
@@ -816,12 +820,20 @@
             "JAIME":     { type: "special", name: "Jaime Ramos", fullName: "Jaime Ramos", table: 1, count: 1, text: "Estimado Jaime Ramos:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
             "ALDO":      { type: "special", name: "Aldo Jauregui", fullName: "Aldo Michaelle Jauregui Gutierrez", table: 1, count: 1, text: "Estimado Aldo Michaelle Jauregui Gutierrez:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
             "ALEJANDRO": { type: "special", name: "Chef Alejandro", fullName: "Chef Kevin Alejandro Flores Carrillo", table: 1, count: 1, text: "Apreciado Chef Alejandro:<br><br>Aunque no estuvo con nosotros desde el primer día, hay personas cuya presencia es tan significativa que terminan sintiéndose parte de toda la historia.<br><br>Usted llegó cuando nuestro camino ya había comenzado, pero bastaron unos cuantos semestres para convertirse en uno de los chefs más importantes, más cercanos y más queridos de esta generación.<br><br>Nos compartió sus conocimientos, pero también algo mucho más valioso: su tiempo, su confianza y su amistad. Siempre creyó en nosotros, nos impulsó a hacer mejor las cosas, nos motivó a ir más allá de lo que pensábamos posible y nos hizo sentir que nuestras ideas valían la pena.<br><br>Con usted aprendimos dentro y fuera de la cocina. Compartimos proyectos, conversaciones, sueños, preocupaciones y momentos que hicieron que la relación entre maestro y alumno se transformara en algo mucho más profundo: respeto, admiración y un cariño genuino.<br><br>Para muchos de nosotros, usted dejó de ser solamente un chef. Se convirtió en un amigo, en una inspiración y en una de esas personas que hacen que una etapa de la vida sea imposible de olvidar.<br><br>Por eso, al mirar hacia atrás, resulta difícil imaginar esta historia sin usted. Porque aunque llegó a la mitad del camino, terminó ocupando un lugar permanente en él.<br><br>Y en una noche dedicada a honrar todo lo vivido, nos haría profundamente felices contar con su presencia.<br><br>Porque los círculos no se cierran únicamente con quienes estuvieron al inicio, sino también con quienes, en el momento justo, llegaron para ayudarnos a completarlos." },
+            
+            // VIPs MESA 2 (Originales)
             "CELINA":    { type: "special", name: "Dra. Celina", fullName: "Dra. María Celina Agraz López", table: 2, count: 1, text: "Querida Dra. Celina:<br><br>Antes de ser nuestra directora, fue nuestra maestra.<br><br>Mucho antes de los oficios, las gestiones, las reuniones y las visitas a su oficina, compartimos con usted algunas de nuestras primeras clases. Cuando apenas comenzábamos esta etapa, usted ya formaba parte de ella.<br><br>Con el paso de los años, nuestra relación también fue cambiando.<br><br>Fuimos una generación inquieta. Preguntábamos mucho. Gestionábamos mucho. Tocábamos constantemente la puerta de su oficina. A veces llegábamos con propuestas, otras con preocupaciones y algunas más simplemente buscando ser escuchados.<br><br>Y aunque no siempre coincidimos en todo, nunca dejamos de encontrar en usted disposición para dialogar, paciencia para escucharnos y compromiso para acompañarnos.<br><br>Hoy, al mirar hacia atrás, comprendemos que gran parte de nuestra historia universitaria también transcurrió frente a esa puerta que tantas veces cruzamos.<br><br>Ahí celebramos logros. Ahí planteamos inquietudes. Ahí defendimos ideas que creíamos importantes. Ahí aprendimos que crecer también significa aprender a dialogar, construir acuerdos y asumir responsabilidades.<br><br>Con el tiempo entendimos algo que quizá no supimos ver mientras vivíamos cada una de esas experiencias: usted estuvo presente durante prácticamente toda nuestra formación.<br><br>Estuvo cuando comenzamos.<br><br>Estuvo cuando enfrentamos desafíos.<br><br>Y estuvo mientras poco a poco nos convertíamos en los profesionistas que deseamos ser.<br><br>Por eso, en una noche tan significativa para nuestra generación, nos haría profundamente feliz contar con su presencia.<br><br>Porque fue testigo de nuestros primeros pasos.<br><br>Porque acompañó buena parte de nuestro recorrido.<br><br>Y porque forma parte de esta historia que hoy llega a uno de sus momentos más importantes.<br><br>Hace cuatro años y medio comenzamos a trazar este círculo.<br><br>Y sería un honor compartir con usted el momento en que finalmente lo veamos cerrarse." },
             "MAGALLY":   { type: "special", name: "Cinthya Gómez", fullName: "Cinthya Magally Gómez Sánchez", table: 2, count: 1, text: "Estimada Cinthya Magally Gómez Sánchez:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
             "YURI":      { type: "special", name: "Maestra Yuri", fullName: "Yuri Vannesa Berumen Delgado", table: 2, count: 1, text: "Querida Maestra Yuri:<br><br>Hay personas que pasan por nuestra vida dejando enseñanzas. Y hay otras que dejan una huella tan profunda que terminan formando parte de quienes somos.<br><br>Usted estuvo con nosotros desde el principio.<br><br>Nos acompañó en los primeros semestres, en los proyectos integradores, en las semanas culturales, en los eventos, en retos, en triunfos y también en momentos difíciles. Incluso cuando ya no nos impartía clases, siempre encontraba la manera de estar cerca, de acompañarnos, de escucharnos y de alentarnos a seguir adelante.<br><br>Por eso, cuando pensamos en nuestra historia como generación, es imposible imaginarla sin usted.<br><br>Porque más allá de las aulas, de las calificaciones o de las actividades, nos regaló algo mucho más valioso: su tiempo, su cariño, su confianza y su presencia constante.<br><br>En una etapa de la vida donde tantas personas van y vienen, usted eligió quedarse. Estuvo ahí cuando celebramos, cuando tropezamos, cuando soñamos y cuando dudamos. Siempre estuvo ahí.<br><br>Nos llevamos innumerables recuerdos, pero sobre todo nos llevamos el privilegio de haber conocido a una persona extraordinaria. Una maestra excepcional, sí, pero también una amiga, una guía y uno de los corazones más nobles que hemos encontrado en este camino.<br><br>Cuando los años pasen y recordemos esta generación, recordaremos muchas clases, muchos proyectos y muchas experiencias. Pero también recordaremos a una mujer que creyó en nosotros incluso cuando nosotros mismos no estábamos seguros de poder lograrlo.<br><br>Con usted comenzaron muchos de los momentos más importantes de esta historia. Y por eso, en esta noche tan significativa, deseamos compartirle el honor de acompañarnos una vez más.<br><br>Porque algunos maestros enseñan una materia. Otros enseñan una profesión. Pero usted nos enseñó, con su ejemplo, el valor de acompañar a las personas.<br><br>Y porque fue una parte indispensable de nuestro camino, nos haría profundamente felices que estuviera presente cuando, después de cuatro años y medio de historia, finalmente cerremos el círculo." },
             "AMEZCUA":   { type: "special", name: "Jorge Amezcua", fullName: "Jorge Alberto Amezcua Aguirre", table: 2, count: 1, text: "Estimado Jorge Alberto Amezcua Aguirre:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generation, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
 
-            // ALUMNOS
+            // NUEVOS VIPs MESA 2
+            "TERESA":    { type: "special", name: "Teresa Gonzalez", fullName: "Teresa Armida gonzalez", table: 2, count: 1, text: "Estimada Teresa Armida gonzalez:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
+            "TANIA":     { type: "special", name: "Tania Rodriguez", fullName: "Tania Rodriguez", table: 2, count: 1, text: "Estimada Tania Rodriguez:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
+            "DALIA":     { type: "special", name: "Dalia Gutiérrez", fullName: "Dalia Gutiérrez Alcaraz", table: 2, count: 1, text: "Estimada Dalia Gutiérrez Alcaraz:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
+            "PATRICIA":  { type: "special", name: "Patricia Robles", fullName: "Patricia Robles Rosales", table: 2, count: 1, text: "Estimada Patricia Robles Rosales:<br><br>El grupo D5 Gastronomía tiene el honor de invitarle a nuestro último proyecto integrador.<br><br>Después de cuatro años y medio de esfuerzo y dedicación, hoy llegamos al momento de cerrar este ciclo.<br><br>Usted ha sido parte de la trayectoria de nuestra generación, por lo que nos complacería contar con su presencia en esta noche tan significativa para todos nosotros." },
+
+            // ALUMNOS (Estándar)
             "ARON":       { type: "standard", name: "Aron Rafael Bañuelos Cortez", table: 7, count: 4 },
             "BRANDON":    { type: "standard", name: "Brandon Jaramillo Rosas", table: 8, count: 4 },
             "CARLOS":     { type: "standard", name: "Carlos Isac Luna", table: 5, count: 4 },
@@ -925,7 +937,8 @@
                             const btnAccept = document.getElementById('btn-accept-invite'); 
                             
                             btnAccept.disabled = false;
-                            // SE OMITE SANITIZE EN CARTAS VIP PARA PERMITIR <br>
+                            
+                            // ⚠️ IMPORTANTE: No usamos sanitize() aquí para respetar los <br> de la carta original VIP
                             messageContainer.innerHTML = `"${currentValidData.text}"`;
                             
                             btnAccept.innerText = "Ver Pase de Acceso"; 
@@ -963,7 +976,7 @@
                         if (currentValidData.type === 'standard') {
                             messageContainer.innerHTML = `"Yo, <strong style="color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;">${sanitize(currentValidData.hostName)}</strong>, tengo el honor de invitarte a mi último proyecto integrador. <br><br>Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."`;
                         } else if (currentValidData.type === 'special') {
-                            // SE OMITE SANITIZE EN CARTAS VIP PARA PERMITIR <br>
+                            // ⚠️ IMPORTANTE: No usamos sanitize() aquí para respetar los <br>
                             messageContainer.innerHTML = `"${currentValidData.text}"`;
                         }
                         
@@ -1002,7 +1015,7 @@
                     await registerRSVPTransaction(currentValidData.fullName);
                     document.getElementById('modal-message').classList.remove('active');
                     
-                    // REINICIO DE ESTADO DE BOTÓN PARA PODER REGISTRAR EL SIGUIENTE
+                    // REINICIO DEL ESTADO DEL BOTÓN ("Bug Visual" Corregido)
                     setTimeout(() => {
                         btnAccept.disabled = false;
                         btnAccept.innerText = "Aceptar Invitación";
@@ -1018,6 +1031,8 @@
                     guestNameInput.value = ''; nameErrorText.style.opacity = '0';
                     document.getElementById('modal-name').classList.add('active'); guestNameInput.focus();
                 }, 400);
+                
+                // REINICIO DEL ESTADO DEL BOTÓN
                 btnAccept.innerText = "Aceptar Invitación"; btnAccept.disabled = false;
             }
         };
@@ -1048,7 +1063,7 @@
                 nameErrorText.style.opacity = '0';
                 document.getElementById('modal-name').classList.remove('active');
                 
-                // REINICIO DE ESTADO DE BOTÓN PARA PODER REGISTRAR EL SIGUIENTE
+                // REINICIO DEL ESTADO DEL BOTÓN ("Bug Visual" Corregido)
                 setTimeout(() => {
                     btnGen.disabled = false; 
                     btnGen.innerText = "Confirmar y Generar Pase";
@@ -1258,12 +1273,15 @@
             });
         };
 
-        // ── GENERADOR Y GESTOR DE CÓDIGOS (ACTUALIZADO SIN DUPLICADOS) ──
+        // ── GENERADOR Y GESTOR DE CÓDIGOS (NUEVA LÓGICA INTELIGENTE) ──
         function get4Digits() { return Math.floor(1000 + Math.random() * 9000).toString(); }
 
         window.generateCodesBatch = async function() {
+            // Verificar si el botón está desactivado antes de ejecutar
+            const btn = document.getElementById('btn-generate-codes');
+            if (btn.disabled) return;
+
             window.customConfirm("¿Deseas generar/verificar los códigos? Solo se crearán los códigos faltantes para completar la cuota de cada alumno.", async () => {
-                const btn = document.getElementById('btn-generate-codes');
                 btn.innerText = "Generando..."; btn.disabled = true;
                 try {
                     const invitesRef = collection(db, 'artifacts', appId, 'public', 'data', 'invites');
@@ -1304,12 +1322,12 @@
                         window.loadAdminCodes();
                     } else { 
                         window.customAlert("ℹ️ Ya existían los códigos suficientes para todos los anfitriones. No se crearon duplicados."); 
+                        window.loadAdminCodes(); // Carga de todos modos para actualizar la UI del botón
                     }
                 } catch(e) { 
                     window.customAlert("Error al generar códigos. Revisa consola."); console.error(e); 
-                } finally { 
                     btn.innerText = "+ Generar Códigos"; btn.disabled = false; 
-                }
+                } 
             });
         };
 
@@ -1329,6 +1347,21 @@
                 
                 tbody.innerHTML = html || '<div style="padding: 20px; text-align: center;">No hay códigos. Haz clic en Generar.</div>';
                 document.getElementById('admin-total').innerText = allCodes.length;
+
+                // NUEVA LÓGICA: Deshabilitar el botón si ya se alcanzaron o superaron los 104 códigos
+                const btnGen = document.getElementById('btn-generate-codes');
+                if (allCodes.length >= CONFIG.totalCapacity) {
+                    btnGen.disabled = true;
+                    btnGen.style.opacity = '0.5';
+                    btnGen.style.cursor = 'not-allowed';
+                    btnGen.innerText = `✓ Códigos Listos (${allCodes.length})`;
+                } else {
+                    btnGen.disabled = false;
+                    btnGen.style.opacity = '1';
+                    btnGen.style.cursor = 'pointer';
+                    btnGen.innerText = "+ Generar Códigos";
+                }
+
             } catch(e) { tbody.innerHTML = '<div style="color:red; text-align:center;">Error al cargar. (¿Estás como admin?)</div>'; }
         };
 
