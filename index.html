@@ -1457,6 +1457,27 @@
             }, { threshold: 0.15 });
             document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         }
+        // SCRIPT TEMPORAL DE MIGRACIÓN
+window.migrarBaseDatos = async function() {
+    // Referencia a la nueva colección segura
+    const hostRef = collection(db, 'artifacts', appId, 'public', 'data', 'hostData');
+    const batch = writeBatch(db);
+    let contador = 0;
+
+    try {
+        for (const [hostId, data] of Object.entries(baseDatabase)) {
+            const docRef = doc(hostRef, hostId);
+            batch.set(docRef, data);
+            contador++;
+        }
+        
+        await batch.commit();
+        console.log(`✅ Migración exitosa: ${contador} registros subidos a Firebase.`);
+        console.log("Ya puedes borrar el objeto 'baseDatabase' de tu código HTML.");
+    } catch (error) {
+        console.error("❌ Error durante la migración: ", error);
+    }
+};
     </script>
 </body>
 </html>
