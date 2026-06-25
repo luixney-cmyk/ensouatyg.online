@@ -323,6 +323,18 @@
 </head>
 <body>
 
+    <noscript>
+        <style>
+            body { overflow-y: auto !important; }
+            #intro-overlay, #cinematic-container { display: none !important; }
+            #main-content { opacity: 1 !important; }
+            .reveal { opacity: 1 !important; transform: none !important; }
+        </style>
+        <div style="padding: 24px; text-align: center; background: #0D0B08; color: #D9D0C0; font-family: serif;">
+            Para vivir la experiencia completa y confirmar asistencia, activa JavaScript en tu navegador.
+        </div>
+    </noscript>
+
     <!-- ── INTRO OVERLAY ── -->
     <div id="intro-overlay">
         <span class="intro-kanji" style="top:10%; left:5%; transform:rotate(-8deg);">円</span>
@@ -338,11 +350,11 @@
     <!-- ── VIDEO CINEMÁTICO ── -->
     <div id="cinematic-container">
         <div id="skip-video-btn" role="button" tabindex="0" aria-label="Saltar video introductorio">Saltar Intro</div>
-        <video id="hero-video" playsinline preload="metadata">
+        <video id="hero-video" playsinline preload="metadata" poster="enso.png">
             <source src="enso.mp4" type="video/mp4">
             Tu navegador no soporta el formato de video.
         </video>
-        <div id="scroll-down" class="scroll-indicator" role="button" aria-label="Desplazarse hacia abajo">
+        <div id="scroll-down" class="scroll-indicator" role="button" tabindex="0" aria-label="Desplazarse hacia abajo">
             <span class="scroll-label">Continuar</span>
             <svg class="scroll-arrow" width="24" height="24" fill="none" stroke="#D4AF37" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/></svg>
         </div>
@@ -753,6 +765,43 @@
             return String(str).replace(reg, (match) => (map[match]));
         }
 
+        function normalizeGuestName(name) {
+            return String(name || '').trim().replace(/\s+/g, ' ').toUpperCase();
+        }
+
+        function isValidGuestName(name) {
+            return typeof name === 'string' && name.length >= 2 && name.length <= 80 && /^[A-ZÁÉÍÓÚÜÑ\s]+$/i.test(name);
+        }
+
+        // Render seguro: conserva saltos de línea y etiquetas <br>, pero nunca ejecuta HTML del invitado/admin.
+        function appendSafeTextWithBreaks(container, value) {
+            const parts = String(value || '').split(/<br\s*\/?>|\r?\n/gi);
+            parts.forEach((part, index) => {
+                if (index > 0) container.appendChild(document.createElement('br'));
+                container.appendChild(document.createTextNode(part));
+            });
+        }
+
+        function renderSpecialMessage(container, text) {
+            container.replaceChildren();
+            container.appendChild(document.createTextNode('"'));
+            appendSafeTextWithBreaks(container, text || 'Invitación especial confirmada.');
+            container.appendChild(document.createTextNode('"'));
+        }
+
+        function renderStandardInviteMessage(container, hostName) {
+            container.replaceChildren();
+            container.appendChild(document.createTextNode('"Yo, '));
+            const host = document.createElement('strong');
+            host.style.cssText = "color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;";
+            host.textContent = String(hostName || 'tu anfitrión');
+            container.appendChild(host);
+            container.appendChild(document.createTextNode(', tengo el honor de invitarte a mi último proyecto integrador.'));
+            container.appendChild(document.createElement('br'));
+            container.appendChild(document.createElement('br'));
+            container.appendChild(document.createTextNode('Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."'));
+        }
+
         // Funciones UI para alertas de administrador sin romper experiencia
         window.customAlert = function(msg) {
             document.getElementById('alert-msg').innerText = msg;
@@ -779,7 +828,7 @@
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, getDocs, getDoc, writeBatch, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, updateDoc, getDocs, getDoc, writeBatch, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyAd_rViRrwdsigVaJNJO82nvVpGzywQT30",
@@ -891,8 +940,7 @@
                             
                             btnAccept.disabled = false;
                             
-                            // ⚠️ IMPORTANTE: No usamos sanitize() aquí para respetar los <br> de la carta original VIP
-                            messageContainer.innerHTML = `"${currentValidData.text}"`;
+                            renderSpecialMessage(messageContainer, currentValidData.text);
                             
                             btnAccept.innerText = "Ver Pase de Acceso"; 
                             btnAccept.style.background = "transparent"; 
@@ -908,7 +956,7 @@
                                 setTimeout(() => { document.getElementById('personal-message').scrollTop = 0; }, 50);
                             }, 400);
                         } else {
-                            errorText.innerHTML = `Este código ya fue utilizado por <b>${sanitize(confirmedName)}</b>.<br>Generando pase...`;
+                            errorText.innerText = `Este código ya fue utilizado por ${confirmedName}. Generando pase...`;
                             errorText.style.opacity = '1'; errorText.style.color = '#10b981';
                             setTimeout(() => {
                                 document.getElementById('modal-code').classList.remove('active');
@@ -927,10 +975,11 @@
                         btnAccept.disabled = false;
                         
                         if (currentValidData.type === 'standard') {
-                            messageContainer.innerHTML = `"Yo, <strong style="color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;">${sanitize(currentValidData.hostName)}</strong>, tengo el honor de invitarte a mi último proyecto integrador. <br><br>Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."`;
+                            renderStandardInviteMessage(messageContainer, currentValidData.hostName);
                         } else if (currentValidData.type === 'special') {
-                            // ⚠️ IMPORTANTE: No usamos sanitize() aquí para respetar los <br>
-                            messageContainer.innerHTML = `"${currentValidData.text}"`;
+                            renderSpecialMessage(messageContainer, currentValidData.text);
+                        } else {
+                            throw new Error('Tipo de invitación no válido.');
                         }
                         
                         btnAccept.innerText = "Aceptar Invitación"; 
@@ -965,14 +1014,14 @@
 
             if (currentValidData.type === 'special') {
                 try {
-                    await registerRSVPTransaction(currentValidData.fullName);
+                    const registeredGuestName = await registerRSVPTransaction(currentValidData.fullName);
                     document.getElementById('modal-message').classList.remove('active');
                     
                     // REINICIO DEL ESTADO DEL BOTÓN ("Bug Visual" Corregido)
                     setTimeout(() => {
                         btnAccept.disabled = false;
                         btnAccept.innerText = "Aceptar Invitación";
-                        showTicket(currentValidData.fullName, currentValidData.table);
+                        showTicket(registeredGuestName, currentValidData.table);
                     }, 400);
                 } catch (e) {
                     btnAccept.innerText = "Error: " + e.message; 
@@ -1012,7 +1061,7 @@
             btnGen.disabled = true; btnGen.innerText = "Verificando...";
 
             try {
-                await registerRSVPTransaction(guestName);
+                const registeredGuestName = await registerRSVPTransaction(guestName);
                 nameErrorText.style.opacity = '0';
                 document.getElementById('modal-name').classList.remove('active');
                 
@@ -1020,7 +1069,7 @@
                 setTimeout(() => {
                     btnGen.disabled = false; 
                     btnGen.innerText = "Confirmar y Generar Pase";
-                    showTicket(guestName, currentValidData.table);
+                    showTicket(registeredGuestName, currentValidData.table);
                 }, 400);
             } catch(e) {
                 nameErrorText.innerText = "Error: " + e.message; nameErrorText.style.opacity = '1';
@@ -1030,34 +1079,55 @@
 
         // Función Transaccional Compartida para RSVP atómico
         async function registerRSVPTransaction(finalGuestName) {
+            const normalizedGuestName = normalizeGuestName(finalGuestName);
+            if (!isValidGuestName(normalizedGuestName)) {
+                throw new Error("Nombre inválido. Usa solo letras y espacios, máximo 80 caracteres.");
+            }
+            if (!currentValidDataCode) {
+                throw new Error("No hay un código activo para registrar.");
+            }
+
             await runTransaction(db, async (transaction) => {
                 const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
                 const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
-                const guestRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'guests'));
+                // Seguridad: el ID del invitado ahora es el mismo código de invitación.
+                // Así las reglas pueden validar: 1 código = 1 invitado = 1 registro.
+                const guestRef = doc(db, 'artifacts', appId, 'public', 'data', 'guests', currentValidDataCode);
 
+                // Todas las lecturas se hacen antes de cualquier escritura para cumplir con Firestore transactions.
                 const inviteDoc = await transaction.get(inviteRef);
-                if (!inviteDoc.exists()) throw new Error("El código ya no existe.");
-                if (inviteDoc.data().usado) throw new Error("Código tomado por otra persona.");
-
                 const statsDoc = await transaction.get(statsRef);
-                let newCount = 1;
-                if (statsDoc.exists()) {
-                    newCount = (statsDoc.data().confirmedCount || 0) + 1;
-                }
+
+                if (!inviteDoc.exists()) throw new Error("El código ya no existe.");
+                const inviteData = inviteDoc.data();
+                if (inviteData.usado) throw new Error("Código tomado por otra persona.");
+
+                const totalCapacity = statsDoc.exists() ? (statsDoc.data().totalCapacity || CONFIG.totalCapacity) : CONFIG.totalCapacity;
+                const currentCount = statsDoc.exists() ? (statsDoc.data().confirmedCount || 0) : 0;
+                if (currentCount >= totalCapacity) throw new Error("El aforo ya está completo.");
+                const newCount = currentCount + 1;
+                const now = new Date().toISOString();
 
                 const guestData = {
-                    guestName: finalGuestName,
+                    guestName: normalizedGuestName,
                     hostCode: currentValidDataCode,
-                    hostName: inviteDoc.data().hostName,
-                    table: inviteDoc.data().table,
-                    timestamp: new Date().toISOString(),
+                    hostName: String(inviteData.hostName || ''),
+                    table: inviteData.table,
+                    timestamp: now,
                     asistio: false
                 };
 
                 transaction.set(guestRef, guestData);
-                transaction.update(inviteRef, { usado: true, guestName: finalGuestName });
-                transaction.set(statsRef, { confirmedCount: newCount, totalCapacity: CONFIG.totalCapacity }, { merge: true });
+                transaction.update(inviteRef, { usado: true, guestName: normalizedGuestName });
+                transaction.set(statsRef, {
+                    confirmedCount: newCount,
+                    totalCapacity,
+                    lastInviteCode: currentValidDataCode,
+                    lastUpdatedAt: now
+                });
             });
+
+            return normalizedGuestName;
         }
 
         function showTicket(nameToDisplay, tableNum) {
@@ -1210,15 +1280,21 @@
                         const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', hostCode);
                         const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
 
-                        transaction.delete(guestRef);
-                        transaction.set(inviteRef, { usado: false, guestName: "" }, { merge: true });
-                        
+                        // Lecturas antes de escrituras: evita errores de transacción en Firestore.
                         const statsDoc = await transaction.get(statsRef);
                         let newCount = 0;
                         if(statsDoc.exists() && statsDoc.data().confirmedCount > 0) {
                             newCount = statsDoc.data().confirmedCount - 1;
                         }
-                        transaction.set(statsRef, { confirmedCount: newCount }, { merge: true });
+
+                        transaction.delete(guestRef);
+                        transaction.set(inviteRef, { usado: false, guestName: "" }, { merge: true });
+                        transaction.set(statsRef, {
+                            confirmedCount: newCount,
+                            totalCapacity: statsDoc.exists() ? (statsDoc.data().totalCapacity || CONFIG.totalCapacity) : CONFIG.totalCapacity,
+                            lastInviteCode: hostCode,
+                            lastUpdatedAt: new Date().toISOString()
+                        });
                     });
                 } catch(e) {
                     window.customAlert("Error al borrar el registro: " + e.message);
@@ -1313,7 +1389,7 @@
                 let html = '';
                 allCodes.forEach(c => {
                     const status = c.usado ? `<span class="admin-code-status usado">❌ Usado (${sanitize(c.guestName)})</span>` : `<span class="admin-code-status libre">✅ Libre</span>`;
-                    html += `<div class="admin-code-row"><div class="admin-code-val">${c.codigo}</div><div>${status}</div></div>`;
+                    html += `<div class="admin-code-row"><div class="admin-code-val">${sanitize(c.codigo)}</div><div>${status}</div></div>`;
                 });
                 
                 tbody.innerHTML = html || '<div style="padding: 20px; text-align: center;">No hay códigos. Haz clic en Generar.</div>';
@@ -1363,7 +1439,12 @@
                         
                         // Resetear Stats a Cero
                         const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
-                        batch.set(statsRef, { confirmedCount: 0, totalCapacity: CONFIG.totalCapacity });
+                        batch.set(statsRef, {
+                            confirmedCount: 0,
+                            totalCapacity: CONFIG.totalCapacity,
+                            lastInviteCode: "",
+                            lastUpdatedAt: new Date().toISOString()
+                        });
 
                         await batch.commit();
                         window.customAlert("✅ Base de datos reseteada correctamente. Todo ha sido borrado e inicializado.");
@@ -1402,10 +1483,23 @@
             }, 1800);
         });
 
-        document.getElementById('skip-video-btn').addEventListener('click', () => { if (!videoYaFinalizado) finalizarVideo(); });
+        function activateKeyboardButton(el, handler) {
+            if (!el) return;
+            el.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handler();
+                }
+            });
+        }
+
+        const skipVideoBtn = document.getElementById('skip-video-btn');
+        skipVideoBtn.addEventListener('click', () => { if (!videoYaFinalizado) finalizarVideo(); });
+        activateKeyboardButton(skipVideoBtn, () => { if (!videoYaFinalizado) finalizarVideo(); });
         heroVideo.addEventListener('ended', () => { if (!videoYaFinalizado) finalizarVideo(); });
 
         function finalizarVideo() {
+            if (videoYaFinalizado) return;
             videoYaFinalizado = true; document.getElementById('skip-video-btn').classList.remove('show'); heroVideo.pause();
             const videoContainer = document.getElementById('cinematic-container'); videoContainer.style.opacity = '0';
             setTimeout(() => { videoContainer.style.display = 'none'; heroVideo.removeAttribute('src'); heroVideo.load(); }, 1000);
@@ -1414,6 +1508,7 @@
         }
 
         scrollIndicator.addEventListener('click', () => { window.scrollTo({ top: window.innerHeight, behavior: 'smooth' }); });
+        activateKeyboardButton(scrollIndicator, () => { window.scrollTo({ top: window.innerHeight, behavior: 'smooth' }); });
 
         function triggerReveal() {
             const observer = new IntersectionObserver((entries) => {
