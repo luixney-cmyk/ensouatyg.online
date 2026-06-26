@@ -804,10 +804,12 @@
 
         // Funciones UI para alertas de administrador sin romper experiencia
         window.customAlert = function(msg) {
+            window.pushModalState();
             document.getElementById('alert-msg').innerText = msg;
             document.getElementById('modal-alert').classList.add('active');
         };
         window.customConfirm = function(msg, onYes) {
+            window.pushModalState();
             document.getElementById('confirm-msg').innerText = msg;
             document.getElementById('confirm-yes-btn').onclick = () => {
                 document.getElementById('modal-confirm').classList.remove('active');
@@ -816,6 +818,7 @@
             document.getElementById('modal-confirm').classList.add('active');
         };
         window.customPrompt = function(msg, onYes) {
+            window.pushModalState();
             document.getElementById('prompt-msg').innerText = msg;
             const input = document.getElementById('prompt-input');
             input.value = '';
@@ -858,8 +861,6 @@
         let unsubscribeGuests = null;
         let unsubscribeStats = null;
 
-        // Base de datos sensible removida del cliente. Ahora se consulta desde Firestore.
-
         // Escucha centralizada de autenticación y suscripciones
         onAuthStateChanged(auth, (user) => {
             const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
@@ -895,10 +896,33 @@
         const errorText = document.getElementById('code-error');
         const nameErrorText = document.getElementById('name-error');
 
-        window.openMenuModal = function() { document.getElementById('modal-menu').classList.add('active'); setTimeout(() => { const menuScroll = document.getElementById('menu-scroll-container'); if (menuScroll) menuScroll.scrollTop = 0; }, 50); };
-        window.openCodeModal = function() { document.getElementById('modal-code').classList.add('active'); codeInput.value = ''; errorText.style.opacity = '0'; codeInput.focus(); };
-        window.openDressModal = function() { document.getElementById('modal-dress').classList.add('active'); setTimeout(() => { const dressScroll = document.getElementById('dress-scroll-container'); if (dressScroll) dressScroll.scrollTop = 0; }, 50); };
-        window.closeModals = function() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); };
+        // --- MEJORA: Integración History API para Botón Atrás en Móviles ---
+        let isModalStatePushed = false;
+        window.pushModalState = function() {
+            if (!isModalStatePushed) {
+                history.pushState({ modalOpen: true }, "");
+                isModalStatePushed = true;
+            }
+        };
+        window.addEventListener('popstate', (e) => {
+            if (isModalStatePushed) {
+                isModalStatePushed = false;
+                window.closeModals(true);
+            }
+        });
+        // -------------------------------------------------------------------
+
+        window.openMenuModal = function() { window.pushModalState(); document.getElementById('modal-menu').classList.add('active'); setTimeout(() => { const menuScroll = document.getElementById('menu-scroll-container'); if (menuScroll) menuScroll.scrollTop = 0; }, 50); };
+        window.openCodeModal = function() { window.pushModalState(); document.getElementById('modal-code').classList.add('active'); codeInput.value = ''; errorText.style.opacity = '0'; codeInput.focus(); };
+        window.openDressModal = function() { window.pushModalState(); document.getElementById('modal-dress').classList.add('active'); setTimeout(() => { const dressScroll = document.getElementById('dress-scroll-container'); if (dressScroll) dressScroll.scrollTop = 0; }, 50); };
+        
+        window.closeModals = function(fromPopState = false) { 
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); 
+            if (isModalStatePushed && fromPopState !== true) {
+                isModalStatePushed = false;
+                history.back();
+            }
+        };
         
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') window.closeModals();
@@ -952,6 +976,7 @@
                             };
 
                             setTimeout(() => {
+                                window.pushModalState();
                                 document.getElementById('modal-message').classList.add('active');
                                 setTimeout(() => { document.getElementById('personal-message').scrollTop = 0; }, 50);
                             }, 400);
@@ -989,6 +1014,7 @@
                         btnAccept.onclick = window.handleMessageAccept;
 
                         setTimeout(() => {
+                            window.pushModalState();
                             document.getElementById('modal-message').classList.add('active');
                             setTimeout(() => { document.getElementById('personal-message').scrollTop = 0; }, 50);
                         }, 400);
@@ -1031,6 +1057,7 @@
                 document.getElementById('modal-message').classList.remove('active');
                 setTimeout(() => {
                     guestNameInput.value = ''; nameErrorText.style.opacity = '0';
+                    window.pushModalState();
                     document.getElementById('modal-name').classList.add('active'); guestNameInput.focus();
                 }, 400);
                 
@@ -1143,6 +1170,7 @@
                 img.onload = () => { downloadBtn.disabled = false; downloadBtn.innerHTML = '↓ Descargar Imagen'; };
                 img.onerror = () => { downloadBtn.disabled = false; downloadBtn.innerHTML = '↓ Descargar Imagen'; };
             }
+            window.pushModalState();
             document.getElementById('modal-ticket').classList.add('active');
         }
 
@@ -1175,6 +1203,7 @@
         // ── LÓGICA DE ADMIN (AUTENTICACIÓN SEGURA CON GOOGLE) ──
         window.openAdminLogin = async function() {
             document.getElementById('admin-error').style.opacity = '0';
+            window.pushModalState();
             document.getElementById('modal-admin-login').classList.add('active');
         };
 
@@ -1209,6 +1238,7 @@
                 if (user.email === ADMIN_EMAIL) {
                     document.getElementById('modal-admin-login').classList.remove('active'); 
                     window.switchAdminTab('guests');
+                    window.pushModalState();
                     document.getElementById('modal-admin').classList.add('active');
                 } else { 
                     document.getElementById('admin-error').innerText = "Acceso denegado: Correo no autorizado."; 
