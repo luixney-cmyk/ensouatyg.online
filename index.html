@@ -102,17 +102,18 @@
         /* ── VIDEO ── */
         #cinematic-container {
             opacity: 0; transition: opacity 2s ease; position: fixed; inset: 0;
-            z-index: 10; background: #111; display: flex; justify-content: center; align-items: center;
+            z-index: 90; background: #111; display: flex; justify-content: center; align-items: center;
         }
         #cinematic-container.play { opacity: 1; }
         #hero-video { width: 100%; height: 100%; object-fit: contain; pointer-events: none; background-color: var(--ink); }
         #skip-video-btn {
             position: absolute; top: 40px; right: 40px; font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.25em;
-            color: rgba(212,175,55,0.4); text-transform: uppercase; cursor: pointer; z-index: 50; transition: color 0.3s ease;
-            opacity: 0; pointer-events: none;
+            color: rgba(212,175,55,0.65); text-transform: uppercase; cursor: pointer; z-index: 50; transition: color 0.3s ease, opacity 0.3s ease, border-color 0.3s ease;
+            opacity: 0; pointer-events: none; background: rgba(5,5,5,0.55); border: 1px solid rgba(212,175,55,0.25);
+            padding: 10px 14px; border-radius: 999px; user-select: none;
         }
         #skip-video-btn.show { opacity: 1; pointer-events: auto; }
-        #skip-video-btn:hover { color: rgba(212,175,55,1); }
+        #skip-video-btn:hover { color: rgba(212,175,55,1); border-color: rgba(212,175,55,0.7); }
 
         .scroll-indicator {
             position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
@@ -128,8 +129,8 @@
         @keyframes fadeUpDown { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(6px); opacity: 1; } }
 
         /* ── MAIN CONTENT ── */
-        #main-content { opacity: 0; transition: opacity 2.5s ease; position: relative; z-index: 20; }
-        #main-content.visible { opacity: 1; }
+        #main-content { opacity: 0; transition: opacity 2.5s ease; position: relative; z-index: 20; pointer-events: none; }
+        #main-content.visible { opacity: 1; pointer-events: auto; }
 
         .content-hero { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 10vh; position: relative; }
         .content-hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 0%, rgba(5,5,5,0.3) 40%, rgba(5,5,5,0.85) 75%, var(--parchment) 100%); pointer-events: none; }
@@ -349,7 +350,7 @@
 
     <!-- ── VIDEO CINEMÁTICO ── -->
     <div id="cinematic-container">
-        <div id="skip-video-btn" role="button" tabindex="0" aria-label="Saltar video introductorio">Saltar Intro</div>
+        <button id="skip-video-btn" type="button" aria-label="Saltar video introductorio">Saltar Intro</button>
         <video id="hero-video" playsinline preload="metadata" poster="enso.png">
             <source src="enso.mp4" type="video/mp4">
             Tu navegador no soporta el formato de video.
@@ -795,6 +796,7 @@
             const host = document.createElement('strong');
             host.style.cssText = "color:var(--gold-light); font-family:'Cinzel',serif; font-size:0.9em; font-style:normal;";
             host.textContent = String(hostName || 'tu anfitrión');
+            container.appendChild(host);
             container.appendChild(document.createTextNode(', tengo el honor de invitarte a mi último proyecto integrador.'));
             container.appendChild(document.createElement('br'));
             container.appendChild(document.createElement('br'));
@@ -1116,8 +1118,11 @@
             await runTransaction(db, async (transaction) => {
                 const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
                 const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
+                // Seguridad: el ID del invitado ahora es el mismo código de invitación.
+                // Así las reglas pueden validar: 1 código = 1 invitado = 1 registro.
                 const guestRef = doc(db, 'artifacts', appId, 'public', 'data', 'guests', currentValidDataCode);
 
+                // Todas las lecturas se hacen antes de cualquier escritura para cumplir con Firestore transactions.
                 const inviteDoc = await transaction.get(inviteRef);
                 const statsDoc = await transaction.get(statsRef);
 
@@ -1499,29 +1504,30 @@
         let videoYaFinalizado = false;
         
         btnEnter.addEventListener('click', () => {
-            btnEnter.disabled = true; btnEnter.style.opacity = '0'; loadingText.style.opacity = '1'; introOverlay.style.opacity = '0';
+            btnEnter.disabled = true;
+            btnEnter.style.opacity = '0';
+            loadingText.style.opacity = '1';
+            introOverlay.style.opacity = '0';
+
             setTimeout(() => {
-                introOverlay.style.display = 'none'; 
-                cinematicContainer.classList.add('play'); 
-                document.getElementById('skip-video-btn').classList.add('show');
-                
+                introOverlay.style.display = 'none';
+                cinematicContainer.classList.add('play');
+                skipVideoBtn.classList.add('show');
+
                 let isVideoPlaying = false;
-                try {
-                    const playPromise = heroVideo.play();
-                    if (playPromise !== undefined) { 
-                        playPromise.then(() => { 
-                            isVideoPlaying = true; 
-                        }).catch((e) => { 
-                            console.warn("Navegador impidió reproducción automática o error de carga.", e);
-                            // Si falla de inmediato, procedemos a saltar (sin fallar el código restante)
-                        }); 
-                    }
-                } catch(e) {
-                    console.warn("Fallo al reproducir el video.", e);
+                const playPromise = heroVideo.play();
+
+                if (playPromise !== undefined) {
+                    playPromise
+                        .then(() => { isVideoPlaying = true; })
+                        .catch(() => { if (!videoYaFinalizado) finalizarVideo(); });
                 }
-                
-                // Aumentado a 5 segundos de espera (ideal si su internet está un poco lento)
-                setTimeout(() => { if (!isVideoPlaying && !videoYaFinalizado) finalizarVideo(); }, 5000);
+
+                // En móviles algunos navegadores tardan demasiado en iniciar/descargar el video.
+                // Si no arranca rápido, pasamos directo al contenido para no dejar al invitado esperando.
+                setTimeout(() => {
+                    if (!isVideoPlaying && !videoYaFinalizado) finalizarVideo();
+                }, 2500);
             }, 1800);
         });
 
@@ -1542,26 +1548,23 @@
 
         function finalizarVideo() {
             if (videoYaFinalizado) return;
-            videoYaFinalizado = true; 
-            document.getElementById('skip-video-btn').classList.remove('show'); 
-            
-            // SOLUCIÓN AL BUG DE SAFARI/CHROME MOBILE: 
-            // Si el video sigue intentando descargar (promesa pendiente), pause() lanzará un error. Lo atrapamos para que la web siga funcionando.
-            try { heroVideo.pause(); } catch(e) { console.warn("Pausa del video ignorada por carga pendiente.", e); }
-            
-            const videoContainer = document.getElementById('cinematic-container'); 
+            videoYaFinalizado = true;
+            skipVideoBtn.classList.remove('show');
+            heroVideo.pause();
+
+            const videoContainer = document.getElementById('cinematic-container');
             videoContainer.style.opacity = '0';
-            
-            // Quitamos el src y recargamos para cancelar de forma agresiva cualquier descarga de video restante en móviles y ahorrarles datos.
-            setTimeout(() => { 
-                videoContainer.style.display = 'none'; 
-                heroVideo.removeAttribute('src'); 
-                heroVideo.load(); 
+
+            setTimeout(() => {
+                videoContainer.style.display = 'none';
+                heroVideo.removeAttribute('src');
+                heroVideo.querySelectorAll('source').forEach(source => source.removeAttribute('src'));
+                heroVideo.load();
             }, 1000);
-            
-            window.scrollTo(0, 0); 
-            scrollIndicator.classList.add('show'); 
-            mainContent.classList.add('visible'); 
+
+            window.scrollTo(0, 0);
+            scrollIndicator.classList.add('show');
+            mainContent.classList.add('visible');
             document.body.style.overflowY = 'auto';
             setTimeout(() => triggerReveal(), 400);
         }
