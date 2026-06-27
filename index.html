@@ -99,6 +99,14 @@
             color: rgba(212,175,55,0.4); text-transform: uppercase; margin-top: 20px; opacity: 0; transition: opacity 0.5s ease;
         }
 
+        .intro-event-meta {
+            position: absolute; left: 24px; right: 24px; bottom: clamp(22px, 5vh, 44px);
+            text-align: center; font-family: 'Cormorant Garamond', serif; font-size: clamp(0.72rem, 2.2vw, 0.88rem);
+            line-height: 1.55; letter-spacing: 0.16em; text-transform: uppercase;
+            color: rgba(255,255,255,0.72); pointer-events: none;
+        }
+        .intro-event-meta .intro-event-place { color: rgba(255,255,255,0.5); letter-spacing: 0.11em; }
+
         /* ── VIDEO ── */
         #cinematic-container {
             opacity: 0; transition: opacity 2s ease; position: fixed; inset: 0;
@@ -346,6 +354,10 @@
         <div id="intro-line-bot" class="intro-line"></div>
         <button id="btn-enter" class="enter-btn" style="margin-top:8px;">Descubrir la Experiencia</button>
         <p id="loading-text" aria-live="polite">Iniciando…</p>
+        <div class="intro-event-meta" aria-label="Fecha, hora y lugar del evento">
+            <span>01 de diciembre 2026 · 19:00 h</span><br>
+            <span class="intro-event-place">El Salón de Docencia · Acceso por el Andador Asiático</span>
+        </div>
     </div>
 
     <!-- ── VIDEO CINEMÁTICO ── -->
@@ -356,7 +368,7 @@
             Tu navegador no soporta el formato de video.
         </video>
         <div id="scroll-down" class="scroll-indicator" role="button" tabindex="0" aria-label="Desplazarse hacia abajo">
-            <span class="scroll-label">Continuar</span>
+            <span class="scroll-label">Ver Invitación</span>
             <svg class="scroll-arrow" width="24" height="24" fill="none" stroke="#D4AF37" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/></svg>
         </div>
     </div>
@@ -414,6 +426,7 @@
 
                 <div class="dress-code-block reveal">
                     <span class="label">Código de Vestimenta</span><span class="name text-gold">Elegancia Minimalista</span>
+                    <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.95rem; color:rgba(210,200,185,0.72); line-height:1.5; max-width:560px; margin: 16px auto 0;">Recomendado: prendas lisas, tonos neutros, siluetas elegantes y detalles dorados o rojo profundo.</p>
                     <div class="color-swatches">
                         <div class="swatch"><div class="swatch-dot" style="background:#0A0A0A; border-color:rgba(255,255,255,0.25);"></div><span class="swatch-label">Negro<br>Tinta</span></div>
                         <div class="swatch-sep"></div>
@@ -463,6 +476,7 @@
                 <button class="modal-close" onclick="window.closeModals()" aria-label="Cerrar Menú" style="background:none;border:none;">×</button>
                 <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.4em; text-transform: uppercase; margin-bottom: 8px;">Menú Degustación</p>
                 <h3 id="menu-title" style="font-family:'Cinzel', serif; font-size: 1.4rem; color: var(--off-white); letter-spacing: 0.1em; line-height: 1.2;">Nueve Semestres,<br>Un Solo Camino</h3>
+                <p style="font-family:'Cormorant Garamond', serif; font-size: 0.9rem; color: rgba(210,200,185,0.72); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 12px; margin-bottom: 0;">9 tiempos · Degustación · Alta cocina oriental</p>
             </div>
 
             <div id="menu-scroll-container" style="overflow-y: auto; padding: 24px 32px 32px; flex-grow: 1; text-align: center;" class="custom-scrollbar">
@@ -597,13 +611,13 @@
         <div class="modal-box">
             <button class="modal-close" onclick="window.closeModals()" aria-label="Cerrar ventana" style="background:none;border:none;">×</button>
             <div style="font-family:'Noto Serif JP',serif; color:var(--red-seal); font-size:2rem; margin-bottom:8px;" aria-hidden="true">招待</div>
-            <h3 id="code-title" class="modal-title">Llave de Acceso</h3>
+            <h3 id="code-title" class="modal-title">Código de Invitación</h3>
             <p class="modal-text">Por favor, ingresa tu código personal y único.</p>
             <div class="code-input-wrap">
                 <input type="text" id="invite-code-input" class="code-input" placeholder="Ej. LUIS1234" autocomplete="off" spellcheck="false" aria-label="Código de invitación">
                 <div id="code-error" class="code-error" aria-live="polite">Código no encontrado. Intenta nuevamente.</div>
             </div>
-            <button class="btn-outline" onclick="window.validateCode()">Validar Código</button>
+            <button class="btn-outline" onclick="window.validateCode()">Continuar</button>
         </div>
     </div>
 
@@ -635,7 +649,7 @@
     <div id="modal-ticket" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ticket-title">
         <div class="ticket-wrapper">
             <h3 id="ticket-title" class="modal-title" style="margin-bottom: 8px; font-size: 1.2rem;">Confirmación Exitosa</h3>
-            <p id="ticket-status-msg" style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.85rem; color:rgba(212,175,55,0.7); margin-bottom: 24px; letter-spacing: 0.05em;">Guarda tu pase para el día del evento</p>
+            <p id="ticket-status-msg" style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.85rem; color:rgba(212,175,55,0.7); margin-bottom: 24px; letter-spacing: 0.05em;">Guarda este pase en tu galería o toma captura para mostrarlo el día del evento.</p>
             
             <div class="ticket-card" id="ticket-card-capture" style="background-color: #050505;">
                 <img id="ticket-bg-img" src="enso.png" alt="" crossorigin="anonymous" onerror="this.style.display='none'">
@@ -649,8 +663,8 @@
             </div>
             
             <div style="display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%;">
-                <button id="btn-download" class="btn-outline" style="background: rgba(212,175,55,0.1); border-color: var(--gold-light); color: var(--gold-light); width: 80%;" onclick="window.downloadTicket()">↓ Descargar Imagen</button>
-                <button class="btn-outline" style="border: none; background: transparent; padding: 8px; color: rgba(212,175,55,0.6);" onclick="window.finalizeRSVP()">Finalizar y Cerrar</button>
+                <button id="btn-download" class="btn-outline" style="background: rgba(212,175,55,0.1); border-color: var(--gold-light); color: var(--gold-light); width: 80%;" onclick="window.downloadTicket()">↓ Guardar Pase en mi Celular</button>
+                <button class="btn-outline" style="border: none; background: transparent; padding: 8px; color: rgba(212,175,55,0.6);" onclick="window.finalizeRSVP()">Listo</button>
             </div>
         </div>
     </div>
@@ -1162,14 +1176,14 @@
             document.getElementById('ticket-guest-name').innerText = nameToDisplay;
             document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
             document.querySelectorAll('.event-date-display').forEach(el => el.innerText = CONFIG.eventDate.toUpperCase());
-            document.getElementById('ticket-status-msg').innerText = !navigator.onLine ? "Sin conexión — muestra tu pase descargado al staff." : "Guarda tu pase para el día del evento";
+            document.getElementById('ticket-status-msg').innerText = !navigator.onLine ? "Sin conexión — muestra tu pase descargado al staff." : "Guarda este pase en tu galería o toma captura para mostrarlo el día del evento.";
             
             const img = document.getElementById('ticket-bg-img');
             const downloadBtn = document.getElementById('btn-download');
             if (img && !img.complete) {
                 downloadBtn.disabled = true; downloadBtn.innerHTML = 'Cargando pase...';
-                img.onload = () => { downloadBtn.disabled = false; downloadBtn.innerHTML = '↓ Descargar Imagen'; };
-                img.onerror = () => { downloadBtn.disabled = false; downloadBtn.innerHTML = '↓ Descargar Imagen'; };
+                img.onload = () => { downloadBtn.disabled = false; downloadBtn.innerHTML = '↓ Guardar Pase en mi Celular'; };
+                img.onerror = () => { downloadBtn.disabled = false; downloadBtn.innerHTML = '↓ Guardar Pase en mi Celular'; };
             }
             window.pushModalState();
             document.getElementById('modal-ticket').classList.add('active');
