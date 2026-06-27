@@ -100,12 +100,23 @@
         }
 
         .intro-event-meta {
-            position: absolute; left: 24px; right: 24px; bottom: clamp(22px, 5vh, 44px);
-            text-align: center; font-family: 'Cormorant Garamond', serif; font-size: clamp(0.72rem, 2.2vw, 0.88rem);
-            line-height: 1.55; letter-spacing: 0.16em; text-transform: uppercase;
-            color: rgba(255,255,255,0.72); pointer-events: none;
+            position: absolute;
+            left: 24px;
+            right: 24px;
+            bottom: 28px;
+            text-align: center;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 0.78rem;
+            line-height: 1.55;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.72);
+            pointer-events: none;
         }
-        .intro-event-meta .intro-event-place { color: rgba(255,255,255,0.5); letter-spacing: 0.11em; }
+        .intro-event-meta .intro-event-place {
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 0.1em;
+        }
 
         /* ── VIDEO ── */
         #cinematic-container {
@@ -1506,43 +1517,76 @@
         codeInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.validateCode(); });
         guestNameInput.addEventListener("keypress", (e) => { if (e.key === "Enter") window.generateStandardTicket(); });
         
-        window.addEventListener('load', () => {
+        function iniciarIntroVisual() {
             if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
             window.scrollTo(0, 0);
             document.querySelectorAll('.event-date-display').forEach(el => el.innerText = CONFIG.eventDate);
             setTimeout(() => { document.getElementById('intro-line-top').classList.add('grow'); document.getElementById('intro-line-bot').classList.add('grow'); }, 300);
             setTimeout(() => { document.getElementById('intro-title').classList.add('show'); document.getElementById('intro-subtitle').classList.add('show'); }, 600);
-        });
+        }
 
-        const btnEnter = document.getElementById('btn-enter'), introOverlay = document.getElementById('intro-overlay'), loadingText = document.getElementById('loading-text'), cinematicContainer = document.getElementById('cinematic-container'), heroVideo = document.getElementById('hero-video'), scrollIndicator = document.getElementById('scroll-down'), mainContent = document.getElementById('main-content');
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', iniciarIntroVisual, { once: true });
+        } else {
+            iniciarIntroVisual();
+        }
+
+        const btnEnter = document.getElementById('btn-enter'), introOverlay = document.getElementById('intro-overlay'), loadingText = document.getElementById('loading-text'), cinematicContainer = document.getElementById('cinematic-container'), heroVideo = document.getElementById('hero-video'), scrollIndicator = document.getElementById('scroll-down'), mainContent = document.getElementById('main-content'), skipVideoBtn = document.getElementById('skip-video-btn');
         let videoYaFinalizado = false;
+        let videoInicioTimer = null;
+        let videoStallTimer = null;
+
+        function limpiarTimersVideo() {
+            clearTimeout(videoInicioTimer);
+            clearTimeout(videoStallTimer);
+            videoInicioTimer = null;
+            videoStallTimer = null;
+        }
+
+        function activarProteccionVideo() {
+            limpiarTimersVideo();
+
+            videoInicioTimer = setTimeout(() => {
+                if (!videoYaFinalizado && (heroVideo.paused || heroVideo.readyState < 3)) finalizarVideo();
+            }, 3200);
+        }
+
+        function vigilarVideoTrabado() {
+            clearTimeout(videoStallTimer);
+            videoStallTimer = setTimeout(() => {
+                if (!videoYaFinalizado && !heroVideo.ended) finalizarVideo();
+            }, 2200);
+        }
+
+        function liberarVideoTrabado() {
+            clearTimeout(videoStallTimer);
+            videoStallTimer = null;
+        }
         
         btnEnter.addEventListener('click', () => {
             btnEnter.disabled = true;
             btnEnter.style.opacity = '0';
             loadingText.style.opacity = '1';
+            cinematicContainer.classList.add('play');
+            skipVideoBtn.classList.add('show');
             introOverlay.style.opacity = '0';
+            activarProteccionVideo();
+
+            try {
+                heroVideo.currentTime = 0;
+            } catch (e) {}
+
+            const playPromise = heroVideo.play();
+
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => { clearTimeout(videoInicioTimer); })
+                    .catch(() => { if (!videoYaFinalizado) finalizarVideo(); });
+            }
 
             setTimeout(() => {
                 introOverlay.style.display = 'none';
-                cinematicContainer.classList.add('play');
-                skipVideoBtn.classList.add('show');
-
-                let isVideoPlaying = false;
-                const playPromise = heroVideo.play();
-
-                if (playPromise !== undefined) {
-                    playPromise
-                        .then(() => { isVideoPlaying = true; })
-                        .catch(() => { if (!videoYaFinalizado) finalizarVideo(); });
-                }
-
-                // En móviles algunos navegadores tardan demasiado en iniciar/descargar el video.
-                // Si no arranca rápido, pasamos directo al contenido para no dejar al invitado esperando.
-                setTimeout(() => {
-                    if (!isVideoPlaying && !videoYaFinalizado) finalizarVideo();
-                }, 2500);
-            }, 1800);
+            }, 1000);
         });
 
         function activateKeyboardButton(el, handler) {
@@ -1555,14 +1599,20 @@
             });
         }
 
-        const skipVideoBtn = document.getElementById('skip-video-btn');
         skipVideoBtn.addEventListener('click', () => { if (!videoYaFinalizado) finalizarVideo(); });
         activateKeyboardButton(skipVideoBtn, () => { if (!videoYaFinalizado) finalizarVideo(); });
         heroVideo.addEventListener('ended', () => { if (!videoYaFinalizado) finalizarVideo(); });
+        heroVideo.addEventListener('playing', liberarVideoTrabado);
+        heroVideo.addEventListener('canplay', liberarVideoTrabado);
+        heroVideo.addEventListener('canplaythrough', liberarVideoTrabado);
+        heroVideo.addEventListener('waiting', vigilarVideoTrabado);
+        heroVideo.addEventListener('stalled', vigilarVideoTrabado);
+        heroVideo.addEventListener('error', () => { if (!videoYaFinalizado) finalizarVideo(); });
 
         function finalizarVideo() {
             if (videoYaFinalizado) return;
             videoYaFinalizado = true;
+            limpiarTimersVideo();
             skipVideoBtn.classList.remove('show');
             heroVideo.pause();
 
