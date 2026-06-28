@@ -135,8 +135,8 @@
         #skip-video-btn:hover { color: rgba(212,175,55,1); border-color: rgba(212,175,55,0.7); }
 
         .scroll-indicator {
-            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
-            opacity: 0; transition: opacity 1.2s ease; cursor: pointer; z-index: 20;
+            position: fixed; bottom: max(34px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
+            opacity: 0; transition: opacity 1.2s ease; cursor: pointer; z-index: 80;
             pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 8px;
         }
         .scroll-indicator.show { opacity: 0.7; pointer-events: auto; }
@@ -151,7 +151,7 @@
         #main-content { opacity: 0; transition: opacity 2.5s ease; position: relative; z-index: 20; pointer-events: none; }
         #main-content.visible { opacity: 1; pointer-events: auto; }
 
-        .content-hero { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 10vh; position: relative; }
+        .content-hero { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 10vh; position: relative; }
         .content-hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 0%, rgba(5,5,5,0.3) 40%, rgba(5,5,5,0.85) 75%, var(--parchment) 100%); pointer-events: none; }
         .hero-text-block { position: relative; z-index: 2; text-align: center; padding: 0 24px; }
         .hero-roman { font-family: 'Cinzel', serif; font-size: clamp(0.6rem, 1.5vw, 0.8rem); letter-spacing: 0.6em; color: rgba(212,175,55,0.5); text-transform: uppercase; display: block; margin-bottom: 12px; }
@@ -378,16 +378,17 @@
             <source src="enso.mp4" type="video/mp4">
             Tu navegador no soporta el formato de video.
         </video>
-        <div id="scroll-down" class="scroll-indicator" role="button" tabindex="0" aria-label="Desplazarse hacia abajo">
-            <span class="scroll-label">Ver Invitación</span>
-            <svg class="scroll-arrow" width="24" height="24" fill="none" stroke="#D4AF37" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/></svg>
-        </div>
+    </div>
+
+    <div id="scroll-down" class="scroll-indicator" role="button" tabindex="0" aria-label="Desplazarse hacia abajo para continuar leyendo">
+        <span class="scroll-label">Desliza para continuar</span>
+        <svg class="scroll-arrow" width="24" height="24" fill="none" stroke="#D4AF37" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"/></svg>
     </div>
 
     <!-- ── CONTENIDO PRINCIPAL ── -->
     <main id="main-content">
         <div class="content-hero">
-            <div class="hero-text-block reveal">
+            <div class="hero-text-block">
                 <span class="hero-roman">El Noveno Trazo</span>
                 <h2 class="hero-headline">
                     <span class="line-gold text-gold">El Banquete<br>de Banquetes</span>
@@ -1633,8 +1634,17 @@
             setTimeout(() => triggerReveal(), 400);
         }
 
-        scrollIndicator.addEventListener('click', () => { window.scrollTo({ top: window.innerHeight, behavior: 'smooth' }); });
-        activateKeyboardButton(scrollIndicator, () => { window.scrollTo({ top: window.innerHeight, behavior: 'smooth' }); });
+        function continuarLeyendo() {
+            scrollIndicator.classList.remove('show');
+            const bodySection = document.querySelector('.body-section');
+            if (bodySection) bodySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        scrollIndicator.addEventListener('click', continuarLeyendo);
+        activateKeyboardButton(scrollIndicator, continuarLeyendo);
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 60) scrollIndicator.classList.remove('show');
+        }, { passive: true });
 
         function triggerReveal() {
             const observer = new IntersectionObserver((entries) => {
