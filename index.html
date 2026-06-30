@@ -719,7 +719,8 @@
             
             <div style="display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%;">
                 <button id="btn-download" class="btn-outline" style="background: rgba(212,175,55,0.1); border-color: var(--gold-light); color: var(--gold-light); width: 80%;" onclick="window.downloadTicket()">↓ Guardar Pase en mi Celular</button>
-                <button class="btn-outline" style="border: none; background: transparent; padding: 8px; color: rgba(212,175,55,0.6);" onclick="window.finalizeRSVP()">Listo</button>
+                <!-- UX mejora 4b: Botón secundario visible -->
+                <button class="btn-outline" style="border: 1px solid rgba(212,175,55,0.3); background: transparent; padding: 8px 24px; color: rgba(212,175,55,0.7);" onclick="window.finalizeRSVP()">Listo</button>
             </div>
         </div>
     </div>
@@ -1051,13 +1052,12 @@
                                 setTimeout(() => { document.getElementById('personal-message').scrollTop = 0; }, 50);
                             }, 400);
                         } else {
-                            errorText.innerText = `Este código ya fue utilizado por ${confirmedName}. Generando pase...`;
-                            errorText.style.opacity = '1'; errorText.style.color = '#10b981';
+                            // UX mejora 2: Redirección silenciosa para pase estándar usado
+                            errorText.style.opacity = '0';
+                            document.getElementById('modal-code').classList.remove('active');
                             setTimeout(() => {
-                                document.getElementById('modal-code').classList.remove('active');
-                                showTicket(confirmedName, currentValidData.table);
-                                errorText.style.color = '#8B1A2A';
-                            }, 2500);
+                                showTicket(confirmedName, currentValidData.table, "Ya estás confirmado · Aquí está tu pase de acceso");
+                            }, 400);
                         }
                     } else {
                         // CÓDIGO NUEVO (NO USADO)
@@ -1184,55 +1184,98 @@
                 throw new Error("No hay un código activo para registrar.");
             }
 
-            await runTransaction(db, async (transaction) => {
-                const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
-                const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
-                // Seguridad: el ID del invitado ahora es el mismo código de invitación.
-                // Así las reglas pueden validar: 1 código = 1 invitado = 1 registro.
-                const guestRef = doc(db, 'artifacts', appId, 'public', 'data', 'guests', currentValidDataCode);
+            // UX mejora 3: Señal de progreso dinámico
+            const activeModalBox = document.querySelector('.modal-overlay.active .modal-box');
+            let progressMsg = document.getElementById('rsvp-progress-msg');
+            let progressInterval = null;
+            if (activeModalBox && !progressMsg) {
+                progressMsg = document.createElement('p');
+                progressMsg.id = 'rsvp-progress-msg';
+                progressMsg.style.cssText = "font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.85rem; color:rgba(212,175,55,0.6); text-align:center; margin-top:12px; letter-spacing:0.05em;";
+                progressMsg.innerText = "Reservando tu lugar…";
+                activeModalBox.appendChild(progressMsg);
+                
+                const messages = ["Reservando tu lugar…", "Verificando disponibilidad…", "Casi listo…"];
+                let msgIdx = 0;
+                progressInterval = setInterval(() => {
+                    msgIdx = (msgIdx + 1) % messages.length;
+                    const pMsg = document.getElementById('rsvp-progress-msg');
+                    if (pMsg) pMsg.innerText = messages[msgIdx];
+                }, 2500);
+            }
 
-                // Todas las lecturas se hacen antes de cualquier escritura para cumplir con Firestore transactions.
-                const inviteDoc = await transaction.get(inviteRef);
-                const statsDoc = await transaction.get(statsRef);
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
+                    const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
+                    // Seguridad: el ID del invitado ahora es el mismo código de invitación.
+                    // Así las reglas pueden validar: 1 código = 1 invitado = 1 registro.
+                    const guestRef = doc(db, 'artifacts', appId, 'public', 'data', 'guests', currentValidDataCode);
 
-                if (!inviteDoc.exists()) throw new Error("El código ya no existe.");
-                const inviteData = inviteDoc.data();
-                if (inviteData.usado) throw new Error("Código tomado por otra persona.");
+                    // Todas las lecturas se hacen antes de cualquier escritura para cumplir con Firestore transactions.
+                    const inviteDoc = await transaction.get(inviteRef);
+                    const statsDoc = await transaction.get(statsRef);
 
-                const totalCapacity = statsDoc.exists() ? (statsDoc.data().totalCapacity || CONFIG.totalCapacity) : CONFIG.totalCapacity;
-                const currentCount = statsDoc.exists() ? (statsDoc.data().confirmedCount || 0) : 0;
-                if (currentCount >= totalCapacity) throw new Error("El aforo ya está completo.");
-                const newCount = currentCount + 1;
-                const now = new Date().toISOString();
+                    if (!inviteDoc.exists()) throw new Error("El código ya no existe.");
+                    const inviteData = inviteDoc.data();
+                    if (inviteData.usado) throw new Error("Código tomado por otra persona.");
 
-                const guestData = {
-                    guestName: normalizedGuestName,
-                    hostCode: currentValidDataCode,
-                    hostName: String(inviteData.hostName || ''),
-                    table: inviteData.table,
-                    timestamp: now,
-                    asistio: false
-                };
+                    const totalCapacity = statsDoc.exists() ? (statsDoc.data().totalCapacity || CONFIG.totalCapacity) : CONFIG.totalCapacity;
+                    const currentCount = statsDoc.exists() ? (statsDoc.data().confirmedCount || 0) : 0;
+                    if (currentCount >= totalCapacity) throw new Error("El aforo ya está completo.");
+                    const newCount = currentCount + 1;
+                    const now = new Date().toISOString();
 
-                transaction.set(guestRef, guestData);
-                transaction.update(inviteRef, { usado: true, guestName: normalizedGuestName });
-                transaction.set(statsRef, {
-                    confirmedCount: newCount,
-                    totalCapacity,
-                    lastInviteCode: currentValidDataCode,
-                    lastUpdatedAt: now
+                    const guestData = {
+                        guestName: normalizedGuestName,
+                        hostCode: currentValidDataCode,
+                        hostName: String(inviteData.hostName || ''),
+                        table: inviteData.table,
+                        timestamp: now,
+                        asistio: false
+                    };
+
+                    transaction.set(guestRef, guestData);
+                    transaction.update(inviteRef, { usado: true, guestName: normalizedGuestName });
+                    transaction.set(statsRef, {
+                        confirmedCount: newCount,
+                        totalCapacity,
+                        lastInviteCode: currentValidDataCode,
+                        lastUpdatedAt: now
+                    });
                 });
-            });
+            } finally {
+                // UX mejora 3: Limpieza del mensaje de progreso tras finalizar transacción
+                if (progressInterval) clearInterval(progressInterval);
+                if (progressMsg && progressMsg.parentNode) progressMsg.parentNode.removeChild(progressMsg);
+            }
 
             return normalizedGuestName;
         }
 
-        function showTicket(nameToDisplay, tableNum) {
+        function showTicket(nameToDisplay, tableNum, customStatusMsg = null) {
             document.getElementById('ticket-guest-name').innerText = nameToDisplay;
             document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
             document.querySelectorAll('.event-date-display').forEach(el => el.innerText = CONFIG.eventDate.toUpperCase());
-            document.getElementById('ticket-status-msg').innerText = !navigator.onLine ? "Sin conexión — muestra tu pase descargado al staff." : "Guarda este pase en tu galería o toma captura para mostrarlo el día del evento.";
             
+            // UX mejora 2 & 4a: Asignación condicional de texto
+            const statusMsgEl = document.getElementById('ticket-status-msg');
+            statusMsgEl.innerText = customStatusMsg ? customStatusMsg : (!navigator.onLine ? "Sin conexión — muestra tu pase descargado al staff." : "Guarda este pase en tu galería o toma captura para mostrarlo el día del evento.");
+            
+            // UX mejora 4a: Insertar texto suplementario si es el flujo normal
+            const existingNote = document.getElementById('ticket-confirm-note');
+            if (!customStatusMsg) {
+                if (!existingNote) {
+                    const note = document.createElement('p');
+                    note.id = 'ticket-confirm-note';
+                    note.style.cssText = "font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.45); margin-top:4px; margin-bottom:0; text-align:center; letter-spacing:0.03em;";
+                    note.innerText = "Tu confirmación ya está registrada en el sistema.";
+                    statusMsgEl.parentNode.insertBefore(note, statusMsgEl.nextSibling);
+                }
+            } else if (existingNote) {
+                existingNote.remove();
+            }
+
             const img = document.getElementById('ticket-bg-img');
             const downloadBtn = document.getElementById('btn-download');
             if (img && !img.complete) {
@@ -1612,7 +1655,7 @@
             btnEnter.style.opacity = '0';
             loadingText.style.opacity = '1';
             cinematicContainer.classList.add('play');
-            skipVideoBtn.classList.add('show');
+            skipVideoBtn.classList.add('show'); // UX mejora 1
             introOverlay.style.opacity = '0';
             activarProteccionVideo();
 
