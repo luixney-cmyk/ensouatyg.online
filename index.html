@@ -500,6 +500,7 @@
 
                 <div class="cta-section reveal">
                     <button id="main-confirm-btn" class="confirm-btn" aria-haspopup="dialog" onclick="window.openCodeModal()">Confirmar Asistencia</button>
+                    <!-- CONTADOR EN VIVO REFACTORIZADO (Lee desde stats) -->
                     <p id="live-counter" style="margin-top:16px; font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold-light); letter-spacing:0.15em;" aria-live="polite">CALCULANDO LUGARES...</p>
                     <p style="margin-top:12px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.35); letter-spacing:0.2em;">Aforos limitados · Respuesta antes del 14 de noviembre</p>
                 </div>
@@ -507,11 +508,13 @@
                 <div class="divider-ornate reveal"><div class="line"></div><span class="diamond"></span><div class="line right"></div></div>
 
                 <div class="enso-footer reveal">
+                    <!-- CONTENEDOR DEL LOGO ENSŌ Y BOTÓN ADMIN -->
                     <div class="enso-svg-container" style="position: relative;">
                         <svg id="enso-draw" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="140" height="140" aria-hidden="true">
                             <path id="enso-stroke" class="enso-path" d="M 100,28 C 138,28 168,57 168,100 C 168,138 143,165 106,170 C 69,175 36,152 30,115 C 24,78 45,45 78,34" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round"/>
                             <circle cx="78" cy="34" r="1.5" fill="#D4AF37" opacity="0.5"/>
                         </svg>
+                        <!-- Botón Invisible para Administrador Oculto en el logo -->
                         <div onclick="window.openAdminLogin()" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; cursor: pointer; border-radius: 50%;" title="Acceso Administrativo" aria-label="Abrir panel de administración"></div>
                     </div>
                     <span class="enso-gen">E5 Gastronomía · 2022 / 2027</span><span class="enso-tagline">圆满 · El círculo completo</span>
@@ -716,6 +719,7 @@
             
             <div style="display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%;">
                 <button id="btn-download" class="btn-outline" style="background: rgba(212,175,55,0.1); border-color: var(--gold-light); color: var(--gold-light); width: 80%;" onclick="window.downloadTicket()">↓ Guardar Pase en mi Celular</button>
+                <!-- UX mejora 4b: Botón secundario visible -->
                 <button class="btn-outline" style="border: 1px solid rgba(212,175,55,0.3); background: transparent; padding: 8px 24px; color: rgba(212,175,55,0.7);" onclick="window.finalizeRSVP()">Listo</button>
             </div>
         </div>
@@ -767,8 +771,6 @@
                 <div style="margin-bottom: 16px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
                     <button id="btn-generate-codes" class="btn-outline" style="border-color: #4ade80; color: #4ade80;" onclick="window.generateCodesBatch()">+ Generar Códigos</button>
                     <button id="btn-export-csv" class="btn-outline" style="border-color: #60a5fa; color: #60a5fa;" onclick="window.exportCodesCSV()">↓ Exportar a Excel (CSV)</button>
-                    <!-- BOTÓN DE CORRECCIÓN AÑADIDO AQUÍ -->
-                    <button id="btn-fix-d5" class="btn-outline" style="border-color: #f59e0b; color: #f59e0b;" onclick="window.fixD5toE5()">🛠️ Corregir D5 a E5</button>
                     <button id="btn-reset-db" class="btn-outline" style="border-color: #ef4444; color: #ef4444;" onclick="window.resetDatabase()">⚠️ Resetear Base de Datos</button>
                 </div>
                 <div id="codes-table-body" style="max-height: 50vh; overflow-y:auto; padding-right: 4px; text-align: left;" class="custom-scrollbar"></div>
@@ -965,6 +967,7 @@
         const errorText = document.getElementById('code-error');
         const nameErrorText = document.getElementById('name-error');
 
+        // --- MEJORA: Integración History API para Botón Atrás en Móviles ---
         let isModalStatePushed = false;
         window.pushModalState = function() {
             if (!isModalStatePushed) {
@@ -978,6 +981,7 @@
                 window.closeModals(true);
             }
         });
+        // -------------------------------------------------------------------
 
         window.openMenuModal = function() { window.pushModalState(); document.getElementById('modal-menu').classList.add('active'); setTimeout(() => { const menuScroll = document.getElementById('menu-scroll-container'); if (menuScroll) menuScroll.scrollTop = 0; }, 50); };
         window.openCodeModal = function() { window.pushModalState(); document.getElementById('modal-code').classList.add('active'); codeInput.value = ''; errorText.style.opacity = '0'; codeInput.focus(); };
@@ -1048,6 +1052,7 @@
                                 setTimeout(() => { document.getElementById('personal-message').scrollTop = 0; }, 50);
                             }, 400);
                         } else {
+                            // UX mejora 2: Redirección silenciosa para pase estándar usado
                             errorText.style.opacity = '0';
                             document.getElementById('modal-code').classList.remove('active');
                             setTimeout(() => {
@@ -1055,6 +1060,7 @@
                             }, 400);
                         }
                     } else {
+                        // CÓDIGO NUEVO (NO USADO)
                         errorText.style.opacity = '0';
                         document.getElementById('modal-code').classList.remove('active');
                         
@@ -1107,6 +1113,7 @@
                     const registeredGuestName = await registerRSVPTransaction(currentValidData.fullName);
                     document.getElementById('modal-message').classList.remove('active');
                     
+                    // REINICIO DEL ESTADO DEL BOTÓN ("Bug Visual" Corregido)
                     setTimeout(() => {
                         btnAccept.disabled = false;
                         btnAccept.innerText = "Aceptar Invitación";
@@ -1124,6 +1131,7 @@
                     document.getElementById('modal-name').classList.add('active'); guestNameInput.focus();
                 }, 400);
                 
+                // REINICIO DEL ESTADO DEL BOTÓN
                 btnAccept.innerText = "Aceptar Invitación"; btnAccept.disabled = false;
             }
         };
@@ -1154,6 +1162,7 @@
                 nameErrorText.style.opacity = '0';
                 document.getElementById('modal-name').classList.remove('active');
                 
+                // REINICIO DEL ESTADO DEL BOTÓN ("Bug Visual" Corregido)
                 setTimeout(() => {
                     btnGen.disabled = false; 
                     btnGen.innerText = "Confirmar y Generar Pase";
@@ -1165,6 +1174,7 @@
             }
         };
 
+        // Función Transaccional Compartida para RSVP atómico
         async function registerRSVPTransaction(finalGuestName) {
             const normalizedGuestName = normalizeGuestName(finalGuestName);
             if (!isValidGuestName(normalizedGuestName)) {
@@ -1174,6 +1184,7 @@
                 throw new Error("No hay un código activo para registrar.");
             }
 
+            // UX mejora 3: Señal de progreso dinámico
             const activeModalBox = document.querySelector('.modal-overlay.active .modal-box');
             let progressMsg = document.getElementById('rsvp-progress-msg');
             let progressInterval = null;
@@ -1197,8 +1208,11 @@
                 await runTransaction(db, async (transaction) => {
                     const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
                     const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
+                    // Seguridad: el ID del invitado ahora es el mismo código de invitación.
+                    // Así las reglas pueden validar: 1 código = 1 invitado = 1 registro.
                     const guestRef = doc(db, 'artifacts', appId, 'public', 'data', 'guests', currentValidDataCode);
 
+                    // Todas las lecturas se hacen antes de cualquier escritura para cumplir con Firestore transactions.
                     const inviteDoc = await transaction.get(inviteRef);
                     const statsDoc = await transaction.get(statsRef);
 
@@ -1231,6 +1245,7 @@
                     });
                 });
             } finally {
+                // UX mejora 3: Limpieza del mensaje de progreso tras finalizar transacción
                 if (progressInterval) clearInterval(progressInterval);
                 if (progressMsg && progressMsg.parentNode) progressMsg.parentNode.removeChild(progressMsg);
             }
@@ -1243,9 +1258,11 @@
             document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
             document.querySelectorAll('.event-date-display').forEach(el => el.innerText = CONFIG.eventDate.toUpperCase());
             
+            // UX mejora 2 & 4a: Asignación condicional de texto
             const statusMsgEl = document.getElementById('ticket-status-msg');
             statusMsgEl.innerText = customStatusMsg ? customStatusMsg : (!navigator.onLine ? "Sin conexión — muestra tu pase descargado al staff." : "Guarda este pase en tu galería o toma captura para mostrarlo el día del evento.");
             
+            // UX mejora 4a: Insertar texto suplementario si es el flujo normal
             const existingNote = document.getElementById('ticket-confirm-note');
             if (!customStatusMsg) {
                 if (!existingNote) {
@@ -1291,6 +1308,7 @@
             window.closeModals();
             document.getElementById('invite-code-input').value = ''; document.getElementById('guest-name-input').value = '';
             
+            // REINICIO DE SEGURIDAD POR SI A CASO EL TICKET SE CERRÓ
             const btnGen = document.getElementById('btn-generate-ticket');
             if(btnGen) { btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase"; }
         };
@@ -1405,6 +1423,7 @@
                         const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', hostCode);
                         const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
 
+                        // Lecturas antes de escrituras: evita errores de transacción en Firestore.
                         const statsDoc = await transaction.get(statsRef);
                         let newCount = 0;
                         if(statsDoc.exists() && statsDoc.data().confirmedCount > 0) {
@@ -1426,6 +1445,7 @@
             });
         };
 
+        // ── GENERADOR Y GESTOR DE CÓDIGOS (NUEVA LÓGICA INTELIGENTE) ──
         function get4Digits() { return Math.floor(1000 + Math.random() * 9000).toString(); }
 
         window.generateCodesBatch = async function() {
@@ -1435,6 +1455,7 @@
             window.customConfirm("¿Deseas generar/verificar los códigos? Solo se crearán los códigos faltantes para completar la cuota de cada alumno.", async () => {
                 btn.innerText = "Generando..."; btn.disabled = true;
                 try {
+                    // 1. Descargar la base de datos de anfitriones desde Firestore
                     const hostDataRef = collection(db, 'artifacts', appId, 'public', 'data', 'hostData');
                     const hostDataSnap = await getDocs(hostDataRef);
 
@@ -1447,6 +1468,7 @@
                         firestoreDatabase[doc.id] = doc.data();
                     });
 
+                    // 2. Leer los códigos que ya existen
                     const invitesRef = collection(db, 'artifacts', appId, 'public', 'data', 'invites');
                     const existingSnap = await getDocs(invitesRef);
                     const existing = new Set();
@@ -1458,6 +1480,7 @@
                         countByHost[hostName] = (countByHost[hostName] || 0) + 1;
                     });
 
+                    // 3. Generar los códigos faltantes
                     const batch = writeBatch(db);
                     let added = 0;
 
@@ -1488,7 +1511,7 @@
                         window.loadAdminCodes();
                     } else { 
                         window.customAlert("ℹ️ Ya existían los códigos suficientes para todos los anfitriones. No se crearon duplicados."); 
-                        window.loadAdminCodes(); 
+                        window.loadAdminCodes(); // Carga para actualizar UI
                     }
                 } catch(e) { 
                     window.customAlert("Error al generar códigos. Revisa la consola. " + e.message); 
@@ -1515,6 +1538,7 @@
                 tbody.innerHTML = html || '<div style="padding: 20px; text-align: center;">No hay códigos. Haz clic en Generar.</div>';
                 document.getElementById('admin-total').innerText = allCodes.length;
 
+                // NUEVA LÓGICA: Deshabilitar el botón si ya se alcanzaron o superaron los 104 códigos
                 const btnGen = document.getElementById('btn-generate-codes');
                 if (allCodes.length >= CONFIG.totalCapacity) {
                     btnGen.disabled = true;
@@ -1544,46 +1568,7 @@
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         };
 
-        // ── BOTÓN MÁGICO PARA CORREGIR TEXTOS DE D5 A E5 ──
-        window.fixD5toE5 = async function() {
-            window.customConfirm("¿Deseas buscar en toda la base de datos y actualizar todos los textos que dicen 'D5' para que digan 'E5'?", async () => {
-                try {
-                    const batch = writeBatch(db);
-                    let count = 0;
-
-                    // 1. Arreglar hostData (la plantilla base de cada alumno)
-                    const hostDataSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'hostData'));
-                    hostDataSnap.forEach(docSnap => {
-                        const data = docSnap.data();
-                        if (data.text && data.text.includes("D5")) {
-                            batch.update(docSnap.ref, { text: data.text.replace(/D5/g, "E5") });
-                            count++;
-                        }
-                    });
-
-                    // 2. Arreglar invites (los códigos ya generados que ven los invitados)
-                    const invitesSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'invites'));
-                    invitesSnap.forEach(docSnap => {
-                        const data = docSnap.data();
-                        if (data.text && data.text.includes("D5")) {
-                            batch.update(docSnap.ref, { text: data.text.replace(/D5/g, "E5") });
-                            count++;
-                        }
-                    });
-
-                    if (count > 0) {
-                        await batch.commit();
-                        window.customAlert(`✅ ¡Éxito! Se actualizaron ${count} invitaciones de D5 a E5 en la base de datos.`);
-                    } else {
-                        window.customAlert("ℹ️ No se encontraron textos con 'D5' (es posible que ya estén actualizados).");
-                    }
-                } catch(e) {
-                    window.customAlert("Error al actualizar: " + e.message);
-                    console.error(e);
-                }
-            });
-        };
-
+        // Reseteo Seguro de Base de Datos
         window.resetDatabase = async function() {
             window.customPrompt("⚠️ PELIGRO EXTREMO: Borrará invitados, todos los códigos y el contador global de estadísticas.\n\nEscribe la palabra exacta 'RESET ENSO' para continuar:", async (confirmText) => {
                 if (confirmText === "RESET ENSO") {
@@ -1595,6 +1580,7 @@
                         guestsSnap.forEach(docSnap => batch.delete(docSnap.ref));
                         invitesSnap.forEach(docSnap => batch.delete(docSnap.ref));
                         
+                        // Resetear Stats a Cero
                         const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
                         batch.set(statsRef, {
                             confirmedCount: 0,
@@ -1669,7 +1655,7 @@
             btnEnter.style.opacity = '0';
             loadingText.style.opacity = '1';
             cinematicContainer.classList.add('play');
-            skipVideoBtn.classList.add('show'); 
+            skipVideoBtn.classList.add('show'); // UX mejora 1
             introOverlay.style.opacity = '0';
             activarProteccionVideo();
 
