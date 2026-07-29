@@ -102,23 +102,11 @@
         }
 
         .intro-event-meta {
-            position: absolute;
-            left: 24px;
-            right: 24px;
-            bottom: 28px;
-            text-align: center;
-            font-family: Georgia, 'Times New Roman', serif;
-            font-size: 0.78rem;
-            line-height: 1.55;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.72);
-            pointer-events: none;
+            position: absolute; left: 24px; right: 24px; bottom: 28px; text-align: center;
+            font-family: Georgia, 'Times New Roman', serif; font-size: 0.78rem; line-height: 1.55;
+            letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.72); pointer-events: none;
         }
-        .intro-event-meta .intro-event-place {
-            color: rgba(255,255,255,0.5);
-            letter-spacing: 0.1em;
-        }
+        .intro-event-meta .intro-event-place { color: rgba(255,255,255,0.5); letter-spacing: 0.1em; }
 
         /* ── VIDEO ── */
         #cinematic-container {
@@ -170,38 +158,19 @@
         }
 
         @media (max-width: 768px) {
-            .content-hero {
-                padding: clamp(90px, 14vh, 130px) 18px clamp(170px, 28vh, 235px);
-            }
+            .content-hero { padding: clamp(90px, 14vh, 130px) 18px clamp(170px, 28vh, 235px); }
             .hero-text-block { padding: 0 8px; max-width: 94vw; }
             .hero-roman { font-size: 0.58rem; letter-spacing: 0.42em; margin-bottom: 14px; }
             .hero-headline { font-size: clamp(2rem, 11vw, 3.2rem); line-height: 1.12; letter-spacing: 0.08em; }
-            .hero-headline .line-white {
-                font-size: 0.42em; letter-spacing: 0.22em; line-height: 1.35; margin-top: 16px;
-            }
-            .scroll-indicator {
-                bottom: max(10px, calc(env(safe-area-inset-bottom) + 2px));
-                gap: 4px;
-            }
-            .scroll-label {
-                font-size: 0.52rem;
-                letter-spacing: 0.2em;
-            }
+            .hero-headline .line-white { font-size: 0.42em; letter-spacing: 0.22em; line-height: 1.35; margin-top: 16px; }
+            .scroll-indicator { bottom: max(10px, calc(env(safe-area-inset-bottom) + 2px)); gap: 4px; }
+            .scroll-label { font-size: 0.52rem; letter-spacing: 0.2em; }
         }
-
         @media (max-width: 420px) {
-            .content-hero {
-                padding-bottom: clamp(185px, 30vh, 250px);
-            }
+            .content-hero { padding-bottom: clamp(185px, 30vh, 250px); }
             .hero-headline { font-size: clamp(1.85rem, 11.2vw, 2.7rem); }
-            .hero-headline .line-white {
-                font-size: 0.39em;
-                letter-spacing: 0.16em;
-            }
-            .scroll-label {
-                font-size: 0.48rem;
-                letter-spacing: 0.16em;
-            }
+            .hero-headline .line-white { font-size: 0.39em; letter-spacing: 0.16em; }
+            .scroll-label { font-size: 0.48rem; letter-spacing: 0.16em; }
         }
 
         .body-section { background: var(--parchment); padding: 0 24px 120px; }
@@ -237,12 +206,7 @@
         .swatch-dot { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.15); }
         .swatch-label { font-family: 'Cormorant Garamond', serif; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(210,200,185,0.4); text-align: center; line-height: 1.3; }
         .swatch-sep { width: 1px; height: 28px; background: rgba(212,175,55,0.2); margin-top: 4px; }
-        
-        @media (max-width: 768px) {
-            .swatch-sep { display: none; }
-            .color-swatches { gap: 24px 12px; }
-            .swatch { width: 28%; }
-        }
+        @media (max-width: 768px) { .swatch-sep { display: none; } .color-swatches { gap: 24px 12px; } .swatch { width: 28%; } }
 
         .cta-section { text-align: center; padding: 32px 0 48px; position: relative; z-index: 10; }
         .confirm-btn { display: inline-block; position: relative; padding: 16px 52px; font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--ink); background: linear-gradient(105deg, #BF953F, #D4AF37, #F5E17A, #D4AF37, #BF953F); background-size: 200%; cursor: pointer; border: none; transition: background-position 0.7s ease, box-shadow 0.4s ease, transform 0.2s ease; background-position: left; }
@@ -316,7 +280,6 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 2px; }
 
-        /* ── MENÚ ── */
         .menu-course { position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15); }
         .menu-course:last-child { border-bottom: none; padding-bottom: 20px; }
         .menu-course-kanji { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0; }
@@ -326,31 +289,32 @@
         .menu-course-desc { font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300; }
         .menu-course-note { font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem; }
 
-        /* ── MODAL BOLETO IMPRESO ── */
+        /* ── MODAL BOLETO IMPRESO (CON SCROLL MEJORADO) ── */
         .ticket-wrapper {
             background: var(--ink); border: 1px solid rgba(212, 175, 55, 0.3); padding: 32px 24px;
             max-width: 440px; width: 95%; text-align: center; position: relative; transform: scale(0.95);
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+            /* AJUSTE PARA COMPUTADORAS Y PANTALLAS PEQUEÑAS */
+            max-height: 90vh; overflow-y: auto;
         }
+        .ticket-wrapper::-webkit-scrollbar { width: 4px; }
+        .ticket-wrapper::-webkit-scrollbar-track { background: rgba(212,175,55,0.05); }
+        .ticket-wrapper::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.4); border-radius: 2px; }
+
         .modal-overlay.active .ticket-wrapper { transform: scale(1); }
         .ticket-card {
-            position: relative; width: 100%; /* Removing fixed aspect ratio to allow natural height for barcode */ 
-            border-radius: 2px; overflow: hidden;
+            position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 2px; overflow: hidden;
             margin-bottom: 24px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); background-color: #050505;
-            display: flex; flex-direction: column; /* Allow content to stack */
-        }
-        .ticket-content-area {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1 / 1; /* Maintain square ratio for the image area */
+            /* Permite crecer si es necesario por el código de barras */
+            aspect-ratio: auto; min-height: 380px; 
         }
         #ticket-bg-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1; }
         .ticket-overlay { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            padding: 24px 24px 10px 24px; 
+            padding: 24px 24px 0px 24px; 
             display: flex; flex-direction: column; justify-content: flex-end; align-items: center; z-index: 2; 
         }
-        .ticket-info { text-align: center; width: 100%; margin-bottom: 0px; }
+        .ticket-info { text-align: center; width: 100%; margin-bottom: 15px; }
         .ticket-guest-name { 
             font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 4.5vw, 1.4rem); color: var(--gold-light); 
             letter-spacing: 0.1em; line-height: 1.2; margin-bottom: 4px; text-shadow: 0 2px 6px rgba(0,0,0,0.9); 
@@ -366,22 +330,21 @@
             letter-spacing: 0.25em; text-transform: uppercase; margin-top: 6px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); 
         }
 
-        /* BARCODE AREA STYLES */
-        .ticket-barcode-area {
-            background-color: #ffffff;
-            padding: 10px 5px;
-            border-top: 2px dashed rgba(212, 175, 55, 0.5); /* Divisoria que parece perforada/separador */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
+        /* ── CONTENEDOR CÓDIGO BARRAS ── */
+        .barcode-container {
+            width: calc(100% + 48px); /* Extiende hasta los bordes del padding del overlay */
+            background: #ffffff;
+            padding: 10px 0;
+            text-align: center;
+            border-top: 1px dashed rgba(0,0,0,0.3);
+            margin-top: auto; /* Empuja hacia abajo */
         }
         #ticket-barcode {
-            width: 80%; /* Hacerlo pequeño/ajustado al marco */
-            max-height: 60px;
+            width: 80%;
+            height: 40px;
         }
 
-        /* ── ADMIN PANEL ── */
+        /* ── ADMIN PANEL & SCANNER ── */
         .admin-guest-card { 
             background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.2); border-radius: 4px; 
             padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px; text-align: left;
@@ -399,40 +362,12 @@
         .admin-code-status.usado { color: #ef4444; font-size: 0.8rem; font-weight: bold; }
         .admin-code-status.libre { color: #10b981; font-size: 0.8rem; font-weight: bold; }
 
-        /* ADMIN SCANNER STYLES */
-        #scanner-container {
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto 16px auto;
-            overflow: hidden;
-            border-radius: 8px;
-            border: 1px solid var(--gold);
-            display: none; /* Oculto por defecto */
-        }
-        #scanner-result {
-            margin-bottom: 16px;
-            padding: 16px;
-            background: rgba(212, 175, 55, 0.1);
-            border: 1px solid var(--gold-light);
-            border-radius: 4px;
-            display: none; /* Oculto por defecto */
-        }
-        .scanner-result-name {
-            font-family: 'Cinzel', serif; font-size: 1.2rem; color: var(--gold-light); font-weight: bold;
-        }
-        .scanner-result-details {
-            font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: #fff; margin-top: 8px;
-        }
-        .scanner-btn-group {
-            display: flex; justify-content: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
-        }
-
         @media print {
             body * { visibility: hidden; }
             #modal-admin, #modal-admin * { visibility: visible; }
             #modal-admin { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white !important; color: black !important; }
             .modal-box { border: none !important; box-shadow: none !important; width: 100% !important; max-width: none !important; padding: 0 !important; background: white !important; }
-            .btn-outline, .admin-tab, .scanner-btn-group, #scanner-container { display: none !important; }
+            .btn-outline, .admin-tab { display: none !important; }
         }
     </style>
 </head>
@@ -511,7 +446,6 @@
                     <div class="line"></div><span class="diamond"></span><span class="center-kanji">九</span><span class="diamond"></span><div class="line right"></div>
                 </div>
 
-                <!-- CUÁNDO Y DÓNDE -->
                 <div class="event-details reveal">
                     <div class="detail-cell">
                         <span class="kanji-accent" aria-hidden="true">日</span><span class="label">Cuándo</span><span class="value-main event-date-display"></span>
@@ -525,7 +459,6 @@
                     </div>
                 </div>
 
-                <!-- BOTÓN DEL MENÚ -->
                 <div class="reveal" style="text-align: center; margin: 40px 0 64px;">
                     <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.9rem; color:rgba(212,175,55,0.7); margin-bottom: 16px;">Conoce nuestra narrativa gastronómica</p>
                     <button onclick="window.openMenuModal()" class="btn-outline" style="padding: 14px 40px; font-size: 0.75rem;">Ver Menú Degustación</button>
@@ -552,7 +485,6 @@
 
                 <div class="cta-section reveal">
                     <button id="main-confirm-btn" class="confirm-btn" aria-haspopup="dialog" onclick="window.openCodeModal()">Confirmar Asistencia</button>
-                    <!-- CONTADOR EN VIVO REFACTORIZADO (Lee desde stats) -->
                     <p id="live-counter" style="margin-top:16px; font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold-light); letter-spacing:0.15em;" aria-live="polite">CALCULANDO LUGARES...</p>
                     <p style="margin-top:12px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.35); letter-spacing:0.2em;">Aforos limitados · Respuesta antes del 14 de noviembre</p>
                 </div>
@@ -560,13 +492,11 @@
                 <div class="divider-ornate reveal"><div class="line"></div><span class="diamond"></span><div class="line right"></div></div>
 
                 <div class="enso-footer reveal">
-                    <!-- CONTENEDOR DEL LOGO ENSŌ Y BOTÓN ADMIN -->
                     <div class="enso-svg-container" style="position: relative;">
                         <svg id="enso-draw" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="140" height="140" aria-hidden="true">
                             <path id="enso-stroke" class="enso-path" d="M 100,28 C 138,28 168,57 168,100 C 168,138 143,165 106,170 C 69,175 36,152 30,115 C 24,78 45,45 78,34" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round"/>
                             <circle cx="78" cy="34" r="1.5" fill="#D4AF37" opacity="0.5"/>
                         </svg>
-                        <!-- Botón Invisible para Administrador Oculto en el logo -->
                         <div onclick="window.openAdminLogin()" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; cursor: pointer; border-radius: 50%;" title="Acceso Administrativo" aria-label="Abrir panel de administración"></div>
                     </div>
                     <span class="enso-gen">E5 Gastronomía · 2022 / 2027</span><span class="enso-tagline">圆满 · El círculo completo</span>
@@ -575,10 +505,9 @@
         </div>
     </main>
 
-    <!-- ── MODAL MENÚ (RESTAURADO COMPLETO) ── -->
+    <!-- ── MODAL MENÚ ── -->
     <div id="modal-menu" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="menu-title">
         <div class="modal-box" style="max-width: 600px; padding: 0; background: var(--parchment); overflow: hidden; display: flex; flex-direction: column; max-height: 85vh;">
-            
             <div style="padding: 24px 32px 16px; border-bottom: 1px solid rgba(212, 175, 55, 0.2); background: #0a0806; flex-shrink: 0; position: relative;">
                 <button class="modal-close" onclick="window.closeModals()" aria-label="Cerrar Menú" style="background:none;border:none;">×</button>
                 <p style="font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.4em; text-transform: uppercase; margin-bottom: 8px;">Menú Degustación</p>
@@ -587,124 +516,19 @@
             </div>
 
             <div id="menu-scroll-container" style="overflow-y: auto; padding: 24px 32px 32px; flex-grow: 1; text-align: center;" class="custom-scrollbar">
-                <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: rgba(210, 200, 185, 0.7); line-height: 1.6; margin-bottom: 12px; margin-top: 0;">
-                    El Ensō es un círculo realizado con un único trazo en la tradición zen. Representa plenitud, armonía y el final de un proceso. Sin embargo, para nuestra generación, este círculo no se construyó en un solo movimiento.
-                </p>
-                <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: rgba(210, 200, 185, 0.7); line-height: 1.6; margin-bottom: 16px;">
-                    Se construyó a través de nueve trazos.<br>Nueve semestres.<br>Nueve etapas de aprendizaje.<br>Nueve experiencias gastronómicas.
-                </p>
-                <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: var(--gold-light); line-height: 1.6; margin-bottom: 40px; font-weight: bold;">
-                    Esta noche presentamos el último de esos trazos.<br>Bienvenidos a ENSŌ.
-                </p>
+                <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: rgba(210, 200, 185, 0.7); line-height: 1.6; margin-bottom: 12px; margin-top: 0;">El Ensō es un círculo realizado con un único trazo en la tradición zen. Representa plenitud, armonía y el final de un proceso. Sin embargo, para nuestra generación, este círculo no se construyó en un solo movimiento.</p>
+                <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: rgba(210, 200, 185, 0.7); line-height: 1.6; margin-bottom: 16px;">Se construyó a través de nueve trazos.<br>Nueve semestres.<br>Nueve etapas de aprendizaje.<br>Nueve experiencias gastronómicas.</p>
+                <p style="font-family:'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: var(--gold-light); line-height: 1.6; margin-bottom: 40px; font-weight: bold;">Esta noche presentamos el último de esos trazos.<br>Bienvenidos a ENSŌ.</p>
                 
-                <div class="menu-course">
-                    <span class="menu-course-kanji">一</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">I. Salsas Madre</p>
-                        <h4 class="menu-course-title">Dumpling de Velouté y Miso</h4>
-                        <p class="menu-course-desc">
-                            Relleno de pollo con velouté de jengibre y salsa bechamel infusionada con miso.<br>
-                            <span class="menu-course-note">El inicio: aprender las bases. Pequeño, elegante y técnico.</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="menu-course">
-                    <span class="menu-course-kanji">二</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">II. Panadería</p>
-                        <h4 class="menu-course-title">Bao al Vapor Artesanal</h4>
-                        <p class="menu-course-desc">
-                            Esponjoso pan al vapor relleno de cerdo laqueado y vegetales orientales.<br>
-                            <span class="menu-course-note">El descubrimiento de las masas y sus fermentaciones.</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="menu-course">
-                    <span class="menu-course-kanji">三</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">III. Panadería Fina & Cocina Mexicana</p>
-                        <h4 class="menu-course-title">La Concha de Matcha</h4>
-                        <p class="menu-course-desc">
-                            Mini concha reinterpretada con té matcha y relleno sedoso de frijol dulce rojo (anko).<br>
-                            <span class="menu-course-note">México y Asia encontrándose en una sola pieza.</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="menu-course">
-                    <span class="menu-course-kanji">四</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">IV. Vinos & Cocina del Norte</p>
-                        <h4 class="menu-course-title">Tataki Glaseado</h4>
-                        <p class="menu-course-desc">
-                            Lámina de res finamente sellada, bañada en una reducción profunda de vino tinto y soya.<br>
-                            <span class="menu-course-note">Representando la sofisticación y el arte del maridaje.</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="menu-course">
-                    <span class="menu-course-kanji">五</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">V. Cocina Centro & Repostería Básica</p>
-                        <h4 class="menu-course-title">Tamal de Elote y Coco</h4>
-                        <p class="menu-course-desc">
-                            Tamal miniatura de elote tierno, coronado con una espuma etérea de coco y vainilla.<br>
-                            <span class="menu-course-note">Técnica mexicana presentada con delicada estética japonesa.</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="menu-course">
-                    <span class="menu-course-kanji">六</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">VI. Cocina Nayarita & Coctelería</p>
-                        <h4 class="menu-course-title">Tostada Oriental de Atún</h4>
-                        <p class="menu-course-desc">
-                            Tostada miniatura de atún curado, escoltada por un audaz mocktail shot de mango, yuzu y chile.<br>
-                            <span class="menu-course-note">Un tributo a la identidad regional, encendiendo el paladar.</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="menu-course">
-                    <span class="menu-course-kanji">七</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">VII. Cocina Francesa & Repostería Fina</p>
-                        <h4 class="menu-course-title">Mille-Feuille de Hojicha</h4>
-                        <p class="menu-course-desc">
-                            Milhojas crujiente de ajonjolí negro intercalado con un cremoso untuoso de té hojicha.<br>
-                            <span class="menu-course-note">La inconfundible elegancia francesa fusionada con Asia.</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="menu-course">
-                    <span class="menu-course-kanji">八</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">VIII. Cocina Italiana & De Autor</p>
-                        <h4 class="menu-course-title">Ravioli Transparente</h4>
-                        <p class="menu-course-desc">
-                            Fina pasta translúcida rellena de camarón y hongos shiitake, sumergida en un caldo claro y aromático.<br>
-                            <span class="menu-course-note">La expresión de la creatividad desarrollada al final de la carrera.</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="menu-course">
-                    <span class="menu-course-kanji">九</span>
-                    <div class="menu-course-content">
-                        <p class="menu-course-label">IX. Cocina Oriental & Chocolatería</p>
-                        <h4 class="menu-course-title">El Gran Final</h4>
-                        <p class="menu-course-desc">
-                            Una obra maestra de chocolatería fina que integra ingredientes y técnicas orientales.<br>
-                            <span class="menu-course-note" style="font-weight:bold; color:var(--gold-light);">El último trazo. El momento en que el círculo se cierra.</span>
-                        </p>
-                    </div>
-                </div>
-
+                <div class="menu-course"><span class="menu-course-kanji">一</span><div class="menu-course-content"><p class="menu-course-label">I. Salsas Madre</p><h4 class="menu-course-title">Dumpling de Velouté y Miso</h4><p class="menu-course-desc">Relleno de pollo con velouté de jengibre y salsa bechamel infusionada con miso.<br><span class="menu-course-note">El inicio: aprender las bases. Pequeño, elegante y técnico.</span></p></div></div>
+                <div class="menu-course"><span class="menu-course-kanji">二</span><div class="menu-course-content"><p class="menu-course-label">II. Panadería</p><h4 class="menu-course-title">Bao al Vapor Artesanal</h4><p class="menu-course-desc">Esponjoso pan al vapor relleno de cerdo laqueado y vegetales orientales.<br><span class="menu-course-note">El descubrimiento de las masas y sus fermentaciones.</span></p></div></div>
+                <div class="menu-course"><span class="menu-course-kanji">三</span><div class="menu-course-content"><p class="menu-course-label">III. Panadería Fina & Cocina Mexicana</p><h4 class="menu-course-title">La Concha de Matcha</h4><p class="menu-course-desc">Mini concha reinterpretada con té matcha y relleno sedoso de frijol dulce rojo (anko).<br><span class="menu-course-note">México y Asia encontrándose en una sola pieza.</span></p></div></div>
+                <div class="menu-course"><span class="menu-course-kanji">四</span><div class="menu-course-content"><p class="menu-course-label">IV. Vinos & Cocina del Norte</p><h4 class="menu-course-title">Tataki Glaseado</h4><p class="menu-course-desc">Lámina de res finamente sellada, bañada en una reducción profunda de vino tinto y soya.<br><span class="menu-course-note">Representando la sofisticación y el arte del maridaje.</span></p></div></div>
+                <div class="menu-course"><span class="menu-course-kanji">五</span><div class="menu-course-content"><p class="menu-course-label">V. Cocina Centro & Repostería Básica</p><h4 class="menu-course-title">Tamal de Elote y Coco</h4><p class="menu-course-desc">Tamal miniatura de elote tierno, coronado con una espuma etérea de coco y vainilla.<br><span class="menu-course-note">Técnica mexicana presentada con delicada estética japonesa.</span></p></div></div>
+                <div class="menu-course"><span class="menu-course-kanji">六</span><div class="menu-course-content"><p class="menu-course-label">VI. Cocina Nayarita & Coctelería</p><h4 class="menu-course-title">Tostada Oriental de Atún</h4><p class="menu-course-desc">Tostada miniatura de atún curado, escoltada por un audaz mocktail shot de mango, yuzu y chile.<br><span class="menu-course-note">Un tributo a la identidad regional, encendiendo el paladar.</span></p></div></div>
+                <div class="menu-course"><span class="menu-course-kanji">七</span><div class="menu-course-content"><p class="menu-course-label">VII. Cocina Francesa & Repostería Fina</p><h4 class="menu-course-title">Mille-Feuille de Hojicha</h4><p class="menu-course-desc">Milhojas crujiente de ajonjolí negro intercalado con un cremoso untuoso de té hojicha.<br><span class="menu-course-note">La inconfundible elegancia francesa fusionada con Asia.</span></p></div></div>
+                <div class="menu-course"><span class="menu-course-kanji">八</span><div class="menu-course-content"><p class="menu-course-label">VIII. Cocina Italiana & De Autor</p><h4 class="menu-course-title">Ravioli Transparente</h4><p class="menu-course-desc">Fina pasta translúcida rellena de camarón y hongos shiitake, sumergida en un caldo claro y aromático.<br><span class="menu-course-note">La expresión de la creatividad desarrollada al final de la carrera.</span></p></div></div>
+                <div class="menu-course"><span class="menu-course-kanji">九</span><div class="menu-course-content"><p class="menu-course-label">IX. Cocina Oriental & Chocolatería</p><h4 class="menu-course-title">El Gran Final</h4><p class="menu-course-desc">Una obra maestra de chocolatería fina que integra ingredientes y técnicas orientales.<br><span class="menu-course-note" style="font-weight:bold; color:var(--gold-light);">El último trazo. El momento en que el círculo se cierra.</span></p></div></div>
             </div>
             
             <div style="padding: 16px 32px; background: #0a0806; border-top: 1px solid rgba(212, 175, 55, 0.2); flex-shrink: 0;">
@@ -752,26 +576,24 @@
         </div>
     </div>
 
-    <!-- ── MODAL 4: TICKET DE CONFIRMACIÓN CON CÓDIGO DE BARRAS ── -->
+    <!-- ── MODAL 4: TICKET DE CONFIRMACIÓN ── -->
     <div id="modal-ticket" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ticket-title">
         <div class="ticket-wrapper">
             <h3 id="ticket-title" class="modal-title" style="margin-bottom: 8px; font-size: 1.2rem;">Confirmación Exitosa</h3>
             <p id="ticket-status-msg" style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.85rem; color:rgba(212,175,55,0.7); margin-bottom: 24px; letter-spacing: 0.05em;">Guarda este pase en tu galería o toma captura para mostrarlo el día del evento.</p>
             
             <div class="ticket-card" id="ticket-card-capture">
-                <div class="ticket-content-area">
-                    <img id="ticket-bg-img" src="enso.png" alt="" crossorigin="anonymous" onerror="this.style.display='none'">
-                    <div class="ticket-overlay">
-                        <div class="ticket-info">
-                            <div id="ticket-guest-name" class="ticket-guest-name">Nombre del Invitado</div>
-                            <div id="ticket-table-num" class="ticket-table-num">Mesa X</div>
-                            <div class="ticket-date event-date-display">01 de diciembre 2026</div>
-                        </div>
+                <img id="ticket-bg-img" src="enso.png" alt="" crossorigin="anonymous" onerror="this.style.display='none'">
+                <div class="ticket-overlay">
+                    <div class="ticket-info">
+                        <div id="ticket-guest-name" class="ticket-guest-name">Nombre del Invitado</div>
+                        <div id="ticket-table-num" class="ticket-table-num">Mesa X</div>
+                        <div class="ticket-date event-date-display">01 de diciembre 2026</div>
                     </div>
-                </div>
-                <!-- ÁREA DEL CÓDIGO DE BARRAS (Separador estilo boleto) -->
-                <div class="ticket-barcode-area">
-                    <svg id="ticket-barcode"></svg>
+                    <!-- CONTENEDOR CÓDIGO DE BARRAS EN LA BASE DEL BOLETO -->
+                    <div class="barcode-container">
+                        <svg id="ticket-barcode"></svg>
+                    </div>
                 </div>
             </div>
             
@@ -803,35 +625,18 @@
         </div>
     </div>
 
-    <!-- ── MODAL 6: ADMIN DASHBOARD CON ESCÁNER ── -->
+    <!-- ── MODAL 6: ADMIN DASHBOARD (CON ESCÁNER) ── -->
     <div id="modal-admin" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="admin-dash-title">
-        <div class="modal-box" style="max-width: 800px; padding: 24px; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-box" style="max-width: 800px; padding: 24px; max-height: 90vh;">
             <button class="modal-close" onclick="window.closeModals()" aria-label="Cerrar panel" style="background:none;border:none;">×</button>
             <h3 id="admin-dash-title" class="modal-title" style="margin-bottom: 16px; font-size: 1.2rem;">Panel de Control</h3>
             
-            <!-- BOTONES DE ESCÁNER DE CÓDIGO DE BARRAS -->
-            <div class="scanner-btn-group">
-                <button id="btn-start-scanner" class="btn-outline" style="border-color: #3b82f6; color: #3b82f6;" onclick="window.startScanner()">📷 Iniciar Escáner</button>
-                <button id="btn-stop-scanner" class="btn-outline" style="border-color: #ef4444; color: #ef4444; display: none;" onclick="window.stopScanner()">⏹ Detener Escáner</button>
-            </div>
-
-            <!-- CONTENEDOR DE LA CÁMARA PARA ESCANEAR -->
-            <div id="scanner-container">
-                <div id="qr-reader" style="width: 100%;"></div>
-            </div>
-
-            <!-- RESULTADO DEL ESCANEO -->
-            <div id="scanner-result">
-                <div class="scanner-result-name" id="scan-res-name"></div>
-                <div class="scanner-result-details" id="scan-res-details"></div>
-                <div class="scanner-result-details" id="scan-res-host" style="font-style: italic; color: rgba(255,255,255,0.7); font-size: 0.9rem;"></div>
-                <button class="btn-outline" style="margin-top: 12px; padding: 8px 16px; font-size: 0.7rem;" onclick="document.getElementById('scanner-result').style.display='none';">Cerrar Info</button>
-            </div>
-
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap: wrap; gap: 12px;">
-                <div class="flex gap-2">
+                <div class="flex gap-2" style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <button id="tab-guests" class="admin-tab active" aria-selected="true" onclick="window.switchAdminTab('guests')">Confirmados</button>
-                    <button id="tab-codes" class="admin-tab" aria-selected="false" onclick="window.switchAdminTab('codes')">Códigos (CSV)</button>
+                    <!-- NUEVA PESTAÑA DEL ESCÁNER -->
+                    <button id="tab-scanner" class="admin-tab" aria-selected="false" onclick="window.switchAdminTab('scanner')">Escanear Pase</button>
+                    <button id="tab-codes" class="admin-tab" aria-selected="false" onclick="window.switchAdminTab('codes')">Códigos</button>
                 </div>
                 <p class="modal-text" style="margin:0; text-align:right; font-size: 0.9rem;">Registros: <strong style="color:var(--gold-light); font-size: 1.2rem;" id="admin-total">0</strong></p>
             </div>
@@ -840,7 +645,19 @@
                 <div style="margin-bottom: 16px;">
                     <input type="text" id="admin-search" placeholder="Buscar invitado o anfitrión..." style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.4); color: var(--gold-light); font-family: 'Cinzel', serif; font-size: 0.9rem; border-radius: 4px; outline: none; text-align: center; text-transform: uppercase;" aria-label="Búsqueda de invitados">
                 </div>
-                <div id="admin-table-body" style="max-height: 40vh; overflow-y:auto; padding-right: 4px;" class="custom-scrollbar"></div>
+                <div id="admin-table-body" style="max-height: 50vh; overflow-y:auto; padding-right: 4px;" class="custom-scrollbar"></div>
+            </div>
+
+            <!-- VISTA DEL ESCÁNER DE CÓDIGO DE BARRAS -->
+            <div id="view-scanner" style="display:none; text-align: center; max-height: 50vh; overflow-y:auto;" class="custom-scrollbar">
+                <div style="background: #ffffff; padding: 10px; border-radius: 8px; max-width: 100%; margin: 0 auto; overflow: hidden;">
+                    <div id="qr-reader" style="width: 100%; border: none;"></div>
+                </div>
+                <button id="btn-toggle-scanner" class="btn-outline" style="margin-top: 16px; border-color: var(--gold-light); color: var(--gold-light);" onclick="window.toggleScanner()">Encender Cámara Trasera</button>
+                
+                <div id="scanner-result" style="margin-top: 24px; min-height: 80px; font-family: 'Cormorant Garamond', serif; color: var(--gold-light); font-size: 1.3rem; line-height: 1.4; background: rgba(212,175,55,0.05); padding: 16px; border-radius: 4px; border: 1px solid rgba(212,175,55,0.2);">
+                    <em>Presiona encender y apunta al código de barras del invitado...</em>
+                </div>
             </div>
 
             <div id="view-codes" style="display:none;">
@@ -849,7 +666,7 @@
                     <button id="btn-export-csv" class="btn-outline" style="border-color: #60a5fa; color: #60a5fa;" onclick="window.exportCodesCSV()">↓ Exportar a Excel (CSV)</button>
                     <button id="btn-reset-db" class="btn-outline" style="border-color: #ef4444; color: #ef4444;" onclick="window.resetDatabase()">⚠️ Resetear Base de Datos</button>
                 </div>
-                <div id="codes-table-body" style="max-height: 40vh; overflow-y:auto; padding-right: 4px; text-align: left;" class="custom-scrollbar"></div>
+                <div id="codes-table-body" style="max-height: 50vh; overflow-y:auto; padding-right: 4px; text-align: left;" class="custom-scrollbar"></div>
             </div>
         </div>
     </div>
@@ -866,7 +683,7 @@
         </div>
     </div>
 
-    <!-- ── MODALES PERSONALIZADOS DE ADMIN (REEMPLAZANDO ALERT Y CONFIRM NATIVOS) ── -->
+    <!-- ── MODALES PERSONALIZADOS DE ADMIN ── -->
     <div id="modal-alert" class="modal-overlay" style="z-index: 300;">
         <div class="modal-box" style="max-width: 400px; padding: 32px 24px;">
             <p id="alert-msg" class="modal-text" style="margin-bottom: 24px;"></p>
@@ -904,7 +721,6 @@
         };
         const ADMIN_EMAIL = "luixnay@gmail.com";
 
-        // Función para sanear strings del usuario y evitar inyecciones XSS
         function sanitize(str) {
             if (!str) return '';
             const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;' };
@@ -920,7 +736,6 @@
             return typeof name === 'string' && name.length >= 2 && name.length <= 80 && /^[A-ZÁÉÍÓÚÜÑ\s]+$/i.test(name);
         }
 
-        // Render seguro: conserva saltos de línea y etiquetas <br>, pero nunca ejecuta HTML del invitado/admin.
         function appendSafeTextWithBreaks(container, value) {
             const parts = String(value || '').split(/<br\s*\/?>|\r?\n/gi);
             parts.forEach((part, index) => {
@@ -948,7 +763,6 @@
             container.appendChild(document.createTextNode('Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."'));
         }
 
-        // Funciones UI para alertas de administrador sin romper experiencia
         window.customAlert = function(msg) {
             window.pushModalState();
             document.getElementById('alert-msg').innerText = msg;
@@ -1007,7 +821,6 @@
         let unsubscribeGuests = null;
         let unsubscribeStats = null;
 
-        // Escucha centralizada de autenticación y suscripciones
         onAuthStateChanged(auth, (user) => {
             const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
             if (!unsubscribeStats) {
@@ -1026,7 +839,9 @@
                 const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
                 unsubscribeGuests = onSnapshot(colRef, (snapshot) => {
                     allConfirmations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    if (document.getElementById('modal-admin').classList.contains('active')) { window.renderAdminTable(); }
+                    if (document.getElementById('modal-admin').classList.contains('active') && document.getElementById('view-guests').style.display === 'block') { 
+                        window.renderAdminTable(); 
+                    }
                 }, (err) => console.error("Error Admin Firebase:", err));
             } else {
                 if (unsubscribeGuests) { unsubscribeGuests(); unsubscribeGuests = null; }
@@ -1042,7 +857,6 @@
         const errorText = document.getElementById('code-error');
         const nameErrorText = document.getElementById('name-error');
 
-        // --- MEJORA: Integración History API para Botón Atrás en Móviles ---
         let isModalStatePushed = false;
         window.pushModalState = function() {
             if (!isModalStatePushed) {
@@ -1050,38 +864,41 @@
                 isModalStatePushed = true;
             }
         };
+        
         window.addEventListener('popstate', (e) => {
             if (isModalStatePushed) {
                 isModalStatePushed = false;
                 window.closeModals(true);
             }
         });
-        // -------------------------------------------------------------------
 
         window.openMenuModal = function() { window.pushModalState(); document.getElementById('modal-menu').classList.add('active'); setTimeout(() => { const menuScroll = document.getElementById('menu-scroll-container'); if (menuScroll) menuScroll.scrollTop = 0; }, 50); };
         window.openCodeModal = function() { window.pushModalState(); document.getElementById('modal-code').classList.add('active'); codeInput.value = ''; errorText.style.opacity = '0'; codeInput.focus(); };
         window.openDressModal = function() { window.pushModalState(); document.getElementById('modal-dress').classList.add('active'); setTimeout(() => { const dressScroll = document.getElementById('dress-scroll-container'); if (dressScroll) dressScroll.scrollTop = 0; }, 50); };
         
         window.closeModals = function(fromPopState = false) { 
+            // Apagar escáner si está activo al cerrar
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().then(()=>{
+                    document.getElementById('btn-toggle-scanner').innerText = "Encender Cámara Trasera";
+                }).catch(e=>{});
+            }
+
             document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); 
             if (isModalStatePushed && fromPopState !== true) {
                 isModalStatePushed = false;
                 history.back();
             }
-            // Asegurar que el escáner se apague si se cierra el modal del admin
-            window.stopScanner();
         };
         
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') window.closeModals();
         });
 
-        // 1. Validar Código Unipersonal en Firebase
         window.validateCode = async function() {
             if (!navigator.onLine) {
                 errorText.innerText = "Sin conexión a internet. Revisa tu red y vuelve a intentar.";
-                errorText.style.opacity = '1';
-                return;
+                errorText.style.opacity = '1'; return;
             }
 
             currentValidDataCode = codeInput.value.trim().toUpperCase();
@@ -1104,16 +921,12 @@
                         const confirmedName = currentValidData.guestName || "Invitado";
                         
                         if (currentValidData.type === 'special') {
-                            errorText.style.opacity = '0';
-                            document.getElementById('modal-code').classList.remove('active');
-                            
+                            errorText.style.opacity = '0'; document.getElementById('modal-code').classList.remove('active');
                             const messageContainer = document.getElementById('personal-message');
                             const btnAccept = document.getElementById('btn-accept-invite'); 
                             
                             btnAccept.disabled = false;
-                            
                             renderSpecialMessage(messageContainer, currentValidData.text);
-                            
                             btnAccept.innerText = "Ver Pase de Acceso"; 
                             btnAccept.style.background = "transparent"; 
                             btnAccept.style.border = "1px solid var(--gold)"; 
@@ -1129,30 +942,17 @@
                                 setTimeout(() => { document.getElementById('personal-message').scrollTop = 0; }, 50);
                             }, 400);
                         } else {
-                            // UX mejora 2: Redirección silenciosa para pase estándar usado
-                            errorText.style.opacity = '0';
-                            document.getElementById('modal-code').classList.remove('active');
-                            setTimeout(() => {
-                                showTicket(confirmedName, currentValidData.table, "Ya estás confirmado · Aquí está tu pase de acceso");
-                            }, 400);
+                            errorText.style.opacity = '0'; document.getElementById('modal-code').classList.remove('active');
+                            setTimeout(() => { showTicket(confirmedName, currentValidData.table, "Ya estás confirmado · Aquí está tu pase de acceso"); }, 400);
                         }
                     } else {
-                        // CÓDIGO NUEVO (NO USADO)
-                        errorText.style.opacity = '0';
-                        document.getElementById('modal-code').classList.remove('active');
-                        
+                        errorText.style.opacity = '0'; document.getElementById('modal-code').classList.remove('active');
                         const messageContainer = document.getElementById('personal-message');
                         const btnAccept = document.getElementById('btn-accept-invite'); 
                         
                         btnAccept.disabled = false;
-                        
-                        if (currentValidData.type === 'standard') {
-                            renderStandardInviteMessage(messageContainer, currentValidData.hostName);
-                        } else if (currentValidData.type === 'special') {
-                            renderSpecialMessage(messageContainer, currentValidData.text);
-                        } else {
-                            throw new Error('Tipo de invitación no válido.');
-                        }
+                        if (currentValidData.type === 'standard') { renderStandardInviteMessage(messageContainer, currentValidData.hostName); } 
+                        else if (currentValidData.type === 'special') { renderSpecialMessage(messageContainer, currentValidData.text); } 
                         
                         btnAccept.innerText = "Aceptar Invitación"; 
                         btnAccept.style.background = "var(--gold)"; 
@@ -1168,19 +968,15 @@
                     }
                 } else {
                     errorText.innerText = "Código no encontrado. Intenta nuevamente."; 
-                    errorText.style.opacity = '1';
-                    codeInput.focus();
+                    errorText.style.opacity = '1'; codeInput.focus();
                 }
             } catch (error) {
-                errorText.innerText = "Error de validación.";
-                errorText.style.opacity = '1';
-                console.error("Firebase Auth/Rule Error:", error);
+                errorText.innerText = "Error de validación."; errorText.style.opacity = '1';
             } finally {
                 btn.innerText = originalText; btn.disabled = false;
             }
         };
 
-        // 2. Aceptar Invitación VIP o redirigir Estándar (ATÓMICO CON RUNTRANSACTION)
         window.handleMessageAccept = async function() {
             const btnAccept = document.getElementById('btn-accept-invite');
             btnAccept.disabled = true; btnAccept.innerText = "Registrando...";
@@ -1189,16 +985,12 @@
                 try {
                     const registeredGuestName = await registerRSVPTransaction(currentValidData.fullName);
                     document.getElementById('modal-message').classList.remove('active');
-                    
-                    // REINICIO DEL ESTADO DEL BOTÓN ("Bug Visual" Corregido)
                     setTimeout(() => {
-                        btnAccept.disabled = false;
-                        btnAccept.innerText = "Aceptar Invitación";
+                        btnAccept.disabled = false; btnAccept.innerText = "Aceptar Invitación";
                         showTicket(registeredGuestName, currentValidData.table);
                     }, 400);
                 } catch (e) {
-                    btnAccept.innerText = "Error: " + e.message; 
-                    btnAccept.disabled = false;
+                    btnAccept.innerText = "Error: " + e.message; btnAccept.disabled = false;
                 }
             } else {
                 document.getElementById('modal-message').classList.remove('active');
@@ -1207,13 +999,10 @@
                     window.pushModalState();
                     document.getElementById('modal-name').classList.add('active'); guestNameInput.focus();
                 }, 400);
-                
-                // REINICIO DEL ESTADO DEL BOTÓN
                 btnAccept.innerText = "Aceptar Invitación"; btnAccept.disabled = false;
             }
         };
 
-        // 3. Generar Pase Estándar (ATÓMICO CON RUNTRANSACTION)
         window.generateStandardTicket = async function() {
             if (!navigator.onLine) {
                 nameErrorText.innerText = "Sin conexión a internet. Revisa tu red y vuelve a intentar.";
@@ -1236,13 +1025,10 @@
 
             try {
                 const registeredGuestName = await registerRSVPTransaction(guestName);
-                nameErrorText.style.opacity = '0';
-                document.getElementById('modal-name').classList.remove('active');
+                nameErrorText.style.opacity = '0'; document.getElementById('modal-name').classList.remove('active');
                 
-                // REINICIO DEL ESTADO DEL BOTÓN ("Bug Visual" Corregido)
                 setTimeout(() => {
-                    btnGen.disabled = false; 
-                    btnGen.innerText = "Confirmar y Generar Pase";
+                    btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase";
                     showTicket(registeredGuestName, currentValidData.table);
                 }, 400);
             } catch(e) {
@@ -1251,17 +1037,11 @@
             }
         };
 
-        // Función Transaccional Compartida para RSVP atómico
         async function registerRSVPTransaction(finalGuestName) {
             const normalizedGuestName = normalizeGuestName(finalGuestName);
-            if (!isValidGuestName(normalizedGuestName)) {
-                throw new Error("Nombre inválido. Usa solo letras y espacios, máximo 80 caracteres.");
-            }
-            if (!currentValidDataCode) {
-                throw new Error("No hay un código activo para registrar.");
-            }
+            if (!isValidGuestName(normalizedGuestName)) throw new Error("Nombre inválido. Usa solo letras y espacios, máximo 80 caracteres.");
+            if (!currentValidDataCode) throw new Error("No hay un código activo para registrar.");
 
-            // UX mejora 3: Señal de progreso dinámico
             const activeModalBox = document.querySelector('.modal-overlay.active .modal-box');
             let progressMsg = document.getElementById('rsvp-progress-msg');
             let progressInterval = null;
@@ -1285,11 +1065,8 @@
                 await runTransaction(db, async (transaction) => {
                     const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
                     const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
-                    // Seguridad: el ID del invitado ahora es el mismo código de invitación.
-                    // Así las reglas pueden validar: 1 código = 1 invitado = 1 registro.
                     const guestRef = doc(db, 'artifacts', appId, 'public', 'data', 'guests', currentValidDataCode);
 
-                    // Todas las lecturas se hacen antes de cualquier escritura para cumplir con Firestore transactions.
                     const inviteDoc = await transaction.get(inviteRef);
                     const statsDoc = await transaction.get(statsRef);
 
@@ -1314,19 +1091,12 @@
 
                     transaction.set(guestRef, guestData);
                     transaction.update(inviteRef, { usado: true, guestName: normalizedGuestName });
-                    transaction.set(statsRef, {
-                        confirmedCount: newCount,
-                        totalCapacity,
-                        lastInviteCode: currentValidDataCode,
-                        lastUpdatedAt: now
-                    });
+                    transaction.set(statsRef, { confirmedCount: newCount, totalCapacity, lastInviteCode: currentValidDataCode, lastUpdatedAt: now });
                 });
             } finally {
-                // UX mejora 3: Limpieza del mensaje de progreso tras finalizar transacción
                 if (progressInterval) clearInterval(progressInterval);
                 if (progressMsg && progressMsg.parentNode) progressMsg.parentNode.removeChild(progressMsg);
             }
-
             return normalizedGuestName;
         }
 
@@ -1335,11 +1105,9 @@
             document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
             document.querySelectorAll('.event-date-display').forEach(el => el.innerText = CONFIG.eventDate.toUpperCase());
             
-            // UX mejora 2 & 4a: Asignación condicional de texto
             const statusMsgEl = document.getElementById('ticket-status-msg');
             statusMsgEl.innerText = customStatusMsg ? customStatusMsg : (!navigator.onLine ? "Sin conexión — muestra tu pase descargado al staff." : "Guarda este pase en tu galería o toma captura para mostrarlo el día del evento.");
             
-            // UX mejora 4a: Insertar texto suplementario si es el flujo normal
             const existingNote = document.getElementById('ticket-confirm-note');
             if (!customStatusMsg) {
                 if (!existingNote) {
@@ -1353,22 +1121,19 @@
                 existingNote.remove();
             }
 
-            // GENERAR CÓDIGO DE BARRAS
-            // Usa el código de invitación (currentValidDataCode) como el valor del código de barras
+            // GESTIÓN DEL CÓDIGO DE BARRAS EN EL PASE
             try {
-                if(typeof JsBarcode !== 'undefined' && currentValidDataCode) {
+                if (typeof JsBarcode !== 'undefined' && currentValidDataCode) {
                     JsBarcode("#ticket-barcode", currentValidDataCode, {
                         format: "CODE128",
+                        displayValue: false, // Ocultar los números feos de abajo
                         lineColor: "#050505",
-                        width: 1.5,
-                        height: 30,
-                        displayValue: false, // Ocultar el texto debajo para que se vea más limpio
-                        margin: 0
+                        background: "#ffffff",
+                        margin: 0,
+                        height: 50 // Altura para que parezca un divisor
                     });
                 }
-            } catch (e) {
-                console.error("Error al generar código de barras", e);
-            }
+            } catch(e) { console.error("Error al generar código de barras:", e); }
 
             const img = document.getElementById('ticket-bg-img');
             const downloadBtn = document.getElementById('btn-download');
@@ -1379,18 +1144,28 @@
             }
             window.pushModalState();
             document.getElementById('modal-ticket').classList.add('active');
+            
+            // Forzar el scroll hasta arriba al abrir
+            setTimeout(() => {
+                const wrapper = document.querySelector('.ticket-wrapper');
+                if (wrapper) wrapper.scrollTop = 0;
+            }, 50);
         }
 
         window.downloadTicket = async function() {
             const btn = document.getElementById('btn-download'); const originalText = btn.innerHTML;
             btn.innerHTML = 'Generando...'; btn.disabled = true;
+            
+            // Forzamos el scroll hasta arriba invisiblemente antes de la foto
+            const wrapper = document.querySelector('.ticket-wrapper');
+            if (wrapper) wrapper.scrollTop = 0;
+
             const captureDiv = document.getElementById('ticket-card-capture');
             const guestName = document.getElementById('ticket-guest-name').innerText;
             const tableNum = document.getElementById('ticket-table-num').innerText;
 
             try {
                 await document.fonts.ready;
-                // Ajustar las opciones de html2canvas si es necesario para capturar bien el SVG del código de barras
                 const canvas = await html2canvas(captureDiv, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#050505', logging: false, imageTimeout: 0 });
                 const link = document.createElement('a');
                 link.download = `Pase_Enso_${guestName.replace(/\s+/g, '_')}_${tableNum.replace(/\s+/g, '_')}.png`;
@@ -1402,13 +1177,14 @@
         window.finalizeRSVP = function() {
             window.closeModals();
             document.getElementById('invite-code-input').value = ''; document.getElementById('guest-name-input').value = '';
-            
-            // REINICIO DE SEGURIDAD POR SI A CASO EL TICKET SE CERRÓ
             const btnGen = document.getElementById('btn-generate-ticket');
             if(btnGen) { btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase"; }
         };
 
-        // ── LÓGICA DE ADMIN (AUTENTICACIÓN SEGURA CON GOOGLE) ──
+        // ── LÓGICA DE ADMIN Y ESCÁNER ──
+        let html5QrCode; // Variable global del escáner
+        let lastScannedCode = null;
+
         window.openAdminLogin = async function() {
             document.getElementById('admin-error').style.opacity = '0';
             window.pushModalState();
@@ -1416,19 +1192,111 @@
         };
 
         window.switchAdminTab = function(tabName) {
-            document.getElementById('tab-guests').classList.remove('active');
-            document.getElementById('tab-codes').classList.remove('active');
+            // Apagar escáner si se cambia a otra pestaña
+            if (html5QrCode && html5QrCode.isScanning && tabName !== 'scanner') {
+                html5QrCode.stop().then(()=>{
+                    document.getElementById('btn-toggle-scanner').innerText = "Encender Cámara Trasera";
+                }).catch(e=>{});
+            }
+
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
             document.getElementById('view-guests').style.display = 'none';
             document.getElementById('view-codes').style.display = 'none';
+            document.getElementById('view-scanner').style.display = 'none';
 
             if(tabName === 'guests') {
                 document.getElementById('tab-guests').classList.add('active');
                 document.getElementById('view-guests').style.display = 'block';
                 window.renderAdminTable();
-            } else {
+            } else if (tabName === 'codes') {
                 document.getElementById('tab-codes').classList.add('active');
                 document.getElementById('view-codes').style.display = 'block';
                 window.loadAdminCodes(); 
+            } else if (tabName === 'scanner') {
+                document.getElementById('tab-scanner').classList.add('active');
+                document.getElementById('view-scanner').style.display = 'block';
+                document.getElementById('scanner-result').innerHTML = "<em>Presiona encender y apunta al código de barras del invitado...</em>";
+            }
+        };
+
+        window.toggleScanner = function() {
+            const btn = document.getElementById('btn-toggle-scanner');
+            
+            if (html5QrCode && html5QrCode.isScanning) {
+                btn.innerText = "Apagando...";
+                html5QrCode.stop().then(() => {
+                    btn.innerText = "Encender Cámara Trasera";
+                }).catch(err => {
+                    console.error("Error deteniendo el escáner", err);
+                    btn.innerText = "Encender Cámara Trasera";
+                });
+            } else {
+                if (!html5QrCode) {
+                    html5QrCode = new Html5Qrcode("qr-reader");
+                }
+                btn.innerText = "Cargando cámara...";
+                html5QrCode.start(
+                    { facingMode: "environment" }, // Usa la cámara trasera por defecto
+                    { fps: 10, qrbox: { width: 300, height: 150 } },
+                    (decodedText, decodedResult) => {
+                        window.handleScanSuccess(decodedText);
+                    },
+                    (errorMessage) => {
+                        // Ignorar los errores constantes de no detectar código
+                    }
+                ).then(() => {
+                    btn.innerText = "Apagar Cámara";
+                    document.getElementById('scanner-result').innerHTML = "<em>Escaneando... Apunta al pase.</em>";
+                }).catch((err) => {
+                    window.customAlert("Error al acceder a la cámara. Revisa los permisos.");
+                    btn.innerText = "Encender Cámara Trasera";
+                });
+            }
+        };
+
+        // Pitido de éxito
+        window.playBeep = function() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 1000;
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.15);
+            } catch(e) {}
+        };
+
+        window.handleScanSuccess = function(code) {
+            // Prevenir lecturas múltiples instantáneas
+            if (lastScannedCode === code) return; 
+            lastScannedCode = code;
+            setTimeout(() => { lastScannedCode = null; }, 3000); // 3 segundos para el mismo código
+
+            window.playBeep();
+            
+            const resDiv = document.getElementById('scanner-result');
+            
+            // Buscar el invitado por su código
+            const guest = allConfirmations.find(g => g.hostCode === code);
+            
+            if (guest) {
+                if (guest.asistio) {
+                    resDiv.innerHTML = `<span style="color:#ef4444; font-weight:bold;">¡ALERTA! ESTE PASE YA INGRESÓ</span><br>Invitado: ${sanitize(guest.guestName)}<br>Revisa que no sea una captura duplicada.`;
+                } else {
+                    resDiv.innerHTML = `<span style="color:#4ade80; font-weight:bold;">✅ ACCESO APROBADO</span><br>
+                    <strong>${sanitize(guest.guestName)}</strong><br>
+                    Invitada por: ${sanitize(guest.hostName)}<br>
+                    Va en <strong>MESA ${sanitize(guest.table)}</strong>`;
+                    
+                    // Actualizar en Firebase automáticamente
+                    window.toggleCheckIn(guest.id, true);
+                }
+            } else {
+                resDiv.innerHTML = `<span style="color:#ef4444; font-weight:bold;">❌ CÓDIGO NO VÁLIDO O NO CONFIRMADO</span><br>(${sanitize(code)})`;
             }
         };
 
@@ -1463,99 +1331,6 @@
             } finally { 
                 btn.innerHTML = originalHTML; btn.disabled = false; 
             }
-        };
-
-        // --- SCANNER LOGIC ---
-        let html5QrcodeScanner = null;
-
-        window.startScanner = function() {
-            const btnStart = document.getElementById('btn-start-scanner');
-            const btnStop = document.getElementById('btn-stop-scanner');
-            const scannerContainer = document.getElementById('scanner-container');
-            
-            btnStart.style.display = 'none';
-            btnStop.style.display = 'inline-block';
-            scannerContainer.style.display = 'block';
-            document.getElementById('scanner-result').style.display = 'none';
-
-            if (typeof Html5Qrcode === 'undefined') {
-                window.customAlert("La librería del escáner no cargó correctamente.");
-                window.stopScanner();
-                return;
-            }
-
-            html5QrcodeScanner = new Html5Qrcode("qr-reader");
-            
-            // Configurar para usar la cámara trasera preferentemente
-            const config = { fps: 10, qrbox: { width: 250, height: 100 } };
-            
-            html5QrcodeScanner.start({ facingMode: "environment" }, config, window.onScanSuccess, window.onScanFailure)
-                .catch((err) => {
-                    console.error("Error al iniciar cámara:", err);
-                    window.customAlert("No se pudo iniciar la cámara. Verifica permisos.");
-                    window.stopScanner();
-                });
-        };
-
-        window.stopScanner = function() {
-            const btnStart = document.getElementById('btn-start-scanner');
-            const btnStop = document.getElementById('btn-stop-scanner');
-            const scannerContainer = document.getElementById('scanner-container');
-            
-            if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
-                html5QrcodeScanner.stop().then(() => {
-                    html5QrcodeScanner.clear();
-                    html5QrcodeScanner = null;
-                }).catch(err => console.error("Error deteniendo escáner", err));
-            }
-            
-            btnStart.style.display = 'inline-block';
-            btnStop.style.display = 'none';
-            scannerContainer.style.display = 'none';
-        };
-
-        window.onScanSuccess = function(decodedText, decodedResult) {
-            // Se encontró un código, vamos a buscar al invitado
-            console.log(`Código escaneado: ${decodedText}`);
-            
-            // Evitar escaneos múltiples rápidos (opcional)
-            // Si quieres pausar después de leer: html5QrcodeScanner.pause();
-            
-            // Buscar el invitado por su hostCode (que es el ID del documento del invitado)
-            const guestCode = decodedText.trim().toUpperCase();
-            const guestInfo = allConfirmations.find(g => g.hostCode === guestCode || g.id === guestCode);
-            
-            const resultDiv = document.getElementById('scanner-result');
-            const nameEl = document.getElementById('scan-res-name');
-            const detailsEl = document.getElementById('scan-res-details');
-            const hostEl = document.getElementById('scan-res-host');
-            
-            if (guestInfo) {
-                nameEl.innerText = guestInfo.guestName;
-                detailsEl.innerHTML = `Va en <span style="font-family:'Cinzel', serif; font-size:1.2rem; color:white;">Mesa ${guestInfo.table}</span>`;
-                hostEl.innerText = `Invitado por: ${guestInfo.hostName}`;
-                
-                resultDiv.style.borderColor = "#10b981"; // Verde éxito
-                resultDiv.style.background = "rgba(16, 185, 129, 0.1)";
-                
-                // Opcional: Marcar asistencia automáticamente al leer
-                // if (!guestInfo.asistio) { window.toggleCheckIn(guestInfo.id, true); }
-                
-            } else {
-                nameEl.innerText = "Código No Registrado";
-                detailsEl.innerText = `El código ${guestCode} no corresponde a ningún invitado confirmado.`;
-                hostEl.innerText = "";
-                
-                resultDiv.style.borderColor = "#ef4444"; // Rojo error
-                resultDiv.style.background = "rgba(239, 68, 68, 0.1)";
-            }
-            
-            resultDiv.style.display = 'block';
-        };
-
-        window.onScanFailure = function(error) {
-            // handle scan failure, usually better to ignore and keep scanning
-            // console.warn(`Code scan error = ${error}`);
         };
 
         document.getElementById('admin-search').addEventListener('input', (e) => {
@@ -1611,7 +1386,6 @@
                         const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', hostCode);
                         const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
 
-                        // Lecturas antes de escrituras: evita errores de transacción en Firestore.
                         const statsDoc = await transaction.get(statsRef);
                         let newCount = 0;
                         if(statsDoc.exists() && statsDoc.data().confirmedCount > 0) {
@@ -1627,14 +1401,9 @@
                             lastUpdatedAt: new Date().toISOString()
                         });
                     });
-                } catch(e) {
-                    window.customAlert("Error al borrar el registro: " + e.message);
-                }
+                } catch(e) { window.customAlert("Error al borrar el registro: " + e.message); }
             });
         };
-
-        // ── GENERADOR Y GESTOR DE CÓDIGOS (NUEVA LÓGICA INTELIGENTE) ──
-        function get4Digits() { return Math.floor(1000 + Math.random() * 9000).toString(); }
 
         window.generateCodesBatch = async function() {
             const btn = document.getElementById('btn-generate-codes');
@@ -1643,20 +1412,14 @@
             window.customConfirm("¿Deseas generar/verificar los códigos? Solo se crearán los códigos faltantes para completar la cuota de cada alumno.", async () => {
                 btn.innerText = "Generando..."; btn.disabled = true;
                 try {
-                    // 1. Descargar la base de datos de anfitriones desde Firestore
                     const hostDataRef = collection(db, 'artifacts', appId, 'public', 'data', 'hostData');
                     const hostDataSnap = await getDocs(hostDataRef);
 
-                    if (hostDataSnap.empty) {
-                        throw new Error("No se encontraron anfitriones. Asegúrate de estar logueado como administrador.");
-                    }
+                    if (hostDataSnap.empty) throw new Error("No se encontraron anfitriones. Asegúrate de estar logueado como administrador.");
 
                     const firestoreDatabase = {};
-                    hostDataSnap.forEach(doc => {
-                        firestoreDatabase[doc.id] = doc.data();
-                    });
+                    hostDataSnap.forEach(doc => { firestoreDatabase[doc.id] = doc.data(); });
 
-                    // 2. Leer los códigos que ya existen
                     const invitesRef = collection(db, 'artifacts', appId, 'public', 'data', 'invites');
                     const existingSnap = await getDocs(invitesRef);
                     const existing = new Set();
@@ -1668,7 +1431,6 @@
                         countByHost[hostName] = (countByHost[hostName] || 0) + 1;
                     });
 
-                    // 3. Generar los códigos faltantes
                     const batch = writeBatch(db);
                     let added = 0;
 
@@ -1699,11 +1461,10 @@
                         window.loadAdminCodes();
                     } else { 
                         window.customAlert("ℹ️ Ya existían los códigos suficientes para todos los anfitriones. No se crearon duplicados."); 
-                        window.loadAdminCodes(); // Carga para actualizar UI
+                        window.loadAdminCodes();
                     }
                 } catch(e) { 
                     window.customAlert("Error al generar códigos. Revisa la consola. " + e.message); 
-                    console.error(e); 
                     btn.innerText = "+ Generar Códigos"; btn.disabled = false; 
                 } 
             });
@@ -1726,20 +1487,14 @@
                 tbody.innerHTML = html || '<div style="padding: 20px; text-align: center;">No hay códigos. Haz clic en Generar.</div>';
                 document.getElementById('admin-total').innerText = allCodes.length;
 
-                // NUEVA LÓGICA: Deshabilitar el botón si ya se alcanzaron o superaron los 104 códigos
                 const btnGen = document.getElementById('btn-generate-codes');
                 if (allCodes.length >= CONFIG.totalCapacity) {
-                    btnGen.disabled = true;
-                    btnGen.style.opacity = '0.5';
-                    btnGen.style.cursor = 'not-allowed';
+                    btnGen.disabled = true; btnGen.style.opacity = '0.5'; btnGen.style.cursor = 'not-allowed';
                     btnGen.innerText = `✓ Códigos Listos (${allCodes.length})`;
                 } else {
-                    btnGen.disabled = false;
-                    btnGen.style.opacity = '1';
-                    btnGen.style.cursor = 'pointer';
+                    btnGen.disabled = false; btnGen.style.opacity = '1'; btnGen.style.cursor = 'pointer';
                     btnGen.innerText = "+ Generar Códigos";
                 }
-
             } catch(e) { tbody.innerHTML = '<div style="color:red; text-align:center;">Error al cargar. (¿Estás como admin?)</div>'; }
         };
 
@@ -1756,9 +1511,8 @@
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         };
 
-        // Reseteo Seguro de Base de Datos
         window.resetDatabase = async function() {
-            window.customPrompt("⚠️ PELIGRO EXTREMO: Borrará invitados, todos los códigos y el contador global de estadísticas.\n\nEscribe la palabra exacta 'RESET ENSO' para continuar:", async (confirmText) => {
+            window.customPrompt("⚠️ PELIGRO EXTREMO: Borrará invitados, códigos y estadísticas.\n\nEscribe 'RESET ENSO' para continuar:", async (confirmText) => {
                 if (confirmText === "RESET ENSO") {
                     try {
                         const guestsSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'guests'));
@@ -1768,7 +1522,6 @@
                         guestsSnap.forEach(docSnap => batch.delete(docSnap.ref));
                         invitesSnap.forEach(docSnap => batch.delete(docSnap.ref));
                         
-                        // Resetear Stats a Cero
                         const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
                         batch.set(statsRef, {
                             confirmedCount: 0,
@@ -1778,9 +1531,9 @@
                         });
 
                         await batch.commit();
-                        window.customAlert("✅ Base de datos reseteada correctamente. Todo ha sido borrado e inicializado.");
+                        window.customAlert("✅ Base de datos reseteada correctamente.");
                         
-                        window.renderAdminTable(); 
+                        if (document.getElementById('view-guests').style.display === 'block') window.renderAdminTable(); 
                         if (document.getElementById('view-codes').style.display === 'block') window.loadAdminCodes();
                     } catch(e) { window.customAlert("Error al resetear la base de datos: " + e.message); }
                 } else {
@@ -1807,73 +1560,25 @@
         }
 
         const btnEnter = document.getElementById('btn-enter'), introOverlay = document.getElementById('intro-overlay'), loadingText = document.getElementById('loading-text'), cinematicContainer = document.getElementById('cinematic-container'), heroVideo = document.getElementById('hero-video'), scrollIndicator = document.getElementById('scroll-down'), mainContent = document.getElementById('main-content'), skipVideoBtn = document.getElementById('skip-video-btn');
-        let videoYaFinalizado = false;
-        let videoInicioTimer = null;
-        let videoStallTimer = null;
+        let videoYaFinalizado = false; let videoInicioTimer = null; let videoStallTimer = null;
 
-        function limpiarTimersVideo() {
-            clearTimeout(videoInicioTimer);
-            clearTimeout(videoStallTimer);
-            videoInicioTimer = null;
-            videoStallTimer = null;
-        }
-
-        function activarProteccionVideo() {
-            limpiarTimersVideo();
-
-            videoInicioTimer = setTimeout(() => {
-                if (!videoYaFinalizado && (heroVideo.paused || heroVideo.readyState < 3)) finalizarVideo();
-            }, 3200);
-        }
-
-        function vigilarVideoTrabado() {
-            clearTimeout(videoStallTimer);
-            videoStallTimer = setTimeout(() => {
-                if (!videoYaFinalizado && !heroVideo.ended) finalizarVideo();
-            }, 2200);
-        }
-
-        function liberarVideoTrabado() {
-            clearTimeout(videoStallTimer);
-            videoStallTimer = null;
-        }
+        function limpiarTimersVideo() { clearTimeout(videoInicioTimer); clearTimeout(videoStallTimer); videoInicioTimer = null; videoStallTimer = null; }
+        function activarProteccionVideo() { limpiarTimersVideo(); videoInicioTimer = setTimeout(() => { if (!videoYaFinalizado && (heroVideo.paused || heroVideo.readyState < 3)) finalizarVideo(); }, 3200); }
+        function vigilarVideoTrabado() { clearTimeout(videoStallTimer); videoStallTimer = setTimeout(() => { if (!videoYaFinalizado && !heroVideo.ended) finalizarVideo(); }, 2200); }
+        function liberarVideoTrabado() { clearTimeout(videoStallTimer); videoStallTimer = null; }
         
         btnEnter.addEventListener('click', () => {
-            btnEnter.disabled = true;
-            btnEnter.style.opacity = '0';
-            loadingText.style.opacity = '1';
-            cinematicContainer.classList.add('play');
-            skipVideoBtn.classList.add('show'); // UX mejora 1
-            introOverlay.style.opacity = '0';
+            btnEnter.disabled = true; btnEnter.style.opacity = '0'; loadingText.style.opacity = '1';
+            cinematicContainer.classList.add('play'); skipVideoBtn.classList.add('show'); introOverlay.style.opacity = '0';
             activarProteccionVideo();
-
-            try {
-                heroVideo.currentTime = 0;
-            } catch (e) {}
-
+            try { heroVideo.currentTime = 0; } catch (e) {}
             const playPromise = heroVideo.play();
-
-            if (playPromise !== undefined) {
-                playPromise
-                    .then(() => { clearTimeout(videoInicioTimer); })
-                    .catch(() => { if (!videoYaFinalizado) finalizarVideo(); });
-            }
-
-            setTimeout(() => {
-                introOverlay.style.display = 'none';
-            }, 1000);
+            if (playPromise !== undefined) { playPromise.then(() => { clearTimeout(videoInicioTimer); }).catch(() => { if (!videoYaFinalizado) finalizarVideo(); }); }
+            setTimeout(() => { introOverlay.style.display = 'none'; }, 1000);
         });
 
-        function activateKeyboardButton(el, handler) {
-            if (!el) return;
-            el.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handler();
-                }
-            });
-        }
-
+        function activateKeyboardButton(el, handler) { if (!el) return; el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); } }); }
+        
         skipVideoBtn.addEventListener('click', () => { if (!videoYaFinalizado) finalizarVideo(); });
         activateKeyboardButton(skipVideoBtn, () => { if (!videoYaFinalizado) finalizarVideo(); });
         heroVideo.addEventListener('ended', () => { if (!videoYaFinalizado) finalizarVideo(); });
@@ -1886,25 +1591,12 @@
 
         function finalizarVideo() {
             if (videoYaFinalizado) return;
-            videoYaFinalizado = true;
-            limpiarTimersVideo();
-            skipVideoBtn.classList.remove('show');
-            heroVideo.pause();
-
-            const videoContainer = document.getElementById('cinematic-container');
-            videoContainer.style.opacity = '0';
-
+            videoYaFinalizado = true; limpiarTimersVideo(); skipVideoBtn.classList.remove('show'); heroVideo.pause();
+            const videoContainer = document.getElementById('cinematic-container'); videoContainer.style.opacity = '0';
             setTimeout(() => {
-                videoContainer.style.display = 'none';
-                heroVideo.removeAttribute('src');
-                heroVideo.querySelectorAll('source').forEach(source => source.removeAttribute('src'));
-                heroVideo.load();
+                videoContainer.style.display = 'none'; heroVideo.removeAttribute('src'); heroVideo.querySelectorAll('source').forEach(source => source.removeAttribute('src')); heroVideo.load();
             }, 1000);
-
-            window.scrollTo(0, 0);
-            scrollIndicator.classList.add('show');
-            mainContent.classList.add('visible');
-            document.body.style.overflowY = 'auto';
+            window.scrollTo(0, 0); scrollIndicator.classList.add('show'); mainContent.classList.add('visible'); document.body.style.overflowY = 'auto';
             setTimeout(() => triggerReveal(), 400);
         }
 
@@ -1916,9 +1608,7 @@
 
         scrollIndicator.addEventListener('click', continuarLeyendo);
         activateKeyboardButton(scrollIndicator, continuarLeyendo);
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 60) scrollIndicator.classList.remove('show');
-        }, { passive: true });
+        window.addEventListener('scroll', () => { if (window.scrollY > 60) scrollIndicator.classList.remove('show'); }, { passive: true });
 
         function triggerReveal() {
             const observer = new IntersectionObserver((entries) => {
