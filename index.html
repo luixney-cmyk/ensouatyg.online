@@ -6,7 +6,7 @@
     
     <!-- Metaetiquetas Open Graph (Social Sharing) -->
     <meta property="og:title" content="ENSŌ - El Noveno Trazo | Cena de Gala">
-    <meta property="og:description" content="El Banquete de Banquetes. La culminación de 9 semestres * Alta Gastronomía Oriental.">
+    <meta property="og:description" content="El Banquete de Banquetes. La culminación de 9 semestres de Alta Gastronomía Oriental.">
     <meta property="og:image" content="enso.png">
     <meta property="og:type" content="website">
     
@@ -200,7 +200,6 @@
         .prose-block p strong { font-weight: 400; color: #ffffff; }
         .seal-wrap { position: relative; display: inline-block; margin: 48px 0 0; }
         .seal-svg { width: 80px; height: 80px; opacity: 0; transform: scale(0.6) rotate(-15deg); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.9s ease; }
-        /* MEJORA: Añadido drop-shadow realista al estamparse */
         .seal-svg.stamped { opacity: 1; transform: scale(1) rotate(-8deg); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); }
 
         .event-details { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.15); margin: 64px 0; }
@@ -229,7 +228,6 @@
 
         .cta-section { text-align: center; padding: 32px 0 48px; position: relative; z-index: 10; }
         
-        /* MEJORA: Animación de latido sutil en el botón principal */
         @keyframes glowingPulse {
             0% { box-shadow: 0 0 10px rgba(212,175,55,0.1); }
             50% { box-shadow: 0 0 25px rgba(212,175,55,0.3); }
@@ -237,7 +235,7 @@
         }
         .confirm-btn { 
             display: inline-block; position: relative; padding: 16px 52px; font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--ink); background: linear-gradient(105deg, #BF953F, #D4AF37, #F5E17A, #D4AF37, #BF953F); background-size: 200%; cursor: pointer; border: none; transition: background-position 0.7s ease, box-shadow 0.4s ease, transform 0.2s ease; background-position: left; 
-            animation: glowingPulse 3s infinite; /* Añadido pulso */
+            animation: glowingPulse 3s infinite;
         }
         .confirm-btn:hover { background-position: right; box-shadow: 0 0 40px rgba(212,175,55,0.45); animation: none; }
         .confirm-btn:active { transform: scale(0.98); }
@@ -256,8 +254,8 @@
         /* ── MODALS (MEJORADOS CON GLASSMORPHISM) ── */
         .modal-overlay {
             position: fixed; inset: 0; 
-            background: rgba(5, 5, 5, 0.85); /* Un poco más transparente para ver el blur */
-            backdrop-filter: blur(8px); /* MEJORA: Desfoque del fondo */
+            background: rgba(5, 5, 5, 0.85); 
+            backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             z-index: 200; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
         }
@@ -265,11 +263,10 @@
         
         .modal-box {
             background: var(--parchment); 
-            border: 1px solid rgba(212, 175, 55, 0.15); /* Borde sutil */
+            border: 1px solid rgba(212, 175, 55, 0.15); 
             padding: 48px 32px;
             max-width: 440px; width: 90%; max-height: 85vh; display: flex; flex-direction: column; text-align: center;
             position: relative; transform: translateY(20px); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            /* MEJORA: Sombra más profunda y anillo dorado interior */
             box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(212,175,55,0.05);
         }
         .modal-overlay.active .modal-box { transform: translateY(0); }
@@ -286,9 +283,8 @@
         .code-input {
             background: transparent; border: none; border-bottom: 1px solid rgba(212,175,55,0.3); color: #fff;
             font-family: 'Cinzel', serif; font-size: 1.2rem; text-align: center; letter-spacing: 0.3em; padding: 12px;
-            width: 80%; text-transform: uppercase; outline: none; transition: all 0.3s ease; /* Transición suave */
+            width: 80%; text-transform: uppercase; outline: none; transition: all 0.3s ease; 
         }
-        /* MEJORA: Focus state mucho más elegante */
         .code-input:focus { 
             border-bottom-color: var(--gold-light); 
             box-shadow: 0 12px 12px -12px rgba(212,175,55,0.6); 
@@ -307,9 +303,29 @@
 
         #personal-message {
             font-family: 'Cormorant Garamond', serif; font-size: clamp(1rem, 4vw, 1.15rem); font-style: italic;
-            line-height: 1.6; color: rgba(235, 225, 205, 0.95); margin: 16px 0 32px; text-align: center;
-            overflow-y: auto; max-height: 70vh; padding-right: 8px;
+            line-height: 1.6; color: rgba(235, 225, 205, 0.95); margin: 16px 0 24px; text-align: center;
+            overflow-y: auto; 
+            max-height: 55vh; /* Reducido para darle espacio respirable al botón */
+            padding-right: 12px;
             -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin; scrollbar-color: rgba(212,175,55,0.4) transparent; /* Para Firefox */
+        }
+        
+        /* Estilos directos para forzar la barra elegante en el mensaje en Chrome/Safari */
+        #personal-message::-webkit-scrollbar { width: 3px; }
+        #personal-message::-webkit-scrollbar-track { background: rgba(212,175,55,0.02); border-radius: 4px; }
+        #personal-message::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.5); border-radius: 4px; }
+        #personal-message::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.8); }
+
+        /* Protección y mejora del botón de aceptar para evitar que se aplaste */
+        #btn-accept-invite {
+            font-size: 0.8rem !important; 
+            font-weight: 800 !important; 
+            padding: 16px 24px !important; 
+            letter-spacing: 0.25em;
+            flex-shrink: 0; /* Evita que el texto largo aplaste el botón */
+            box-shadow: 0 4px 20px rgba(212,175,55,0.2);
+            border-radius: 2px;
         }
 
         .custom-scrollbar { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
@@ -321,13 +337,13 @@
         /* ── MENÚ (MEJORADO CON HOVER EFFECTS) ── */
         .menu-course { 
             position: relative; padding: 40px 16px; border-bottom: 1px solid rgba(212, 175, 55, 0.15);
-            transition: background-color 0.4s ease; /* Transición sutil */
+            transition: background-color 0.4s ease; 
             border-radius: 4px;
         }
-        .menu-course:hover { background-color: rgba(212, 175, 55, 0.03); } /* Efecto hover en items del menú */
+        .menu-course:hover { background-color: rgba(212, 175, 55, 0.03); } 
         .menu-course:last-child { border-bottom: none; padding-bottom: 20px; }
         .menu-course-kanji { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.03); user-select: none; z-index: 0; transition: color 0.4s ease; }
-        .menu-course:hover .menu-course-kanji { color: rgba(212, 175, 55, 0.06); } /* Ilumina ligeramente el kanji al hacer hover */
+        .menu-course:hover .menu-course-kanji { color: rgba(212, 175, 55, 0.06); } 
         
         .menu-course-content { position: relative; z-index: 10; }
         .menu-course-label { font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px; }
@@ -340,13 +356,13 @@
             background: var(--ink); border: 1px solid rgba(212, 175, 55, 0.3); padding: 32px 24px;
             max-width: 440px; width: 95%; text-align: center; position: relative; transform: scale(0.95);
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(212,175,55,0.1); /* Toque extra de profundidad */
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(212,175,55,0.1); 
         }
         .modal-overlay.active .ticket-wrapper { transform: scale(1); }
         .ticket-card {
             position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 2px; overflow: hidden;
             margin-bottom: 24px; box-shadow: 0 10px 20px rgba(0,0,0,0.6); background-color: #050505;
-            border: 1px solid rgba(255,255,255,0.05); /* Marco ligero para la captura */
+            border: 1px solid rgba(255,255,255,0.05); 
         }
         #ticket-bg-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1; }
         .ticket-overlay { 
@@ -727,10 +743,10 @@
 
     <!-- ── MODAL 2: MENSAJE (CARTA VIP / ESTÁNDAR) ── -->
     <div id="modal-message" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="message-title">
-        <div class="modal-box" style="max-width: 520px; padding-top: 56px;">
+        <div class="modal-box" style="max-width: 520px; padding-top: 56px; padding-bottom: 40px;">
             <button class="modal-close" onclick="window.closeModals()" aria-label="Cerrar ventana" style="background:none;border:none;">×</button>
             <h3 id="message-title" class="sr-only" style="display:none;">Mensaje de Invitación</h3>
-            <div id="personal-message"></div>
+            <div id="personal-message" class="custom-scrollbar"></div>
             <button id="btn-accept-invite" class="btn-outline" style="margin-top: auto;"></button>
         </div>
     </div>
