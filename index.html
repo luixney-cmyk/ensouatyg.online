@@ -752,9 +752,10 @@
 
             <div id="view-codes" style="display:none;">
                 <div style="margin-bottom: 16px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                    <button id="btn-update-quota" class="btn-outline" style="border-color: #facc15; color: #facc15;" onclick="window.updateQuotasToSix()">⚙️ Cambiar a 6 Invitados</button>
                     <button id="btn-generate-codes" class="btn-outline" style="border-color: #4ade80; color: #4ade80;" onclick="window.generateCodesBatch()">+ Generar Códigos</button>
-                    <button id="btn-export-csv" class="btn-outline" style="border-color: #60a5fa; color: #60a5fa;" onclick="window.exportCodesCSV()">↓ Exportar a Excel (CSV)</button>
-                    <button id="btn-reset-db" class="btn-outline" style="border-color: #ef4444; color: #ef4444;" onclick="window.resetDatabase()">⚠️ Resetear Base de Datos</button>
+                    <button id="btn-export-csv" class="btn-outline" style="border-color: #60a5fa; color: #60a5fa;" onclick="window.exportCodesCSV()">↓ Exportar a Excel</button>
+                    <button id="btn-reset-db" class="btn-outline" style="border-color: #ef4444; color: #ef4444;" onclick="window.resetDatabase()">⚠️ Resetear DB</button>
                 </div>
                 <div id="codes-table-body" style="max-height: 50vh; overflow-y:auto; padding-right: 4px; text-align: left;" class="custom-scrollbar"></div>
             </div>
@@ -806,7 +807,7 @@
     <script type="module">
         const CONFIG = {
             eventDate: "01 de diciembre 2026",
-            totalCapacity: 104,
+            totalCapacity: 104, // Este valor ahora se actualizará dinámicamente desde Firebase
             appId: 'enso-uatyg-gala'
         };
         const ADMIN_EMAIL = "luixnay@gmail.com";
@@ -923,7 +924,8 @@
                     const counterEl = document.getElementById('live-counter');
                     if (docSnap.exists() && counterEl) {
                         const data = docSnap.data();
-                        counterEl.innerText = `${data.confirmedCount || 0} / ${data.totalCapacity || CONFIG.totalCapacity} LUGARES CONFIRMADOS`;
+                        CONFIG.totalCapacity = data.totalCapacity || CONFIG.totalCapacity; // Se actualiza la capacidad localmente
+                        counterEl.innerText = `${data.confirmedCount || 0} / ${CONFIG.totalCapacity} LUGARES CONFIRMADOS`;
                     } else if (counterEl) {
                         counterEl.innerText = `0 / ${CONFIG.totalCapacity} LUGARES CONFIRMADOS`;
                     }
@@ -1428,14 +1430,51 @@
             });
         };
 
-        // ── GENERADOR Y GESTOR DE CÓDIGOS (NUEVA LÓGICA INTELIGENTE) ──
+        // ── BOTÓN NUEVO: ACTUALIZAR CUOTA EN LA BASE DE DATOS (FIREBASE) ──
+        window.updateQuotasToSix = async function() {
+            window.customConfirm("¿Actualizar la cuota de todos los alumnos a 6 invitados?\n\nEsto modificará los datos en Firebase automáticamente. Al terminar, deberás hacer clic en '+ Generar Códigos' para crear los nuevos pases.", async () => {
+                const btn = document.getElementById('btn-update-quota');
+                const originalText = btn.innerText;
+                btn.innerText = "Actualizando..."; btn.disabled = true;
+                try {
+                    const hostDataRef = collection(db, 'artifacts', appId, 'public', 'data', 'hostData');
+                    const hostDataSnap = await getDocs(hostDataRef);
+                    
+                    if (hostDataSnap.empty) {
+                        throw new Error("No se encontraron alumnos en la base de datos.");
+                    }
+
+                    const batch = writeBatch(db);
+                    let updatedCount = 0;
+
+                    hostDataSnap.forEach(docSnap => {
+                        const data = docSnap.data();
+                        // Actualizamos solo a los alumnos (evitamos actualizar cuotas fijas a VIPs si tienen type 'special')
+                        if (data.type !== 'special') { 
+                            batch.update(docSnap.ref, { count: 6 });
+                            updatedCount++;
+                        }
+                    });
+
+                    await batch.commit();
+                    window.customAlert(`✅ Éxito: Se actualizó la cuota a 6 invitados para ${updatedCount} alumnos.\n\nPor favor, haz clic ahora en "+ Generar Códigos" para crear los pases faltantes y ajustar el aforo total.`);
+                } catch(e) {
+                    window.customAlert("Error al actualizar cuotas: " + e.message);
+                    console.error(e);
+                } finally {
+                    btn.innerText = originalText; btn.disabled = false;
+                }
+            });
+        };
+
+        // ── GENERADOR Y GESTOR DE CÓDIGOS (AHORA RECALCULA EL AFORO TOTAL DINÁMICAMENTE) ──
         function get4Digits() { return Math.floor(1000 + Math.random() * 9000).toString(); }
 
         window.generateCodesBatch = async function() {
             const btn = document.getElementById('btn-generate-codes');
             if (btn.disabled) return;
 
-            window.customConfirm("¿Deseas generar/verificar los códigos? Solo se crearán los códigos faltantes para completar la cuota de cada alumno.", async () => {
+            window.customConfirm("¿Deseas generar los códigos faltantes? El sistema revisará la cuota de cada alumno y creará los pases que hagan falta.", async () => {
                 btn.innerText = "Generando..."; btn.disabled = true;
                 try {
                     // 1. Descargar la base de datos de anfitriones desde Firestore
@@ -1463,11 +1502,13 @@
                         countByHost[hostName] = (countByHost[hostName] || 0) + 1;
                     });
 
-                    // 3. Generar los códigos faltantes
+                    // 3. Generar los códigos faltantes y sumar el total de la capacidad
                     const batch = writeBatch(db);
                     let added = 0;
+                    let newTotalCapacity = 0;
 
                     for (const [basePrefix, data] of Object.entries(firestoreDatabase)) {
+                        newTotalCapacity += data.count; // Sumamos la cuota autorizada (ahora 6)
                         const currentCount = countByHost[data.name] || 0;
                         const codesNeeded = data.count - currentCount;
 
@@ -1488,13 +1529,19 @@
                         }
                     }
 
+                    // Actualizamos el contador total en base a la suma de todas las cuotas dinámicas
+                    const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
+                    batch.set(statsRef, { totalCapacity: newTotalCapacity }, { merge: true });
+                    CONFIG.totalCapacity = newTotalCapacity;
+
                     if(added > 0) {
                         await batch.commit(); 
-                        window.customAlert(`✅ Se generaron ${added} códigos nuevos exitosamente.`); 
+                        window.customAlert(`✅ Se generaron ${added} códigos nuevos exitosamente.\n\nEl aforo total oficial ahora es de ${newTotalCapacity} lugares.`); 
                         window.loadAdminCodes();
                     } else { 
-                        window.customAlert("ℹ️ Ya existían los códigos suficientes para todos los anfitriones. No se crearon duplicados."); 
-                        window.loadAdminCodes(); // Carga para actualizar UI
+                        await batch.commit(); // Hacemos commit de todas formas para asegurar que el aforo se haya actualizado si cambió
+                        window.customAlert(`ℹ️ Ya existían los códigos suficientes.\n\nEl aforo total oficial se ha ajustado a ${newTotalCapacity} lugares.`); 
+                        window.loadAdminCodes();
                     }
                 } catch(e) { 
                     window.customAlert("Error al generar códigos. Revisa la consola. " + e.message); 
@@ -1521,19 +1568,12 @@
                 tbody.innerHTML = html || '<div style="padding: 20px; text-align: center;">No hay códigos. Haz clic en Generar.</div>';
                 document.getElementById('admin-total').innerText = allCodes.length;
 
-                // NUEVA LÓGICA: Deshabilitar el botón si ya se alcanzaron o superaron los 104 códigos
+                // El botón siempre debe estar disponible para que el admin pueda recalcular cuotas
                 const btnGen = document.getElementById('btn-generate-codes');
-                if (allCodes.length >= CONFIG.totalCapacity) {
-                    btnGen.disabled = true;
-                    btnGen.style.opacity = '0.5';
-                    btnGen.style.cursor = 'not-allowed';
-                    btnGen.innerText = `✓ Códigos Listos (${allCodes.length})`;
-                } else {
-                    btnGen.disabled = false;
-                    btnGen.style.opacity = '1';
-                    btnGen.style.cursor = 'pointer';
-                    btnGen.innerText = "+ Generar Códigos";
-                }
+                btnGen.disabled = false;
+                btnGen.style.opacity = '1';
+                btnGen.style.cursor = 'pointer';
+                btnGen.innerText = "+ Generar Códigos";
 
             } catch(e) { tbody.innerHTML = '<div style="color:red; text-align:center;">Error al cargar. (¿Estás como admin?)</div>'; }
         };
@@ -1567,7 +1607,7 @@
                         const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
                         batch.set(statsRef, {
                             confirmedCount: 0,
-                            totalCapacity: CONFIG.totalCapacity,
+                            totalCapacity: CONFIG.totalCapacity, // Mantiene la última capacidad generada
                             lastInviteCode: "",
                             lastUpdatedAt: new Date().toISOString()
                         });
