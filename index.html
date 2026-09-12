@@ -131,6 +131,7 @@
             color: rgba(212,175,55,0.65); text-transform: uppercase; cursor: pointer; z-index: 50; transition: color 0.3s ease, opacity 0.3s ease, border-color 0.3s ease;
             opacity: 0; pointer-events: none; background: rgba(5,5,5,0.55); border: 1px solid rgba(212,175,55,0.25);
             padding: 10px 14px; border-radius: 999px; user-select: none;
+            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
         }
         #skip-video-btn.show { opacity: 1; pointer-events: auto; }
         #skip-video-btn:hover { color: rgba(212,175,55,1); border-color: rgba(212,175,55,0.7); }
@@ -165,7 +166,7 @@
         .hero-headline .line-gold { display: block; }
         .hero-headline .line-white {
             display: block; color: #ffffff; font-size: 0.75em; letter-spacing: 0.35em; margin-top: 12px;
-            font-weight: 400; line-height: 1.3;
+            font-weight: 400; line-height: 1.3; text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
         @media (max-width: 768px) {
@@ -195,11 +196,12 @@
 
         .prose-block { text-align: center; }
         .prose-block .eyebrow { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.75rem; letter-spacing: 0.45em; text-transform: uppercase; color: rgba(212,175,55,0.5); display: block; margin-bottom: 28px; }
-        .prose-block p { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.2rem, 2.5vw, 1.6rem); font-weight: 300; line-height: 1.9; color: rgba(245, 240, 230, 0.95); margin-bottom: 20px; }
+        .prose-block p { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.2rem, 2.5vw, 1.6rem); font-weight: 300; line-height: 1.9; color: rgba(245, 240, 230, 0.95); margin-bottom: 20px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
         .prose-block p strong { font-weight: 400; color: #ffffff; }
         .seal-wrap { position: relative; display: inline-block; margin: 48px 0 0; }
-        .seal-svg { width: 80px; height: 80px; opacity: 0; transform: scale(0.6) rotate(-15deg); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .seal-svg.stamped { opacity: 1; transform: scale(1) rotate(-8deg); }
+        .seal-svg { width: 80px; height: 80px; opacity: 0; transform: scale(0.6) rotate(-15deg); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.9s ease; }
+        /* MEJORA: Añadido drop-shadow realista al estamparse */
+        .seal-svg.stamped { opacity: 1; transform: scale(1) rotate(-8deg); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); }
 
         .event-details { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.15); margin: 64px 0; }
         @media (max-width: 600px) { .event-details { grid-template-columns: 1fr; } }
@@ -215,7 +217,7 @@
         
         .color-swatches { display: flex; justify-content: center; align-items: flex-start; gap: 16px; margin-top: 24px; flex-wrap: wrap; }
         .swatch { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 70px; }
-        .swatch-dot { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.15); }
+        .swatch-dot { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.15); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
         .swatch-label { font-family: 'Cormorant Garamond', serif; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(210,200,185,0.4); text-align: center; line-height: 1.3; }
         .swatch-sep { width: 1px; height: 28px; background: rgba(212,175,55,0.2); margin-top: 4px; }
         
@@ -226,8 +228,18 @@
         }
 
         .cta-section { text-align: center; padding: 32px 0 48px; position: relative; z-index: 10; }
-        .confirm-btn { display: inline-block; position: relative; padding: 16px 52px; font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--ink); background: linear-gradient(105deg, #BF953F, #D4AF37, #F5E17A, #D4AF37, #BF953F); background-size: 200%; cursor: pointer; border: none; transition: background-position 0.7s ease, box-shadow 0.4s ease, transform 0.2s ease; background-position: left; }
-        .confirm-btn:hover { background-position: right; box-shadow: 0 0 40px rgba(212,175,55,0.35); }
+        
+        /* MEJORA: Animación de latido sutil en el botón principal */
+        @keyframes glowingPulse {
+            0% { box-shadow: 0 0 10px rgba(212,175,55,0.1); }
+            50% { box-shadow: 0 0 25px rgba(212,175,55,0.3); }
+            100% { box-shadow: 0 0 10px rgba(212,175,55,0.1); }
+        }
+        .confirm-btn { 
+            display: inline-block; position: relative; padding: 16px 52px; font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--ink); background: linear-gradient(105deg, #BF953F, #D4AF37, #F5E17A, #D4AF37, #BF953F); background-size: 200%; cursor: pointer; border: none; transition: background-position 0.7s ease, box-shadow 0.4s ease, transform 0.2s ease; background-position: left; 
+            animation: glowingPulse 3s infinite; /* Añadido pulso */
+        }
+        .confirm-btn:hover { background-position: right; box-shadow: 0 0 40px rgba(212,175,55,0.45); animation: none; }
         .confirm-btn:active { transform: scale(0.98); }
         .confirm-btn::after { content: ''; position: absolute; inset: -4px; border: 1px solid rgba(212,175,55,0.3); pointer-events: none; }
 
@@ -241,18 +253,24 @@
         .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.9s ease, transform 0.9s ease; }
         .reveal.visible { opacity: 1; transform: translateY(0); }
 
-        /* ── MODALS ── */
+        /* ── MODALS (MEJORADOS CON GLASSMORPHISM) ── */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(8, 8, 8, 0.98);
+            position: fixed; inset: 0; 
+            background: rgba(5, 5, 5, 0.85); /* Un poco más transparente para ver el blur */
+            backdrop-filter: blur(8px); /* MEJORA: Desfoque del fondo */
+            -webkit-backdrop-filter: blur(8px);
             z-index: 200; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
         }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         
         .modal-box {
-            background: var(--parchment); border: 1px solid rgba(212, 175, 55, 0.2); padding: 48px 32px;
+            background: var(--parchment); 
+            border: 1px solid rgba(212, 175, 55, 0.15); /* Borde sutil */
+            padding: 48px 32px;
             max-width: 440px; width: 90%; max-height: 85vh; display: flex; flex-direction: column; text-align: center;
             position: relative; transform: translateY(20px); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            /* MEJORA: Sombra más profunda y anillo dorado interior */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(212,175,55,0.05);
         }
         .modal-overlay.active .modal-box { transform: translateY(0); }
 
@@ -260,17 +278,22 @@
             position: absolute; top: 16px; right: 20px; color: rgba(212,175,55,0.5); font-size: 1.5rem;
             cursor: pointer; transition: color 0.3s; font-family: sans-serif; line-height: 1; z-index: 50;
         }
-        .modal-close:hover { color: var(--gold); }
+        .modal-close:hover { color: var(--gold); transform: scale(1.1); }
         .modal-title { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--gold-light); letter-spacing: 0.15em; margin-bottom: 12px; }
         .modal-text { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.6; margin-bottom: 32px; }
         
         .code-input-wrap { position: relative; margin-bottom: 24px; }
         .code-input {
-            background: transparent; border: none; border-bottom: 1px solid rgba(212,175,55,0.4); color: #fff;
+            background: transparent; border: none; border-bottom: 1px solid rgba(212,175,55,0.3); color: #fff;
             font-family: 'Cinzel', serif; font-size: 1.2rem; text-align: center; letter-spacing: 0.3em; padding: 12px;
-            width: 80%; text-transform: uppercase; outline: none; transition: border-color 0.3s, box-shadow 0.3s;
+            width: 80%; text-transform: uppercase; outline: none; transition: all 0.3s ease; /* Transición suave */
         }
-        .code-input:focus { border-bottom-color: var(--gold); box-shadow: 0 10px 10px -10px rgba(212,175,55,0.4); }
+        /* MEJORA: Focus state mucho más elegante */
+        .code-input:focus { 
+            border-bottom-color: var(--gold-light); 
+            box-shadow: 0 12px 12px -12px rgba(212,175,55,0.6); 
+            background: rgba(212, 175, 55, 0.02);
+        }
         .code-input::placeholder { color: rgba(255,255,255,0.15); font-size: 0.9rem; letter-spacing: 0.1em; }
         .code-error { color: #8B1A2A; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; margin-top: 8px; opacity: 0; transition: opacity 0.3s; font-style: italic; }
 
@@ -279,8 +302,8 @@
             font-family: 'Cinzel', serif; letter-spacing: 0.2em; text-transform: uppercase; font-size: 0.7rem;
             background: transparent; cursor: pointer; transition: all 0.3s ease;
         }
-        .btn-outline:hover { background: rgba(212, 175, 55, 0.1); border-color: var(--gold); color: #fff; }
-        .btn-outline:disabled { opacity: 0.5; cursor: not-allowed; border-color: rgba(212, 175, 55, 0.2); }
+        .btn-outline:hover { background: rgba(212, 175, 55, 0.1); border-color: var(--gold-light); color: #fff; box-shadow: 0 0 15px rgba(212,175,55,0.15); }
+        .btn-outline:disabled { opacity: 0.5; cursor: not-allowed; border-color: rgba(212, 175, 55, 0.2); box-shadow: none; }
 
         #personal-message {
             font-family: 'Cormorant Garamond', serif; font-size: clamp(1rem, 4vw, 1.15rem); font-style: italic;
@@ -288,35 +311,42 @@
             overflow-y: auto; max-height: 70vh; padding-right: 8px;
             -webkit-overflow-scrolling: touch;
         }
-        #personal-message::-webkit-scrollbar { width: 3px; }
-        #personal-message::-webkit-scrollbar-track { background: rgba(212,175,55,0.05); }
-        #personal-message::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.4); border-radius: 2px; }
 
         .custom-scrollbar { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 2px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.5); }
 
-        /* ── MENÚ ── */
-        .menu-course { position: relative; padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.15); }
+        /* ── MENÚ (MEJORADO CON HOVER EFFECTS) ── */
+        .menu-course { 
+            position: relative; padding: 40px 16px; border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+            transition: background-color 0.4s ease; /* Transición sutil */
+            border-radius: 4px;
+        }
+        .menu-course:hover { background-color: rgba(212, 175, 55, 0.03); } /* Efecto hover en items del menú */
         .menu-course:last-child { border-bottom: none; padding-bottom: 20px; }
-        .menu-course-kanji { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.04); user-select: none; z-index: 0; }
+        .menu-course-kanji { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Noto Serif JP', serif; font-size: 8rem; color: rgba(212, 175, 55, 0.03); user-select: none; z-index: 0; transition: color 0.4s ease; }
+        .menu-course:hover .menu-course-kanji { color: rgba(212, 175, 55, 0.06); } /* Ilumina ligeramente el kanji al hacer hover */
+        
         .menu-course-content { position: relative; z-index: 10; }
         .menu-course-label { font-family:'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 8px; }
         .menu-course-title { font-family:'Cinzel', serif; font-size: 1.2rem; color: var(--off-white); margin-bottom: 12px; }
         .menu-course-desc { font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300; }
         .menu-course-note { font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem; }
 
-        /* ── MODAL BOLETO IMPRESO ── */
+        /* ── MODAL BOLETO IMPRESO (MEJORAS ESTÉTICAS) ── */
         .ticket-wrapper {
             background: var(--ink); border: 1px solid rgba(212, 175, 55, 0.3); padding: 32px 24px;
             max-width: 440px; width: 95%; text-align: center; position: relative; transform: scale(0.95);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(212,175,55,0.1); /* Toque extra de profundidad */
         }
         .modal-overlay.active .ticket-wrapper { transform: scale(1); }
         .ticket-card {
             position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 2px; overflow: hidden;
-            margin-bottom: 24px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); background-color: #050505;
+            margin-bottom: 24px; box-shadow: 0 10px 20px rgba(0,0,0,0.6); background-color: #050505;
+            border: 1px solid rgba(255,255,255,0.05); /* Marco ligero para la captura */
         }
         #ticket-bg-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1; }
         .ticket-overlay { 
@@ -327,12 +357,12 @@
         .ticket-info { text-align: center; width: 100%; margin-bottom: 0px; }
         .ticket-guest-name { 
             font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 4.5vw, 1.4rem); color: var(--gold-light); 
-            letter-spacing: 0.1em; line-height: 1.2; margin-bottom: 4px; text-shadow: 0 2px 6px rgba(0,0,0,0.9); 
+            letter-spacing: 0.1em; line-height: 1.2; margin-bottom: 4px; text-shadow: 0 2px 8px rgba(0,0,0,0.95); 
             text-align: center;
         }
         .ticket-table-num { 
             font-family: 'Cinzel', serif; font-size: 1rem; color: #ffffff; 
-            letter-spacing: 0.4em; text-transform: uppercase; text-shadow: 0 2px 6px rgba(0,0,0,0.9); 
+            letter-spacing: 0.4em; text-transform: uppercase; text-shadow: 0 2px 6px rgba(0,0,0,0.95); 
             text-align: center; font-weight: 600;
         }
         .ticket-date { 
@@ -351,7 +381,7 @@
         .admin-guest-actions { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(212,175,55,0.1); padding-top: 12px; }
         
         .admin-tab { padding: 8px 16px; cursor: pointer; border: 1px solid rgba(212,175,55,0.3); color: rgba(212,175,55,0.5); border-radius: 4px; font-family: 'Cinzel', serif; font-size: 0.7rem; transition: all 0.3s; background: transparent; }
-        .admin-tab.active { background: rgba(212,175,55,0.1); color: var(--gold-light); border-color: var(--gold-light); }
+        .admin-tab.active { background: rgba(212,175,55,0.15); color: var(--gold-light); border-color: var(--gold-light); }
 
         .admin-code-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid rgba(212,175,55,0.1); align-items: center; font-family: 'Cormorant Garamond', serif;}
         .admin-code-val { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold-light); letter-spacing: 0.1em; font-weight: bold; }
