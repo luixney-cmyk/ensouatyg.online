@@ -916,7 +916,7 @@
         }
 
         function isValidGuestName(name) {
-            return typeof name === 'string' && name.length >= 2 && name.length <= 80 && /^[A-ZÁÉÍÓÚÜÑ\s]+$/i.test(name);
+            return typeof name === 'string' && name.length >= 2 && name.length <= 80 && /^[A-ZÁÉÍÓÚÜÑ\s\.,\'-]+$/i.test(name);
         }
 
         // Render seguro: conserva saltos de línea y etiquetas <br>, pero nunca ejecuta HTML del invitado/admin.
@@ -1224,9 +1224,9 @@
                 nameErrorText.innerText = "Por favor ingresa tu nombre para continuar."; nameErrorText.style.opacity = '1'; guestNameInput.focus(); return;
             }
 
-            const nameRegex = /^[A-ZÁÉÍÓÚÜÑ\s]+$/i;
+            const nameRegex = /^[A-ZÁÉÍÓÚÜÑ\s\.,\'-]+$/i;
             if (!nameRegex.test(guestName)) {
-                nameErrorText.innerText = "El nombre solo puede contener letras y espacios.";
+                nameErrorText.innerText = "El nombre solo puede contener letras, espacios, puntos o guiones.";
                 nameErrorText.style.opacity = '1'; guestNameInput.focus(); return;
             }
 
