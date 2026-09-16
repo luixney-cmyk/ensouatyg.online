@@ -183,7 +183,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl md:text-2xl text-gold tracking-widest uppercase">ENSŌ Planner</h1>
-                    <p class="text-xs uppercase tracking-[0.2em] opacity-50 italic">El Noveno Trazo · Gala E5</p>
+                    <p class="text-xs uppercase tracking-[0.2em] opacity-50 italic">Control Financiero y Aforo <span id="sync-status" class="ml-2 font-bold tracking-normal"></span></p>
                 </div>
             </div>
 
@@ -392,7 +392,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Global Vars for Firebase
         const appId = 'enso-uatyg-gala'; 
@@ -514,6 +514,43 @@
             setDoc(docRef, state, { merge: false });
         };
 
+        window.syncHostData = async function() {
+            const syncStatus = document.getElementById('sync-status');
+            if(syncStatus) { syncStatus.innerText = 'Sincronizando...'; syncStatus.style.color = 'var(--gold)'; }
+            
+            try {
+                const hostDataRef = collection(db, 'artifacts', appId, 'public', 'data', 'hostData');
+                const hostDataSnap = await getDocs(hostDataRef);
+                const batch = writeBatch(db);
+                let updates = 0;
+                
+                hostDataSnap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (data.type !== 'special') { // Ignoramos VIPs
+                        const studentInPlan = state.students.find(st => st.name === data.name);
+                        if (studentInPlan && studentInPlan.assignedTable) {
+                            const newCount = state.settings.baseSeats + studentInPlan.extra;
+                            const newTable = studentInPlan.assignedTable;
+                            
+                            // Solo actualizamos si hubo un cambio real
+                            if (data.count !== newCount || data.table !== newTable) {
+                                batch.update(docSnap.ref, { count: newCount, table: newTable });
+                                updates++;
+                            }
+                        }
+                    }
+                });
+                
+                if (updates > 0) {
+                    await batch.commit();
+                }
+                if(syncStatus) { syncStatus.innerText = '✔ Sincronizado'; syncStatus.style.color = '#4ade80'; setTimeout(()=>syncStatus.innerText='', 3500);}
+            } catch (e) {
+                console.error("Error al sincronizar con hostData:", e);
+                if(syncStatus) { syncStatus.innerText = '❌ Error DB'; syncStatus.style.color = '#ff6b6b'; }
+            }
+        }
+
         window.resetData = function() {
             // Reemplazo visual elegante de confirm() para mantener compatibilidad iframe
             const isConfirmed = prompt("Peligro: Esto borrará TODOS los abonos y gastos. Escribe 'RESET' para confirmar.");
@@ -540,7 +577,10 @@
                 if (newExtra < 0) newExtra = 0;
                 if (newExtra > state.settings.maxExtra) newExtra = state.settings.maxExtra;
                 student.extra = newExtra;
-                window.saveData();
+                
+                renderAll(); // 1. Calcula las nuevas mesas en memoria y actualiza UI visualmente
+                window.saveData(); // 2. Guarda el progreso del planner
+                window.syncHostData(); // 3. Dispara la sincronización en segundo plano con Firestore
             }
         };
 
@@ -675,87 +715,84 @@
                 students: []
             };
 
-            // Cálculos VIP
+            // Cálculos VIP (Normalmente Mesas 1 y 2)
             state.vipTables.forEach(t => {
                 totalGuests += t.capacity;
                 computedTables.vip.push({
-                    type: 'vip', names: [t.name], capacity: t.capacity, guests: t.capacity
+                    type: 'vip', names: [t.name], capacity: t.capacity, guests: t.capacity, label: t.name
                 });
             });
 
-            // Cálculos Financieros
+            // Agrupación de alumnos por su mesa base original (parejas)
+            const tableGroups = {};
             state.students.forEach(s => {
                 quotasIncome += (s.paid || 0);
                 extrasIncome += (s.extra || 0) * state.settings.extraPrice;
-            });
-
-            const totalIncome = quotasIncome + extrasIncome;
-            const balance = totalIncome - totalExpenses;
-
-            // Agrupación de alumnos
-            const tableGroups = {};
-            state.students.forEach(s => {
+                
                 if (!tableGroups[s.baseTable]) tableGroups[s.baseTable] = [];
                 tableGroups[s.baseTable].push(s);
             });
 
-            const singlesToPair = []; // Alumnos que deben ser emparejados automáticamente
+            const singlesToPair = []; 
+            const provisionalStudentTables = [];
 
+            // 1. Separar a los que compraron extras en sus propias mesas
             Object.keys(tableGroups).sort((a,b) => Number(a) - Number(b)).forEach(tableNum => {
                 const group = tableGroups[tableNum];
-                if (group.length === 2) {
-                    const s1 = group[0];
-                    const s2 = group[1];
-                    
-                    if (s1.extra > 0) {
-                        totalGuests += state.settings.baseSeats + s1.extra;
-                        computedTables.students.push({
-                            type: 'individual', label: `MESA ${tableNum}A`, names: [s1.name], capacity: state.settings.baseSeats + s1.extra, guests: state.settings.baseSeats + s1.extra, extras: s1.extra
+                group.forEach(s => {
+                    if (s.extra > 0) {
+                        provisionalStudentTables.push({
+                            type: 'individual', names: [s.name], 
+                            capacity: state.settings.baseSeats + s.extra, guests: state.settings.baseSeats + s.extra, 
+                            extras: s.extra, studentsObj: [s]
                         });
                     } else {
-                        singlesToPair.push({ student: s1, originalTable: tableNum + 'A' }); // Mandamos a lista de espera
+                        singlesToPair.push(s);
                     }
-
-                    if (s2.extra > 0) {
-                        totalGuests += state.settings.baseSeats + s2.extra;
-                        computedTables.students.push({
-                            type: 'individual', label: `MESA ${tableNum}B`, names: [s2.name], capacity: state.settings.baseSeats + s2.extra, guests: state.settings.baseSeats + s2.extra, extras: s2.extra
-                        });
-                    } else {
-                        singlesToPair.push({ student: s2, originalTable: tableNum + 'B' }); // Mandamos a lista de espera
-                    }
-                }
+                });
             });
 
-            // Emparejar automáticamente a todos los alumnos solitarios (sin importar su mesa original)
+            // 2. Emparejar automáticamente a todos los alumnos solitarios (de 6 en 6)
             for (let i = 0; i < singlesToPair.length; i += 2) {
                 if (i + 1 < singlesToPair.length) {
                     const p1 = singlesToPair[i];
                     const p2 = singlesToPair[i + 1];
-                    const tableGuests = state.settings.baseSeats * 2; // Siempre 12
-                    totalGuests += tableGuests;
-                    computedTables.students.push({
+                    const tableGuests = state.settings.baseSeats * 2; // 12
+                    provisionalStudentTables.push({
                         type: 'combined',
-                        label: `MESAS ${parseInt(p1.originalTable)} & ${parseInt(p2.originalTable)}`,
-                        names: [p1.student.name, p2.student.name],
-                        capacity: tableGuests,
-                        guests: tableGuests,
-                        extras: 0
+                        names: [p1.name, p2.name],
+                        capacity: tableGuests, guests: tableGuests, 
+                        extras: 0, studentsObj: [p1, p2]
                     });
                 } else {
                     // Impares: el último se queda solo en 6
                     const p = singlesToPair[i];
-                    totalGuests += state.settings.baseSeats;
-                    computedTables.students.push({
+                    provisionalStudentTables.push({
                         type: 'individual',
-                        label: `MESA ${p.originalTable}`,
-                        names: [p.student.name],
-                        capacity: state.settings.baseSeats,
-                        guests: state.settings.baseSeats,
-                        extras: 0
+                        names: [p.name],
+                        capacity: state.settings.baseSeats, guests: state.settings.baseSeats, 
+                        extras: 0, studentsObj: [p]
                     });
                 }
             }
+
+            // 3. ASIGNAR NÚMEROS DE MESA REALES (A partir de la Mesa 3)
+            let nextTableNumber = 3;
+            provisionalStudentTables.forEach(t => {
+                t.displayNumber = nextTableNumber++;
+                t.label = `MESA ${t.displayNumber}`;
+                totalGuests += t.capacity;
+                
+                // Inyectamos el nuevo número de mesa asignado al objeto del estudiante
+                t.studentsObj.forEach(s => {
+                    s.assignedTable = t.displayNumber;
+                });
+                
+                computedTables.students.push(t);
+            });
+
+            const totalIncome = quotasIncome + extrasIncome;
+            const balance = totalIncome - totalExpenses;
 
             return { computedTables, totalGuests, totalIncome, totalExpenses, balance };
         }
@@ -813,17 +850,18 @@
             `).join('');
             document.getElementById('vip-list').innerHTML = vipHtml;
 
-            // Render Student List (Con finanzas integradas)
+            // Render Student List (Con finanzas integradas y mesa asignada dinámica)
             const studentHtml = state.students.map(s => {
                 const totalSeats = state.settings.baseSeats + s.extra;
                 const canAdd = s.extra < state.settings.maxExtra;
                 const isPaid = (s.paid || 0) >= state.settings.quotaPrice;
+                const displayedTable = s.assignedTable || s.baseTable;
                 
                 return `
                 <div class="student-row grid grid-cols-12 gap-2 items-center py-2 px-2 border-b border-[rgba(255,255,255,0.05)]">
                     <div class="col-span-4 cinzel text-[0.7rem] tracking-wider truncate flex flex-col justify-center" title="${s.name}">
                         <span>${s.name}</span>
-                        <span class="text-[0.5rem] w-fit py-[1px] px-[4px] border border-[rgba(212,175,55,0.3)] rounded bg-[rgba(212,175,55,0.1)] text-gold-light mt-[2px]">M${s.baseTable}</span>
+                        <span class="text-[0.5rem] w-fit py-[1px] px-[4px] border border-[rgba(212,175,55,0.3)] rounded bg-[rgba(212,175,55,0.1)] text-gold-light mt-[2px]">M${displayedTable}</span>
                     </div>
                     
                     <div class="col-span-4 flex justify-center items-center">
@@ -869,6 +907,7 @@
                 let widthClass = 'w-32 h-32';
                 let bgClass = 'bg-[rgba(255,255,255,0.02)]';
                 
+                // Actualizado para reflejar la etiqueta "MESA X" calculada dinámicamente
                 let nameHtml = `
                     <span class="table-name tracking-widest text-[0.6rem] text-gold uppercase mb-1">${t.label}</span>
                     <span class="table-name tracking-widest text-sm text-gray-200 uppercase">${t.names[0]}</span>
