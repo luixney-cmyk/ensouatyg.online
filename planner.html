@@ -3,399 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ENSŌ - Organizador de Banquete</title>
-    
-    <!-- Carga de Tailwind CSS para maquetado responsivo rápido -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Fuentes tipográficas de la invitación -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
-    
-    <!-- Iconos Phosphor -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
+    <title>ENSŌ - Planner & Finanzas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
-            --gold:       #D4AF37;
-            --gold-light: #F5E17A;
-            --gold-dim:   #7A6120;
-            --ink:        #050505;
-            --parchment:  #0D0B08;
-            --parchment-light: #16130e;
-            --red-seal:   #8B1A2A;
-            --off-white:  #D9D0C0;
+            --gold: #D4AF37; --gold-light: #F5E17A; --ink: #050505; --parchment: #0D0B08; --red-seal: #8B1A2A; --off-white: #D9D0C0;
+            --bg-panel: rgba(255, 255, 255, 0.03); --border-color: rgba(212, 175, 55, 0.2);
         }
-
         body {
-            background-color: var(--ink);
-            color: var(--off-white);
-            font-family: 'Cormorant Garamond', serif;
-            -webkit-font-smoothing: antialiased;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            background-color: var(--ink); color: var(--off-white);
+            font-family: 'Cormorant Garamond', serif; overflow-x: hidden;
         }
-
-        h1, h2, h3, h4, .cinzel, .table-name {
-            font-family: 'Cinzel', serif;
+        .cinzel { font-family: 'Cinzel', serif; }
+        
+        /* OVERLAY LOGIN */
+        #login-overlay {
+            position: fixed; inset: 0; background: var(--ink); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
         }
-
-        .text-gold {
-            background: linear-gradient(105deg, #BF953F 0%, #FCF6BA 40%, #B38728 70%, #FBF5B7 100%);
-            -webkit-background-clip: text; background-clip: text; color: transparent;
+        .btn {
+            border: 1px solid var(--gold); color: var(--gold-light); background: transparent;
+            padding: 10px 24px; font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.15em;
+            cursor: pointer; transition: all 0.3s; text-transform: uppercase; border-radius: 2px;
         }
+        .btn:hover { background: rgba(212,175,55,0.1); box-shadow: 0 0 15px rgba(212,175,55,0.2); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-green { border-color: #4ade80; color: #4ade80; }
+        .btn-green:hover { background: rgba(74, 222, 128, 0.1); box-shadow: 0 0 15px rgba(74, 222, 128, 0.2); }
+        .btn-red { border-color: #ef4444; color: #ef4444; }
 
-        .bg-panel {
-            background: var(--parchment-light);
-            border: 1px solid rgba(212, 175, 55, 0.15);
-            box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
+        /* LAYOUT PRINCIPAL */
+        #app-container { display: none; height: 100vh; flex-direction: column; }
+        
+        /* TOP BAR FINANZAS */
+        .top-bar {
+            background: #000; border-bottom: 1px solid var(--border-color); padding: 12px 24px;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
         }
-
-        /* Scrollbar personalizada */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--ink); }
-        ::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.6); }
-
-        .enso-table {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.4s ease;
-            background: rgba(13, 11, 8, 0.8);
-            backdrop-filter: blur(4px);
+        .stat-box { text-align: center; }
+        .stat-label { font-size: 0.65rem; color: rgba(212,175,55,0.6); letter-spacing: 0.1em; text-transform: uppercase; }
+        .stat-val { font-family: 'Cinzel', serif; font-size: 1.2rem; color: var(--gold-light); font-weight: bold; }
+        
+        .main-content { display: flex; flex: 1; overflow: hidden; flex-wrap: wrap; }
+        
+        /* COLUMNA IZQUIERDA: LISTA ALUMNOS */
+        .sidebar {
+            width: 380px; background: var(--parchment); border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column; overflow-y: auto;
         }
-
-        .enso-table:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
-        }
-
-        /* Formas orgánicas usando border-radius */
-        .shape-1 { border-radius: 48% 52% 51% 49% / 50% 49% 51% 50%; }
-        .shape-2 { border-radius: 51% 49% 48% 52% / 49% 52% 48% 51%; }
-        .shape-3 { border-radius: 50% 50% 49% 51% / 52% 48% 51% 49%; }
-
-        .border-vip {
-            border: 2px solid var(--gold);
-            box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.1), 0 0 15px rgba(212, 175, 55, 0.15);
-        }
-
-        .border-student {
-            border: 1px solid rgba(212, 175, 55, 0.4);
-        }
-
-        .border-combined {
-            border: 1.5px dashed rgba(212, 175, 55, 0.5);
-        }
-
-        .table-size-indicator {
-            font-size: 0.75rem;
-            letter-spacing: 0.1em;
-            color: rgba(212, 175, 55, 0.7);
-            margin-top: 0.25rem;
-        }
-
-        .warning-text { color: #ff6b6b; }
-        .warning-border { border-color: var(--red-seal) !important; box-shadow: 0 0 20px rgba(139, 26, 42, 0.3) !important; }
-
-        /* Controles +/- */
-        .btn-ctrl {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            color: var(--gold-light);
-            background: transparent;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: sans-serif;
-            font-size: 0.9rem;
-        }
-        .btn-ctrl:hover:not(:disabled) {
-            background: rgba(212, 175, 55, 0.2);
-            border-color: var(--gold);
-        }
-        .btn-ctrl:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            border-color: rgba(255,255,255,0.1);
-        }
+        .sidebar-header { padding: 16px; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; background: var(--parchment); z-index: 10; }
         
         .student-row {
-            transition: background 0.2s;
+            padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;
         }
-        .student-row:hover {
-            background: rgba(212, 175, 55, 0.05);
-        }
-
-        /* ── Modales ENSO ── */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(5, 5, 5, 0.85);
-            backdrop-filter: blur(5px); z-index: 100;
+        .student-info { flex: 1; }
+        .student-name { font-family: 'Cinzel', serif; font-size: 1rem; color: #fff; }
+        .student-meta { font-size: 0.8rem; color: rgba(212,175,55,0.7); }
+        
+        .controls { display: flex; gap: 8px; align-items: center; }
+        .control-btn { 
+            width: 28px; height: 28px; background: transparent; border: 1px solid var(--border-color);
+            color: var(--gold-light); font-size: 1rem; cursor: pointer; border-radius: 4px;
             display: flex; justify-content: center; align-items: center;
+        }
+        .control-btn:hover { background: rgba(212,175,55,0.1); }
+        .control-val { font-family: 'Cinzel', serif; font-size: 1rem; width: 24px; text-align: center; }
+        
+        .finance-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--gold-light);
+            padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; cursor: pointer; font-family: 'Cinzel', serif;
+        }
+        .finance-btn.paid { color: #4ade80; border-color: #4ade80; background: rgba(74,222,128,0.1); }
+
+        /* COLUMNA DERECHA: PLANO DE MESAS */
+        .floor-plan {
+            flex: 1; background: #080808; padding: 24px; overflow-y: auto;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .floor-plan-header { text-align: center; margin-bottom: 32px; width: 100%; }
+        
+        .tables-container {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 32px; max-width: 1000px;
+        }
+        
+        /* DISEÑO DE MESAS ENSŌ */
+        .mesa {
+            position: relative; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s;
+            border: 2px dashed rgba(212,175,55,0.4); background: rgba(13,11,8,0.8);
+        }
+        .mesa:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(212,175,55,0.2); border-style: solid; }
+        .mesa::before {
+            content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid rgba(212,175,55,0.1); pointer-events: none;
+        }
+        
+        .mesa-vip { width: 140px; height: 140px; border: 2px solid var(--gold); box-shadow: inset 0 0 20px rgba(212,175,55,0.2); }
+        .mesa-single { width: 130px; height: 130px; }
+        .mesa-combined { width: 160px; height: 160px; border-width: 3px; }
+        
+        .mesa-num { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--gold); letter-spacing: 0.1em; margin-bottom: 4px; }
+        .mesa-names { font-family: 'Cinzel', serif; font-size: 0.85rem; font-weight: bold; color: #fff; line-height: 1.2; padding: 0 10px; }
+        .mesa-count { font-size: 0.75rem; color: rgba(212,175,55,0.7); margin-top: 4px; }
+
+        /* MODALES */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
             opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-box {
-            background: var(--parchment-light); border: 1px solid rgba(212, 175, 55, 0.3);
-            padding: 2rem; border-radius: 4px; width: 90%; max-width: 450px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(212, 175, 55, 0.05);
+            background: var(--parchment); border: 1px solid var(--gold); padding: 32px;
+            width: 90%; max-width: 450px; position: relative; border-radius: 4px;
+            max-height: 85vh; overflow-y: auto;
         }
-        .input-gold {
-            background: rgba(5,5,5,0.5); border: 1px solid rgba(212,175,55,0.4);
-            color: white; padding: 0.6rem; border-radius: 2px; width: 100%;
-            outline: none; margin-bottom: 1rem; font-family: 'Cormorant Garamond', serif;
-            font-size: 1.1rem;
-        }
-        .input-gold:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(212,175,55,0.2); }
-        .input-gold::placeholder { color: rgba(212,175,55,0.4); font-size: 0.9rem; font-style: italic; }
+        .modal-close { position: absolute; top: 16px; right: 20px; background: transparent; border: none; color: var(--gold); font-size: 1.5rem; cursor: pointer; }
         
-        .btn-gold {
-            background: rgba(212, 175, 55, 0.1); border: 1px solid var(--gold);
-            color: var(--gold-light); padding: 0.6rem 1.2rem; border-radius: 2px;
-            cursor: pointer; transition: all 0.2s; text-transform: uppercase;
-            font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.1em;
+        .input-group { margin-bottom: 16px; text-align: left; }
+        .input-group label { display: block; font-size: 0.8rem; color: var(--gold); margin-bottom: 4px; text-transform: uppercase; font-family: 'Cinzel', serif; }
+        .input-group input { 
+            width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); 
+            color: #fff; font-family: 'Cinzel', serif; outline: none; text-align: right;
         }
-        .btn-gold:hover { background: var(--gold); color: var(--ink); box-shadow: 0 0 15px rgba(212,175,55,0.3); }
         
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(5,5,5,0.5); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 4px; }
+        .guest-list-item {
+            padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--ink); }
+        ::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.6); }
+
+        @media (max-width: 800px) {
+            .main-content { flex-direction: column; overflow-y: auto; }
+            .sidebar { width: 100%; max-height: 50vh; border-right: none; border-bottom: 1px solid var(--border-color); }
+            .floor-plan { min-height: 60vh; }
+        }
     </style>
 </head>
-<body class="text-gray-300">
+<body>
 
-    <header class="border-b border-[rgba(212,175,55,0.2)] bg-[#050505] p-4 lg:p-6 sticky top-0 z-50 shadow-xl">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-full border border-yellow-600 flex items-center justify-center shape-1">
-                    <span class="font-serif text-yellow-600 text-xl leading-none pt-1">円</span>
-                </div>
-                <div>
-                    <h1 class="text-xl md:text-2xl text-gold tracking-widest uppercase">ENSŌ Planner</h1>
-                    <p class="text-xs uppercase tracking-[0.2em] opacity-50 italic">Control Financiero y Aforo <span id="sync-status" class="ml-2 font-bold tracking-normal"></span></p>
-                </div>
-            </div>
+    <!-- OVERLAY LOGIN -->
+    <div id="login-overlay">
+        <h1 class="cinzel" style="color:var(--gold-light); font-size:2.5rem; letter-spacing:0.2em; margin-bottom:10px;">ENSŌ</h1>
+        <p style="letter-spacing:0.3em; color:rgba(212,175,55,0.6); margin-bottom: 32px; font-style:italic;">Panel de Logística y Finanzas</p>
+        <button class="btn" onclick="window.login()" id="btn-login">Ingresar con Google</button>
+        <p id="login-error" style="color:var(--red-seal); margin-top:16px; font-size:0.9rem; opacity:0;"></p>
+    </div>
 
-            <!-- Panel de Métricas Rápidas -->
-            <div class="flex flex-wrap justify-center gap-4 md:gap-6 bg-[rgba(212,175,55,0.05)] px-6 py-2 rounded border border-[rgba(212,175,55,0.15)] w-full lg:w-auto">
-                <div class="text-center">
-                    <p class="text-[0.55rem] md:text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.6)]">Invitados</p>
-                    <p id="stat-total" class="cinzel text-lg md:text-xl font-bold text-white">0<span class="text-xs font-normal text-gray-500">/200</span></p>
-                </div>
-                <div class="w-px bg-[rgba(212,175,55,0.2)]"></div>
-                <div class="text-center">
-                    <p class="text-[0.55rem] md:text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.6)]">Mesas</p>
-                    <p id="stat-tables" class="cinzel text-lg md:text-xl text-white">0</p>
-                </div>
-                <div class="w-px bg-[rgba(212,175,55,0.2)]"></div>
-                <div class="text-center group relative cursor-pointer" onclick="window.openIncomeDetails()">
-                    <p class="text-[0.55rem] md:text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.6)] group-hover:text-white transition-colors">Ingresos ⓘ</p>
-                    <p id="stat-income" class="cinzel text-lg md:text-xl text-[#a8d5ba]">$0</p>
-                </div>
-                <div class="w-px bg-[rgba(212,175,55,0.2)]"></div>
-                <div class="text-center group relative cursor-pointer" onclick="window.openExpensesModal()">
-                    <p class="text-[0.55rem] md:text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.6)] group-hover:text-white transition-colors">Gastos ⚙️</p>
-                    <p id="stat-expenses" class="cinzel text-lg md:text-xl text-[#ff6b6b]">$0</p>
-                </div>
-                <div class="w-px bg-[rgba(212,175,55,0.2)]"></div>
-                <div class="text-center">
-                    <p class="text-[0.55rem] md:text-[0.65rem] uppercase tracking-widest text-gold">Balance</p>
-                    <p id="stat-balance" class="cinzel text-lg md:text-xl font-bold text-white">$0</p>
-                </div>
-            </div>
-        </div>
+    <!-- APP PRINCIPAL -->
+    <div id="app-container">
         
-        <!-- Barra de Progreso de Capacidad -->
-        <div class="max-w-7xl mx-auto mt-4 h-1 bg-[rgba(255,255,255,0.1)] rounded-full overflow-hidden">
-            <div id="capacity-bar" class="h-full bg-yellow-600 transition-all duration-500 w-0"></div>
-        </div>
-        <p id="capacity-warning" class="max-w-7xl mx-auto mt-2 text-xs text-center uppercase tracking-widest warning-text opacity-0 transition-opacity">¡Advertencia: Se ha superado el límite de 200 invitados!</p>
-    </header>
-
-    <main class="flex-grow flex flex-col lg:flex-row max-w-[1600px] mx-auto w-full overflow-hidden">
-        
-        <aside class="lg:w-[400px] w-full flex-shrink-0 bg-panel border-r border-[rgba(212,175,55,0.15)] flex flex-col lg:h-[calc(100vh-130px)] overflow-hidden">
-            
-            <div class="p-5 border-b border-[rgba(212,175,55,0.1)]">
-                <h2 class="text-sm tracking-[0.2em] text-gold uppercase mb-4">Mesas Especiales (Fijas)</h2>
-                <div id="vip-list" class="space-y-3">
-                    <!-- VIPs renderizados por JS -->
-                </div>
+        <!-- TOP BAR / FINANZAS -->
+        <div class="top-bar">
+            <div class="stat-box">
+                <div class="stat-label">Lugares Reservados</div>
+                <div class="stat-val" id="stat-lugares">0 / 200</div>
             </div>
-
-            <div class="p-5 flex-grow overflow-y-auto">
-                <div class="flex justify-between items-end mb-4">
-                    <h2 class="text-sm tracking-[0.2em] text-gold uppercase">Generación (22)</h2>
-                    <span class="text-xs text-gray-500 italic">Mesa base: 6. Extras max: 4</span>
-                </div>
-                <div class="grid grid-cols-12 gap-2 mb-2 px-2 text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.5)] border-b border-[rgba(212,175,55,0.1)] pb-2 text-center">
-                    <div class="col-span-4 text-left">Alumno</div>
-                    <div class="col-span-4">Cuota</div>
-                    <div class="col-span-2">Extra</div>
-                    <div class="col-span-2 text-right">Lug.</div>
-                </div>
-
-                <div id="student-list" class="space-y-1 pb-10">
-                    <!-- Alumnos renderizados por JS -->
-                </div>
+            <div class="stat-box">
+                <div class="stat-label">Mesas Totales</div>
+                <div class="stat-val" id="stat-mesas">0</div>
             </div>
-            
-            <div class="p-4 border-t border-[rgba(212,175,55,0.1)] bg-[rgba(5,5,5,0.5)]">
-                <button onclick="resetData()" class="w-full py-2 border border-[rgba(139,26,42,0.5)] text-[rgba(139,26,42,0.8)] text-xs uppercase tracking-widest hover:bg-[rgba(139,26,42,0.1)] transition-colors rounded">
-                    Reiniciar Datos
-                </button>
+            <div class="stat-box">
+                <div class="stat-label">Ingresos Cuotas ($3500 c/u)</div>
+                <div class="stat-val" id="stat-cuotas" style="color:#4ade80;">$0</div>
             </div>
-        </aside>
-
-        <section class="flex-grow p-4 lg:p-8 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] lg:h-[calc(100vh-130px)] overflow-y-auto relative">
-            <h2 class="cinzel text-xl text-center text-gray-400 tracking-[0.3em] uppercase mb-8 opacity-50">Plano del Salón</h2>
-            
-            <!-- Contenedor del Presidium (VIP) -->
-            <div class="mb-12">
-                <h3 class="text-xs tracking-[0.4em] text-center text-[rgba(212,175,55,0.4)] uppercase mb-6">— Presídium —</h3>
-                <div id="floor-vip" class="flex flex-wrap justify-center gap-8">
-                    <!-- Render JS -->
-                </div>
+            <div class="stat-box">
+                <div class="stat-label">Ingresos Extras ($300 c/u)</div>
+                <div class="stat-val" id="stat-extras" style="color:#4ade80;">$0</div>
             </div>
-
-            <!-- Contenedor de Mesas de Alumnos -->
+            <div class="stat-box">
+                <div class="stat-label">Gastos Registrados</div>
+                <div class="stat-val" id="stat-gastos" style="color:#ef4444;">$0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Balance Disponible</div>
+                <div class="stat-val" id="stat-balance">$0</div>
+            </div>
             <div>
-                <h3 class="text-xs tracking-[0.4em] text-center text-[rgba(212,175,55,0.4)] uppercase mb-6">— Mesas de Generación —</h3>
-                <div id="floor-students" class="flex flex-wrap justify-center gap-6 max-w-5xl mx-auto">
-                    <!-- Render JS -->
+                <button class="btn" style="padding: 6px 12px; font-size: 0.65rem;" onclick="window.openGastosModal()">Gastos ⚙️</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- SIDEBAR: LISTA DE ALUMNOS -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 class="cinzel" style="font-size:1.1rem; color:var(--gold-light);">Anfitriones</h3>
+                        <button class="btn btn-green" style="padding: 6px 12px; font-size: 0.6rem;" onclick="window.syncToFirebase()" id="btn-sync">⟳ Forzar Sincronización</button>
+                    </div>
+                    <p style="font-size:0.8rem; color:rgba(212,175,55,0.6); margin-top:8px;">Modifica los extras y se reasignarán las mesas automáticamente.</p>
+                </div>
+                <div id="students-list">
+                    <!-- Render dinámico -->
                 </div>
             </div>
-            
-            <div class="mt-16 text-center text-xs opacity-30 italic font-serif px-4">
-                <p>Las parejas asignadas comparten una mesa de 12 lugares para optimizar el espacio.</p>
-                <p>Si un alumno adquiere extras, se separa en su propia mesa. Los alumnos que se queden en 6 lugares se emparejarán automáticamente con otros para formar mesas de 12.</p>
-            </div>
-        </section>
-    </main>
 
-    <!-- Modales Financieros -->
-    <div id="modal-payment" class="modal-overlay">
+            <!-- FLOOR PLAN: MAPA -->
+            <div class="floor-plan">
+                <div class="floor-plan-header">
+                    <h2 class="cinzel" style="color:var(--gold); letter-spacing:0.2em;">Distribución del Salón</h2>
+                    <p style="font-style:italic; color:rgba(255,255,255,0.5); font-size:0.9rem;">Clic en una mesa para ver sus confirmados en tiempo real</p>
+                </div>
+                <div class="tables-container" id="tables-container">
+                    <!-- Render dinámico -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: FINANZAS ALUMNO -->
+    <div id="modal-finance" class="modal-overlay">
         <div class="modal-box">
-            <h3 class="cinzel text-xl text-gold mb-2 uppercase tracking-widest">Abonar a Cuota</h3>
-            <p id="payment-student-name" class="mb-6 text-gray-400 font-serif italic text-sm"></p>
-            <input type="number" id="payment-amount" class="input-gold" placeholder="Cantidad a abonar (ej. 500)">
-            <div class="flex justify-end gap-4 mt-6">
-                <button onclick="window.closeModals()" class="text-gray-400 hover:text-white text-xs uppercase tracking-widest font-serif transition-colors">Cancelar</button>
-                <button onclick="window.confirmPayment()" class="btn-gold">Registrar Abono</button>
+            <button class="modal-close" onclick="window.closeModal('modal-finance')">×</button>
+            <h3 class="cinzel" style="color:var(--gold-light); margin-bottom:4px;" id="fin-student-name">Nombre</h3>
+            <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; margin-bottom:24px;">Cuota base: $3,500 MXN</p>
+            
+            <div style="text-align:center; margin-bottom:24px;">
+                <div style="font-size:0.8rem; color:var(--gold); text-transform:uppercase;">Total Pagado</div>
+                <div class="cinzel" style="font-size:2rem; color:#4ade80;" id="fin-total-paid">$0</div>
+                <div style="font-size:0.8rem; color:#ef4444;" id="fin-restante">Resta: $3500</div>
             </div>
-        </div>
-    </div>
 
-    <div id="modal-expenses" class="modal-overlay">
-        <div class="modal-box w-full max-w-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="cinzel text-xl text-gold uppercase tracking-widest">Control de Gastos</h3>
-                <button onclick="window.closeModals()" class="text-2xl text-[rgba(212,175,55,0.5)] hover:text-white transition-colors">&times;</button>
+            <div class="input-group">
+                <label>Registrar Nuevo Abono (+)</label>
+                <input type="number" id="fin-abono-input" placeholder="Ej. 500" min="1">
             </div>
             
-            <div class="grid grid-cols-12 gap-2 mb-6">
-                <input type="text" id="expense-concept" class="input-gold col-span-7 !mb-0" placeholder="Concepto (ej. Anticipo Salón)">
-                <input type="number" id="expense-amount" class="input-gold col-span-3 !mb-0" placeholder="$ Monto">
-                <button onclick="window.addExpense()" class="btn-gold col-span-2 flex items-center justify-center text-xl">+</button>
-            </div>
-
-            <div class="border border-[rgba(212,175,55,0.2)] bg-[rgba(5,5,5,0.4)] rounded p-4 max-h-64 overflow-y-auto custom-scrollbar">
-                <div class="grid grid-cols-12 gap-2 text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.6)] mb-2 border-b border-[rgba(212,175,55,0.1)] pb-2">
-                    <div class="col-span-7">Concepto</div>
-                    <div class="col-span-3 text-right">Monto</div>
-                    <div class="col-span-2 text-center">Borrar</div>
-                </div>
-                <div id="expenses-list" class="space-y-2"></div>
-            </div>
+            <button class="btn btn-green" style="width:100%;" onclick="window.addAbono()">Guardar Abono</button>
+            <input type="hidden" id="fin-student-id">
         </div>
     </div>
 
-    <div id="modal-income" class="modal-overlay">
+    <!-- MODAL: GASTOS -->
+    <div id="modal-gastos" class="modal-overlay">
         <div class="modal-box">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="cinzel text-xl text-gold uppercase tracking-widest">Desglose de Ingresos</h3>
-                <button onclick="window.closeModals()" class="text-2xl text-[rgba(212,175,55,0.5)] hover:text-white transition-colors">&times;</button>
-            </div>
-            <div class="space-y-4 text-gray-300 font-serif text-lg">
-                <div class="flex justify-between border-b border-[rgba(212,175,55,0.1)] pb-2">
-                    <span>Recaudado por Cuotas:</span>
-                    <span id="detail-quotas" class="text-white font-mono font-bold">$0</span>
-                </div>
-                <div class="flex justify-between border-b border-[rgba(212,175,55,0.1)] pb-2">
-                    <span>Recaudado por Extras:</span>
-                    <span id="detail-extras" class="text-[#a8d5ba] font-mono font-bold">$0</span>
-                </div>
-                <div class="flex justify-between pt-2">
-                    <span class="text-gold tracking-widest uppercase text-sm">Ingreso Total:</span>
-                    <span id="detail-total" class="text-gold-light font-mono font-bold text-xl">$0</span>
-                </div>
-            </div>
-            <div class="mt-8 text-center">
-                <button onclick="window.closeModals()" class="btn-gold w-full">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Invitados por Mesa (NUEVO) -->
-    <div id="modal-table-guests" class="modal-overlay">
-        <div class="modal-box w-full max-w-lg">
-            <div class="flex justify-between items-center mb-6">
-                <div class="text-left">
-                    <h3 id="tg-title" class="cinzel text-xl text-gold uppercase tracking-widest">Mesa</h3>
-                    <p class="font-serif text-sm text-gray-400 italic mt-1">Invitados Confirmados en Firebase</p>
-                </div>
-                <button onclick="window.closeModals()" class="text-2xl text-[rgba(212,175,55,0.5)] hover:text-white transition-colors">&times;</button>
-            </div>
-            <div class="grid grid-cols-12 gap-2 text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.6)] mb-2 border-b border-[rgba(212,175,55,0.1)] pb-2 text-left">
-                <div class="col-span-7">Nombre del Invitado</div>
-                <div class="col-span-5 text-right">Anfitrión</div>
-            </div>
-            <div id="tg-list" class="space-y-1 max-h-64 overflow-y-auto custom-scrollbar text-left">
-                <!-- Renderizado por JS -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Login Restringido -->
-    <div id="modal-planner-login" class="modal-overlay active" style="z-index: 9999; background: var(--ink);">
-        <div class="modal-box w-full max-w-sm text-center">
-            <div class="w-16 h-16 mx-auto mb-6 rounded-full border border-yellow-600 flex items-center justify-center shape-1">
-                <span class="font-serif text-yellow-600 text-3xl leading-none pt-1">円</span>
-            </div>
-            <h3 class="cinzel text-xl text-gold mb-2 uppercase tracking-widest">Acceso Restringido</h3>
-            <p class="mb-8 text-gray-400 font-serif text-sm">Solo el administrador maestro tiene autorización para modificar el plano y las finanzas del evento.</p>
+            <button class="modal-close" onclick="window.closeModal('modal-gastos')">×</button>
+            <h3 class="cinzel" style="color:var(--gold-light); margin-bottom:16px;">Control de Gastos</h3>
             
-            <button onclick="window.loginWithGoogle()" class="w-full flex justify-center items-center gap-3 bg-[rgba(255,255,255,0.05)] border border-[rgba(212,175,55,0.3)] text-[rgba(212,175,55,0.9)] hover:text-white hover:bg-[rgba(212,175,55,0.15)] hover:border-gold transition-all py-3 rounded">
-                <svg width="18" height="18" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M47.532 24.5528C47.532 22.9214 47.3997 21.2811 47.1175 19.6761H24.48V28.5181H37.4434C36.9055 31.3393 35.177 33.8239 32.6461 35.5056V41.4107H40.4001C44.9468 37.229 47.532 31.4239 47.532 24.5528Z" fill="#4285F4"/>
-                    <path d="M24.48 48.0016C30.9529 48.0016 36.4116 45.8764 40.4088 41.4107L32.6549 35.5056C30.5038 36.958 27.7552 37.8687 24.48 37.8687C18.132 37.8687 12.756 33.5936 10.8228 27.8385H2.8941V33.993C7.0255 42.195 15.3402 48.0016 24.48 48.0016Z" fill="#34A853"/>
-                    <path d="M10.8142 27.8385C9.82424 24.8967 9.82424 21.657 10.8142 18.7153V12.5608H2.88554C-0.961846 20.219 -0.961846 29.3548 2.88554 37.0131L10.8142 27.8385Z" fill="#FBBC05"/>
-                    <path d="M24.48 10.1329C27.9158 10.054 31.2389 11.3655 33.6826 13.7235L40.573 6.83315C36.2307 2.76632 30.4357 0.448564 24.48 0.480021C15.3402 0.480021 7.0255 6.28665 2.8941 14.4886L10.8228 20.6432C12.7473 14.8794 18.1233 10.1329 24.48 10.1329Z" fill="#EA4335"/>
-                </svg>
-                <span class="cinzel text-xs tracking-widest font-bold">Ingresar con Google</span>
-            </button>
-            <p id="login-error" class="mt-4 text-red-500 font-serif text-sm italic opacity-0 transition-opacity"></p>
+            <div id="gastos-list" style="margin-bottom: 24px; max-height: 150px; overflow-y:auto;">
+                <!-- Render dinámico -->
+            </div>
+
+            <div style="border-top:1px solid var(--border-color); padding-top:16px;">
+                <div class="input-group">
+                    <label>Concepto</label>
+                    <input type="text" id="gasto-desc" placeholder="Ej. Anticipo Salón" style="text-align:left;">
+                </div>
+                <div class="input-group">
+                    <label>Monto ($)</label>
+                    <input type="number" id="gasto-monto" placeholder="Ej. 3000">
+                </div>
+                <button class="btn btn-red" style="width:100%;" onclick="window.addGasto()">Registrar Gasto</button>
+            </div>
         </div>
     </div>
 
+    <!-- MODAL: DETALLES DE MESA (EN VIVO) -->
+    <div id="modal-table" class="modal-overlay">
+        <div class="modal-box" style="max-width: 500px;">
+            <button class="modal-close" onclick="window.closeModal('modal-table')">×</button>
+            <h3 class="cinzel" style="color:var(--gold-light); margin-bottom:4px;" id="table-title">MESA X</h3>
+            <p style="color:var(--gold); font-size:0.85rem; margin-bottom:20px; text-transform:uppercase;" id="table-subtitle">Anfitriones</p>
+            
+            <div id="table-guests-list">
+                <div style="text-align:center; padding: 20px; color:rgba(255,255,255,0.5);">Cargando invitados...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE INIT & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, onSnapshot, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global Vars for Firebase
-        const appId = 'enso-uatyg-gala'; 
+        // CONFIGURACIÓN (Extraída de tu index.html)
         const firebaseConfig = {
             apiKey: "AIzaSyAd_rViRrwdsigVaJNJO82nvVpGzywQT30",
             authDomain: "enso-gala-2026.firebaseapp.com",
@@ -404,540 +291,419 @@
             messagingSenderId: "413676120292",
             appId: "1:413676120292:web:b052eb281e1c32553de4f1"
         };
-        
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const appId = 'enso-uatyg-gala';
 
-        // 1. Estado Inicial
-        const INITIAL_STATE = {
-            settings: {
-                maxTotalGuests: 200,
-                baseSeats: 6,
-                maxExtra: 4,
-                extraPrice: 300,
-                quotaPrice: 3500
-            },
-            vipTables: [
-                { id: 'v1', name: 'Mesa 1 (Maestros)', capacity: 9 },
-                { id: 'v2', name: 'Mesa 2 (Directivos)', capacity: 9 }
-            ],
-            expenses: [],
-            students: [
-                { name: "ARON", table: 7 }, { name: "BRANDON", table: 8 }, { name: "CARLOS", table: 5 }, { name: "CRISTHIAN", table: 6 },
-                { name: "DANIELA", table: 9 }, { name: "DAVID", table: 10 }, { name: "DIEGO", table: 11 }, { name: "FATIMA", table: 3 },
-                { name: "FERNANDO", table: 12 }, { name: "FRANCISCO", table: 5 }, { name: "GERARDO", table: 8 }, { name: "GISELLE", table: 4 },
-                { name: "GLORIA", table: 3 }, { name: "HEIDI", table: 7 }, { name: "IVAN", table: 6 }, { name: "JULIETA", table: 13 },
-                { name: "KESTIN", table: 4 }, { name: "LEONEL", table: 9 }, { name: "LUIS", table: 11 }, { name: "MARTIN", table: 13 },
-                { name: "NAZBITH", table: 12 }, { name: "ZULLY", table: 10 }
-            ].map((s, index) => ({
-                id: `s${index}`,
-                name: s.name,
-                baseTable: s.table,
-                extra: 0,
-                paid: 0 // Rastreo de cuota por alumno
-            }))
-        };
+        // VARIABLES GLOBALES
+        let studentsData = []; 
+        let gastosData = [];
+        let allGuests = []; // Lista maestra en vivo de confirmados
 
-        let state = JSON.parse(JSON.stringify(INITIAL_STATE)); 
-        let activeStudentIdForPayment = null;
-        let allConfirmedGuests = []; // Almacenará los invitados en tiempo real
-        const ADMIN_EMAIL = "luixnay@gmail.com";
+        const COSTO_BASE = 3500;
+        const PRECIO_EXTRA = 300;
 
-        // 2. Auth & Firebase (Restringido)
-        window.loginWithGoogle = async function() {
-            const provider = new GoogleAuthProvider();
-            const errorEl = document.getElementById('login-error');
-            errorEl.style.opacity = '0';
-            
+        // AUTHENTICATION
+        window.login = async function() {
+            const btn = document.getElementById('btn-login');
+            const error = document.getElementById('login-error');
+            btn.innerText = "Verificando..."; btn.disabled = true; error.style.opacity = '0';
             try {
-                await signInWithPopup(auth, provider);
-            } catch (error) {
-                if (error.code !== 'auth/popup-closed-by-user') {
-                    errorEl.innerText = "Error: " + error.message;
-                    errorEl.style.opacity = '1';
+                const provider = new GoogleAuthProvider();
+                const result = await signInWithPopup(auth, provider);
+                if (result.user.email !== 'luixnay@gmail.com') {
+                    error.innerText = "Acceso Denegado: Correo no autorizado."; error.style.opacity = '1';
+                    await auth.signOut();
+                    btn.innerText = "Ingresar con Google"; btn.disabled = false;
                 }
+            } catch (e) {
+                error.innerText = "Error: " + e.message; error.style.opacity = '1';
+                btn.innerText = "Ingresar con Google"; btn.disabled = false;
             }
         };
 
         onAuthStateChanged(auth, (user) => {
-            const loginModal = document.getElementById('modal-planner-login');
-            const errorEl = document.getElementById('login-error');
-
-            if (user) {
-                if (user.email === ADMIN_EMAIL) {
-                    // Acceso concedido
-                    loginModal.classList.remove('active');
-                    errorEl.style.opacity = '0';
-
-                    // Emparejamiento Automático: Empieza a escuchar la base de datos
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'planner', 'state');
-                    onSnapshot(docRef, (snapshot) => {
-                        if (snapshot.exists()) {
-                            state = snapshot.data();
-                            
-                            // Migración en caliente para datos guardados viejos
-                            let needsUpdate = false;
-                            if (!state.expenses) { state.expenses = []; needsUpdate = true; }
-                            if (!state.settings.quotaPrice) { state.settings.quotaPrice = 3500; needsUpdate = true; }
-                            state.students.forEach(s => {
-                                if (s.paid === undefined) { s.paid = 0; needsUpdate = true; }
-                            });
-                            
-                            if (needsUpdate) window.saveData();
-                            else renderAll();
-                        } else {
-                            window.saveData(); 
-                        }
-                    }, (error) => console.error("Firebase err:", error));
-
-                    // NUEVO: Escuchar a los invitados confirmados en tiempo real
-                    const guestsRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
-                    onSnapshot(guestsRef, (snapshot) => {
-                        allConfirmedGuests = snapshot.docs.map(doc => doc.data());
-                    }, (error) => console.error("Error cargando invitados:", error));
-                } else {
-                    // Acceso denegado, cerrar sesión
-                    signOut(auth);
-                    errorEl.innerText = "Acceso denegado. Este correo no tiene privilegios de administrador.";
-                    errorEl.style.opacity = '1';
-                }
+            if (user && user.email === 'luixnay@gmail.com') {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('app-container').style.display = 'flex';
+                initData();
+                listenGuests(); // Escuchar confirmados en vivo
             } else {
-                // No hay sesión activa, asegurar que el modal esté visible
-                loginModal.classList.add('active');
+                document.getElementById('login-overlay').style.display = 'flex';
+                document.getElementById('app-container').style.display = 'none';
             }
         });
 
-        window.saveData = function() {
-            if (!auth.currentUser || auth.currentUser.email !== ADMIN_EMAIL) return;
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'planner', 'state');
-            setDoc(docRef, state, { merge: false });
-        };
+        // OBTENER INVITADOS EN VIVO
+        function listenGuests() {
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'guests'), (snap) => {
+                allGuests = [];
+                snap.forEach(doc => allGuests.push(doc.data()));
+                // No forzamos re-render de mesas a menos que esté el modal abierto, para no interrumpir
+                if(document.getElementById('modal-table').classList.contains('active')) {
+                    const currentTableNum = document.getElementById('table-title').innerText.replace('MESA ', '');
+                    renderTableDetails(currentTableNum);
+                }
+            });
+        }
 
-        window.syncHostData = async function() {
-            const syncStatus = document.getElementById('sync-status');
-            if(syncStatus) { syncStatus.innerText = 'Sincronizando...'; syncStatus.style.color = 'var(--gold)'; }
-            
+        // INIT Y CARGA DE DATOS PRINCIPAL
+        async function initData() {
+            const btnSync = document.getElementById('btn-sync');
+            btnSync.innerText = "Cargando..."; btnSync.disabled = true;
             try {
-                const hostDataRef = collection(db, 'artifacts', appId, 'public', 'data', 'hostData');
-                const hostDataSnap = await getDocs(hostDataRef);
-                const batch = writeBatch(db);
-                let updates = 0;
-                
-                hostDataSnap.forEach(docSnap => {
-                    const data = docSnap.data();
-                    if (data.type !== 'special') { // Ignoramos VIPs
-                        const studentInPlan = state.students.find(st => st.name === data.name);
-                        if (studentInPlan && studentInPlan.assignedTable) {
-                            const newCount = state.settings.baseSeats + studentInPlan.extra;
-                            const newTable = studentInPlan.assignedTable;
-                            
-                            // Solo actualizamos si hubo un cambio real
-                            if (data.count !== newCount || data.table !== newTable) {
-                                batch.update(docSnap.ref, { count: newCount, table: newTable });
-                                updates++;
-                            }
-                        }
-                    }
+                // 1. Cargar Alumnos/Anfitriones
+                const snapHost = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'hostData'));
+                studentsData = [];
+                snapHost.forEach(doc => {
+                    const d = doc.data();
+                    studentsData.push({
+                        id: doc.id,
+                        name: d.name,
+                        count: d.count || (d.type==='special'? 9 : 6),
+                        table: d.table,
+                        type: d.type || 'student',
+                        paid: d.paid || 0
+                    });
                 });
                 
-                if (updates > 0) {
-                    await batch.commit();
+                // Orden alfabético
+                studentsData.sort((a,b) => a.name.localeCompare(b.name));
+
+                // 2. Cargar Finanzas/Gastos
+                const snapFin = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'finances', 'main'));
+                if (snapFin.exists()) {
+                    gastosData = snapFin.data().gastos || [];
+                } else {
+                    gastosData = [];
                 }
-                if(syncStatus) { syncStatus.innerText = '✔ Sincronizado'; syncStatus.style.color = '#4ade80'; setTimeout(()=>syncStatus.innerText='', 3500);}
+
+                recalcularMesas();
             } catch (e) {
-                console.error("Error al sincronizar con hostData:", e);
-                if(syncStatus) { syncStatus.innerText = '❌ Error DB'; syncStatus.style.color = '#ff6b6b'; }
+                console.error("Error al cargar datos:", e);
+                alert("Error de conexión con Firebase.");
+            } finally {
+                btnSync.innerText = "⟳ Forzar Sincronización"; btnSync.disabled = false;
             }
         }
 
-        window.resetData = function() {
-            // Reemplazo visual elegante de confirm() para mantener compatibilidad iframe
-            const isConfirmed = prompt("Peligro: Esto borrará TODOS los abonos y gastos. Escribe 'RESET' para confirmar.");
-            if(isConfirmed === 'RESET') {
-                state = JSON.parse(JSON.stringify(INITIAL_STATE));
-                window.saveData();
-            }
-        };
+        // LÓGICA CORE: RECALCULAR MESAS Y EMPAREJAMIENTO
+        function recalcularMesas() {
+            // Separa VIPs
+            let vips = studentsData.filter(s => s.type === 'special');
+            // Asegurar que Mesa 1 y 2 sean VIP
+            let mesaCount = 3; 
 
-        // 3. Controladores de Mesas (Expuestos a Window para HTML)
-        window.updateVIPCapacity = function(id, delta) {
-            const table = state.vipTables.find(t => t.id === id);
-            if (table) {
-                table.capacity += delta;
-                if (table.capacity < 1) table.capacity = 1;
-                window.saveData();
-            }
-        };
+            // Filtra estudiantes normales
+            let students = studentsData.filter(s => s.type !== 'special');
+            
+            // Los que tienen 6 (se agrupan de 2 en 2)
+            let pairs = students.filter(s => s.count === 6);
+            // Los que tienen > 6 (se van solos)
+            let singles = students.filter(s => s.count > 6);
 
-        window.updateStudentExtra = function(id, delta) {
-            const student = state.students.find(s => s.id === id);
-            if (student) {
-                let newExtra = student.extra + delta;
-                if (newExtra < 0) newExtra = 0;
-                if (newExtra > state.settings.maxExtra) newExtra = state.settings.maxExtra;
-                student.extra = newExtra;
+            // 1. Asignar Mesas Compartidas (12 lugares)
+            for (let i = 0; i < pairs.length; i += 2) {
+                if (i + 1 < pairs.length) {
+                    pairs[i].table = mesaCount;
+                    pairs[i+1].table = mesaCount;
+                } else {
+                    // Sobra uno impar
+                    pairs[i].table = mesaCount;
+                }
+                mesaCount++;
+            }
+
+            // 2. Asignar Mesas Individuales (hasta 10 lugares)
+            for (let i = 0; i < singles.length; i++) {
+                singles[i].table = mesaCount;
+                mesaCount++;
+            }
+
+            // Unir y Renderizar
+            renderUI();
+        }
+
+        function renderUI() {
+            const listEl = document.getElementById('students-list');
+            const mapEl = document.getElementById('tables-container');
+            listEl.innerHTML = ''; mapEl.innerHTML = '';
+            
+            let totalLugares = 0;
+            let cuotasTotal = 0;
+            let extrasTotal = 0;
+
+            // Agrupar para el mapa
+            let mapData = {}; // key: num_mesa, value: array de alumnos
+
+            studentsData.forEach(s => {
+                totalLugares += s.count;
                 
-                renderAll(); // 1. Calcula las nuevas mesas en memoria y actualiza UI visualmente
-                window.saveData(); // 2. Guarda el progreso del planner
-                window.syncHostData(); // 3. Dispara la sincronización en segundo plano con Firestore
+                if(s.type !== 'special') {
+                    cuotasTotal += (s.paid || 0);
+                    if(s.count > 6) {
+                        extrasTotal += (s.count - 6) * PRECIO_EXTRA;
+                    }
+                }
+
+                if(!mapData[s.table]) mapData[s.table] = [];
+                mapData[s.table].push(s);
+
+                // Solo renderizar estudiantes en la barra lateral
+                if(s.type !== 'special') {
+                    const isPaidFull = (s.paid || 0) >= COSTO_BASE;
+                    const finClass = isPaidFull ? 'finance-btn paid' : 'finance-btn';
+                    const finText = isPaidFull ? 'PAGADO' : `$${s.paid || 0}`;
+
+                    listEl.innerHTML += `
+                        <div class="student-row">
+                            <div class="student-info">
+                                <div class="student-name">${s.name}</div>
+                                <div class="student-meta">Mesa ${s.table}</div>
+                            </div>
+                            <div class="controls">
+                                <button class="control-btn" onclick="window.changeCount('${s.id}', -1)">-</button>
+                                <span class="control-val">${s.count}</span>
+                                <button class="control-btn" onclick="window.changeCount('${s.id}', 1)">+</button>
+                            </div>
+                            <div style="margin-left: 12px;">
+                                <button class="${finClass}" onclick="window.openFinance('${s.id}')">${finText}</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            // RENDER MAPA
+            // Ordenar llaves numéricamente
+            const sortedTables = Object.keys(mapData).sort((a,b) => Number(a) - Number(b));
+            
+            sortedTables.forEach(tNum => {
+                const arr = mapData[tNum];
+                const isVip = arr[0].type === 'special';
+                const isCombined = arr.length > 1;
+                
+                let cssClass = 'mesa mesa-single';
+                if(isVip) cssClass = 'mesa mesa-vip';
+                else if(isCombined) cssClass = 'mesa mesa-combined';
+
+                let namesStr = arr.map(a => a.name).join(' & ');
+                let countSum = arr.reduce((acc, a) => acc + a.count, 0);
+                
+                // Onclick event para ver detalles
+                mapEl.innerHTML += `
+                    <div class="${cssClass}" onclick="window.openTableDetails('${tNum}')">
+                        <div class="mesa-num">MESA ${tNum}</div>
+                        <div class="mesa-names">${namesStr}</div>
+                        <div class="mesa-count">${countSum} Lugares</div>
+                    </div>
+                `;
+            });
+
+            // GASTOS Y BALANCE
+            let gastosSuma = gastosData.reduce((acc, g) => acc + Number(g.monto), 0);
+            let balance = (cuotasTotal + extrasTotal) - gastosSuma;
+
+            // ACTUALIZAR STATS
+            document.getElementById('stat-lugares').innerText = `${totalLugares} / 200`;
+            document.getElementById('stat-lugares').style.color = totalLugares > 200 ? 'var(--red-seal)' : 'var(--gold-light)';
+            document.getElementById('stat-mesas').innerText = sortedTables.length;
+            document.getElementById('stat-cuotas').innerText = `$${cuotasTotal.toLocaleString()}`;
+            document.getElementById('stat-extras').innerText = `$${extrasTotal.toLocaleString()}`;
+            document.getElementById('stat-gastos').innerText = `$${gastosSuma.toLocaleString()}`;
+            document.getElementById('stat-balance').innerText = `$${balance.toLocaleString()}`;
+            document.getElementById('stat-balance').style.color = balance < 0 ? 'var(--red-seal)' : '#fff';
+        }
+
+        // ACCIONES DE BOTONES
+        window.changeCount = function(id, delta) {
+            let s = studentsData.find(x => x.id === id);
+            if(!s) return;
+            let newCount = s.count + delta;
+            // Limites: min 6, max 10
+            if (newCount < 6) newCount = 6;
+            if (newCount > 10) newCount = 10;
+            
+            if (s.count !== newCount) {
+                s.count = newCount;
+                recalcularMesas();
+                debouncedSync(); // Auto-sync
             }
         };
 
-        // 4. Controladores Financieros (Modales)
-        const formatMoney = (val) => '$' + val.toLocaleString('en-US');
+        // AUTO-SYNC DEBOUNCED
+        let syncTimeout = null;
+        function debouncedSync() {
+            const btn = document.getElementById('btn-sync');
+            btn.innerText = "Sincronizando..."; btn.style.borderColor = '#facc15'; btn.style.color = '#facc15';
+            clearTimeout(syncTimeout);
+            syncTimeout = setTimeout(() => {
+                window.syncToFirebase(true);
+            }, 1500);
+        }
 
-        window.closeModals = function() {
-            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
-            activeStudentIdForPayment = null;
+        window.syncToFirebase = async function(isSilent = false) {
+            const btn = document.getElementById('btn-sync');
+            btn.innerText = "Sincronizando..."; btn.disabled = true;
+            try {
+                const batch = writeBatch(db);
+                let updated = 0;
+                
+                studentsData.forEach(s => {
+                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'hostData', s.id);
+                    batch.update(ref, { count: s.count, table: s.table, paid: s.paid });
+                    updated++;
+                });
+
+                // Total capacity genérico para sync de index
+                let totalC = studentsData.reduce((acc, val) => acc + val.count, 0);
+                batch.set(doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main'), { totalCapacity: totalC }, { merge: true });
+
+                // Finanzas globales
+                batch.set(doc(db, 'artifacts', appId, 'public', 'data', 'finances', 'main'), { gastos: gastosData }, { merge: true });
+
+                await batch.commit();
+                
+                btn.innerText = "✔ Sincronizado"; btn.className = "btn btn-green";
+                setTimeout(() => { btn.innerText = "⟳ Forzar Sincronización"; btn.disabled = false; }, 2000);
+                
+                if(!isSilent) alert(`Éxito: Se sincronizaron los datos de ${updated} mesas en Firebase.\n\nIMPORTANTE: Ve a la página principal y dale a "+ Generar Códigos" para crear los pases faltantes.`);
+
+            } catch (e) {
+                console.error(e);
+                btn.innerText = "Error"; btn.className = "btn btn-red";
+                alert("Error de sincronización: " + e.message);
+                setTimeout(() => { btn.innerText = "⟳ Forzar Sincronización"; btn.className = "btn btn-green"; btn.disabled = false; }, 3000);
+            }
         };
 
-        window.openPaymentModal = function(studentId) {
-            const student = state.students.find(s => s.id === studentId);
-            if (!student) return;
-            activeStudentIdForPayment = studentId;
-            document.getElementById('payment-student-name').innerText = `Alumno: ${student.name} | Pagado: ${formatMoney(student.paid)} de ${formatMoney(state.settings.quotaPrice)}`;
-            document.getElementById('payment-amount').value = '';
-            document.getElementById('modal-payment').classList.add('active');
+        // FINANZAS MODALES
+        window.openFinance = function(id) {
+            let s = studentsData.find(x => x.id === id);
+            document.getElementById('fin-student-id').value = s.id;
+            document.getElementById('fin-student-name').innerText = s.name;
+            document.getElementById('fin-abono-input').value = '';
+            
+            let paid = s.paid || 0;
+            let resta = COSTO_BASE - paid;
+            
+            document.getElementById('fin-total-paid').innerText = `$${paid.toLocaleString()}`;
+            document.getElementById('fin-restante').innerText = resta <= 0 ? "LIQUIDADO" : `Resta: $${resta.toLocaleString()}`;
+            document.getElementById('fin-restante').style.color = resta <= 0 ? "#4ade80" : "#ef4444";
+            
+            document.getElementById('modal-finance').classList.add('active');
         };
 
-        window.confirmPayment = function() {
-            if (!activeStudentIdForPayment) return;
-            const amount = parseFloat(document.getElementById('payment-amount').value);
-            if (isNaN(amount) || amount <= 0) {
-                alert("Por favor ingresa una cantidad válida."); // Fallback básico
+        window.addAbono = function() {
+            let id = document.getElementById('fin-student-id').value;
+            let amount = parseInt(document.getElementById('fin-abono-input').value) || 0;
+            if(amount <= 0) return alert("Ingresa un monto válido");
+
+            let s = studentsData.find(x => x.id === id);
+            s.paid = (s.paid || 0) + amount;
+            
+            window.closeModal('modal-finance');
+            renderUI();
+            debouncedSync();
+        };
+
+        window.openGastosModal = function() {
+            renderGastosList();
+            document.getElementById('gasto-desc').value = '';
+            document.getElementById('gasto-monto').value = '';
+            document.getElementById('modal-gastos').classList.add('active');
+        };
+
+        function renderGastosList() {
+            let list = document.getElementById('gastos-list');
+            list.innerHTML = '';
+            if(gastosData.length === 0) { list.innerHTML = '<p style="color:gray; font-size:0.8rem;">No hay gastos registrados.</p>'; return; }
+            
+            gastosData.forEach((g, index) => {
+                list.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.05); padding: 8px 0;">
+                        <span style="font-size:0.9rem; color:#fff;">${g.desc}</span>
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <span style="font-family:'Cinzel',serif; color:#ef4444; font-weight:bold;">-$${Number(g.monto).toLocaleString()}</span>
+                            <button style="background:none; border:none; color:gray; cursor:pointer;" onclick="window.deleteGasto(${index})">X</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.addGasto = function() {
+            let desc = document.getElementById('gasto-desc').value.trim();
+            let monto = parseInt(document.getElementById('gasto-monto').value) || 0;
+            if(!desc || monto <= 0) return alert("Concepto y monto son obligatorios.");
+            
+            gastosData.push({ desc, monto });
+            renderGastosList();
+            renderUI();
+            debouncedSync();
+            
+            document.getElementById('gasto-desc').value = '';
+            document.getElementById('gasto-monto').value = '';
+        };
+
+        window.deleteGasto = function(index) {
+            if(confirm("¿Borrar este gasto?")) {
+                gastosData.splice(index, 1);
+                renderGastosList();
+                renderUI();
+                debouncedSync();
+            }
+        };
+
+        // DETALLES DE MESA EN VIVO
+        window.openTableDetails = function(tNum) {
+            document.getElementById('table-title').innerText = `MESA ${tNum}`;
+            
+            // Obtener nombres de anfitriones de esta mesa
+            const hosts = studentsData.filter(s => String(s.table) === String(tNum));
+            document.getElementById('table-subtitle').innerText = hosts.map(h => h.name).join(' & ');
+
+            renderTableDetails(tNum);
+            document.getElementById('modal-table').classList.add('active');
+        };
+
+        function renderTableDetails(tNum) {
+            const listEl = document.getElementById('table-guests-list');
+            // Filtrar la lista maestra (allGuests) por la mesa solicitada
+            const tableGuests = allGuests.filter(g => String(g.table) === String(tNum));
+            
+            if(tableGuests.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; padding: 20px; color:rgba(255,255,255,0.5); font-style:italic;">Aún no hay invitados confirmados en esta mesa.</div>';
                 return;
             }
-            
-            const student = state.students.find(s => s.id === activeStudentIdForPayment);
-            if (student) {
-                student.paid += amount;
-                window.saveData();
-                window.closeModals();
-            }
-        };
 
-        window.openExpensesModal = function() {
-            document.getElementById('expense-concept').value = '';
-            document.getElementById('expense-amount').value = '';
-            renderExpensesList();
-            document.getElementById('modal-expenses').classList.add('active');
-        };
-
-        window.addExpense = function() {
-            const concept = document.getElementById('expense-concept').value.trim();
-            const amount = parseFloat(document.getElementById('expense-amount').value);
-            
-            if (!concept || isNaN(amount) || amount <= 0) return;
-            
-            state.expenses.push({
-                id: 'exp_' + Date.now(),
-                concept: concept,
-                amount: amount,
-                timestamp: new Date().toISOString()
+            // Ordenar por anfitrión y luego alfabéticamente
+            tableGuests.sort((a,b) => {
+                if(a.hostName !== b.hostName) return a.hostName.localeCompare(b.hostName);
+                return a.guestName.localeCompare(b.guestName);
             });
-            
-            window.saveData();
-            document.getElementById('expense-concept').value = '';
-            document.getElementById('expense-amount').value = '';
-            renderExpensesList();
-        };
-
-        window.deleteExpense = function(expId) {
-            state.expenses = state.expenses.filter(e => e.id !== expId);
-            window.saveData();
-            renderExpensesList();
-        };
-
-        function renderExpensesList() {
-            const html = state.expenses.map(e => `
-                <div class="grid grid-cols-12 gap-2 items-center py-3 border-b border-[rgba(255,255,255,0.05)] text-sm font-serif">
-                    <div class="col-span-7 text-white truncate text-lg">${e.concept}</div>
-                    <div class="col-span-3 text-right text-[#ff6b6b] font-mono">-${formatMoney(e.amount)}</div>
-                    <div class="col-span-2 text-center">
-                        <button onclick="window.deleteExpense('${e.id}')" class="text-red-500 hover:text-red-400 font-bold border border-red-900 rounded px-2 bg-red-950 transition-colors">&times;</button>
-                    </div>
-                </div>
-            `).join('');
-            document.getElementById('expenses-list').innerHTML = html || '<p class="text-center text-gray-500 text-sm mt-4 font-serif italic">No hay gastos registrados en este evento.</p>';
-        }
-
-        window.openIncomeDetails = function() {
-            const elTotal = document.getElementById('stat-income').innerText;
-            const extraTotal = state.students.reduce((acc, s) => acc + ((s.extra || 0) * state.settings.extraPrice), 0);
-            const quotaTotal = state.students.reduce((acc, s) => acc + (s.paid || 0), 0);
-            
-            document.getElementById('detail-quotas').innerText = formatMoney(quotaTotal);
-            document.getElementById('detail-extras').innerText = formatMoney(extraTotal);
-            document.getElementById('detail-total').innerText = elTotal;
-            document.getElementById('modal-income').classList.add('active');
-        };
-
-        // NUEVO: Función para abrir y llenar la lista de invitados de una mesa
-        window.openTableGuests = function(tableLabel, hostNamesEncoded) {
-            const hostNames = JSON.parse(decodeURIComponent(hostNamesEncoded));
-            document.getElementById('tg-title').innerText = tableLabel;
-
-            // Filtrar invitados que pertenezcan a los anfitriones de esta mesa
-            const guestsInTable = allConfirmedGuests.filter(g => hostNames.includes(g.hostName));
 
             let html = '';
-            if (guestsInTable.length === 0) {
-                html = '<p class="text-center text-gray-500 text-sm mt-8 font-serif italic col-span-12">Aún no hay invitados confirmados para esta mesa.</p>';
-            } else {
-                // Ordenar alfabéticamente
-                guestsInTable.sort((a, b) => a.guestName.localeCompare(b.guestName));
-                html = guestsInTable.map(g => `
-                    <div class="grid grid-cols-12 gap-2 items-center py-2 border-b border-[rgba(255,255,255,0.05)]">
-                        <div class="col-span-7 font-serif text-white text-lg truncate" title="${g.guestName}">
-                            <span class="text-[0.6rem] mr-1 ${g.asistio ? 'text-green-400' : 'text-gray-500'}" title="${g.asistio ? 'Ya ingresó' : 'Pendiente'}">${g.asistio ? '✅' : '⏳'}</span> ${g.guestName}
+            tableGuests.forEach(g => {
+                const icon = g.asistio ? '✅' : '⏳';
+                const color = g.asistio ? '#4ade80' : 'rgba(210,200,185,0.8)';
+                html += `
+                    <div class="guest-list-item">
+                        <div>
+                            <div style="font-family:'Cinzel',serif; font-weight:bold; color:${color}; font-size:1.05rem;">${g.guestName}</div>
+                            <div style="font-size:0.75rem; color:rgba(212,175,55,0.5);">Invita: ${g.hostName}</div>
                         </div>
-                        <div class="col-span-5 text-right text-[0.65rem] text-gold uppercase tracking-widest truncate" title="${g.hostName}">
-                            ${g.hostName}
-                        </div>
+                        <div style="font-size:1.2rem;">${icon}</div>
                     </div>
-                `).join('');
-            }
+                `;
+            });
+            listEl.innerHTML = html;
+        }
 
-            document.getElementById('tg-list').innerHTML = html;
-            document.getElementById('modal-table-guests').classList.add('active');
+        window.closeModal = function(id) {
+            document.getElementById(id).classList.remove('active');
         };
-
-        // 5. Motor Inteligente de Mesas
-        function calculateFloorPlan() {
-            let totalGuests = 0;
-            let extrasIncome = 0;
-            let quotasIncome = 0;
-            let totalExpenses = state.expenses ? state.expenses.reduce((sum, e) => sum + e.amount, 0) : 0;
-
-            const computedTables = {
-                vip: [],
-                students: []
-            };
-
-            // Cálculos VIP (Normalmente Mesas 1 y 2)
-            state.vipTables.forEach(t => {
-                totalGuests += t.capacity;
-                computedTables.vip.push({
-                    type: 'vip', names: [t.name], capacity: t.capacity, guests: t.capacity, label: t.name
-                });
-            });
-
-            // Agrupación de alumnos por su mesa base original (parejas)
-            const tableGroups = {};
-            state.students.forEach(s => {
-                quotasIncome += (s.paid || 0);
-                extrasIncome += (s.extra || 0) * state.settings.extraPrice;
-                
-                if (!tableGroups[s.baseTable]) tableGroups[s.baseTable] = [];
-                tableGroups[s.baseTable].push(s);
-            });
-
-            const singlesToPair = []; 
-            const provisionalStudentTables = [];
-
-            // 1. Separar a los que compraron extras en sus propias mesas
-            Object.keys(tableGroups).sort((a,b) => Number(a) - Number(b)).forEach(tableNum => {
-                const group = tableGroups[tableNum];
-                group.forEach(s => {
-                    if (s.extra > 0) {
-                        provisionalStudentTables.push({
-                            type: 'individual', names: [s.name], 
-                            capacity: state.settings.baseSeats + s.extra, guests: state.settings.baseSeats + s.extra, 
-                            extras: s.extra, studentsObj: [s]
-                        });
-                    } else {
-                        singlesToPair.push(s);
-                    }
-                });
-            });
-
-            // 2. Emparejar automáticamente a todos los alumnos solitarios (de 6 en 6)
-            for (let i = 0; i < singlesToPair.length; i += 2) {
-                if (i + 1 < singlesToPair.length) {
-                    const p1 = singlesToPair[i];
-                    const p2 = singlesToPair[i + 1];
-                    const tableGuests = state.settings.baseSeats * 2; // 12
-                    provisionalStudentTables.push({
-                        type: 'combined',
-                        names: [p1.name, p2.name],
-                        capacity: tableGuests, guests: tableGuests, 
-                        extras: 0, studentsObj: [p1, p2]
-                    });
-                } else {
-                    // Impares: el último se queda solo en 6
-                    const p = singlesToPair[i];
-                    provisionalStudentTables.push({
-                        type: 'individual',
-                        names: [p.name],
-                        capacity: state.settings.baseSeats, guests: state.settings.baseSeats, 
-                        extras: 0, studentsObj: [p]
-                    });
-                }
-            }
-
-            // 3. ASIGNAR NÚMEROS DE MESA REALES (A partir de la Mesa 3)
-            let nextTableNumber = 3;
-            provisionalStudentTables.forEach(t => {
-                t.displayNumber = nextTableNumber++;
-                t.label = `MESA ${t.displayNumber}`;
-                totalGuests += t.capacity;
-                
-                // Inyectamos el nuevo número de mesa asignado al objeto del estudiante
-                t.studentsObj.forEach(s => {
-                    s.assignedTable = t.displayNumber;
-                });
-                
-                computedTables.students.push(t);
-            });
-
-            const totalIncome = quotasIncome + extrasIncome;
-            const balance = totalIncome - totalExpenses;
-
-            return { computedTables, totalGuests, totalIncome, totalExpenses, balance };
-        }
-
-        // 6. Motor de Renderizado
-        function renderAll() {
-            const { computedTables, totalGuests, totalIncome, totalExpenses, balance } = calculateFloorPlan();
-            
-            renderHeader(totalGuests, computedTables.vip.length + computedTables.students.length, totalIncome, totalExpenses, balance);
-            renderSidebar();
-            renderFloorPlan(computedTables);
-        }
-
-        function renderHeader(totalGuests, totalTables, totalIncome, totalExpenses, balance) {
-            const maxGuests = state.settings.maxTotalGuests;
-            const elTotal = document.getElementById('stat-total');
-            const capBar = document.getElementById('capacity-bar');
-            
-            elTotal.innerHTML = `${totalGuests}<span class="text-xs font-normal text-gray-500">/${maxGuests}</span>`;
-            document.getElementById('stat-tables').innerText = totalTables;
-            document.getElementById('stat-income').innerText = formatMoney(totalIncome);
-            document.getElementById('stat-expenses').innerText = formatMoney(totalExpenses);
-            
-            const balEl = document.getElementById('stat-balance');
-            balEl.innerText = formatMoney(balance);
-            if (balance < 0) { balEl.classList.remove('text-white'); balEl.classList.add('text-red-400'); } 
-            else { balEl.classList.add('text-white'); balEl.classList.remove('text-red-400'); }
-
-            let percentage = (totalGuests / maxGuests) * 100;
-            if (percentage > 100) percentage = 100;
-            capBar.style.width = `${percentage}%`;
-
-            if (totalGuests > maxGuests) {
-                elTotal.classList.add('text-red-500'); elTotal.classList.remove('text-white');
-                document.getElementById('capacity-warning').style.opacity = '1';
-                capBar.classList.replace('bg-yellow-600', 'bg-red-600');
-            } else {
-                elTotal.classList.remove('text-red-500'); elTotal.classList.add('text-white');
-                document.getElementById('capacity-warning').style.opacity = '0';
-                capBar.classList.replace('bg-red-600', 'bg-yellow-600');
-            }
-        }
-
-        function renderSidebar() {
-            // Render VIP list
-            const vipHtml = state.vipTables.map(t => `
-                <div class="flex items-center justify-between bg-[rgba(255,255,255,0.02)] p-2 rounded border border-[rgba(212,175,55,0.1)]">
-                    <span class="cinzel text-sm text-[rgba(212,175,55,0.9)] tracking-widest">${t.name}</span>
-                    <div class="flex items-center gap-3">
-                        <button onclick="window.updateVIPCapacity('${t.id}', -1)" class="btn-ctrl">-</button>
-                        <span class="font-mono text-sm w-4 text-center">${t.capacity}</span>
-                        <button onclick="window.updateVIPCapacity('${t.id}', 1)" class="btn-ctrl">+</button>
-                    </div>
-                </div>
-            `).join('');
-            document.getElementById('vip-list').innerHTML = vipHtml;
-
-            // Render Student List (Con finanzas integradas y mesa asignada dinámica)
-            const studentHtml = state.students.map(s => {
-                const totalSeats = state.settings.baseSeats + s.extra;
-                const canAdd = s.extra < state.settings.maxExtra;
-                const isPaid = (s.paid || 0) >= state.settings.quotaPrice;
-                const displayedTable = s.assignedTable || s.baseTable;
-                
-                return `
-                <div class="student-row grid grid-cols-12 gap-2 items-center py-2 px-2 border-b border-[rgba(255,255,255,0.05)]">
-                    <div class="col-span-4 cinzel text-[0.7rem] tracking-wider truncate flex flex-col justify-center" title="${s.name}">
-                        <span>${s.name}</span>
-                        <span class="text-[0.5rem] w-fit py-[1px] px-[4px] border border-[rgba(212,175,55,0.3)] rounded bg-[rgba(212,175,55,0.1)] text-gold-light mt-[2px]">M${displayedTable}</span>
-                    </div>
-                    
-                    <div class="col-span-4 flex justify-center items-center">
-                        <button onclick="window.openPaymentModal('${s.id}')" class="text-[0.65rem] font-mono border border-[rgba(212,175,55,0.3)] rounded px-1 py-1 hover:bg-[rgba(212,175,55,0.2)] transition-colors w-full text-center ${isPaid ? 'bg-[rgba(74,222,128,0.1)] text-green-400 border-green-500/50' : 'bg-[rgba(255,255,255,0.05)] text-gray-400'}">
-                            $${s.paid || 0}
-                        </button>
-                    </div>
-
-                    <div class="col-span-2 flex justify-center items-center gap-1">
-                        <button onclick="window.updateStudentExtra('${s.id}', 1)" class="btn-ctrl !w-5 !h-5 !text-xs" ${!canAdd ? 'disabled' : ''} title="Añadir Extra (Máx ${state.settings.maxExtra})">+</button>
-                    </div>
-
-                    <div class="col-span-2 text-right font-mono text-sm ${s.extra > 0 ? 'text-white' : 'text-gray-500'}">
-                        ${totalSeats} <i class="ph ph-user text-[10px] opacity-70"></i>
-                    </div>
-                </div>
-                `;
-            }).join('');
-            document.getElementById('student-list').innerHTML = studentHtml;
-        }
-
-        function renderFloorPlan(computedTables) {
-            const getShape = (idx) => {
-                const shapes = ['shape-1', 'shape-2', 'shape-3'];
-                return shapes[idx % shapes.length];
-            };
-
-            const vipFloor = computedTables.vip.map((t, idx) => {
-                const namesJSON = encodeURIComponent(JSON.stringify(t.names));
-                return `
-                <div class="enso-table w-36 h-36 border-vip ${getShape(idx)} flex flex-col justify-center shadow-lg bg-[rgba(212,175,55,0.05)] cursor-pointer hover:border-gold hover:shadow-2xl transition-all" onclick="window.openTableGuests('${t.names[0]}', '${namesJSON}')">
-                    <span class="table-name text-gold tracking-widest text-sm leading-tight">${t.names[0]}</span>
-                    <span class="table-size-indicator mt-2">${t.guests} LUG.</span>
-                </div>
-                `;
-            }).join('');
-            document.getElementById('floor-vip').innerHTML = vipFloor;
-
-            const studentFloor = computedTables.students.map((t, idx) => {
-                const shape = getShape(idx + 5);
-                const namesJSON = encodeURIComponent(JSON.stringify(t.names));
-                let borderClass = 'border-student cursor-pointer hover:border-gold-light hover:shadow-2xl transition-all';
-                let widthClass = 'w-32 h-32';
-                let bgClass = 'bg-[rgba(255,255,255,0.02)]';
-                
-                // Actualizado para reflejar la etiqueta "MESA X" calculada dinámicamente
-                let nameHtml = `
-                    <span class="table-name tracking-widest text-[0.6rem] text-gold uppercase mb-1">${t.label}</span>
-                    <span class="table-name tracking-widest text-sm text-gray-200 uppercase">${t.names[0]}</span>
-                `;
-                let infoHtml = `<span class="table-size-indicator">${t.capacity} / ${t.capacity}</span>`;
-
-                if (t.type === 'combined') {
-                    borderClass = 'border-combined cursor-pointer hover:border-gold-light hover:shadow-2xl transition-all';
-                    widthClass = 'w-44 h-44'; 
-                    bgClass = 'bg-[rgba(212,175,55,0.03)]';
-                    nameHtml = `
-                        <span class="table-name tracking-widest text-[0.6rem] text-gold uppercase mb-1">${t.label}</span>
-                        <span class="table-name tracking-widest text-xs text-gray-300 uppercase">${t.names[0]}</span>
-                        <div class="w-8 h-px bg-[rgba(212,175,55,0.3)] my-1"></div>
-                        <span class="table-name tracking-widest text-xs text-gray-300 uppercase">${t.names[1]}</span>
-                    `;
-                } else if (t.extras > 0) {
-                    bgClass = 'bg-[rgba(212,175,55,0.08)]'; 
-                }
-
-                return `
-                    <div class="enso-table ${widthClass} ${borderClass} ${shape} ${bgClass}" onclick="window.openTableGuests('${t.label}', '${namesJSON}')">
-                        ${nameHtml}
-                        ${infoHtml}
-                    </div>
-                `;
-            }).join('');
-            document.getElementById('floor-students').innerHTML = studentFloor;
-        }
-
     </script>
 </body>
 </html>
