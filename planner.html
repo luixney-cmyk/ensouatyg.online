@@ -517,7 +517,7 @@
             setDoc(docRef, state, { merge: false });
         };
 
-        // ACTUALIZACIÓN DE CAPACIDAD Y MESAS A FIREBASE (A PRUEBA DE ESPACIOS)
+        // ACTUALIZACIÓN DE CAPACIDAD Y MESAS A FIREBASE (ALGORITMO ANTI-ESPACIOS)
         window.syncHostData = async function() {
             const syncStatus = document.getElementById('sync-status');
             if(syncStatus) { syncStatus.innerText = 'Sincronizando...'; syncStatus.style.color = 'var(--gold)'; }
@@ -531,19 +531,27 @@
                 const batch = writeBatch(db);
                 let updates = 0;
                 
+                // Función para limpiar texto: quita espacios, acentos y puntos para que coincidan siempre
+                const cleanText = (str) => (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z]/gi, '').toUpperCase();
+
                 hostDataSnap.forEach(docSnap => {
                     const data = docSnap.data();
                     if (data.type !== 'special') { 
-                        // Aplicamos TRIM a ambos lados para evitar errores de espacios invisibles
-                        const fireName = (data.name || '').trim().toUpperCase();
-                        const studentInPlan = state.students.find(st => st.name.trim().toUpperCase() === fireName);
+                        // Limpiamos el nombre de Firebase (o usamos el ID si no hay nombre)
+                        const fireName = cleanText(data.name || docSnap.id);
                         
-                        if (studentInPlan && studentInPlan.assignedTable) {
+                        // Buscamos al alumno en el planner que coincida (incluso si está escrito diferente)
+                        const studentInPlan = state.students.find(st => {
+                            const planName = cleanText(st.name);
+                            return fireName === planName || fireName.includes(planName) || planName.includes(fireName);
+                        });
+                        
+                        if (studentInPlan) {
                             // Conversión estricta a Número para la evaluación matemática
                             const newCount = Number(state.settings.baseSeats) + Number(studentInPlan.extra);
-                            const newTable = Number(studentInPlan.assignedTable);
-                            const currentCount = Number(data.count);
-                            const currentTable = Number(data.table);
+                            const newTable = Number(studentInPlan.assignedTable || studentInPlan.baseTable);
+                            const currentCount = Number(data.count || 0);
+                            const currentTable = Number(data.table || 0);
                             
                             // Solo actualizamos si hay una diferencia matemática real
                             if (currentCount !== newCount || currentTable !== newTable) {
@@ -693,9 +701,8 @@
             document.getElementById('modal-income').classList.add('active');
         };
 
-        // Render Invitados en Mesa Activa (A PRUEBA DE ESPACIOS)
+        // Render Invitados en Mesa Activa
         window.openTableGuests = function(tableLabel, hostNamesEncoded) {
-            // Normalizamos los anfitriones seleccionados
             activeTableHosts = JSON.parse(decodeURIComponent(hostNamesEncoded)).map(n => n.trim().toUpperCase());
             activeTableLabel = tableLabel;
             renderActiveTableGuests();
@@ -706,10 +713,12 @@
             if(!activeTableHosts.length) return;
             document.getElementById('tg-title').innerText = activeTableLabel;
 
-            // Filtramos comparando el nombre normalizado sin espacios
+            // Filtramos comparando el nombre normalizado sin espacios ni caracteres especiales
+            const cleanText = (str) => (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z]/gi, '').toUpperCase();
+            
             const guestsInTable = allConfirmedGuests.filter(g => {
-                const safeName = (g.hostName || '').trim().toUpperCase();
-                return activeTableHosts.includes(safeName);
+                const safeName = cleanText(g.hostName);
+                return activeTableHosts.some(host => safeName.includes(cleanText(host)) || cleanText(host).includes(safeName));
             });
 
             let html = '';
@@ -745,7 +754,7 @@
             };
 
             state.vipTables.forEach(t => {
-                totalGuests += t.capacity;
+                totalGuests += Number(t.capacity);
                 computedTables.vip.push({
                     type: 'vip', names: [t.name], capacity: t.capacity, guests: t.capacity, label: t.name
                 });
@@ -753,8 +762,8 @@
 
             const tableGroups = {};
             state.students.forEach(s => {
-                quotasIncome += (s.paid || 0);
-                extrasIncome += (s.extra || 0) * state.settings.extraPrice;
+                quotasIncome += Number(s.paid || 0);
+                extrasIncome += Number(s.extra || 0) * state.settings.extraPrice;
                 
                 if (!tableGroups[s.baseTable]) tableGroups[s.baseTable] = [];
                 tableGroups[s.baseTable].push(s);
@@ -767,9 +776,10 @@
                 const group = tableGroups[tableNum];
                 group.forEach(s => {
                     if (s.extra > 0) {
+                        const seatCount = Number(state.settings.baseSeats) + Number(s.extra);
                         provisionalStudentTables.push({
                             type: 'individual', names: [s.name], 
-                            capacity: state.settings.baseSeats + s.extra, guests: state.settings.baseSeats + s.extra, 
+                            capacity: seatCount, guests: seatCount, 
                             extras: s.extra, studentsObj: [s]
                         });
                     } else {
@@ -782,7 +792,7 @@
                 if (i + 1 < singlesToPair.length) {
                     const p1 = singlesToPair[i];
                     const p2 = singlesToPair[i + 1];
-                    const tableGuests = state.settings.baseSeats * 2; 
+                    const tableGuests = Number(state.settings.baseSeats) * 2; 
                     provisionalStudentTables.push({
                         type: 'combined',
                         names: [p1.name, p2.name],
@@ -794,7 +804,7 @@
                     provisionalStudentTables.push({
                         type: 'individual',
                         names: [p.name],
-                        capacity: state.settings.baseSeats, guests: state.settings.baseSeats, 
+                        capacity: Number(state.settings.baseSeats), guests: Number(state.settings.baseSeats), 
                         extras: 0, studentsObj: [p]
                     });
                 }
@@ -804,7 +814,7 @@
             provisionalStudentTables.forEach(t => {
                 t.displayNumber = nextTableNumber++;
                 t.label = `MESA ${t.displayNumber}`;
-                totalGuests += t.capacity;
+                totalGuests += Number(t.capacity);
                 
                 t.studentsObj.forEach(s => {
                     s.assignedTable = t.displayNumber;
@@ -872,7 +882,7 @@
             document.getElementById('vip-list').innerHTML = vipHtml;
 
             const studentHtml = state.students.map(s => {
-                const totalSeats = state.settings.baseSeats + s.extra;
+                const totalSeats = Number(state.settings.baseSeats) + Number(s.extra);
                 const canAdd = s.extra < state.settings.maxExtra;
                 const isPaid = (s.paid || 0) >= state.settings.quotaPrice;
                 const displayedTable = s.assignedTable || s.baseTable;
