@@ -517,12 +517,15 @@
             setDoc(docRef, state, { merge: false });
         };
 
-        // ACTUALIZACIÓN DE CAPACIDAD Y MESAS A FIREBASE
+        // ACTUALIZACIÓN DE CAPACIDAD Y MESAS A FIREBASE (A PRUEBA DE ESPACIOS)
         window.syncHostData = async function() {
             const syncStatus = document.getElementById('sync-status');
             if(syncStatus) { syncStatus.innerText = 'Sincronizando...'; syncStatus.style.color = 'var(--gold)'; }
             
             try {
+                // Forzamos un recálculo seguro antes de actualizar para garantizar tablas asignadas
+                calculateFloorPlan();
+
                 const hostDataRef = collection(db, 'artifacts', appId, 'public', 'data', 'hostData');
                 const hostDataSnap = await getDocs(hostDataRef);
                 const batch = writeBatch(db);
@@ -531,12 +534,19 @@
                 hostDataSnap.forEach(docSnap => {
                     const data = docSnap.data();
                     if (data.type !== 'special') { 
-                        const studentInPlan = state.students.find(st => st.name === data.name);
+                        // Aplicamos TRIM a ambos lados para evitar errores de espacios invisibles
+                        const fireName = (data.name || '').trim().toUpperCase();
+                        const studentInPlan = state.students.find(st => st.name.trim().toUpperCase() === fireName);
+                        
                         if (studentInPlan && studentInPlan.assignedTable) {
-                            const newCount = state.settings.baseSeats + studentInPlan.extra;
-                            const newTable = studentInPlan.assignedTable;
+                            // Conversión estricta a Número para la evaluación matemática
+                            const newCount = Number(state.settings.baseSeats) + Number(studentInPlan.extra);
+                            const newTable = Number(studentInPlan.assignedTable);
+                            const currentCount = Number(data.count);
+                            const currentTable = Number(data.table);
                             
-                            if (data.count !== newCount || data.table !== newTable) {
+                            // Solo actualizamos si hay una diferencia matemática real
+                            if (currentCount !== newCount || currentTable !== newTable) {
                                 batch.update(docSnap.ref, { count: newCount, table: newTable });
                                 updates++;
                             }
@@ -544,10 +554,10 @@
                     }
                 });
                 
-                // Recalculamos capacidad total y la guardamos en stats/main
+                // Recalculamos capacidad total y la guardamos en stats/main de forma estricta
                 let newTotalCapacity = 0;
-                state.students.forEach(s => newTotalCapacity += (state.settings.baseSeats + s.extra));
-                state.vipTables.forEach(v => newTotalCapacity += v.capacity);
+                state.students.forEach(s => newTotalCapacity += (Number(state.settings.baseSeats) + Number(s.extra)));
+                state.vipTables.forEach(v => newTotalCapacity += Number(v.capacity));
                 
                 const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
                 batch.set(statsRef, { totalCapacity: newTotalCapacity }, { merge: true });
@@ -683,9 +693,10 @@
             document.getElementById('modal-income').classList.add('active');
         };
 
-        // Render Invitados en Mesa Activa
+        // Render Invitados en Mesa Activa (A PRUEBA DE ESPACIOS)
         window.openTableGuests = function(tableLabel, hostNamesEncoded) {
-            activeTableHosts = JSON.parse(decodeURIComponent(hostNamesEncoded));
+            // Normalizamos los anfitriones seleccionados
+            activeTableHosts = JSON.parse(decodeURIComponent(hostNamesEncoded)).map(n => n.trim().toUpperCase());
             activeTableLabel = tableLabel;
             renderActiveTableGuests();
             document.getElementById('modal-table-guests').classList.add('active');
@@ -695,7 +706,11 @@
             if(!activeTableHosts.length) return;
             document.getElementById('tg-title').innerText = activeTableLabel;
 
-            const guestsInTable = allConfirmedGuests.filter(g => activeTableHosts.includes(g.hostName));
+            // Filtramos comparando el nombre normalizado sin espacios
+            const guestsInTable = allConfirmedGuests.filter(g => {
+                const safeName = (g.hostName || '').trim().toUpperCase();
+                return activeTableHosts.includes(safeName);
+            });
 
             let html = '';
             if (guestsInTable.length === 0) {
