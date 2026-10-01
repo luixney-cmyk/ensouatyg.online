@@ -624,7 +624,7 @@
             const student = state.students.find(s => s.id === studentId);
             if (!student) return;
             
-            const newTable = prompt(`Reasignar a ${student.name} a otro grupo base.\n\nLos alumnos que tengan el mismo número de grupo se sentarán juntos automáticamente.\n\nGrupo actual: ${student.baseTable}`, student.baseTable);
+            const newTable = prompt(`Editar el orden/mesa de: ${student.name}.\n\nEl sistema forma a los alumnos por este número y los empareja automáticamente 2 en 2. Si quieres que Nazbith y Fernando queden juntos, ponles el mismo número (o números consecutivos) para que queden juntos en la fila.\n\nMesa asignada actualmente: ${student.baseTable}`, student.baseTable);
             
             if (newTable !== null && newTable.trim() !== '') {
                 const parsedTable = parseInt(newTable, 10);
@@ -633,7 +633,7 @@
                     window.saveData();
                     renderAll();
                 } else {
-                    alert("Por favor ingresa un número de grupo válido.");
+                    alert("Por favor ingresa un número de mesa válido.");
                 }
             }
         };
@@ -795,11 +795,11 @@
                 tableGroups[s.baseTable].push(s);
             });
 
+            const singlesToPair = []; 
             const provisionalStudentTables = [];
 
             Object.keys(tableGroups).sort((a,b) => Number(a) - Number(b)).forEach(tableNum => {
                 const group = tableGroups[tableNum];
-                const singlesToPair = []; // AHORA EMPAREJAMOS SOLO DENTRO DEL MISMO GRUPO BASE
 
                 group.forEach(s => {
                     if (s.extra > 0) {
@@ -814,31 +814,31 @@
                         singlesToPair.push(s);
                     }
                 });
-
-                // Crear binas con los alumnos del mismo grupo
-                for (let i = 0; i < singlesToPair.length; i += 2) {
-                    if (i + 1 < singlesToPair.length) {
-                        const p1 = singlesToPair[i];
-                        const p2 = singlesToPair[i + 1];
-                        const tableGuests = Number(state.settings.baseSeats) * 2; 
-                        provisionalStudentTables.push({
-                            type: 'combined',
-                            names: [p1.name, p2.name],
-                            capacity: tableGuests, guests: tableGuests, 
-                            extras: 0, studentsObj: [p1, p2]
-                        });
-                    } else {
-                        // Si quedó alguien solo en ese grupo
-                        const p = singlesToPair[i];
-                        provisionalStudentTables.push({
-                            type: 'individual',
-                            names: [p.name],
-                            capacity: Number(state.settings.baseSeats), guests: Number(state.settings.baseSeats), 
-                            extras: 0, studentsObj: [p]
-                        });
-                    }
-                }
             });
+
+            // Crear binas globalmente respetando el orden de la fila (como estaba originalmente)
+            for (let i = 0; i < singlesToPair.length; i += 2) {
+                if (i + 1 < singlesToPair.length) {
+                    const p1 = singlesToPair[i];
+                    const p2 = singlesToPair[i + 1];
+                    const tableGuests = Number(state.settings.baseSeats) * 2; 
+                    provisionalStudentTables.push({
+                        type: 'combined',
+                        names: [p1.name, p2.name],
+                        capacity: tableGuests, guests: tableGuests, 
+                        extras: 0, studentsObj: [p1, p2]
+                    });
+                } else {
+                    // Si quedó alguien solo al final
+                    const p = singlesToPair[i];
+                    provisionalStudentTables.push({
+                        type: 'individual',
+                        names: [p.name],
+                        capacity: Number(state.settings.baseSeats), guests: Number(state.settings.baseSeats), 
+                        extras: 0, studentsObj: [p]
+                    });
+                }
+            }
 
             let nextTableNumber = 3;
             provisionalStudentTables.forEach(t => {
@@ -926,8 +926,8 @@
                     <div class="col-span-4 cinzel text-[0.7rem] tracking-wider truncate flex flex-col justify-center" title="${s.name}">
                         <span>${s.name}</span>
                         <div class="flex items-center gap-1 mt-[2px]">
-                            <span class="text-[0.5rem] w-fit py-[1px] px-[4px] border border-[rgba(212,175,55,0.3)] rounded bg-[rgba(212,175,55,0.1)] text-gold-light" title="Mesa final en plano: M${displayedTable}">G${s.baseTable}</span>
-                            <button onclick="window.editBaseTable('${s.id}')" class="text-[0.75rem] text-[rgba(212,175,55,0.5)] hover:text-white transition-colors cursor-pointer" title="Cambiar grupo base">✎</button>
+                            <span class="text-[0.5rem] w-fit py-[1px] px-[4px] border border-[rgba(212,175,55,0.3)] rounded bg-[rgba(212,175,55,0.1)] text-gold-light" title="Mesa de referencia">M${s.baseTable}</span>
+                            <button onclick="window.editBaseTable('${s.id}')" class="text-[0.75rem] text-[rgba(212,175,55,0.5)] hover:text-white transition-colors cursor-pointer" title="Editar mesa">✎</button>
                         </div>
                     </div>
                     
