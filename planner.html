@@ -237,7 +237,8 @@
             <div class="p-5 flex-grow overflow-y-auto">
                 <div class="flex justify-between items-end mb-4">
                     <h2 class="text-sm tracking-[0.2em] text-gold uppercase">Generación (22)</h2>
-                    <span class="text-xs text-gray-500 italic">Mesa base: 6. Extras max: 4</span>
+                    <!-- Actualizamos el texto para reflejar que hay excepciones -->
+                    <span class="text-[0.65rem] text-gray-500 italic text-right leading-tight">Mesa base: 6.<br>Extras max: 4 (Excepto casos especiales)</span>
                 </div>
                 <div class="grid grid-cols-12 gap-2 mb-2 px-2 text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.5)] border-b border-[rgba(212,175,55,0.1)] pb-2 text-center">
                     <div class="col-span-4 text-left">Alumno</div>
@@ -417,7 +418,7 @@
             settings: {
                 maxTotalGuests: 200,
                 baseSeats: 6,
-                maxExtra: 4,
+                maxExtra: 4, // Límite base general
                 extraPrice: 300,
                 quotaPrice: 3500
             },
@@ -547,7 +548,7 @@
                         });
                         
                         if (studentInPlan) {
-                            // Conversión estricta a Número para la evaluación matemática
+                            // La lógica mágica: Firebase registrará 6 (base) + extra, si Heidi tiene 6 extras registrará 12.
                             const newCount = Number(state.settings.baseSeats) + Number(studentInPlan.extra);
                             const newTable = Number(studentInPlan.assignedTable || studentInPlan.baseTable);
                             const currentCount = Number(data.count || 0);
@@ -602,9 +603,16 @@
         window.updateStudentExtra = function(id, delta) {
             const student = state.students.find(s => s.id === id);
             if (student) {
+                // =============== REGLA DE EXCEPCIÓN PARA HEIDI ===============
+                // Heidi tiene permiso especial de hasta 6 extras (12 en total)
+                const maxAllowedExtras = (student.name.toUpperCase() === "HEIDI") ? 6 : state.settings.maxExtra;
+                
                 let newExtra = student.extra + delta;
                 if (newExtra < 0) newExtra = 0;
-                if (newExtra > state.settings.maxExtra) newExtra = state.settings.maxExtra;
+                
+                // Comprobamos contra su límite específico
+                if (newExtra > maxAllowedExtras) newExtra = maxAllowedExtras; 
+                
                 student.extra = newExtra;
                 
                 renderAll(); 
@@ -776,6 +784,7 @@
                 const group = tableGroups[tableNum];
                 group.forEach(s => {
                     if (s.extra > 0) {
+                        // El código ya sumaba matemáticamente, por lo que si Heidi tiene 6 extras, esto calcula 6+6=12 y crea una mesa de 12 lugares para ella sola
                         const seatCount = Number(state.settings.baseSeats) + Number(s.extra);
                         provisionalStudentTables.push({
                             type: 'individual', names: [s.name], 
@@ -883,7 +892,11 @@
 
             const studentHtml = state.students.map(s => {
                 const totalSeats = Number(state.settings.baseSeats) + Number(s.extra);
-                const canAdd = s.extra < state.settings.maxExtra;
+                
+                // Aplicamos la misma regla visual aquí para saber si deshabilitar o no el botón '+'
+                const maxAllowedExtras = (s.name.toUpperCase() === "HEIDI") ? 6 : state.settings.maxExtra;
+                const canAdd = s.extra < maxAllowedExtras;
+                
                 const isPaid = (s.paid || 0) >= state.settings.quotaPrice;
                 const displayedTable = s.assignedTable || s.baseTable;
                 
@@ -903,7 +916,7 @@
                     <div class="col-span-3 flex justify-center items-center gap-1">
                         <button onclick="window.updateStudentExtra('${s.id}', -1)" class="btn-ctrl !w-4 !h-4 !text-[10px]" ${s.extra <= 0 ? 'disabled' : ''} title="Quitar Extra">-</button>
                         <span class="text-[0.65rem] text-gold-light w-2 text-center">${s.extra}</span>
-                        <button onclick="window.updateStudentExtra('${s.id}', 1)" class="btn-ctrl !w-4 !h-4 !text-[10px]" ${!canAdd ? 'disabled' : ''} title="Añadir Extra (Máx ${state.settings.maxExtra})">+</button>
+                        <button onclick="window.updateStudentExtra('${s.id}', 1)" class="btn-ctrl !w-4 !h-4 !text-[10px]" ${!canAdd ? 'disabled' : ''} title="Añadir Extra (Máx ${maxAllowedExtras})">+</button>
                     </div>
 
                     <div class="col-span-2 text-right font-mono text-xs ${s.extra > 0 ? 'text-white' : 'text-gray-500'}">
