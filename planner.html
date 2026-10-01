@@ -620,6 +620,24 @@
             }
         };
 
+        window.editBaseTable = function(studentId) {
+            const student = state.students.find(s => s.id === studentId);
+            if (!student) return;
+            
+            const newTable = prompt(`Reasignar a ${student.name} a otro grupo base.\n\nLos alumnos que tengan el mismo número de grupo se sentarán juntos automáticamente.\n\nGrupo actual: ${student.baseTable}`, student.baseTable);
+            
+            if (newTable !== null && newTable.trim() !== '') {
+                const parsedTable = parseInt(newTable, 10);
+                if(!isNaN(parsedTable)) {
+                    student.baseTable = parsedTable;
+                    window.saveData();
+                    renderAll();
+                } else {
+                    alert("Por favor ingresa un número de grupo válido.");
+                }
+            }
+        };
+
         // 4. Controladores Financieros (Modales)
         const formatMoney = (val) => '$' + val.toLocaleString('en-US');
 
@@ -777,11 +795,12 @@
                 tableGroups[s.baseTable].push(s);
             });
 
-            const singlesToPair = []; 
             const provisionalStudentTables = [];
 
             Object.keys(tableGroups).sort((a,b) => Number(a) - Number(b)).forEach(tableNum => {
                 const group = tableGroups[tableNum];
+                const singlesToPair = []; // AHORA EMPAREJAMOS SOLO DENTRO DEL MISMO GRUPO BASE
+
                 group.forEach(s => {
                     if (s.extra > 0) {
                         // El código ya sumaba matemáticamente, por lo que si Heidi tiene 6 extras, esto calcula 6+6=12 y crea una mesa de 12 lugares para ella sola
@@ -795,29 +814,31 @@
                         singlesToPair.push(s);
                     }
                 });
-            });
 
-            for (let i = 0; i < singlesToPair.length; i += 2) {
-                if (i + 1 < singlesToPair.length) {
-                    const p1 = singlesToPair[i];
-                    const p2 = singlesToPair[i + 1];
-                    const tableGuests = Number(state.settings.baseSeats) * 2; 
-                    provisionalStudentTables.push({
-                        type: 'combined',
-                        names: [p1.name, p2.name],
-                        capacity: tableGuests, guests: tableGuests, 
-                        extras: 0, studentsObj: [p1, p2]
-                    });
-                } else {
-                    const p = singlesToPair[i];
-                    provisionalStudentTables.push({
-                        type: 'individual',
-                        names: [p.name],
-                        capacity: Number(state.settings.baseSeats), guests: Number(state.settings.baseSeats), 
-                        extras: 0, studentsObj: [p]
-                    });
+                // Crear binas con los alumnos del mismo grupo
+                for (let i = 0; i < singlesToPair.length; i += 2) {
+                    if (i + 1 < singlesToPair.length) {
+                        const p1 = singlesToPair[i];
+                        const p2 = singlesToPair[i + 1];
+                        const tableGuests = Number(state.settings.baseSeats) * 2; 
+                        provisionalStudentTables.push({
+                            type: 'combined',
+                            names: [p1.name, p2.name],
+                            capacity: tableGuests, guests: tableGuests, 
+                            extras: 0, studentsObj: [p1, p2]
+                        });
+                    } else {
+                        // Si quedó alguien solo en ese grupo
+                        const p = singlesToPair[i];
+                        provisionalStudentTables.push({
+                            type: 'individual',
+                            names: [p.name],
+                            capacity: Number(state.settings.baseSeats), guests: Number(state.settings.baseSeats), 
+                            extras: 0, studentsObj: [p]
+                        });
+                    }
                 }
-            }
+            });
 
             let nextTableNumber = 3;
             provisionalStudentTables.forEach(t => {
@@ -904,7 +925,10 @@
                 <div class="student-row grid grid-cols-12 gap-2 items-center py-2 px-2 border-b border-[rgba(255,255,255,0.05)]">
                     <div class="col-span-4 cinzel text-[0.7rem] tracking-wider truncate flex flex-col justify-center" title="${s.name}">
                         <span>${s.name}</span>
-                        <span class="text-[0.5rem] w-fit py-[1px] px-[4px] border border-[rgba(212,175,55,0.3)] rounded bg-[rgba(212,175,55,0.1)] text-gold-light mt-[2px]">M${displayedTable}</span>
+                        <div class="flex items-center gap-1 mt-[2px]">
+                            <span class="text-[0.5rem] w-fit py-[1px] px-[4px] border border-[rgba(212,175,55,0.3)] rounded bg-[rgba(212,175,55,0.1)] text-gold-light" title="Mesa final en plano: M${displayedTable}">G${s.baseTable}</span>
+                            <button onclick="window.editBaseTable('${s.id}')" class="text-[0.75rem] text-[rgba(212,175,55,0.5)] hover:text-white transition-colors cursor-pointer" title="Cambiar grupo base">✎</button>
+                        </div>
                     </div>
                     
                     <div class="col-span-3 flex justify-center items-center">
