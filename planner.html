@@ -36,6 +36,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
         h1, h2, h3, h4, .cinzel, .table-name {
@@ -54,7 +55,7 @@
         }
 
         /* Scrollbar personalizada */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px;}
         ::-webkit-scrollbar-track { background: var(--ink); }
         ::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.6); }
@@ -150,6 +151,11 @@
             background: var(--parchment-light); border: 1px solid rgba(212, 175, 55, 0.3);
             padding: 2rem; border-radius: 4px; width: 90%; max-width: 450px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(212, 175, 55, 0.05);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-box.wide-modal {
+            max-width: 900px;
         }
         .input-gold {
             background: rgba(5,5,5,0.5); border: 1px solid rgba(212,175,55,0.4);
@@ -168,9 +174,42 @@
         }
         .btn-gold:hover { background: var(--gold); color: var(--ink); box-shadow: 0 0 15px rgba(212,175,55,0.3); }
         
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px;}
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(5,5,5,0.5); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 4px; }
+        
+        .data-table-container {
+            overflow-x: auto;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 4px;
+            background: rgba(5,5,5,0.3);
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: sans-serif;
+            font-size: 0.75rem;
+            min-width: 700px; /* Ensure horizontal scroll on small screens */
+        }
+        .data-table th, .data-table td {
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 0.5rem;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .data-table th {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold-light);
+            text-align: center;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .data-table td.text-left { text-align: left; }
+        .data-table td.text-center { text-align: center; }
+        .data-table tr:hover { background: rgba(212, 175, 55, 0.05); }
+        .text-deficit { color: #ff6b6b; }
+        .text-paid { color: #4ade80; }
     </style>
 </head>
 <body class="text-gray-300">
@@ -225,7 +264,7 @@
 
     <main class="flex-grow flex flex-col lg:flex-row max-w-[1600px] mx-auto w-full overflow-hidden">
         
-        <aside class="lg:w-[400px] w-full flex-shrink-0 bg-panel border-r border-[rgba(212,175,55,0.15)] flex flex-col lg:h-[calc(100vh-130px)] overflow-hidden">
+        <aside class="lg:w-[450px] w-full flex-shrink-0 bg-panel border-r border-[rgba(212,175,55,0.15)] flex flex-col lg:h-[calc(100vh-130px)] overflow-hidden">
             
             <div class="p-5 border-b border-[rgba(212,175,55,0.1)]">
                 <h2 class="text-sm tracking-[0.2em] text-gold uppercase mb-4">Mesas Especiales (Fijas)</h2>
@@ -234,35 +273,48 @@
                 </div>
             </div>
 
-            <div class="p-5 flex-grow overflow-y-auto">
-                <div class="flex justify-between items-end mb-4">
+            <div class="p-5 flex-grow overflow-y-auto custom-scrollbar flex flex-col h-full">
+                <div class="flex justify-between items-end mb-4 flex-shrink-0">
                     <h2 class="text-sm tracking-[0.2em] text-gold uppercase">Generación (22)</h2>
-                    <!-- Actualizamos el texto para reflejar que hay excepciones -->
-                    <span class="text-[0.65rem] text-gray-500 italic text-right leading-tight">Mesa base: 6.<br>Extras max: 4 (Excepto casos especiales)</span>
+                    <span class="text-[0.65rem] text-gray-500 italic text-right leading-tight">Mesa base: 6.<br>Max: 12 (6 extras por alumno)</span>
                 </div>
-                <div class="grid grid-cols-12 gap-2 mb-2 px-2 text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.5)] border-b border-[rgba(212,175,55,0.1)] pb-2 text-center">
+                
+                <!-- Tabla de control rápido -->
+                <div class="grid grid-cols-12 gap-2 mb-2 px-2 text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.5)] border-b border-[rgba(212,175,55,0.1)] pb-2 text-center flex-shrink-0">
                     <div class="col-span-4 text-left">Alumno</div>
-                    <div class="col-span-3">Cuota</div>
+                    <div class="col-span-3">Detalle Pagos</div>
                     <div class="col-span-3">Extra</div>
                     <div class="col-span-2 text-right">Lug.</div>
                 </div>
 
-                <div id="student-list" class="space-y-1 pb-10">
+                <div id="student-list" class="space-y-1 mb-6 flex-shrink-0">
                     <!-- Alumnos renderizados por JS -->
+                </div>
+                
+                <div class="mt-4 pt-4 border-t border-[rgba(212,175,55,0.1)] flex-grow flex flex-col overflow-hidden">
+                    <h2 class="text-sm tracking-[0.2em] text-gold uppercase mb-4 flex-shrink-0 flex justify-between items-center">
+                        Desglose de Pagos
+                        <button onclick="window.openFullPaymentsModal()" class="text-[0.65rem] font-sans bg-[rgba(212,175,55,0.1)] text-gold-light px-2 py-1 rounded hover:bg-gold hover:text-ink transition-colors border border-gold">Ampliar Tabla</button>
+                    </h2>
+                    <div class="data-table-container custom-scrollbar flex-grow overflow-auto">
+                        <table class="data-table" id="payments-table-compact">
+                            <!-- JS Render -->
+                        </table>
+                    </div>
                 </div>
             </div>
             
-            <div class="p-4 border-t border-[rgba(212,175,55,0.1)] bg-[rgba(5,5,5,0.5)] flex flex-col gap-2">
+            <div class="p-4 border-t border-[rgba(212,175,55,0.1)] bg-[rgba(5,5,5,0.5)] flex flex-col gap-2 flex-shrink-0">
                 <button onclick="window.syncHostData()" class="w-full py-2 border border-green-500/50 text-green-400 text-xs uppercase tracking-widest hover:bg-green-500/10 transition-colors rounded">
                     ⟳ Sincronizar Base de Datos
                 </button>
                 <button onclick="resetData()" class="w-full py-2 border border-[rgba(139,26,42,0.5)] text-[rgba(139,26,42,0.8)] text-xs uppercase tracking-widest hover:bg-[rgba(139,26,42,0.1)] transition-colors rounded">
-                    Reiniciar Finanzas Locales
+                    Reiniciar Datos Locales
                 </button>
             </div>
         </aside>
 
-        <section class="flex-grow p-4 lg:p-8 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] lg:h-[calc(100vh-130px)] overflow-y-auto relative">
+        <section class="flex-grow p-4 lg:p-8 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] lg:h-[calc(100vh-130px)] overflow-y-auto relative custom-scrollbar">
             <h2 class="cinzel text-xl text-center text-gray-400 tracking-[0.3em] uppercase mb-8 opacity-50">Plano del Salón</h2>
             
             <!-- Contenedor del Presidium (VIP) -->
@@ -290,13 +342,67 @@
 
     <!-- Modales Financieros -->
     <div id="modal-payment" class="modal-overlay">
-        <div class="modal-box">
-            <h3 class="cinzel text-xl text-gold mb-2 uppercase tracking-widest">Abonar a Cuota</h3>
+        <div class="modal-box wide-modal">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="cinzel text-xl text-gold uppercase tracking-widest">Registrar Pago</h3>
+                <button onclick="window.closeModals()" class="text-2xl text-[rgba(212,175,55,0.5)] hover:text-white transition-colors">&times;</button>
+            </div>
             <p id="payment-student-name" class="mb-6 text-gray-400 font-serif italic text-sm"></p>
-            <input type="number" id="payment-amount" class="input-gold" placeholder="Cantidad a abonar (ej. 500)">
-            <div class="flex justify-end gap-4 mt-6">
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label class="block text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.7)] mb-1">Salón</label>
+                    <input type="number" id="pay-salon" class="input-gold !mb-0" placeholder="Monto">
+                </div>
+                <div>
+                    <label class="block text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.7)] mb-1">Sonido/Pantalla/Música</label>
+                    <input type="number" id="pay-sonido" class="input-gold !mb-0" placeholder="Monto">
+                </div>
+                <div>
+                    <label class="block text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.7)] mb-1">3er Pago</label>
+                    <input type="number" id="pay-p3" class="input-gold !mb-0" placeholder="Monto">
+                </div>
+                <div>
+                    <label class="block text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.7)] mb-1">4to Pago</label>
+                    <input type="number" id="pay-p4" class="input-gold !mb-0" placeholder="Monto">
+                </div>
+                <div>
+                    <label class="block text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.7)] mb-1">5to Pago</label>
+                    <input type="number" id="pay-p5" class="input-gold !mb-0" placeholder="Monto">
+                </div>
+                <div>
+                    <label class="block text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.7)] mb-1">6to Pago</label>
+                    <input type="number" id="pay-p6" class="input-gold !mb-0" placeholder="Monto">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-4 mt-6 border-t border-[rgba(212,175,55,0.1)] pt-4">
                 <button onclick="window.closeModals()" class="text-gray-400 hover:text-white text-xs uppercase tracking-widest font-serif transition-colors">Cancelar</button>
-                <button onclick="window.confirmPayment()" class="btn-gold">Registrar Abono</button>
+                <button onclick="window.confirmPaymentDetails()" class="btn-gold">Guardar Pagos</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Full Payments Table -->
+    <div id="modal-full-payments" class="modal-overlay">
+        <div class="modal-box wide-modal">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="cinzel text-xl text-gold uppercase tracking-widest">ALUMNOS E5 PROYECTO INTEGRADOR 9° SEMESTRE</h3>
+                    <p class="font-serif text-sm text-gray-400 italic mt-1">$3,500 pesos por Alumno</p>
+                </div>
+                <button onclick="window.closeModals()" class="text-2xl text-[rgba(212,175,55,0.5)] hover:text-white transition-colors">&times;</button>
+            </div>
+            
+            <div class="data-table-container custom-scrollbar">
+                <table class="data-table" id="payments-table-full">
+                    <!-- JS Render -->
+                </table>
+            </div>
+            
+            <div class="mt-4 text-right flex justify-end gap-4 items-center">
+                <span class="text-xs uppercase tracking-widest text-gold-light">Total Recaudado:</span>
+                <span id="full-payments-total" class="font-mono text-xl text-white font-bold bg-[rgba(212,175,55,0.1)] px-4 py-2 border border-gold rounded"></span>
             </div>
         </div>
     </div>
@@ -413,12 +519,16 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // 1. Estado Inicial
+        // Helper to construct payment object
+        const createPayments = (salon=0, sonido=0, p3=0, p4=0, p5=0, p6=0) => ({
+            salon, sonido, p3, p4, p5, p6
+        });
+
         const INITIAL_STATE = {
             settings: {
                 maxTotalGuests: 200,
                 baseSeats: 6,
-                maxExtra: 4, // Límite base general
+                maxExtra: 6, // CHANGED: Now everyone can have up to 6 extras (12 total)
                 extraPrice: 300,
                 quotaPrice: 3500
             },
@@ -427,21 +537,43 @@
                 { id: 'v2', name: 'Mesa 2 (Directivos)', capacity: 9 }
             ],
             expenses: [],
+            // Data extracted from the image provided
             students: [
-                { name: "ARON", table: 7 }, { name: "BRANDON", table: 8 }, { name: "CARLOS", table: 5 }, { name: "CRISTHIAN", table: 6 },
-                { name: "DANIELA", table: 9 }, { name: "DAVID", table: 10 }, { name: "DIEGO", table: 11 }, { name: "FATIMA", table: 3 },
-                { name: "FERNANDO", table: 12 }, { name: "FRANCISCO", table: 5 }, { name: "GERARDO", table: 8 }, { name: "GISELLE", table: 4 },
-                { name: "GLORIA", table: 3 }, { name: "HEIDI", table: 7 }, { name: "IVAN", table: 6 }, { name: "JULIETA", table: 13 },
-                { name: "KESTIN", table: 4 }, { name: "LEONEL", table: 9 }, { name: "LUIS", table: 11 }, { name: "MARTIN", table: 13 },
-                { name: "NAZBITH", table: 12 }, { name: "ZULLY", table: 10 }
+                { name: "Aron Rafael Bañuelos Cortez.", table: 7, pmts: createPayments(150, 150) },
+                { name: "Brandon Jaramillo Rosas.", table: 8, pmts: createPayments(150, 150, 200, 1150) },
+                { name: "Carlos Isac Luna", table: 5, pmts: createPayments(150, 150) },
+                { name: "Cristhian Iván López Ponce.", table: 6, pmts: createFirebaseReadyPayments(150, 150, 150) }, // Helper mapped below
+                { name: "Daniela Rivera Carrillo.", table: 9, pmts: createPayments(150, 150, 200, 750) },
+                { name: "David Villagrana Ibarra.", table: 10, pmts: createPayments(150, 150, 200, 750, 1500) },
+                { name: "Diego De La Rosa Torres.", table: 11, pmts: createPayments(150, 150) },
+                { name: "Fátima Lizbeth Gómez Flores.", table: 3, pmts: createPayments(150, 150) },
+                { name: "Fernando Rincon Mendiola", table: 12, pmts: createPayments(150, 150) },
+                { name: "Francisco Sepulveda Paredes", table: 5, pmts: createPayments(150, 150) },
+                { name: "Giselle Fabiola Jiménez Silva.", table: 4, pmts: createPayments(150, 150, 150) },
+                { name: "Gloria Estefanía Barraza Taracena", table: 3, pmts: createPayments(150, 150) },
+                { name: "Heidi Gisela Castillo Ramírez.", table: 7, pmts: createPayments(150, 150) },
+                { name: "Iván Salinas Rosales.", table: 6, pmts: createPayments(150, 150, 200, 150) },
+                { name: "Julieta Esmeralda Hernández .", table: 13, pmts: createPayments(150, 150) },
+                { name: "Kestin Yaletzi Gutiérrez Álvarez.", table: 4, pmts: createPayments(150, 150) },
+                { name: "Leonel Aldair Arroyo Soria.", table: 9, pmts: createPayments(150, 150, 200, 800) },
+                { name: "Luis Armando Santiago Gonzales.", table: 11, pmts: createPayments(150, 150) },
+                { name: "Martin Enrique Márquez Abascal.", table: 13, pmts: createPayments(150, 150, 200) },
+                { name: "Nazbith Adilene Fletes Guardado.", table: 12, pmts: createPayments(150, 150) },
+                { name: "Gerardo Tovar Estrada", table: 8, pmts: createPayments(150, 150) },
+                { name: "Zully Adolfo Gonzales Hernández.", table: 10, pmts: createPayments(150, 150) }
             ].map((s, index) => ({
                 id: `s${index}`,
                 name: s.name,
                 baseTable: s.table,
                 extra: 0,
-                paid: 0 
+                payments: s.pmts // New structure
             }))
         };
+
+        // Helper used above to bypass hoisting issues in mapping
+        function createFirebaseReadyPayments(salon=0, sonido=0, p3=0, p4=0, p5=0, p6=0) {
+            return {salon, sonido, p3, p4, p5, p6};
+        }
 
         let state = JSON.parse(JSON.stringify(INITIAL_STATE)); 
         let activeStudentIdForPayment = null;
@@ -450,7 +582,13 @@
         let activeTableLabel = '';
         const ADMIN_EMAIL = "luixnay@gmail.com";
 
-        // 2. Auth & Firebase (Restringido)
+        // Helper to calculate total paid by a student based on new structure
+        function getStudentTotalPaid(student) {
+            if (!student.payments) return student.paid || 0; // Fallback for old data
+            const p = student.payments;
+            return (p.salon || 0) + (p.sonido || 0) + (p.p3 || 0) + (p.p4 || 0) + (p.p5 || 0) + (p.p6 || 0);
+        }
+
         window.loginWithGoogle = async function() {
             const provider = new GoogleAuthProvider();
             const errorEl = document.getElementById('login-error');
@@ -475,22 +613,31 @@
                     loginModal.classList.remove('active');
                     errorEl.style.opacity = '0';
 
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'planner', 'state');
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'planner', 'state_v2'); // Use v2 to force new state with payments
                     onSnapshot(docRef, (snapshot) => {
                         if (snapshot.exists()) {
-                            state = snapshot.data();
-                            
+                            let data = snapshot.data();
                             let needsUpdate = false;
-                            if (!state.expenses) { state.expenses = []; needsUpdate = true; }
-                            if (!state.settings.quotaPrice) { state.settings.quotaPrice = 3500; needsUpdate = true; }
-                            state.students.forEach(s => {
-                                if (s.paid === undefined) { s.paid = 0; needsUpdate = true; }
+                            
+                            // Migrations & Fallbacks
+                            if (!data.expenses) { data.expenses = []; needsUpdate = true; }
+                            if (!data.settings.quotaPrice) { data.settings.quotaPrice = 3500; needsUpdate = true; }
+                            if (data.settings.maxExtra !== 6) { data.settings.maxExtra = 6; needsUpdate = true; } // Enforce new max
+                            
+                            data.students.forEach(s => {
+                                if (!s.payments) {
+                                    // Migration from old simple 'paid' to structured 'payments'
+                                    s.payments = createPayments(s.paid || 0, 0, 0, 0, 0, 0);
+                                    needsUpdate = true;
+                                }
                             });
                             
+                            state = data;
                             if (needsUpdate) window.saveData();
                             else renderAll();
                         } else {
-                            window.saveData(); 
+                            window.saveData(); // Save INITIAL_STATE_V2
+                            renderAll();
                         }
                     }, (error) => console.error("Firebase err:", error));
 
@@ -514,17 +661,15 @@
 
         window.saveData = function() {
             if (!auth.currentUser || auth.currentUser.email !== ADMIN_EMAIL) return;
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'planner', 'state');
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'planner', 'state_v2'); // Save to v2
             setDoc(docRef, state, { merge: false });
         };
 
-        // ACTUALIZACIÓN DE CAPACIDAD Y MESAS A FIREBASE (ALGORITMO ANTI-ESPACIOS)
         window.syncHostData = async function() {
             const syncStatus = document.getElementById('sync-status');
             if(syncStatus) { syncStatus.innerText = 'Sincronizando...'; syncStatus.style.color = 'var(--gold)'; }
             
             try {
-                // Forzamos un recálculo seguro antes de actualizar para garantizar tablas asignadas
                 calculateFloorPlan();
 
                 const hostDataRef = collection(db, 'artifacts', appId, 'public', 'data', 'hostData');
@@ -532,29 +677,25 @@
                 const batch = writeBatch(db);
                 let updates = 0;
                 
-                // Función para limpiar texto: quita espacios, acentos y puntos para que coincidan siempre
                 const cleanText = (str) => (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z]/gi, '').toUpperCase();
 
                 hostDataSnap.forEach(docSnap => {
                     const data = docSnap.data();
                     if (data.type !== 'special') { 
-                        // Limpiamos el nombre de Firebase (o usamos el ID si no hay nombre)
                         const fireName = cleanText(data.name || docSnap.id);
                         
-                        // Buscamos al alumno en el planner que coincida (incluso si está escrito diferente)
                         const studentInPlan = state.students.find(st => {
                             const planName = cleanText(st.name);
-                            return fireName === planName || fireName.includes(planName) || planName.includes(fireName);
+                            // Relaxed matching for longer names
+                            return fireName === planName || fireName.includes(planName.split(' ')[0]) || planName.includes(fireName.split(' ')[0]);
                         });
                         
                         if (studentInPlan) {
-                            // La lógica mágica: Firebase registrará 6 (base) + extra, si Heidi tiene 6 extras registrará 12.
                             const newCount = Number(state.settings.baseSeats) + Number(studentInPlan.extra);
                             const newTable = Number(studentInPlan.assignedTable || studentInPlan.baseTable);
                             const currentCount = Number(data.count || 0);
                             const currentTable = Number(data.table || 0);
                             
-                            // Solo actualizamos si hay una diferencia matemática real
                             if (currentCount !== newCount || currentTable !== newTable) {
                                 batch.update(docSnap.ref, { count: newCount, table: newTable });
                                 updates++;
@@ -563,7 +704,6 @@
                     }
                 });
                 
-                // Recalculamos capacidad total y la guardamos en stats/main de forma estricta
                 let newTotalCapacity = 0;
                 state.students.forEach(s => newTotalCapacity += (Number(state.settings.baseSeats) + Number(s.extra)));
                 state.vipTables.forEach(v => newTotalCapacity += Number(v.capacity));
@@ -583,34 +723,31 @@
         }
 
         window.resetData = function() {
-            const isConfirmed = prompt("Peligro: Esto borrará TODOS los abonos y gastos en este navegador. Escribe 'RESET' para confirmar.");
+            const isConfirmed = prompt("Peligro: Esto borrará TODOS los abonos y gastos volviendo a la base inicial. Escribe 'RESET' para confirmar.");
             if(isConfirmed === 'RESET') {
                 state = JSON.parse(JSON.stringify(INITIAL_STATE));
                 window.saveData();
+                renderAll();
             }
         };
 
-        // 3. Controladores de Mesas 
         window.updateVIPCapacity = function(id, delta) {
             const table = state.vipTables.find(t => t.id === id);
             if (table) {
                 table.capacity += delta;
                 if (table.capacity < 1) table.capacity = 1;
                 window.saveData();
+                renderAll();
             }
         };
 
         window.updateStudentExtra = function(id, delta) {
             const student = state.students.find(s => s.id === id);
             if (student) {
-                // =============== REGLA DE EXCEPCIÓN PARA HEIDI ===============
-                // Heidi tiene permiso especial de hasta 6 extras (12 en total)
-                const maxAllowedExtras = (student.name.toUpperCase() === "HEIDI") ? 6 : state.settings.maxExtra;
+                const maxAllowedExtras = state.settings.maxExtra; // Now 6 for everyone
                 
                 let newExtra = student.extra + delta;
                 if (newExtra < 0) newExtra = 0;
-                
-                // Comprobamos contra su límite específico
                 if (newExtra > maxAllowedExtras) newExtra = maxAllowedExtras; 
                 
                 student.extra = newExtra;
@@ -624,7 +761,7 @@
             const student = state.students.find(s => s.id === studentId);
             if (!student) return;
             
-            const newTable = prompt(`Editar el orden/mesa de: ${student.name}.\n\nEl sistema forma a los alumnos por este número y los empareja automáticamente 2 en 2. Si quieres que Nazbith y Fernando queden juntos, ponles el mismo número (o números consecutivos) para que queden juntos en la fila.\n\nMesa asignada actualmente: ${student.baseTable}`, student.baseTable);
+            const newTable = prompt(`Editar el orden/mesa de: ${student.name}.\n\nMesa asignada actualmente: ${student.baseTable}`, student.baseTable);
             
             if (newTable !== null && newTable.trim() !== '') {
                 const parsedTable = parseInt(newTable, 10);
@@ -638,7 +775,6 @@
             }
         };
 
-        // 4. Controladores Financieros (Modales)
         const formatMoney = (val) => '$' + val.toLocaleString('en-US');
 
         window.closeModals = function() {
@@ -649,27 +785,52 @@
         window.openPaymentModal = function(studentId) {
             const student = state.students.find(s => s.id === studentId);
             if (!student) return;
+            
             activeStudentIdForPayment = studentId;
-            document.getElementById('payment-student-name').innerText = `Alumno: ${student.name} | Pagado: ${formatMoney(student.paid)} de ${formatMoney(state.settings.quotaPrice)}`;
-            document.getElementById('payment-amount').value = '';
+            const totalPaid = getStudentTotalPaid(student);
+            const p = student.payments || {};
+
+            document.getElementById('payment-student-name').innerText = `Alumno: ${student.name} | Total Pagado: ${formatMoney(totalPaid)} de ${formatMoney(state.settings.quotaPrice)}`;
+            
+            // Populate inputs
+            document.getElementById('pay-salon').value = p.salon || '';
+            document.getElementById('pay-sonido').value = p.sonido || '';
+            document.getElementById('pay-p3').value = p.p3 || '';
+            document.getElementById('pay-p4').value = p.p4 || '';
+            document.getElementById('pay-p5').value = p.p5 || '';
+            document.getElementById('pay-p6').value = p.p6 || '';
+
             document.getElementById('modal-payment').classList.add('active');
         };
 
-        window.confirmPayment = function() {
+        window.confirmPaymentDetails = function() {
             if (!activeStudentIdForPayment) return;
-            const amount = parseFloat(document.getElementById('payment-amount').value);
-            if (isNaN(amount) || amount <= 0) {
-                alert("Por favor ingresa una cantidad válida."); 
-                return;
-            }
-            
             const student = state.students.find(s => s.id === activeStudentIdForPayment);
-            if (student) {
-                student.paid += amount;
-                window.saveData();
-                window.closeModals();
-            }
+            if (!student) return;
+
+            const getVal = (id) => {
+                const v = parseFloat(document.getElementById(id).value);
+                return isNaN(v) ? 0 : v;
+            };
+
+            student.payments = {
+                salon: getVal('pay-salon'),
+                sonido: getVal('pay-sonido'),
+                p3: getVal('pay-p3'),
+                p4: getVal('pay-p4'),
+                p5: getVal('pay-p5'),
+                p6: getVal('pay-p6')
+            };
+
+            window.saveData();
+            renderAll();
+            window.closeModals();
         };
+
+        window.openFullPaymentsModal = function() {
+            renderFullPaymentsTable();
+            document.getElementById('modal-full-payments').classList.add('active');
+        }
 
         window.openExpensesModal = function() {
             document.getElementById('expense-concept').value = '';
@@ -692,15 +853,15 @@
             });
             
             window.saveData();
-            document.getElementById('expense-concept').value = '';
-            document.getElementById('expense-amount').value = '';
             renderExpensesList();
+            renderAll();
         };
 
         window.deleteExpense = function(expId) {
             state.expenses = state.expenses.filter(e => e.id !== expId);
             window.saveData();
             renderExpensesList();
+            renderAll();
         };
 
         function renderExpensesList() {
@@ -719,7 +880,7 @@
         window.openIncomeDetails = function() {
             const elTotal = document.getElementById('stat-income').innerText;
             const extraTotal = state.students.reduce((acc, s) => acc + ((s.extra || 0) * state.settings.extraPrice), 0);
-            const quotaTotal = state.students.reduce((acc, s) => acc + (s.paid || 0), 0);
+            const quotaTotal = state.students.reduce((acc, s) => acc + getStudentTotalPaid(s), 0);
             
             document.getElementById('detail-quotas').innerText = formatMoney(quotaTotal);
             document.getElementById('detail-extras').innerText = formatMoney(extraTotal);
@@ -727,7 +888,6 @@
             document.getElementById('modal-income').classList.add('active');
         };
 
-        // Render Invitados en Mesa Activa
         window.openTableGuests = function(tableLabel, hostNamesEncoded) {
             activeTableHosts = JSON.parse(decodeURIComponent(hostNamesEncoded)).map(n => n.trim().toUpperCase());
             activeTableLabel = tableLabel;
@@ -739,12 +899,15 @@
             if(!activeTableHosts.length) return;
             document.getElementById('tg-title').innerText = activeTableLabel;
 
-            // Filtramos comparando el nombre normalizado sin espacios ni caracteres especiales
             const cleanText = (str) => (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z]/gi, '').toUpperCase();
             
             const guestsInTable = allConfirmedGuests.filter(g => {
                 const safeName = cleanText(g.hostName);
-                return activeTableHosts.some(host => safeName.includes(cleanText(host)) || cleanText(host).includes(safeName));
+                return activeTableHosts.some(host => {
+                    const cleanHost = cleanText(host);
+                    // Match logic
+                    return safeName === cleanHost || safeName.includes(cleanHost.substring(0,5)) || cleanHost.includes(safeName.substring(0,5));
+                });
             });
 
             let html = '';
@@ -767,7 +930,6 @@
             document.getElementById('tg-list').innerHTML = html;
         }
 
-        // 5. Motor Inteligente de Mesas
         function calculateFloorPlan() {
             let totalGuests = 0;
             let extrasIncome = 0;
@@ -788,7 +950,7 @@
 
             const tableGroups = {};
             state.students.forEach(s => {
-                quotasIncome += Number(s.paid || 0);
+                quotasIncome += getStudentTotalPaid(s);
                 extrasIncome += Number(s.extra || 0) * state.settings.extraPrice;
                 
                 if (!tableGroups[s.baseTable]) tableGroups[s.baseTable] = [];
@@ -803,7 +965,6 @@
 
                 group.forEach(s => {
                     if (s.extra > 0) {
-                        // El código ya sumaba matemáticamente, por lo que si Heidi tiene 6 extras, esto calcula 6+6=12 y crea una mesa de 12 lugares para ella sola
                         const seatCount = Number(state.settings.baseSeats) + Number(s.extra);
                         provisionalStudentTables.push({
                             type: 'individual', names: [s.name], 
@@ -816,7 +977,7 @@
                 });
             });
 
-            // Crear binas globalmente respetando el orden de la fila (como estaba originalmente)
+            // Bin pairs
             for (let i = 0; i < singlesToPair.length; i += 2) {
                 if (i + 1 < singlesToPair.length) {
                     const p1 = singlesToPair[i];
@@ -829,7 +990,6 @@
                         extras: 0, studentsObj: [p1, p2]
                     });
                 } else {
-                    // Si quedó alguien solo al final
                     const p = singlesToPair[i];
                     provisionalStudentTables.push({
                         type: 'individual',
@@ -859,12 +1019,12 @@
             return { computedTables, totalGuests, totalIncome, totalExpenses, balance };
         }
 
-        // 6. Motor de Renderizado
         function renderAll() {
             const { computedTables, totalGuests, totalIncome, totalExpenses, balance } = calculateFloorPlan();
             
             renderHeader(totalGuests, computedTables.vip.length + computedTables.students.length, totalIncome, totalExpenses, balance);
             renderSidebar();
+            renderPaymentsTables();
             renderFloorPlan(computedTables);
         }
 
@@ -913,18 +1073,19 @@
 
             const studentHtml = state.students.map(s => {
                 const totalSeats = Number(state.settings.baseSeats) + Number(s.extra);
-                
-                // Aplicamos la misma regla visual aquí para saber si deshabilitar o no el botón '+'
-                const maxAllowedExtras = (s.name.toUpperCase() === "HEIDI") ? 6 : state.settings.maxExtra;
+                const maxAllowedExtras = state.settings.maxExtra;
                 const canAdd = s.extra < maxAllowedExtras;
                 
-                const isPaid = (s.paid || 0) >= state.settings.quotaPrice;
-                const displayedTable = s.assignedTable || s.baseTable;
+                const totalPaid = getStudentTotalPaid(s);
+                const isFullyPaid = totalPaid >= state.settings.quotaPrice;
                 
+                // Truncate name for sidebar summary
+                const shortName = s.name.split(' ')[0] + ' ' + (s.name.split(' ')[1] || '');
+
                 return `
                 <div class="student-row grid grid-cols-12 gap-2 items-center py-2 px-2 border-b border-[rgba(255,255,255,0.05)]">
-                    <div class="col-span-4 cinzel text-[0.7rem] tracking-wider truncate flex flex-col justify-center" title="${s.name}">
-                        <span>${s.name}</span>
+                    <div class="col-span-4 cinzel text-[0.65rem] tracking-wider truncate flex flex-col justify-center" title="${s.name}">
+                        <span class="truncate">${shortName}</span>
                         <div class="flex items-center gap-1 mt-[2px]">
                             <span class="text-[0.5rem] w-fit py-[1px] px-[4px] border border-[rgba(212,175,55,0.3)] rounded bg-[rgba(212,175,55,0.1)] text-gold-light" title="Mesa de referencia">M${s.baseTable}</span>
                             <button onclick="window.editBaseTable('${s.id}')" class="text-[0.75rem] text-[rgba(212,175,55,0.5)] hover:text-white transition-colors cursor-pointer" title="Editar mesa">✎</button>
@@ -932,8 +1093,8 @@
                     </div>
                     
                     <div class="col-span-3 flex justify-center items-center">
-                        <button onclick="window.openPaymentModal('${s.id}')" class="text-[0.65rem] font-mono border border-[rgba(212,175,55,0.3)] rounded px-1 py-1 hover:bg-[rgba(212,175,55,0.2)] transition-colors w-full text-center ${isPaid ? 'bg-[rgba(74,222,128,0.1)] text-green-400 border-green-500/50' : 'bg-[rgba(255,255,255,0.05)] text-gray-400'}">
-                            $${s.paid || 0}
+                        <button onclick="window.openPaymentModal('${s.id}')" class="text-[0.6rem] font-mono border border-[rgba(212,175,55,0.3)] rounded px-1 py-1 hover:bg-[rgba(212,175,55,0.2)] transition-colors w-full text-center ${isFullyPaid ? 'bg-[rgba(74,222,128,0.1)] text-green-400 border-green-500/50' : 'bg-[rgba(255,255,255,0.05)] text-gray-400'}">
+                            $${totalPaid}
                         </button>
                     </div>
 
@@ -950,6 +1111,72 @@
                 `;
             }).join('');
             document.getElementById('student-list').innerHTML = studentHtml;
+        }
+
+        function renderPaymentsTables() {
+            const thead = `
+                <thead>
+                    <tr>
+                        <th class="text-left w-8">#</th>
+                        <th class="text-left">Alumno</th>
+                        <th>Salón</th>
+                        <th>Sonido/<br>Pantalla</th>
+                        <th>3 Pago</th>
+                        <th>4 Pago</th>
+                        <th>5 Pago</th>
+                        <th>6 Pago</th>
+                        <th>Pagado</th>
+                        <th>Falta</th>
+                    </tr>
+                </thead>
+            `;
+            
+            let tbody = '<tbody>';
+            let globalTotal = 0;
+
+            state.students.forEach((s, i) => {
+                const p = s.payments || {};
+                const vSal = p.salon || 0;
+                const vSon = p.sonido || 0;
+                const v3 = p.p3 || 0;
+                const v4 = p.p4 || 0;
+                const v5 = p.p5 || 0;
+                const v6 = p.p6 || 0;
+                
+                const total = vSal + vSon + v3 + v4 + v5 + v6;
+                globalTotal += total;
+                const falta = total - state.settings.quotaPrice;
+                
+                const formatCell = (val, isTotal=false) => {
+                    if (val === 0 && !isTotal) return '';
+                    return val;
+                };
+
+                const shortName = s.name.split(' ').slice(0,2).join(' ');
+
+                // Table Row
+                tbody += `
+                    <tr class="cursor-pointer" onclick="window.openPaymentModal('${s.id}')">
+                        <td class="text-left text-gray-500">${i+1}</td>
+                        <td class="text-left text-gray-300 truncate" title="${s.name}">${shortName}</td>
+                        <td class="text-gray-400">${formatCell(vSal)}</td>
+                        <td class="text-gray-400">${formatCell(vSon)}</td>
+                        <td class="${v3>0 ? 'bg-[rgba(96,165,250,0.1)] text-blue-300' : ''}">${formatCell(v3)}</td>
+                        <td class="${v4>0 ? 'bg-[rgba(96,165,250,0.1)] text-blue-300' : ''}">${formatCell(v4)}</td>
+                        <td class="${v5>0 ? 'bg-[rgba(96,165,250,0.1)] text-blue-300' : ''}">${formatCell(v5)}</td>
+                        <td class="${v6>0 ? 'bg-[rgba(96,165,250,0.1)] text-blue-300' : ''}">${formatCell(v6)}</td>
+                        <td class="font-bold ${total >= state.settings.quotaPrice ? 'text-paid' : 'text-white'}">${total}</td>
+                        <td class="font-mono ${falta < 0 ? 'text-deficit' : 'text-gray-500'}">${falta}</td>
+                    </tr>
+                `;
+            });
+            tbody += '</tbody>';
+
+            const fullHtml = thead + tbody;
+            
+            document.getElementById('payments-table-compact').innerHTML = fullHtml;
+            document.getElementById('payments-table-full').innerHTML = fullHtml;
+            document.getElementById('full-payments-total').innerText = formatMoney(globalTotal);
         }
 
         function renderFloorPlan(computedTables) {
@@ -976,9 +1203,11 @@
                 let widthClass = 'w-32 h-32';
                 let bgClass = 'bg-[rgba(255,255,255,0.02)]';
                 
+                const formatName = (n) => n.split(' ')[0] + ' ' + (n.split(' ')[1] || '');
+
                 let nameHtml = `
                     <span class="table-name tracking-widest text-[0.6rem] text-gold uppercase mb-1">${t.label}</span>
-                    <span class="table-name tracking-widest text-sm text-gray-200 uppercase">${t.names[0]}</span>
+                    <span class="table-name tracking-widest text-xs text-gray-200 uppercase">${formatName(t.names[0])}</span>
                 `;
                 let infoHtml = `<span class="table-size-indicator">${t.capacity} / ${t.capacity}</span>`;
 
@@ -988,9 +1217,9 @@
                     bgClass = 'bg-[rgba(212,175,55,0.03)]';
                     nameHtml = `
                         <span class="table-name tracking-widest text-[0.6rem] text-gold uppercase mb-1">${t.label}</span>
-                        <span class="table-name tracking-widest text-xs text-gray-300 uppercase">${t.names[0]}</span>
+                        <span class="table-name tracking-widest text-[0.65rem] text-gray-300 uppercase leading-tight">${formatName(t.names[0])}</span>
                         <div class="w-8 h-px bg-[rgba(212,175,55,0.3)] my-1"></div>
-                        <span class="table-name tracking-widest text-xs text-gray-300 uppercase">${t.names[1]}</span>
+                        <span class="table-name tracking-widest text-[0.65rem] text-gray-300 uppercase leading-tight">${formatName(t.names[1])}</span>
                     `;
                 } else if (t.extras > 0) {
                     bgClass = 'bg-[rgba(212,175,55,0.08)]'; 
