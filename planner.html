@@ -305,6 +305,9 @@
             </div>
             
             <div class="p-4 border-t border-[rgba(212,175,55,0.1)] bg-[rgba(5,5,5,0.5)] flex flex-col gap-2 flex-shrink-0">
+                <button onclick="window.openTableManager()" class="w-full py-2 border border-blue-500/50 text-blue-400 text-xs uppercase tracking-widest hover:bg-blue-500/10 transition-colors rounded">
+                    Gestor Maestro de Mesas
+                </button>
                 <button onclick="window.syncHostData()" class="w-full py-2 border border-green-500/50 text-green-400 text-xs uppercase tracking-widest hover:bg-green-500/10 transition-colors rounded">
                     ⟳ Sincronizar Base de Datos
                 </button>
@@ -403,6 +406,40 @@
             <div class="mt-4 text-right flex justify-end gap-4 items-center">
                 <span class="text-xs uppercase tracking-widest text-gold-light">Total Recaudado:</span>
                 <span id="full-payments-total" class="font-mono text-xl text-white font-bold bg-[rgba(212,175,55,0.1)] px-4 py-2 border border-gold rounded"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Gestor Maestro de Mesas -->
+    <div id="modal-table-manager" class="modal-overlay">
+        <div class="modal-box wide-modal">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="cinzel text-xl text-gold uppercase tracking-widest">Gestor Maestro de Mesas</h3>
+                    <p class="font-serif text-sm text-gray-400 italic mt-1">Asigna manualmente el número de mesa para cada alumno. Quienes compartan número, compartirán mesa.</p>
+                </div>
+                <button onclick="window.closeModals()" class="text-2xl text-[rgba(212,175,55,0.5)] hover:text-white transition-colors">&times;</button>
+            </div>
+            
+            <div class="data-table-container custom-scrollbar max-h-[50vh] overflow-y-auto mb-6">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th class="text-left w-12">No.</th>
+                            <th class="text-left">Alumno</th>
+                            <th class="text-center w-24">Lugares</th>
+                            <th class="text-center w-32">Mesa Asignada</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-manager-list">
+                        <!-- JS Render -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-end gap-4 border-t border-[rgba(212,175,55,0.1)] pt-4">
+                <button onclick="window.closeModals()" class="text-gray-400 hover:text-white text-xs uppercase tracking-widest font-serif transition-colors">Cancelar</button>
+                <button onclick="window.saveTableAssignments()" class="btn-gold">Guardar Distribución</button>
             </div>
         </div>
     </div>
@@ -757,22 +794,57 @@
             }
         };
 
-        window.editBaseTable = function(studentId) {
-            const student = state.students.find(s => s.id === studentId);
-            if (!student) return;
-            
-            const newTable = prompt(`Editar el orden/mesa de: ${student.name}.\n\nMesa asignada actualmente: ${student.baseTable}`, student.baseTable);
-            
-            if (newTable !== null && newTable.trim() !== '') {
-                const parsedTable = parseInt(newTable, 10);
-                if(!isNaN(parsedTable)) {
-                    student.baseTable = parsedTable;
-                    window.saveData();
-                    renderAll();
-                } else {
-                    alert("Por favor ingresa un número de mesa válido.");
+        window.openTableManager = function() {
+            const tbody = document.getElementById('table-manager-list');
+            tbody.innerHTML = state.students.map((s, index) => {
+                const seats = Number(state.settings.baseSeats) + Number(s.extra);
+                return `
+                <tr>
+                    <td class="text-left text-gray-500">${index + 1}</td>
+                    <td class="text-left text-gray-300 font-serif">${s.name}</td>
+                    <td class="text-center text-gray-400 font-mono">${seats}</td>
+                    <td class="text-center p-1">
+                        <input type="number" id="tm-input-${s.id}" class="input-gold !mb-0 text-center !p-1 !text-sm w-full font-mono" value="${s.baseTable}">
+                    </td>
+                </tr>
+            `}).join('');
+            document.getElementById('modal-table-manager').classList.add('active');
+        };
+
+        window.saveTableAssignments = function() {
+            let changed = false;
+            state.students.forEach(s => {
+                const input = document.getElementById(`tm-input-${s.id}`);
+                if (input) {
+                    const newVal = parseInt(input.value, 10);
+                    if (!isNaN(newVal) && newVal !== s.baseTable) {
+                        s.baseTable = newVal;
+                        changed = true;
+                    }
                 }
+            });
+            
+            if (changed) {
+                window.saveData();
+                renderAll();
             }
+            window.closeModals();
+        };
+
+        window.editBaseTable = function(studentId) {
+            // Ya no usamos prompt(). Ahora abre el gestor maestro para evitar que se cierre de golpe.
+            window.openTableManager();
+            
+            // Hacemos scroll hacia el input del alumno específico después de un breve momento
+            setTimeout(() => {
+                const input = document.getElementById(`tm-input-${studentId}`);
+                if(input) {
+                    input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    input.focus();
+                    input.style.borderColor = 'var(--gold)';
+                    input.style.boxShadow = '0 0 15px rgba(212,175,55,0.5)';
+                }
+            }, 100);
         };
 
         const formatMoney = (val) => '$' + val.toLocaleString('en-US');
@@ -953,64 +1025,40 @@
                 quotasIncome += getStudentTotalPaid(s);
                 extrasIncome += Number(s.extra || 0) * state.settings.extraPrice;
                 
-                if (!tableGroups[s.baseTable]) tableGroups[s.baseTable] = [];
-                tableGroups[s.baseTable].push(s);
+                // Agrupamos ESTRICTAMENTE por la mesa base que asignó el usuario
+                const tNum = Number(s.baseTable) || 0;
+                if (!tableGroups[tNum]) tableGroups[tNum] = [];
+                tableGroups[tNum].push(s);
             });
 
-            const singlesToPair = []; 
-            const provisionalStudentTables = [];
-
+            // Procesamos las mesas creadas, respetando los números
             Object.keys(tableGroups).sort((a,b) => Number(a) - Number(b)).forEach(tableNum => {
                 const group = tableGroups[tableNum];
-
+                let tableCapacity = 0;
+                let names = [];
+                
                 group.forEach(s => {
-                    if (s.extra > 0) {
-                        const seatCount = Number(state.settings.baseSeats) + Number(s.extra);
-                        provisionalStudentTables.push({
-                            type: 'individual', names: [s.name], 
-                            capacity: seatCount, guests: seatCount, 
-                            extras: s.extra, studentsObj: [s]
-                        });
-                    } else {
-                        singlesToPair.push(s);
-                    }
-                });
-            });
-
-            // Bin pairs
-            for (let i = 0; i < singlesToPair.length; i += 2) {
-                if (i + 1 < singlesToPair.length) {
-                    const p1 = singlesToPair[i];
-                    const p2 = singlesToPair[i + 1];
-                    const tableGuests = Number(state.settings.baseSeats) * 2; 
-                    provisionalStudentTables.push({
-                        type: 'combined',
-                        names: [p1.name, p2.name],
-                        capacity: tableGuests, guests: tableGuests, 
-                        extras: 0, studentsObj: [p1, p2]
-                    });
-                } else {
-                    const p = singlesToPair[i];
-                    provisionalStudentTables.push({
-                        type: 'individual',
-                        names: [p.name],
-                        capacity: Number(state.settings.baseSeats), guests: Number(state.settings.baseSeats), 
-                        extras: 0, studentsObj: [p]
-                    });
-                }
-            }
-
-            let nextTableNumber = 3;
-            provisionalStudentTables.forEach(t => {
-                t.displayNumber = nextTableNumber++;
-                t.label = `MESA ${t.displayNumber}`;
-                totalGuests += Number(t.capacity);
-                
-                t.studentsObj.forEach(s => {
-                    s.assignedTable = t.displayNumber;
+                    const seats = Number(state.settings.baseSeats) + Number(s.extra);
+                    tableCapacity += seats;
+                    names.push(s.name);
+                    s.assignedTable = tableNum; // Fijamos estrictamente este número para Firebase
                 });
                 
-                computedTables.students.push(t);
+                // Si la mesa supera los 12 lugares (ej. asignaste a 3 personas en la misma mesa)
+                const isOver = tableCapacity > 12;
+                
+                computedTables.students.push({
+                    type: isOver ? 'error' : (group.length > 1 ? 'combined' : 'individual'),
+                    names: names,
+                    capacity: tableCapacity, 
+                    guests: tableCapacity, 
+                    label: `MESA ${tableNum}`,
+                    displayNumber: tableNum,
+                    isOvercapacity: isOver,
+                    studentsObj: group
+                });
+                
+                totalGuests += tableCapacity;
             });
 
             const totalIncome = quotasIncome + extrasIncome;
@@ -1205,25 +1253,29 @@
                 
                 const formatName = (n) => n.split(' ')[0] + ' ' + (n.split(' ')[1] || '');
 
-                let nameHtml = `
-                    <span class="table-name tracking-widest text-[0.6rem] text-gold uppercase mb-1">${t.label}</span>
-                    <span class="table-name tracking-widest text-xs text-gray-200 uppercase">${formatName(t.names[0])}</span>
-                `;
-                let infoHtml = `<span class="table-size-indicator">${t.capacity} / ${t.capacity}</span>`;
-
-                if (t.type === 'combined') {
+                if (t.isOvercapacity) {
+                    // Si sobrepasan los 12 lugares, se alerta con rojo
+                    borderClass = 'warning-border cursor-pointer hover:shadow-2xl transition-all';
+                    bgClass = 'bg-[rgba(139,26,42,0.1)]';
+                } else if (t.names.length > 1) {
                     borderClass = 'border-combined cursor-pointer hover:border-gold-light hover:shadow-2xl transition-all';
                     widthClass = 'w-44 h-44'; 
                     bgClass = 'bg-[rgba(212,175,55,0.03)]';
-                    nameHtml = `
-                        <span class="table-name tracking-widest text-[0.6rem] text-gold uppercase mb-1">${t.label}</span>
-                        <span class="table-name tracking-widest text-[0.65rem] text-gray-300 uppercase leading-tight">${formatName(t.names[0])}</span>
-                        <div class="w-8 h-px bg-[rgba(212,175,55,0.3)] my-1"></div>
-                        <span class="table-name tracking-widest text-[0.65rem] text-gray-300 uppercase leading-tight">${formatName(t.names[1])}</span>
-                    `;
-                } else if (t.extras > 0) {
+                } else if (t.capacity > 6) {
                     bgClass = 'bg-[rgba(212,175,55,0.08)]'; 
                 }
+
+                // Generar la lista de nombres para la UI dinámicamente sin importar cuántos haya
+                let namesHtml = t.names.map(n => `<span class="table-name tracking-widest text-[0.65rem] text-gray-300 uppercase leading-tight truncate w-full px-2">${formatName(n)}</span>`).join('<div class="w-8 h-px bg-[rgba(212,175,55,0.3)] my-1"></div>');
+
+                let nameHtml = `
+                    <span class="table-name tracking-widest text-[0.6rem] ${t.isOvercapacity ? 'text-red-400' : 'text-gold'} uppercase mb-1">${t.label}</span>
+                    <div class="flex flex-col items-center w-full justify-center">
+                        ${namesHtml}
+                    </div>
+                `;
+                
+                let infoHtml = `<span class="table-size-indicator ${t.isOvercapacity ? 'text-red-400 font-bold' : ''}">${t.capacity} LUG.</span>`;
 
                 return `
                     <div class="enso-table ${widthClass} ${borderClass} ${shape} ${bgClass}" onclick="window.openTableGuests('${t.label}', '${namesJSON}')">
