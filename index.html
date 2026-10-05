@@ -572,7 +572,7 @@
                     <!-- CONTADOR EN VIVO REFACTORIZADO (Lee desde stats) -->
                     <button id="btn-saved-pass" class="btn-outline" style="display:none; margin-top:20px; padding:10px 24px; font-size:0.65rem;" onclick="window.viewSavedPass()">Ver mi pase</button>
                     <p id="live-counter" style="margin-top:16px; font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold-light); letter-spacing:0.15em;" aria-live="polite">CALCULANDO LUGARES...</p>
-                    <p style="margin-top:12px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.35); letter-spacing:0.2em;">Aforos limitados · Respuesta antes del 14 de noviembre</p>
+                    <p style="margin-top:12px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.9rem; color:rgba(212,175,55,0.75); letter-spacing:0.15em;">Aforos limitados · Respuesta antes del 14 de noviembre</p>
                 </div>
 
                 <div class="divider-ornate reveal"><div class="line"></div><span class="diamond"></span><div class="line right"></div></div>
@@ -1061,28 +1061,8 @@
         // -------------------------------------------------------------------
 
         window.openMenuModal = function() { window.pushModalState(); document.getElementById('modal-menu').classList.add('active'); setTimeout(() => { const menuScroll = document.getElementById('menu-scroll-container'); if (menuScroll) menuScroll.scrollTop = 0; }, 50); };
+        window.openCodeModal = function() { window.pushModalState(); document.getElementById('modal-code').classList.add('active'); codeInput.value = ''; errorText.style.opacity = '0'; codeInput.focus(); };
         window.openDressModal = function() { window.pushModalState(); document.getElementById('modal-dress').classList.add('active'); setTimeout(() => { const dressScroll = document.getElementById('dress-scroll-container'); if (dressScroll) dressScroll.scrollTop = 0; }, 50); };
-        
-        // --- MEJORA PRO: MAGIA DIFERIDA (MAGIC LINKS) ---
-        window.openCodeModal = function() { 
-            window.pushModalState(); 
-            document.getElementById('modal-code').classList.add('active'); 
-            errorText.style.opacity = '0'; 
-            
-            // Leemos la URL buscando el parámetro ?code=
-            const urlParams = new URLSearchParams(window.location.search);
-            const magicCode = urlParams.get('code');
-
-            if (magicCode) {
-                // Si existe, lo escribe solo y lo valida con un pequeño retraso estético
-                codeInput.value = magicCode.toUpperCase();
-                setTimeout(() => window.validateCode(), 400);
-            } else {
-                // Comportamiento normal
-                codeInput.value = ''; 
-                codeInput.focus(); 
-            }
-        };
         
         window.closeModals = function(fromPopState = false) { 
             document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); 
@@ -1190,12 +1170,6 @@
                     errorText.innerText = "Código no encontrado. Intenta nuevamente."; 
                     errorText.style.opacity = '1';
                     codeInput.focus();
-                    
-                    // --- MEJORA PRO: AUTOLIMPIEZA DE CACHÉ ---
-                    // Si el código no existe en la base de datos (p. ej. el admin reseteó la DB), 
-                    // forzamos al teléfono a olvidar cualquier código basura que tuviera guardado.
-                    localStorage.removeItem(SAVED_CODE_KEY);
-                    refreshSavedPassBtn();
                 }
             } catch (error) {
                 errorText.innerText = "Error de validación.";
@@ -1462,11 +1436,7 @@
             } else {
                 document.getElementById('tab-codes').classList.add('active');
                 document.getElementById('view-codes').style.display = 'block';
-                
-                // Asegurar que la función exista antes de llamarla
-                if (typeof window.loadAdminCodes === 'function') {
-                    window.loadAdminCodes(); 
-                }
+                window.loadAdminCodes(); 
             }
         };
 
@@ -1551,20 +1521,13 @@
             catch(e) { console.error(e); window.customAlert("No se pudo actualizar el acceso. Revisa tu conexión e intenta de nuevo."); }
         };
 
-        // --- MEJORA PRO: PREVENCIÓN DE DOBLE CLIC Y FEEDBACK TÁCTIL EN EL ADMIN ---
+        // Delegación de eventos para los botones del panel (evita problemas con comillas/apóstrofos en nombres)
         document.getElementById('admin-table-body').addEventListener('click', (e) => {
             const btn = e.target.closest('button[data-action]');
             if (!btn) return;
-            
             const id = btn.dataset.id;
-            
             if (btn.dataset.action === 'checkin') {
-                // Feedback visual
-                btn.innerText = "...";
-                btn.disabled = true;
                 window.toggleCheckIn(id, btn.dataset.status === 'true');
-                // Nota: no necesitamos volver a habilitarlo aquí porque Firestore 
-                // disparará onSnapshot y reconstruirá la tabla instantáneamente.
             } else if (btn.dataset.action === 'delete') {
                 const g = allConfirmations.find(x => x.id === id);
                 if (g) window.deleteGuest(id, g.guestName, g.hostCode);
@@ -1708,25 +1671,22 @@
                     if(added > 0) {
                         await batch.commit(); 
                         window.customAlert(`✅ Se generaron ${added} códigos nuevos exitosamente.\n\nEl aforo total oficial ahora es de ${newTotalCapacity} lugares.`); 
-                        if (typeof window.loadAdminCodes === 'function') window.loadAdminCodes();
+                        window.loadAdminCodes();
                     } else { 
                         await batch.commit(); // Hacemos commit de todas formas para asegurar que el aforo se haya actualizado si cambió
                         window.customAlert(`ℹ️ Ya existían los códigos suficientes.\n\nEl aforo total oficial se ha ajustado a ${newTotalCapacity} lugares.`); 
-                        if (typeof window.loadAdminCodes === 'function') window.loadAdminCodes();
+                        window.loadAdminCodes();
                     }
                 } catch(e) { 
-                    window.customAlert("Error al generar códigos. Revisa la consola.\n" + e.message); 
+                    window.customAlert("Error al generar códigos. Revisa la consola. " + e.message); 
                     console.error(e); 
                     btn.innerText = "+ Generar Códigos"; btn.disabled = false; 
                 } 
             });
         };
 
-        // ASEGURAMOS QUE LA FUNCIÓN EXISTA Y SE DEFINA CORRECTAMENTE
         window.loadAdminCodes = async function() {
             const tbody = document.getElementById('codes-table-body');
-            if (!tbody) return;
-
             tbody.innerHTML = '<div style="padding: 20px; text-align: center;">Cargando códigos de Firebase...</div>';
             try {
                 const qSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'invites'));
@@ -1744,38 +1704,21 @@
 
                 // El botón siempre debe estar disponible para que el admin pueda recalcular cuotas
                 const btnGen = document.getElementById('btn-generate-codes');
-                if (btnGen) {
-                    btnGen.disabled = false;
-                    btnGen.style.opacity = '1';
-                    btnGen.style.cursor = 'pointer';
-                    btnGen.innerText = "+ Generar Códigos";
-                }
+                btnGen.disabled = false;
+                btnGen.style.opacity = '1';
+                btnGen.style.cursor = 'pointer';
+                btnGen.innerText = "+ Generar Códigos";
 
-            } catch(e) { 
-                tbody.innerHTML = '<div style="color:red; text-align:center;">Error al cargar. (¿Estás como admin?)</div>';
-                console.error(e);
-            }
+            } catch(e) { tbody.innerHTML = '<div style="color:red; text-align:center;">Error al cargar. (¿Estás como admin?)</div>'; }
         };
 
-        // --- MEJORA: AGREGADA LA COLUMNA DE ENLACE MÁGICO EN EL CSV ---
         window.exportCodesCSV = function() {
             if(allCodes.length === 0) return window.customAlert("No hay códigos para exportar.");
-            
-            // 1. Agregamos la columna "EnlaceInvitacion" al encabezado
-            let csvContent = "data:text/csv;charset=utf-8,Codigo,Anfitrion,Mesa,Tipo,Estado,InvitadoRegistrado,EnlaceInvitacion\n";
-            
-            // 2. Definimos la URL base de tu página
-            const baseUrl = "https://ensouatyg.online/?code=";
-
+            let csvContent = "data:text/csv;charset=utf-8,Codigo,Anfitrion,Mesa,Tipo,Estado,InvitadoRegistrado\n";
             allCodes.forEach(c => {
-                // 3. Generamos el enlace mágico para este código en particular
-                const enlace = `${baseUrl}${c.codigo}`;
-                
-                // 4. Lo añadimos como el último elemento de la fila
-                const row = [ c.codigo, c.hostName, c.table, c.type, c.usado ? "Usado" : "Libre", c.guestName || "", enlace ].map(item => `"${String(item).replace(/"/g, '""')}"`).join(",");
+                const row = [ c.codigo, c.hostName, c.table, c.type, c.usado ? "Usado" : "Libre", c.guestName || "" ].map(item => `"${String(item).replace(/"/g, '""')}"`).join(",");
                 csvContent += row + "\r\n";
             });
-            
             const link = document.createElement("a");
             link.setAttribute("href", encodeURI(csvContent));
             link.setAttribute("download", `Codigos_ENSO_${new Date().toISOString().split('T')[0]}.csv`);
@@ -1784,7 +1727,7 @@
 
         // Reseteo Seguro de Base de Datos
         window.resetDatabase = async function() {
-            window.customPrompt("⚠️️ PELIGRO EXTREMO: Borrará invitados, todos los códigos y el contador global de estadísticas.\n\nEscribe la palabra exacta 'RESET ENSO' para continuar:", async (confirmText) => {
+            window.customPrompt("⚠️ PELIGRO EXTREMO: Borrará invitados, todos los códigos y el contador global de estadísticas.\n\nEscribe la palabra exacta 'RESET ENSO' para continuar:", async (confirmText) => {
                 if (confirmText === "RESET ENSO") {
                     try {
                         const guestsSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'guests'));
@@ -1807,9 +1750,7 @@
                         window.customAlert("✅ Base de datos reseteada correctamente. Todo ha sido borrado e inicializado.");
                         
                         window.renderAdminTable(); 
-                        if (document.getElementById('view-codes').style.display === 'block' && typeof window.loadAdminCodes === 'function') {
-                            window.loadAdminCodes();
-                        }
+                        if (document.getElementById('view-codes').style.display === 'block') window.loadAdminCodes();
                     } catch(e) { window.customAlert("Error al resetear la base de datos: " + e.message); }
                 } else {
                     window.customAlert("Validación incorrecta. No se ha borrado nada.");
