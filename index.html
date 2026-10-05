@@ -1462,7 +1462,11 @@
             } else {
                 document.getElementById('tab-codes').classList.add('active');
                 document.getElementById('view-codes').style.display = 'block';
-                window.loadAdminCodes(); 
+                
+                // Asegurar que la función exista antes de llamarla
+                if (typeof window.loadAdminCodes === 'function') {
+                    window.loadAdminCodes(); 
+                }
             }
         };
 
@@ -1704,18 +1708,53 @@
                     if(added > 0) {
                         await batch.commit(); 
                         window.customAlert(`✅ Se generaron ${added} códigos nuevos exitosamente.\n\nEl aforo total oficial ahora es de ${newTotalCapacity} lugares.`); 
-                        window.loadAdminCodes();
+                        if (typeof window.loadAdminCodes === 'function') window.loadAdminCodes();
                     } else { 
                         await batch.commit(); // Hacemos commit de todas formas para asegurar que el aforo se haya actualizado si cambió
                         window.customAlert(`ℹ️ Ya existían los códigos suficientes.\n\nEl aforo total oficial se ha ajustado a ${newTotalCapacity} lugares.`); 
-                        window.loadAdminCodes();
+                        if (typeof window.loadAdminCodes === 'function') window.loadAdminCodes();
                     }
                 } catch(e) { 
-                    window.customAlert("Error al generar códigos. Revisa la consola. " + e.message); 
+                    window.customAlert("Error al generar códigos. Revisa la consola.\n" + e.message); 
                     console.error(e); 
                     btn.innerText = "+ Generar Códigos"; btn.disabled = false; 
                 } 
             });
+        };
+
+        // ASEGURAMOS QUE LA FUNCIÓN EXISTA Y SE DEFINA CORRECTAMENTE
+        window.loadAdminCodes = async function() {
+            const tbody = document.getElementById('codes-table-body');
+            if (!tbody) return;
+
+            tbody.innerHTML = '<div style="padding: 20px; text-align: center;">Cargando códigos de Firebase...</div>';
+            try {
+                const qSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'invites'));
+                allCodes = []; qSnap.forEach(d => allCodes.push(d.data()));
+                allCodes.sort((a,b) => a.codigo.localeCompare(b.codigo));
+                
+                let html = '';
+                allCodes.forEach(c => {
+                    const status = c.usado ? `<span class="admin-code-status usado">❌ Usado (${sanitize(c.guestName)})</span>` : `<span class="admin-code-status libre">✅ Libre</span>`;
+                    html += `<div class="admin-code-row"><div class="admin-code-val">${sanitize(c.codigo)}</div><div>${status}</div></div>`;
+                });
+                
+                tbody.innerHTML = html || '<div style="padding: 20px; text-align: center;">No hay códigos. Haz clic en Generar.</div>';
+                document.getElementById('admin-total').innerText = allCodes.length;
+
+                // El botón siempre debe estar disponible para que el admin pueda recalcular cuotas
+                const btnGen = document.getElementById('btn-generate-codes');
+                if (btnGen) {
+                    btnGen.disabled = false;
+                    btnGen.style.opacity = '1';
+                    btnGen.style.cursor = 'pointer';
+                    btnGen.innerText = "+ Generar Códigos";
+                }
+
+            } catch(e) { 
+                tbody.innerHTML = '<div style="color:red; text-align:center;">Error al cargar. (¿Estás como admin?)</div>';
+                console.error(e);
+            }
         };
 
         // --- MEJORA: AGREGADA LA COLUMNA DE ENLACE MÁGICO EN EL CSV ---
@@ -1745,7 +1784,7 @@
 
         // Reseteo Seguro de Base de Datos
         window.resetDatabase = async function() {
-            window.customPrompt("⚠️ PELIGRO EXTREMO: Borrará invitados, todos los códigos y el contador global de estadísticas.\n\nEscribe la palabra exacta 'RESET ENSO' para continuar:", async (confirmText) => {
+            window.customPrompt("⚠️️ PELIGRO EXTREMO: Borrará invitados, todos los códigos y el contador global de estadísticas.\n\nEscribe la palabra exacta 'RESET ENSO' para continuar:", async (confirmText) => {
                 if (confirmText === "RESET ENSO") {
                     try {
                         const guestsSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'guests'));
@@ -1768,7 +1807,9 @@
                         window.customAlert("✅ Base de datos reseteada correctamente. Todo ha sido borrado e inicializado.");
                         
                         window.renderAdminTable(); 
-                        if (document.getElementById('view-codes').style.display === 'block') window.loadAdminCodes();
+                        if (document.getElementById('view-codes').style.display === 'block' && typeof window.loadAdminCodes === 'function') {
+                            window.loadAdminCodes();
+                        }
                     } catch(e) { window.customAlert("Error al resetear la base de datos: " + e.message); }
                 } else {
                     window.customAlert("Validación incorrecta. No se ha borrado nada.");
