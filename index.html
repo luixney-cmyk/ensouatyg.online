@@ -570,6 +570,7 @@
                 <div class="cta-section reveal">
                     <button id="main-confirm-btn" class="confirm-btn" aria-haspopup="dialog" onclick="window.openCodeModal()">Confirmar Asistencia</button>
                     <!-- CONTADOR EN VIVO REFACTORIZADO (Lee desde stats) -->
+                    <button id="btn-saved-pass" class="btn-outline" style="display:none; margin-top:20px; padding:10px 24px; font-size:0.65rem;" onclick="window.viewSavedPass()">Ver mi pase</button>
                     <p id="live-counter" style="margin-top:16px; font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold-light); letter-spacing:0.15em;" aria-live="polite">CALCULANDO LUGARES...</p>
                     <p style="margin-top:12px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.35); letter-spacing:0.2em;">Aforos limitados · Respuesta antes del 14 de noviembre</p>
                 </div>
@@ -1060,8 +1061,28 @@
         // -------------------------------------------------------------------
 
         window.openMenuModal = function() { window.pushModalState(); document.getElementById('modal-menu').classList.add('active'); setTimeout(() => { const menuScroll = document.getElementById('menu-scroll-container'); if (menuScroll) menuScroll.scrollTop = 0; }, 50); };
-        window.openCodeModal = function() { window.pushModalState(); document.getElementById('modal-code').classList.add('active'); codeInput.value = ''; errorText.style.opacity = '0'; codeInput.focus(); };
         window.openDressModal = function() { window.pushModalState(); document.getElementById('modal-dress').classList.add('active'); setTimeout(() => { const dressScroll = document.getElementById('dress-scroll-container'); if (dressScroll) dressScroll.scrollTop = 0; }, 50); };
+        
+        // --- MEJORA PRO: MAGIA DIFERIDA (MAGIC LINKS) ---
+        window.openCodeModal = function() { 
+            window.pushModalState(); 
+            document.getElementById('modal-code').classList.add('active'); 
+            errorText.style.opacity = '0'; 
+            
+            // Leemos la URL buscando el parámetro ?code=
+            const urlParams = new URLSearchParams(window.location.search);
+            const magicCode = urlParams.get('code');
+
+            if (magicCode) {
+                // Si existe, lo escribe solo y lo valida con un pequeño retraso estético
+                codeInput.value = magicCode.toUpperCase();
+                setTimeout(() => window.validateCode(), 400);
+            } else {
+                // Comportamiento normal
+                codeInput.value = ''; 
+                codeInput.focus(); 
+            }
+        };
         
         window.closeModals = function(fromPopState = false) { 
             document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); 
@@ -1169,6 +1190,12 @@
                     errorText.innerText = "Código no encontrado. Intenta nuevamente."; 
                     errorText.style.opacity = '1';
                     codeInput.focus();
+                    
+                    // --- MEJORA PRO: AUTOLIMPIEZA DE CACHÉ ---
+                    // Si el código no existe en la base de datos (p. ej. el admin reseteó la DB), 
+                    // forzamos al teléfono a olvidar cualquier código basura que tuviera guardado.
+                    localStorage.removeItem(SAVED_CODE_KEY);
+                    refreshSavedPassBtn();
                 }
             } catch (error) {
                 errorText.innerText = "Error de validación.";
@@ -1338,7 +1365,24 @@
             return normalizedGuestName;
         }
 
+        // Persistencia local: recuerda el código confirmado para que el invitado vea su pase sin reescribirlo
+        const SAVED_CODE_KEY = 'enso_saved_code';
+        function saveCode(code) { try { localStorage.setItem(SAVED_CODE_KEY, code); } catch(e) {} refreshSavedPassBtn(); }
+        function getSavedCode() { try { return localStorage.getItem(SAVED_CODE_KEY) || ''; } catch(e) { return ''; } }
+        function refreshSavedPassBtn() {
+            const b = document.getElementById('btn-saved-pass');
+            if (b) b.style.display = getSavedCode() ? 'inline-block' : 'none';
+        }
+        window.viewSavedPass = function() {
+            const c = getSavedCode();
+            if (!c) return;
+            window.openCodeModal();
+            codeInput.value = c;
+            window.validateCode();
+        };
+
         function showTicket(nameToDisplay, tableNum, customStatusMsg = null) {
+            if (currentValidDataCode) saveCode(currentValidDataCode);
             document.getElementById('ticket-guest-name').innerText = nameToDisplay;
             document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
             document.querySelectorAll('.event-date-display').forEach(el => el.innerText = CONFIG.eventDate.toUpperCase());
@@ -1489,16 +1533,39 @@
                     <div class="admin-guest-header"><div><div class="admin-guest-name">${sanitize(g.guestName)}</div><div class="admin-guest-host">Por: ${sanitize(g.hostName)} [${sanitize(g.hostCode)}]</div></div></div>
                     <div class="admin-guest-actions">
                         <div>
-                            ${g.asistio ? `<span style="color:#4ade80; font-size:0.8rem; font-weight:bold;">✅ Ingresó</span><button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #9ca3af; border-color: #9ca3af; margin-left: 8px;" onclick="window.toggleCheckIn('${g.id}', false)">Deshacer</button>`
-                                : `<span style="color:#9ca3af; font-size:0.8rem; font-weight:bold;">⏳ Pendiente</span><button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #4ade80; border-color: #4ade80; margin-left: 8px;" onclick="window.toggleCheckIn('${g.id}', true)">Dar Acceso</button>` }
+                            ${g.asistio ? `<span style="color:#4ade80; font-size:0.8rem; font-weight:bold;">✅ Ingresó</span><button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #9ca3af; border-color: #9ca3af; margin-left: 8px;" data-action="checkin" data-id="${sanitize(g.id)}" data-status="false">Deshacer</button>`
+                                : `<span style="color:#9ca3af; font-size:0.8rem; font-weight:bold;">⏳ Pendiente</span><button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #4ade80; border-color: #4ade80; margin-left: 8px;" data-action="checkin" data-id="${sanitize(g.id)}" data-status="true">Dar Acceso</button>` }
                         </div>
-                        <button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #8B1A2A; border-color: #8B1A2A;" onclick="window.deleteGuest('${g.id}', '${sanitize(g.guestName)}', '${sanitize(g.hostCode)}')">Borrar</button>
+                        <button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #8B1A2A; border-color: #8B1A2A;" data-action="delete" data-id="${sanitize(g.id)}">Borrar</button>
                     </div>`;
                 tbody.appendChild(div);
             });
         };
 
-        window.toggleCheckIn = async function(docId, status) { try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId), { asistio: status }); } catch(e){} };
+        window.toggleCheckIn = async function(docId, status) {
+            try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId), { asistio: status }); }
+            catch(e) { console.error(e); window.customAlert("No se pudo actualizar el acceso. Revisa tu conexión e intenta de nuevo."); }
+        };
+
+        // --- MEJORA PRO: PREVENCIÓN DE DOBLE CLIC Y FEEDBACK TÁCTIL EN EL ADMIN ---
+        document.getElementById('admin-table-body').addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-action]');
+            if (!btn) return;
+            
+            const id = btn.dataset.id;
+            
+            if (btn.dataset.action === 'checkin') {
+                // Feedback visual
+                btn.innerText = "...";
+                btn.disabled = true;
+                window.toggleCheckIn(id, btn.dataset.status === 'true');
+                // Nota: no necesitamos volver a habilitarlo aquí porque Firestore 
+                // disparará onSnapshot y reconstruirá la tabla instantáneamente.
+            } else if (btn.dataset.action === 'delete') {
+                const g = allConfirmations.find(x => x.id === id);
+                if (g) window.deleteGuest(id, g.guestName, g.hostCode);
+            }
+        });
 
         window.deleteGuest = async function(docId, guestName, hostCode) {
             window.customConfirm(`¿Eliminar a ${guestName}? Su código de invitación (${hostCode}) volverá a estar libre.`, async () => {
@@ -1651,40 +1718,25 @@
             });
         };
 
-        window.loadAdminCodes = async function() {
-            const tbody = document.getElementById('codes-table-body');
-            tbody.innerHTML = '<div style="padding: 20px; text-align: center;">Cargando códigos de Firebase...</div>';
-            try {
-                const qSnap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'invites'));
-                allCodes = []; qSnap.forEach(d => allCodes.push(d.data()));
-                allCodes.sort((a,b) => a.codigo.localeCompare(b.codigo));
-                
-                let html = '';
-                allCodes.forEach(c => {
-                    const status = c.usado ? `<span class="admin-code-status usado">❌ Usado (${sanitize(c.guestName)})</span>` : `<span class="admin-code-status libre">✅ Libre</span>`;
-                    html += `<div class="admin-code-row"><div class="admin-code-val">${sanitize(c.codigo)}</div><div>${status}</div></div>`;
-                });
-                
-                tbody.innerHTML = html || '<div style="padding: 20px; text-align: center;">No hay códigos. Haz clic en Generar.</div>';
-                document.getElementById('admin-total').innerText = allCodes.length;
-
-                // El botón siempre debe estar disponible para que el admin pueda recalcular cuotas
-                const btnGen = document.getElementById('btn-generate-codes');
-                btnGen.disabled = false;
-                btnGen.style.opacity = '1';
-                btnGen.style.cursor = 'pointer';
-                btnGen.innerText = "+ Generar Códigos";
-
-            } catch(e) { tbody.innerHTML = '<div style="color:red; text-align:center;">Error al cargar. (¿Estás como admin?)</div>'; }
-        };
-
+        // --- MEJORA: AGREGADA LA COLUMNA DE ENLACE MÁGICO EN EL CSV ---
         window.exportCodesCSV = function() {
             if(allCodes.length === 0) return window.customAlert("No hay códigos para exportar.");
-            let csvContent = "data:text/csv;charset=utf-8,Codigo,Anfitrion,Mesa,Tipo,Estado,InvitadoRegistrado\n";
+            
+            // 1. Agregamos la columna "EnlaceInvitacion" al encabezado
+            let csvContent = "data:text/csv;charset=utf-8,Codigo,Anfitrion,Mesa,Tipo,Estado,InvitadoRegistrado,EnlaceInvitacion\n";
+            
+            // 2. Definimos la URL base de tu página
+            const baseUrl = "https://ensouatyg.online/?code=";
+
             allCodes.forEach(c => {
-                const row = [ c.codigo, c.hostName, c.table, c.type, c.usado ? "Usado" : "Libre", c.guestName || "" ].map(item => `"${String(item).replace(/"/g, '""')}"`).join(",");
+                // 3. Generamos el enlace mágico para este código en particular
+                const enlace = `${baseUrl}${c.codigo}`;
+                
+                // 4. Lo añadimos como el último elemento de la fila
+                const row = [ c.codigo, c.hostName, c.table, c.type, c.usado ? "Usado" : "Libre", c.guestName || "", enlace ].map(item => `"${String(item).replace(/"/g, '""')}"`).join(",");
                 csvContent += row + "\r\n";
             });
+            
             const link = document.createElement("a");
             link.setAttribute("href", encodeURI(csvContent));
             link.setAttribute("download", `Codigos_ENSO_${new Date().toISOString().split('T')[0]}.csv`);
@@ -1734,6 +1786,10 @@
             setTimeout(() => { document.getElementById('intro-line-top').classList.add('grow'); document.getElementById('intro-line-bot').classList.add('grow'); }, 300);
             setTimeout(() => { document.getElementById('intro-title').classList.add('show'); document.getElementById('intro-subtitle').classList.add('show'); }, 600);
         }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => { refreshSavedPassBtn(); }, { once: true });
+        } else { refreshSavedPassBtn(); }
 
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', iniciarIntroVisual, { once: true });
