@@ -570,9 +570,8 @@
                 <div class="cta-section reveal">
                     <button id="main-confirm-btn" class="confirm-btn" aria-haspopup="dialog" onclick="window.openCodeModal()">Confirmar Asistencia</button>
                     <!-- CONTADOR EN VIVO REFACTORIZADO (Lee desde stats) -->
-                    <button id="btn-saved-pass" class="btn-outline" style="display:none; margin-top:20px; padding:10px 24px; font-size:0.65rem;" onclick="window.viewSavedPass()">Ver mi pase</button>
                     <p id="live-counter" style="margin-top:16px; font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold-light); letter-spacing:0.15em;" aria-live="polite">CALCULANDO LUGARES...</p>
-                    <p style="margin-top:12px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.9rem; color:rgba(212,175,55,0.75); letter-spacing:0.15em;">Aforos limitados · Respuesta antes del 14 de noviembre</p>
+                    <p style="margin-top:12px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.35); letter-spacing:0.2em;">Aforos limitados · Respuesta antes del 14 de noviembre</p>
                 </div>
 
                 <div class="divider-ornate reveal"><div class="line"></div><span class="diamond"></span><div class="line right"></div></div>
@@ -1339,24 +1338,7 @@
             return normalizedGuestName;
         }
 
-        // Persistencia local: recuerda el código confirmado para que el invitado vea su pase sin reescribirlo
-        const SAVED_CODE_KEY = 'enso_saved_code';
-        function saveCode(code) { try { localStorage.setItem(SAVED_CODE_KEY, code); } catch(e) {} refreshSavedPassBtn(); }
-        function getSavedCode() { try { return localStorage.getItem(SAVED_CODE_KEY) || ''; } catch(e) { return ''; } }
-        function refreshSavedPassBtn() {
-            const b = document.getElementById('btn-saved-pass');
-            if (b) b.style.display = getSavedCode() ? 'inline-block' : 'none';
-        }
-        window.viewSavedPass = function() {
-            const c = getSavedCode();
-            if (!c) return;
-            window.openCodeModal();
-            codeInput.value = c;
-            window.validateCode();
-        };
-
         function showTicket(nameToDisplay, tableNum, customStatusMsg = null) {
-            if (currentValidDataCode) saveCode(currentValidDataCode);
             document.getElementById('ticket-guest-name').innerText = nameToDisplay;
             document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
             document.querySelectorAll('.event-date-display').forEach(el => el.innerText = CONFIG.eventDate.toUpperCase());
@@ -1507,32 +1489,16 @@
                     <div class="admin-guest-header"><div><div class="admin-guest-name">${sanitize(g.guestName)}</div><div class="admin-guest-host">Por: ${sanitize(g.hostName)} [${sanitize(g.hostCode)}]</div></div></div>
                     <div class="admin-guest-actions">
                         <div>
-                            ${g.asistio ? `<span style="color:#4ade80; font-size:0.8rem; font-weight:bold;">✅ Ingresó</span><button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #9ca3af; border-color: #9ca3af; margin-left: 8px;" data-action="checkin" data-id="${sanitize(g.id)}" data-status="false">Deshacer</button>`
-                                : `<span style="color:#9ca3af; font-size:0.8rem; font-weight:bold;">⏳ Pendiente</span><button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #4ade80; border-color: #4ade80; margin-left: 8px;" data-action="checkin" data-id="${sanitize(g.id)}" data-status="true">Dar Acceso</button>` }
+                            ${g.asistio ? `<span style="color:#4ade80; font-size:0.8rem; font-weight:bold;">✅ Ingresó</span><button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #9ca3af; border-color: #9ca3af; margin-left: 8px;" onclick="window.toggleCheckIn('${g.id}', false)">Deshacer</button>`
+                                : `<span style="color:#9ca3af; font-size:0.8rem; font-weight:bold;">⏳ Pendiente</span><button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #4ade80; border-color: #4ade80; margin-left: 8px;" onclick="window.toggleCheckIn('${g.id}', true)">Dar Acceso</button>` }
                         </div>
-                        <button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #8B1A2A; border-color: #8B1A2A;" data-action="delete" data-id="${sanitize(g.id)}">Borrar</button>
+                        <button class="btn-outline" style="padding: 4px 8px; font-size: 0.6rem; color: #8B1A2A; border-color: #8B1A2A;" onclick="window.deleteGuest('${g.id}', '${sanitize(g.guestName)}', '${sanitize(g.hostCode)}')">Borrar</button>
                     </div>`;
                 tbody.appendChild(div);
             });
         };
 
-        window.toggleCheckIn = async function(docId, status) {
-            try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId), { asistio: status }); }
-            catch(e) { console.error(e); window.customAlert("No se pudo actualizar el acceso. Revisa tu conexión e intenta de nuevo."); }
-        };
-
-        // Delegación de eventos para los botones del panel (evita problemas con comillas/apóstrofos en nombres)
-        document.getElementById('admin-table-body').addEventListener('click', (e) => {
-            const btn = e.target.closest('button[data-action]');
-            if (!btn) return;
-            const id = btn.dataset.id;
-            if (btn.dataset.action === 'checkin') {
-                window.toggleCheckIn(id, btn.dataset.status === 'true');
-            } else if (btn.dataset.action === 'delete') {
-                const g = allConfirmations.find(x => x.id === id);
-                if (g) window.deleteGuest(id, g.guestName, g.hostCode);
-            }
-        });
+        window.toggleCheckIn = async function(docId, status) { try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'guests', docId), { asistio: status }); } catch(e){} };
 
         window.deleteGuest = async function(docId, guestName, hostCode) {
             window.customConfirm(`¿Eliminar a ${guestName}? Su código de invitación (${hostCode}) volverá a estar libre.`, async () => {
@@ -1768,10 +1734,6 @@
             setTimeout(() => { document.getElementById('intro-line-top').classList.add('grow'); document.getElementById('intro-line-bot').classList.add('grow'); }, 300);
             setTimeout(() => { document.getElementById('intro-title').classList.add('show'); document.getElementById('intro-subtitle').classList.add('show'); }, 600);
         }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => { refreshSavedPassBtn(); }, { once: true });
-        } else { refreshSavedPassBtn(); }
 
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', iniciarIntroVisual, { once: true });
