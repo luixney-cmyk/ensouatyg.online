@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ENSŌ · Recepción & Escáner QR</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Serif+JP:wght@300;700&display=swap" rel="stylesheet">
+
+    <!-- Librería ligera y especializada en lectura QR para cámaras móviles -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold:       #D4AF37;
+            --gold-light: #F5E17A;
+            --gold-dim:   #7A6120;
+            --ink:        #050505;
+            --parchment:  #0D0B08;
+            --red-seal:   #8B1A2A;
+            --off-white:  #D9D0C0;
+            --emerald:    #10b981;
+            --amber:      #f59e0b;
+            --crimson:    #ef4444;
+        }
+
+        body {
+            background-color: var(--ink);
+            color: var(--off-white);
+            font-family: 'Cormorant Garamond', serif;
+            min-height: 100vh;
+            min-height: 100svh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .cinzel { font-family: 'Cinzel', serif; }
+        .text-gold {
+            background: linear-gradient(105deg, #BF953F 0%, #FCF6BA 45%, #B38728 75%, #FBF5B7 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* ── HEADER SUPERIOR ── */
+        .top-header {
+            padding: 16px 20px 12px;
+            background: rgba(13, 11, 8, 0.95);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 20;
+        }
+        .brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-kanji {
+            font-family: 'Noto Serif JP', serif;
+            color: var(--red-seal);
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        .brand-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            letter-spacing: 0.25em;
+            color: var(--gold-light);
+        }
+        .brand-sub {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(210, 200, 185, 0.5);
+            display: block;
+        }
+        .staff-badge {
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.15em;
+            color: var(--gold);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            padding: 5px 10px;
+            border-radius: 2px;
+            background: rgba(212, 175, 55, 0.05);
+            cursor: pointer;
+        }
+
+        /* ── PANTALLA 1: LOGIN CON CLAVE DE STAFF ── */
+        #screen-login {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            position: relative;
+        }
+        .login-card {
+            background: var(--parchment);
+            border: 1px solid rgba(212, 175, 55, 0.22);
+            padding: 44px 28px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95);
+        }
+        .login-eyebrow {
+            font-style: italic;
+            font-size: 0.8rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: rgba(212, 175, 55, 0.65);
+            margin-bottom: 10px;
+            display: block;
+        }
+        .login-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            letter-spacing: 0.15em;
+            color: var(--gold-light);
+            margin-bottom: 14px;
+        }
+        .login-desc {
+            font-size: 1.05rem;
+            color: rgba(210, 200, 185, 0.8);
+            line-height: 1.5;
+            margin-bottom: 28px;
+        }
+        .key-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: none;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.4);
+            color: #fff;
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 0.25em;
+            padding: 14px 12px;
+            text-transform: uppercase;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+        .key-input:focus {
+            border-bottom-color: var(--gold-light);
+            background: rgba(212, 175, 55, 0.05);
+        }
+        .error-msg {
+            color: var(--crimson);
+            font-style: italic;
+            font-size: 0.95rem;
+            min-height: 22px;
+            margin-bottom: 18px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-gold {
+            width: 100%;
+            padding: 16px 28px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--ink);
+            background: linear-gradient(105deg, #BF953F, #D4AF37, #F5E17A, #D4AF37);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.25);
+        }
+        .btn-gold:active { transform: scale(0.98); }
+        .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-outline {
+            border: 1px solid rgba(212, 175, 55, 0.45);
+            color: var(--gold-light);
+            padding: 12px 24px;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-size: 0.68rem;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-outline:hover { background: rgba(212, 175, 55, 0.1); }
+
+        /* ── PANTALLA 2: PANEL DE RECEPCIÓN Y CÁMARA ── */
+        #screen-scanner {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            padding: 16px 16px 28px;
+            max-width: 560px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* KPIs EN VIVO */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .stat-box {
+            background: var(--parchment);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 12px 6px;
+            text-align: center;
+            border-radius: 3px;
+        }
+        .stat-num {
+            font-family: 'Cinzel', serif;
+            font-size: 1.45rem;
+            font-weight: 800;
+            display: block;
+            line-height: 1.1;
+        }
+        .stat-lbl {
+            font-size: 0.65rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(210, 200, 185, 0.6);
+            margin-top: 4px;
+            display: block;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 4px;
+            background: rgba(212, 175, 55, 0.12);
+            border-radius: 99px;
+            overflow: hidden;
+            margin-bottom: 18px;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--gold), var(--emerald));
+            transition: width 0.6s ease;
+        }
+
+        /* CONTENEDOR DE BIENVENIDA PREVIO A ENCENDER CÁMARA */
+        #start-camera-wrap {
+            background: var(--parchment);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            padding: 40px 24px;
+            text-align: center;
+            margin: auto 0;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+        }
+
+        /* VISOR DE LA CÁMARA */
+        #camera-stage {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .scanner-viewport-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1 / 1;
+            background: #000;
+            border: 1px solid rgba(212, 175, 55, 0.45);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
+        }
+        #qr-reader {
+            width: 100% !important;
+            height: 100% !important;
+            border: none !important;
+        }
+        #qr-reader video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+        }
+
+        /* Marco guía dorado sobre la cámara */
+        .scanner-reticle {
+            position: absolute;
+            inset: 14%;
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            pointer-events: none;
+            z-index: 10;
+        }
+        .scanner-reticle::before, .scanner-reticle::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-color: var(--gold-light);
+            border-style: solid;
+        }
+        .scanner-reticle::before {
+            top: -2px; left: -2px;
+            border-width: 3px 0 0 3px;
+        }
+        .scanner-reticle::after {
+            bottom: -2px; right: -2px;
+            border-width: 0 3px 3px 0;
+        }
+        .scan-laser {
+            position: absolute;
+            left: 6%;
+            right: 6%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+            box-shadow: 0 0 10px var(--gold);
+            animation: scanMove 2.4s ease-in-out infinite;
+        }
+        @keyframes scanMove {
+            0%, 100% { top: 8%; opacity: 0.4; }
+            50% { top: 92%; opacity: 1; }
+        }
+
+        .scanner-hint {
+            font-style: italic;
+            font-size: 0.95rem;
+            color: rgba(212, 175, 55, 0.8);
+            text-align: center;
+            margin-top: 14px;
+            letter-spacing: 0.05em;
+        }
+
+        /* Búsqueda manual rápida por si un celular tiene la pantalla rota */
+        .manual-box {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 400px;
+            border-top: 1px solid rgba(212, 175, 55, 0.15);
+            padding-top: 16px;
+            display: flex;
+            gap: 8px;
+        }
+        .manual-input {
+            flex: 1;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(212,175,55,0.3);
+            color: #fff;
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            padding: 10px 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            outline: none;
+            border-radius: 2px;
+        }
+
+        /* ── MODAL DE RESULTADO AL ESCANEAR (PANTALLA DE BIENVENIDA Y MESA) ── */
+        #result-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 5, 5, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        #result-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .result-card {
+            background: var(--parchment);
+            border: 2px solid var(--gold);
+            max-width: 430px;
+            width: 100%;
+            padding: 36px 24px 28px;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95);
+            transform: scale(0.94);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #result-modal.active .result-card {
+            transform: scale(1);
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 6px 16px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            border-radius: 99px;
+            margin-bottom: 18px;
+        }
+        .status-pill.ok {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+        }
+        .status-pill.warn {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.5);
+        }
+        .status-pill.err {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+        }
+
+        .res-guest-label {
+            font-style: italic;
+            font-size: 0.85rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: rgba(212, 175, 55, 0.6);
+            margin-bottom: 6px;
+        }
+        .res-guest-name {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.35rem, 5.5vw, 1.85rem);
+            color: #ffffff;
+            letter-spacing: 0.08em;
+            line-height: 1.25;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .res-host-info {
+            font-size: 1rem;
+            font-style: italic;
+            color: rgba(210, 200, 185, 0.75);
+            margin-bottom: 24px;
+        }
+
+        /* CAJA GIGANTE DE MESA PARA LOS COMPAÑEROS DE PROTOCOLO */
+        .table-callout {
+            background: linear-gradient(145deg, rgba(212, 175, 55, 0.14), rgba(212, 175, 55, 0.03));
+            border: 1px solid var(--gold);
+            padding: 20px 16px;
+            margin-bottom: 26px;
+            position: relative;
+        }
+        .table-callout-lbl {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.85rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--gold-light);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .table-callout-num {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2.2rem, 9vw, 3.2rem);
+            font-weight: 800;
+            color: var(--gold-light);
+            letter-spacing: 0.15em;
+            line-height: 1.1;
+            display: block;
+            text-shadow: 0 2px 15px rgba(212, 175, 55, 0.35);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BARRA SUPERIOR -->
+    <header class="top-header">
+        <div class="brand-wrap">
+            <span class="brand-kanji">円</span>
+            <div>
+                <span class="brand-title">ENSŌ</span>
+                <span class="brand-sub">Recepción & Protocolo</span>
+            </div>
+        </div>
+        <button id="active-staff-badge" class="staff-badge" style="display: none;" onclick="window.logoutStaff()" title="Cambiar clave de acceso">
+            STAFF · SALIR
+        </button>
+    </header>
+
+    <!-- PANTALLA 1: VALIDACIÓN DE CLAVE DE ACCESO -->
+    <section id="screen-login">
+        <div class="login-card">
+            <span class="login-eyebrow">Acceso de Staff</span>
+            <h1 class="login-title">Recepción Oficial</h1>
+            <p class="login-desc">Ingresa una de las 3 claves de acceso asignadas por el administrador para habilitar el escáner QR.</p>
+
+            <input type="text" id="staff-key-input" class="key-input" placeholder="STAFF1-XXXX" autocomplete="off" spellcheck="false">
+            <div id="login-error" class="error-msg">Clave no válida. Verifica con el administrador.</div>
+
+            <button id="btn-verify-key" class="btn-gold" onclick="window.verifyStaffKey()">Verificar Clave</button>
+        </div>
+    </section>
+
+    <!-- PANTALLA 2: ESCÁNER Y CONTADOR EN VIVO -->
+    <section id="screen-scanner">
+        <!-- Indicadores en tiempo real -->
+        <div class="stats-bar">
+            <div class="stat-box">
+                <span id="stat-entered" class="stat-num" style="color: var(--emerald);">0</span>
+                <span class="stat-lbl">Ya Entraron</span>
+            </div>
+            <div class="stat-box">
+                <span id="stat-missing" class="stat-num" style="color: var(--amber);">0</span>
+                <span class="stat-lbl">Por Llegar</span>
+            </div>
+            <div class="stat-box">
+                <span id="stat-total" class="stat-num" style="color: var(--gold-light);">0</span>
+                <span class="stat-lbl">Confirmados</span>
+            </div>
+        </div>
+        <div class="progress-track" title="Porcentaje de asistencia en salón">
+            <div id="stat-progress-bar" class="progress-fill"></div>
+        </div>
+
+        <!-- Botón de arranque inicial para encender cámara trasera -->
+        <div id="start-camera-wrap">
+            <div style="font-family:'Noto Serif JP',serif; font-size: 2.6rem; color: rgba(212,175,55,0.25); margin-bottom: 8px;">迎</div>
+            <h2 class="cinzel" style="font-size: 1.25rem; color: var(--gold-light); letter-spacing: 0.15em; margin-bottom: 12px;">Clave Verificada</h2>
+            <p style="font-size: 1.05rem; color: rgba(210,200,185,0.8); line-height: 1.5; margin-bottom: 28px;">
+                Presiona el botón para encender la <strong>cámara trasera</strong> y comenzar a escanear los pases de acceso.
+            </p>
+            <button id="btn-start-camera" class="btn-gold" onclick="window.startRearScanner()">
+                📷 Comenzar a Recibir Invitados
+            </button>
+        </div>
+
+        <!-- Escáner Activo -->
+        <div id="camera-stage">
+            <div class="scanner-viewport-wrap">
+                <div id="qr-reader"></div>
+                <div class="scanner-reticle">
+                    <div class="scan-laser"></div>
+                </div>
+            </div>
+            <p id="scanner-status-text" class="scanner-hint">Apunta al código QR del pase del invitado…</p>
+
+            <!-- Respaldo manual por si el invitado trae brillo bajo o pantalla estrellada -->
+            <div class="manual-box">
+                <input type="text" id="manual-code-input" class="manual-input" placeholder="Código manual (Ej. LUIS1234)" autocomplete="off">
+                <button type="button" class="btn-outline" style="padding: 10px 16px;" onclick="window.checkManualCode()">Buscar</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL DE CONFIRMACIÓN Y ASIGNACIÓN DE MESA -->
+    <div id="result-modal" role="dialog" aria-modal="true">
+        <div class="result-card" id="result-card-box">
+            <span id="res-badge" class="status-pill ok">✅ INVITADO REGISTRADO</span>
+            <p class="res-guest-label">Bienvenido(a)</p>
+            <h3 id="res-name" class="res-guest-name">NOMBRE DEL INVITADO</h3>
+            <p id="res-host" class="res-host-info">Invitado de: —</p>
+
+            <div id="res-table-box" class="table-callout">
+                <span class="table-callout-lbl">Acompañar a la</span>
+                <span id="res-table" class="table-callout-num">MESA 1</span>
+            </div>
+
+            <button id="btn-next-scan" class="btn-gold" onclick="window.resumeNextScan()">
+                Aceptar y Escanear Siguiente
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAd_rViRrwdsigVaJNJO82nvVpGzywQT30",
+            authDomain: "enso-gala-2026.firebaseapp.com",
+            projectId: "enso-gala-2026",
+            storageBucket: "enso-gala-2026.firebasestorage.app",
+            messagingSenderId: "413676120292",
+            appId: "1:413676120292:web:b052eb281e1c32553de4f1"
+        };
+
+        const APP_ID = 'enso-uatyg-gala';
+        const STORAGE_KEY = 'enso_staff_access_key';
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let activeStaffKey = "";
+        let html5QrCode = null;
+        let isProcessingScan = false;
+        let unsubscribeGuestsList = null;
+
+        // Sonido corto y elegante de confirmación al leer QR (frecuencia aguda 880Hz audible en celulares)
+        function playFeedbackBeep(type = 'success') {
+            try {
+                if (navigator.vibrate) {
+                    navigator.vibrate(type === 'success' ? 120 : [100, 60, 100]);
+                }
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type === 'success' ? 'sine' : 'triangle';
+                osc.frequency.setValueAtTime(type === 'success' ? 880 : 320, ctx.currentTime);
+                gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.22);
+            } catch (e) {}
+        }
+
+        // Autenticación anónima automática para poder consultar Firestore según las reglas
+        async function ensureSignedIn() {
+            if (!auth.currentUser) {
+                await signInAnonymously(auth);
+            }
+        }
+        ensureSignedIn();
+
+        // Revisar si el compañero ya había ingresado su clave antes en este dispositivo
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) return;
+            const savedKey = sessionStorage.getItem(STORAGE_KEY) || localStorage.getItem(STORAGE_KEY);
+            if (savedKey) {
+                document.getElementById('staff-key-input').value = savedKey;
+                await window.verifyStaffKey(true);
+            }
+        });
+
+        // 1. Verificar que la clave ingresada sea una de las 3 claves creadas por el Admin
+        window.verifyStaffKey = async function(silent = false) {
+            const inputEl = document.getElementById('staff-key-input');
+            const errEl = document.getElementById('login-error');
+            const btn = document.getElementById('btn-verify-key');
+            const candidateKey = inputEl.value.trim().toUpperCase();
+
+            if (!candidateKey) {
+                if (!silent) {
+                    errEl.innerText = "Por favor ingresa tu clave de acceso.";
+                    errEl.style.opacity = '1';
+                }
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Verificando...";
+            errEl.style.opacity = '0';
+
+            try {
+                await ensureSignedIn();
+                const configRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'config', 'scannerAccess');
+                const snap = await getDoc(configRef);
+
+                if (snap.exists() && Array.isArray(snap.data().keys) && snap.data().keys.includes(candidateKey)) {
+                    activeStaffKey = candidateKey;
+                    localStorage.setItem(STORAGE_KEY, activeStaffKey);
+                    sessionStorage.setItem(STORAGE_KEY, activeStaffKey);
+
+                    // Mostrar pantalla de recepción
+                    document.getElementById('screen-login').style.display = 'none';
+                    document.getElementById('screen-scanner').style.display = 'flex';
+                    const badge = document.getElementById('active-staff-badge');
+                    badge.style.display = 'inline-block';
+                    badge.innerText = `${activeStaffKey.split('-')[0]} · SALIR`;
+
+                    subscribeLiveAttendance();
+                } else {
+                    localStorage.removeItem(STORAGE_KEY);
+                    sessionStorage.removeItem(STORAGE_KEY);
+                    if (!silent) {
+                        errEl.innerText = "Clave inválida o expirada. Solicita una clave vigente al administrador.";
+                        errEl.style.opacity = '1';
+                    }
+                }
+            } catch (e) {
+                if (!silent) {
+                    errEl.innerText = "Error de permisos o red. Asegúrate de haber actualizado las reglas de Firebase.";
+                    errEl.style.opacity = '1';
+                }
+                console.error("Error validando clave de staff:", e);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Verificar Clave";
+            }
+        };
+
+        window.logoutStaff = async function() {
+            if (html5QrCode) {
+                try { await html5QrCode.stop(); } catch (e) {}
+            }
+            localStorage.removeItem(STORAGE_KEY);
+            sessionStorage.removeItem(STORAGE_KEY);
+            activeStaffKey = "";
+            if (unsubscribeGuestsList) { unsubscribeGuestsList(); unsubscribeGuestsList = null; }
+            document.getElementById('active-staff-badge').style.display = 'none';
+            document.getElementById('screen-scanner').style.display = 'none';
+            document.getElementById('screen-login').style.display = 'flex';
+            document.getElementById('staff-key-input').value = '';
+        };
+
+        // 2. Suscripción en tiempo real a los contadores de entrada
+        function subscribeLiveAttendance() {
+            if (unsubscribeGuestsList) return;
+            const guestsCol = collection(db, 'artifacts', APP_ID, 'public', 'data', 'guests');
+            unsubscribeGuestsList = onSnapshot(guestsCol, (snapshot) => {
+                let total = 0;
+                let entered = 0;
+                snapshot.forEach(docSnap => {
+                    total++;
+                    if (docSnap.data().asistio === true) entered++;
+                });
+                const missing = Math.max(0, total - entered);
+                const pct = total > 0 ? Math.round((entered / total) * 100) : 0;
+
+                document.getElementById('stat-entered').innerText = entered;
+                document.getElementById('stat-missing').innerText = missing;
+                document.getElementById('stat-total').innerText = total;
+                document.getElementById('stat-progress-bar').style.width = `${pct}%`;
+            }, (err) => {
+                console.error("Error leyendo asistencia en tiempo real:", err);
+            });
+        }
+
+        // 3. Encender exclusivamente la cámara trasera del celular o tablet
+        window.startRearScanner = async function() {
+            const btnStart = document.getElementById('btn-start-camera');
+            btnStart.disabled = true;
+            btnStart.innerText = "Encendiendo cámara trasera...";
+
+            document.getElementById('start-camera-wrap').style.display = 'none';
+            document.getElementById('camera-stage').style.display = 'flex';
+
+            html5QrCode = new Html5Qrcode("qr-reader");
+            const qrConfig = {
+                fps: 15,
+                qrbox: { width: 240, height: 240 },
+                aspectRatio: 1.0
+            };
+
+            try {
+                // Forzamos la cámara trasera con facingMode: { exact: "environment" }
+                await html5QrCode.start(
+                    { facingMode: { exact: "environment" } },
+                    qrConfig,
+                    onQrCodeSuccess,
+                    () => {}
+                );
+            } catch (strictErr) {
+                // Fallback a preferencia environment si el navegador del dispositivo no soporta "exact"
+                try {
+                    await html5QrCode.start(
+                        { facingMode: "environment" },
+                        qrConfig,
+                        onQrCodeSuccess,
+                        () => {}
+                    );
+                } catch (camErr) {
+                    document.getElementById('scanner-status-text').innerText = "⚠️ No se pudo acceder a la cámara. Revisa los permisos del navegador o usa el buscador manual.";
+                    console.error("Error de cámara:", camErr);
+                }
+            }
+        };
+
+        // Extrae el código limpio tanto si el QR trae solo "LUIS1234" como si trae formato compuesto
+        function extractInviteCode(rawText) {
+            const clean = String(rawText || '').trim().toUpperCase();
+            if (clean.includes('|')) {
+                const parts = clean.split('|');
+                return parts[1] ? parts[1].trim() : parts[0].trim();
+            }
+            return clean;
+        }
+
+        async function onQrCodeSuccess(decodedText) {
+            if (isProcessingScan) return;
+            const inviteCode = extractInviteCode(decodedText);
+            if (!inviteCode) return;
+
+            isProcessingScan = true;
+            if (html5QrCode) {
+                try { html5QrCode.pause(true); } catch (e) {}
+            }
+            await processGuestCheckIn(inviteCode);
+        }
+
+        window.checkManualCode = async function() {
+            if (isProcessingScan) return;
+            const input = document.getElementById('manual-code-input');
+            const code = input.value.trim().toUpperCase();
+            if (!code) return;
+
+            isProcessingScan = true;
+            if (html5QrCode) {
+                try { html5QrCode.pause(true); } catch (e) {}
+            }
+            input.value = '';
+            await processGuestCheckIn(code);
+        };
+
+        // 4. Consultar invitado en Firebase, registrar entrada y mostrar su Mesa
+        async function processGuestCheckIn(inviteCode) {
+            const modal = document.getElementById('result-modal');
+            const cardBox = document.getElementById('result-card-box');
+            const badge = document.getElementById('res-badge');
+            const nameEl = document.getElementById('res-name');
+            const hostEl = document.getElementById('res-host');
+            const tableBox = document.getElementById('res-table-box');
+            const tableEl = document.getElementById('res-table');
+
+            try {
+                const guestRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'guests', inviteCode);
+                const guestSnap = await getDoc(guestRef);
+
+                if (!guestSnap.exists()) {
+                    // Código no registrado en confirmaciones
+                    playFeedbackBeep('error');
+                    cardBox.style.borderColor = 'var(--crimson)';
+                    badge.className = 'status-pill err';
+                    badge.innerText = '❌ CÓDIGO NO REGISTRADO';
+                    nameEl.innerText = inviteCode;
+                    hostEl.innerText = 'Este código no aparece en la lista de confirmados.';
+                    tableBox.style.display = 'none';
+                    modal.classList.add('active');
+                    return;
+                }
+
+                const guest = guestSnap.data();
+                tableBox.style.display = 'block';
+                nameEl.innerText = guest.guestName || 'INVITADO';
+                hostEl.innerText = `Anfitrión: ${guest.hostName || 'Especial'} · [${inviteCode}]`;
+                tableEl.innerText = `MESA ${guest.table}`;
+
+                if (guest.asistio === true) {
+                    // Ya había sido escaneado antes
+                    playFeedbackBeep('warn');
+                    cardBox.style.borderColor = 'var(--amber)';
+                    badge.className = 'status-pill warn';
+                    badge.innerText = '⚠️ YA HABÍA INGRESADO AL SALÓN';
+                } else {
+                    // Primer ingreso: marcamos asistio = true en Firestore
+                    await updateDoc(guestRef, {
+                        asistio: true,
+                        checkedInAt: new Date().toISOString(),
+                        staffKeyUsed: activeStaffKey
+                    });
+                    playFeedbackBeep('success');
+                    cardBox.style.borderColor = 'var(--emerald)';
+                    badge.className = 'status-pill ok';
+                    badge.innerText = '✅ INVITADO REGISTRADO';
+                }
+
+                modal.classList.add('active');
+            } catch (err) {
+                playFeedbackBeep('error');
+                cardBox.style.borderColor = 'var(--crimson)';
+                badge.className = 'status-pill err';
+                badge.innerText = '⚠️ ERROR DE CONEXIÓN / PERMISOS';
+                nameEl.innerText = inviteCode;
+                hostEl.innerText = 'Verifica tu conexión a internet o las reglas de Firebase.';
+                tableBox.style.display = 'none';
+                modal.classList.add('active');
+                console.error("Error en Check-In:", err);
+            }
+        }
+
+        // 5. Cerrar modal y regresar inmediatamente al escáner listo para el siguiente QR
+        window.resumeNextScan = function() {
+            document.getElementById('result-modal').classList.remove('active');
+            setTimeout(() => {
+                if (html5QrCode) {
+                    try { html5QrCode.resume(); } catch (e) {}
+                }
+                isProcessingScan = false;
+            }, 250);
+        };
+
+        document.getElementById('staff-key-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') window.verifyStaffKey();
+        });
+        document.getElementById('manual-code-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') window.checkManualCode();
+        });
+    </script>
+</body>
+</html>
