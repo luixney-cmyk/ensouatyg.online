@@ -19,7 +19,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
     
     <!-- Deferimos la carga de html2canvas para mejorar el performance inicial -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
@@ -207,9 +207,60 @@
         .seal-svg { width: 80px; height: 80px; opacity: 0; transform: scale(0.6) rotate(-15deg); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.9s ease; }
         .seal-svg.stamped { opacity: 1; transform: scale(1) rotate(-8deg); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); }
 
-        .event-details { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.15); margin: 64px 0; }
+        /* ── RELOJ DE CUENTA REGRESIVA PREMIUM ── */
+        .countdown-section {
+            margin: 48px 0 24px;
+            text-align: center;
+        }
+        .countdown-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.75rem;
+            letter-spacing: 0.45em;
+            text-transform: uppercase;
+            color: rgba(212,175,55,0.55);
+            margin-bottom: 20px;
+            display: block;
+        }
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 540px;
+            margin: 0 auto;
+        }
+        .countdown-item {
+            background: rgba(255,255,255,0.015);
+            border: 1px solid rgba(212,175,55,0.18);
+            padding: 18px 8px;
+            position: relative;
+        }
+        .countdown-num {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            color: var(--gold-light);
+            letter-spacing: 0.08em;
+            line-height: 1.1;
+            display: block;
+        }
+        .countdown-unit {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.65rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: rgba(210,200,185,0.5);
+            margin-top: 6px;
+            display: block;
+        }
+        @media (max-width: 480px) {
+            .countdown-grid { gap: 8px; }
+            .countdown-item { padding: 14px 4px; }
+            .countdown-unit { font-size: 0.58rem; letter-spacing: 0.2em; }
+        }
+
+        .event-details { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.15); margin: 40px 0 64px; }
         @media (max-width: 600px) { .event-details { grid-template-columns: 1fr; } }
-        .detail-cell { background: var(--parchment); padding: 40px 36px; position: relative; text-align: center; }
+        .detail-cell { background: var(--parchment); padding: 40px 36px; position: relative; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .detail-cell .label { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.7rem; letter-spacing: 0.5em; text-transform: uppercase; color: rgba(212,175,55,0.45); display: block; margin-bottom: 16px; }
         .detail-cell .value-main { font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 2.5vw, 1.4rem); font-weight: 400; color: rgba(235, 225, 205, 0.95); line-height: 1.3; display: block; margin-bottom: 6px; }
         .detail-cell .value-sub { font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; font-style: italic; color: rgba(212,175,55,0.85); display: block; }
@@ -245,6 +296,22 @@
         .confirm-btn:hover { background-position: right; box-shadow: 0 0 40px rgba(212,175,55,0.45); animation: none; }
         .confirm-btn:active { transform: scale(0.98); }
         .confirm-btn::after { content: ''; position: absolute; inset: -4px; border: 1px solid rgba(212,175,55,0.3); pointer-events: none; }
+
+        /* Barra sutil de progreso de lugares */
+        .capacity-bar-wrap {
+            max-width: 280px;
+            height: 2px;
+            background: rgba(212,175,55,0.15);
+            margin: 14px auto 0;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+        .capacity-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--gold-dim), var(--gold-light));
+            transition: width 1s ease;
+        }
 
         .enso-footer { display: flex; flex-direction: column; align-items: center; padding: 80px 0 64px; gap: 20px; }
         .enso-svg-container { position: relative; width: 140px; height: 140px; }
@@ -295,7 +362,7 @@
             background: rgba(212, 175, 55, 0.02);
         }
         .code-input::placeholder { color: rgba(255,255,255,0.15); font-size: 0.9rem; letter-spacing: 0.1em; }
-        .code-error { color: #8B1A2A; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; margin-top: 8px; opacity: 0; transition: opacity 0.3s; font-style: italic; }
+        .code-error { color: #e11d48; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; margin-top: 8px; opacity: 0; transition: opacity 0.3s; font-style: italic; }
 
         .btn-outline {
             border: 1px solid rgba(212, 175, 55, 0.5); color: rgba(212, 175, 55, 0.9); padding: 12px 32px;
@@ -309,25 +376,23 @@
             font-family: 'Cormorant Garamond', serif; font-size: clamp(1rem, 4vw, 1.15rem); font-style: italic;
             line-height: 1.6; color: rgba(235, 225, 205, 0.95); margin: 16px 0 24px; text-align: center;
             overflow-y: auto; 
-            max-height: 55vh; /* Reducido para darle espacio respirable al botón */
+            max-height: 55vh;
             padding-right: 12px;
             -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin; scrollbar-color: rgba(212,175,55,0.4) transparent; /* Para Firefox */
+            scrollbar-width: thin; scrollbar-color: rgba(212,175,55,0.4) transparent;
         }
         
-        /* Estilos directos para forzar la barra elegante en el mensaje en Chrome/Safari */
         #personal-message::-webkit-scrollbar { width: 3px; }
         #personal-message::-webkit-scrollbar-track { background: rgba(212,175,55,0.02); border-radius: 4px; }
         #personal-message::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.5); border-radius: 4px; }
         #personal-message::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.8); }
 
-        /* Protección y mejora del botón de aceptar para evitar que se aplaste */
         #btn-accept-invite {
             font-size: 0.8rem !important; 
             font-weight: 800 !important; 
             padding: 16px 24px !important; 
             letter-spacing: 0.25em;
-            flex-shrink: 0; /* Evita que el texto largo aplaste el botón */
+            flex-shrink: 0;
             box-shadow: 0 4px 20px rgba(212,175,55,0.2);
             border-radius: 2px;
         }
@@ -355,42 +420,104 @@
         .menu-course-desc { font-family:'Cormorant Garamond', serif; font-size: 1.1rem; color: rgba(210, 200, 185, 0.8); line-height: 1.5; font-weight: 300; }
         .menu-course-note { font-style: italic; color: rgba(212, 175, 55, 0.7); font-size: 0.95rem; }
 
-        /* ── MODAL BOLETO IMPRESO (MEJORAS ESTÉTICAS) ── */
+        /* ── MODAL BOLETO IMPRESO (MEJORAS ESTÉTICAS + SELLO QR) ── */
         .ticket-wrapper {
-            background: var(--ink); border: 1px solid rgba(212, 175, 55, 0.3); padding: 32px 24px;
-            max-width: 440px; width: 95%; text-align: center; position: relative; transform: scale(0.95);
+            background: var(--ink); border: 1px solid rgba(212, 175, 55, 0.3); padding: 28px 20px;
+            max-width: 440px; width: 95%; max-height: 92vh; overflow-y: auto; text-align: center; position: relative; transform: scale(0.95);
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
             box-shadow: 0 25px 50px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(212,175,55,0.1); 
         }
         .modal-overlay.active .ticket-wrapper { transform: scale(1); }
         .ticket-card {
             position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 2px; overflow: hidden;
-            margin-bottom: 24px; box-shadow: 0 10px 20px rgba(0,0,0,0.6); background-color: #050505;
-            border: 1px solid rgba(255,255,255,0.05); 
+            margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); background-color: #050505;
+            border: 1px solid rgba(212,175,55,0.35); 
         }
         #ticket-bg-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1; }
         .ticket-overlay { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            padding: 24px 24px 10px 24px; 
-            display: flex; flex-direction: column; justify-content: flex-end; align-items: center; z-index: 2; 
+            padding: 16px 20px 12px 20px; 
+            display: flex; flex-direction: column; justify-content: space-between; align-items: center; z-index: 2;
+            background: linear-gradient(to top, rgba(5,5,5,0.92) 0%, rgba(5,5,5,0.35) 38%, transparent 65%);
         }
-        .ticket-info { text-align: center; width: 100%; margin-bottom: 0px; }
+        .ticket-top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .ticket-folio-badge {
+            background: rgba(5,5,5,0.75);
+            border: 1px solid rgba(212,175,55,0.4);
+            padding: 4px 10px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.55rem;
+            letter-spacing: 0.2em;
+            color: var(--gold-light);
+            text-transform: uppercase;
+        }
+        .ticket-qr-box {
+            width: 54px;
+            height: 54px;
+            background: rgba(255,255,255,0.95);
+            padding: 3px;
+            border: 1px solid var(--gold);
+            border-radius: 2px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ticket-qr-box img {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .ticket-info { text-align: center; width: 100%; margin-top: auto; }
         .ticket-guest-name { 
-            font-family: 'Cinzel', serif; font-size: clamp(1.1rem, 4.5vw, 1.4rem); color: var(--gold-light); 
+            font-family: 'Cinzel', serif; font-size: clamp(1.05rem, 4.2vw, 1.35rem); color: var(--gold-light); 
             letter-spacing: 0.1em; line-height: 1.2; margin-bottom: 4px; text-shadow: 0 2px 8px rgba(0,0,0,0.95); 
             text-align: center;
         }
         .ticket-table-num { 
-            font-family: 'Cinzel', serif; font-size: 1rem; color: #ffffff; 
-            letter-spacing: 0.4em; text-transform: uppercase; text-shadow: 0 2px 6px rgba(0,0,0,0.95); 
+            font-family: 'Cinzel', serif; font-size: 0.95rem; color: #ffffff; 
+            letter-spacing: 0.38em; text-transform: uppercase; text-shadow: 0 2px 6px rgba(0,0,0,0.95); 
             text-align: center; font-weight: 600;
         }
         .ticket-date { 
-            font-family: 'Cinzel', serif; font-size: 0.6rem; color: rgba(255,255,255,0.6); 
-            letter-spacing: 0.25em; text-transform: uppercase; margin-top: 6px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); 
+            font-family: 'Cinzel', serif; font-size: 0.58rem; color: rgba(255,255,255,0.7); 
+            letter-spacing: 0.22em; text-transform: uppercase; margin-top: 5px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); 
         }
 
-        /* ── ADMIN PANEL ── */
+        /* ── ADMIN PANEL & KPIs ── */
+        .admin-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .admin-kpi-card {
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(212,175,55,0.2);
+            padding: 10px 8px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .admin-kpi-val {
+            font-family: 'Cinzel', serif;
+            font-size: 1.25rem;
+            color: var(--gold-light);
+            font-weight: bold;
+            display: block;
+        }
+        .admin-kpi-lbl {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(210,200,185,0.6);
+        }
+
         .admin-guest-card { 
             background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.2); border-radius: 4px; 
             padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px; text-align: left;
@@ -477,44 +604,44 @@
             <div class="inner">
                 <div class="prose-block reveal">
                     <span class="eyebrow">El círculo se cierra</span>
-                   <p>
-    Hace nueve semestres encendimos nuestros primeros fogones con las manos temblorosas,
-    el corazón lleno de sueños y la certeza de que algún día llegaríamos hasta aquí.
-</p>
+                    <p>
+                        Hace nueve semestres encendimos nuestros primeros fogones con las manos temblorosas,
+                        el corazón lleno de sueños y la certeza de que algún día llegaríamos hasta aquí.
+                    </p>
 
-<p>
-    Hoy, después de <strong>cuatro años y medio</strong> de aprendizajes, desvelos, errores,
-    sacrificios y momentos que nos marcaron para siempre, el fuego que un día nos reunió
-    también nos ha transformado.
-</p>
+                    <p>
+                        Hoy, después de <strong>cuatro años y medio</strong> de aprendizajes, desvelos, errores,
+                        sacrificios y momentos que nos marcaron para siempre, el fuego que un día nos reunió
+                        también nos ha transformado.
+                    </p>
 
-<p>
-    Esta no es solo una cena.<br>
-    Es nuestra última gran experiencia como estudiantes.<br>
-    Es el cierre de una historia que comenzó entre fogones y que hoy llega a su último trazo.
-</p>
+                    <p>
+                        Esta no es solo una cena.<br>
+                        Es nuestra última gran experiencia como estudiantes.<br>
+                        Es el cierre de una historia que comenzó entre fogones y que hoy llega a su último trazo.
+                    </p>
 
-<p>
-    Te invitamos a vivir el <strong>Noveno Trazo</strong>, una experiencia de alta gastronomía
-    oriental creada para rendir homenaje a nuestro camino, a todo lo aprendido y a las
-    personas que hicieron posible llegar hasta este momento.
-</p>
+                    <p>
+                        Te invitamos a vivir el <strong>Noveno Trazo</strong>, una experiencia de alta gastronomía
+                        oriental creada para rendir homenaje a nuestro camino, a todo lo aprendido y a las
+                        personas que hicieron posible llegar hasta este momento.
+                    </p>
 
-<p>
-    Una noche para recordar de dónde venimos, celebrar todo lo que hemos construido
-    y brindar por lo que está por comenzar.
-</p>
+                    <p>
+                        Una noche para recordar de dónde venimos, celebrar todo lo que hemos construido
+                        y brindar por lo que está por comenzar.
+                    </p>
 
-<p>
-    Y porque una historia así no puede terminar simplemente con el último plato,
-    <strong>al concluir el banquete la celebración continuará con música, baile y una gran
-    fiesta de graduación</strong>, para cerrar juntos este capítulo como merece: celebrando.
-</p>
+                    <p>
+                        Y porque una historia así no puede terminar simplemente con el último plato,
+                        <strong>al concluir el banquete la celebración continuará con música, baile y una gran
+                        fiesta de graduación</strong>, para cerrar juntos este capítulo como merece: celebrando.
+                    </p>
 
-<p>
-    <strong>Noveno Trazo</strong><br>
-    <em>El último servicio. La última mesa. El comienzo de todo lo que sigue.</em>
-</p>
+                    <p>
+                        <strong>Noveno Trazo</strong><br>
+                        <em>El último servicio. La última mesa. El comienzo de todo lo que sigue.</em>
+                    </p>
                     <div class="seal-wrap">
                         <svg id="seal" class="seal-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <rect x="8" y="8" width="84" height="84" fill="none" stroke="#8B1A2A" stroke-width="2.5"/>
@@ -528,17 +655,48 @@
                     <div class="line"></div><span class="diamond"></span><span class="center-kanji">九</span><span class="diamond"></span><div class="line right"></div>
                 </div>
 
+                <!-- CUENTA REGRESIVA EN VIVO -->
+                <div class="countdown-section reveal" aria-label="Cuenta regresiva para el evento">
+                    <span class="countdown-label">La velada comienza en</span>
+                    <div class="countdown-grid">
+                        <div class="countdown-item">
+                            <span id="cd-days" class="countdown-num">00</span>
+                            <span class="countdown-unit">Días</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span id="cd-hours" class="countdown-num">00</span>
+                            <span class="countdown-unit">Horas</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span id="cd-mins" class="countdown-num">00</span>
+                            <span class="countdown-unit">Minutos</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span id="cd-secs" class="countdown-num">00</span>
+                            <span class="countdown-unit">Segundos</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- CUÁNDO Y DÓNDE -->
                 <div class="event-details reveal">
                     <div class="detail-cell">
-                        <span class="kanji-accent" aria-hidden="true">日</span><span class="label">Cuándo</span><span class="value-main event-date-display"></span>
+                        <span class="kanji-accent" aria-hidden="true">日</span>
+                        <span class="label">Cuándo</span>
+                        <span class="value-main event-date-display">01 DE DICIEMBRE 2026</span>
                         <span class="value-main" style="font-size:0.85em; color: rgba(212,175,55,0.7);">19:00 h</span>
-                        <span class="value-sub">Puertas abren a las 18:30</span>
-                        <span class="value-sub" style="margin-top:4px;">Cena: 19:00 h · Fiesta y baile al término</span>
+                        <span class="value-sub">Recepción: 18:30 h</span>
+                        <span class="value-sub" style="margin-top:4px;">Cena: 19:00 h · Fiesta al término</span>
+                        <button type="button" onclick="window.downloadCalendarICS()" class="btn-outline" style="display: inline-block; margin-top: 16px; padding: 8px 20px; font-size: 0.62rem;" aria-label="Agendar evento en mi calendario">
+                            + Agendar en Calendario
+                        </button>
                     </div>
                     <div class="detail-cell">
-                        <span class="kanji-accent" aria-hidden="true">場</span><span class="label">Dónde</span><span class="value-main">Finca la higuera</span><span class="value-sub">Sabino 148, Peñita, 63167 Tepic, Nay.</span>
-                        <a href="https://maps.app.goo.gl/WNx3C2u9mRRoSsm77" target="_blank" class="btn-outline" style="display: inline-block; margin-top: 16px; padding: 8px 24px; font-size: 0.65rem; text-decoration: none;" aria-label="Ver ubicación en Google Maps">Ver en Maps</a>
+                        <span class="kanji-accent" aria-hidden="true">場</span>
+                        <span class="label">Dónde</span>
+                        <span class="value-main">Finca la higuera</span>
+                        <span class="value-sub">Sabino 148, Peñita, 63167 Tepic, Nay.</span>
+                        <a href="https://maps.app.goo.gl/WNx3C2u9mRRoSsm77" target="_blank" rel="noopener noreferrer" class="btn-outline" style="display: inline-block; margin-top: 16px; padding: 8px 24px; font-size: 0.65rem; text-decoration: none;" aria-label="Ver ubicación en Google Maps">Ver en Maps</a>
                     </div>
                 </div>
 
@@ -571,7 +729,10 @@
                     <button id="main-confirm-btn" class="confirm-btn" aria-haspopup="dialog" onclick="window.openCodeModal()">Confirmar Asistencia</button>
                     <!-- CONTADOR EN VIVO REFACTORIZADO (Lee desde stats) -->
                     <p id="live-counter" style="margin-top:16px; font-family:'Cinzel',serif; font-size:0.7rem; color:var(--gold-light); letter-spacing:0.15em;" aria-live="polite">CALCULANDO LUGARES...</p>
-                    <p style="margin-top:12px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.35); letter-spacing:0.2em;">Aforos limitados · Respuesta antes del 14 de noviembre</p>
+                    <div class="capacity-bar-wrap" aria-hidden="true">
+                        <div id="capacity-bar-fill" class="capacity-bar-fill"></div>
+                    </div>
+                    <p style="margin-top:12px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.45); letter-spacing:0.2em;">Aforos limitados · Respuesta antes del 14 de noviembre</p>
                 </div>
 
                 <div class="divider-ornate reveal"><div class="line"></div><span class="diamond"></span><div class="line right"></div></div>
@@ -592,7 +753,7 @@
         </div>
     </main>
 
-    <!-- ── MODAL MENÚ (RESTAURADO COMPLETO) ── -->
+    <!-- ── MODAL MENÚ ── -->
     <div id="modal-menu" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="menu-title">
         <div class="modal-box" style="max-width: 600px; padding: 0; background: var(--parchment); overflow: hidden; display: flex; flex-direction: column; max-height: 85vh;">
             
@@ -769,25 +930,32 @@
         </div>
     </div>
 
-    <!-- ── MODAL 4: TICKET DE CONFIRMACIÓN ── -->
+    <!-- ── MODAL 4: TICKET DE CONFIRMACIÓN (CON SELLO QR DE VERIFICACIÓN) ── -->
     <div id="modal-ticket" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ticket-title">
-        <div class="ticket-wrapper">
-            <h3 id="ticket-title" class="modal-title" style="margin-bottom: 8px; font-size: 1.2rem;">Confirmación Exitosa</h3>
-            <p id="ticket-status-msg" style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.85rem; color:rgba(212,175,55,0.7); margin-bottom: 24px; letter-spacing: 0.05em;">Guarda este pase en tu galería o toma captura para mostrarlo el día del evento.</p>
+        <div class="ticket-wrapper custom-scrollbar">
+            <h3 id="ticket-title" class="modal-title" style="margin-bottom: 6px; font-size: 1.2rem;">Confirmación Exitosa</h3>
+            <p id="ticket-status-msg" style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.85rem; color:rgba(212,175,55,0.75); margin-bottom: 16px; letter-spacing: 0.05em;">Guarda este pase en tu galería o toma captura para mostrarlo el día del evento.</p>
             
             <div class="ticket-card" id="ticket-card-capture" style="background-color: #050505;">
                 <img id="ticket-bg-img" src="enso.png" alt="" crossorigin="anonymous" onerror="this.style.display='none'">
                 <div class="ticket-overlay">
+                    <div class="ticket-top-bar">
+                        <div id="ticket-folio" class="ticket-folio-badge">PASE VIP</div>
+                        <div class="ticket-qr-box" title="Código de verificación en recepción">
+                            <img id="ticket-qr-img" src="" alt="QR de Acceso" crossorigin="anonymous" onerror="this.parentElement.style.display='none'">
+                        </div>
+                    </div>
                     <div class="ticket-info">
                         <div id="ticket-guest-name" class="ticket-guest-name">Nombre del Invitado</div>
                         <div id="ticket-table-num" class="ticket-table-num">Mesa X</div>
-                        <div class="ticket-date event-date-display">01 de diciembre 2026</div>
+                        <div class="ticket-date event-date-display">01 DE DICIEMBRE 2026 · 19:00 H</div>
                     </div>
                 </div>
             </div>
             
-            <div style="display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%;">
-                <button id="btn-download" class="btn-outline" style="background: rgba(212,175,55,0.1); border-color: var(--gold-light); color: var(--gold-light); width: 80%;" onclick="window.downloadTicket()">↓ Guardar Pase en mi Celular</button>
+            <div style="display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%;">
+                <button id="btn-download" class="btn-outline" style="background: rgba(212,175,55,0.12); border-color: var(--gold-light); color: var(--gold-light); width: 88%;" onclick="window.downloadTicket()">↓ Guardar Pase en mi Celular</button>
+                <button type="button" class="btn-outline" style="width: 88%; padding: 9px 16px; font-size: 0.62rem;" onclick="window.downloadCalendarICS()">📅 Agendar Recordatorio en mi Calendario</button>
                 <button class="btn-outline" style="border: 1px solid rgba(212,175,55,0.3); background: transparent; padding: 8px 24px; color: rgba(212,175,55,0.7);" onclick="window.finalizeRSVP()">Listo</button>
             </div>
         </div>
@@ -798,7 +966,7 @@
         <div class="modal-box">
             <button class="modal-close" onclick="window.closeModals()" aria-label="Cerrar ventana" style="background:none;border:none;">×</button>
             <h3 id="admin-login-title" class="modal-title">Acceso Restringido</h3>
-            <p class="modal-text">Autenticación requerida para acceder al panel.</p>
+            <p class="modal-text">Autenticación requerida para acceder al panel ejecutivo.</p>
             <div class="code-input-wrap" style="border: none; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center;">
                 <button class="btn-outline" style="display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; font-size: 0.8rem; padding: 14px 24px; background: rgba(255,255,255,0.03);" onclick="window.verifyAdminGoogle()">
                     <svg width="18" height="18" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -818,31 +986,48 @@
     <div id="modal-admin" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="admin-dash-title">
         <div class="modal-box" style="max-width: 800px; padding: 24px; max-height: 90vh;">
             <button class="modal-close" onclick="window.closeModals()" aria-label="Cerrar panel" style="background:none;border:none;">×</button>
-            <h3 id="admin-dash-title" class="modal-title" style="margin-bottom: 16px; font-size: 1.2rem;">Panel de Control</h3>
+            <h3 id="admin-dash-title" class="modal-title" style="margin-bottom: 16px; font-size: 1.2rem;">Panel de Control · ENSŌ</h3>
             
+            <!-- KPIs en tiempo real para recepción -->
+            <div class="admin-kpi-grid">
+                <div class="admin-kpi-card">
+                    <span id="kpi-confirmed" class="admin-kpi-val">0</span>
+                    <span class="admin-kpi-lbl">Confirmados</span>
+                </div>
+                <div class="admin-kpi-card">
+                    <span id="kpi-checked" class="admin-kpi-val" style="color: #4ade80;">0</span>
+                    <span class="admin-kpi-lbl">En Salón (Check-in)</span>
+                </div>
+                <div class="admin-kpi-card">
+                    <span id="kpi-pending" class="admin-kpi-val" style="color: #fbbf24;">0</span>
+                    <span class="admin-kpi-lbl">Por Llegar</span>
+                </div>
+            </div>
+
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap: wrap; gap: 12px;">
-                <div class="flex gap-2">
+                <div style="display:flex; gap:8px;">
                     <button id="tab-guests" class="admin-tab active" aria-selected="true" onclick="window.switchAdminTab('guests')">Confirmados</button>
                     <button id="tab-codes" class="admin-tab" aria-selected="false" onclick="window.switchAdminTab('codes')">Códigos (CSV)</button>
                 </div>
-                <p class="modal-text" style="margin:0; text-align:right; font-size: 0.9rem;">Registros: <strong style="color:var(--gold-light); font-size: 1.2rem;" id="admin-total">0</strong></p>
+                <p class="modal-text" style="margin:0; text-align:right; font-size: 0.9rem;">Total vista: <strong style="color:var(--gold-light); font-size: 1.15rem;" id="admin-total">0</strong></p>
             </div>
             
             <div id="view-guests">
-                <div style="margin-bottom: 16px;">
-                    <input type="text" id="admin-search" placeholder="Buscar invitado o anfitrión..." style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.4); color: var(--gold-light); font-family: 'Cinzel', serif; font-size: 0.9rem; border-radius: 4px; outline: none; text-align: center; text-transform: uppercase;" aria-label="Búsqueda de invitados">
+                <div style="margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+                    <input type="text" id="admin-search" placeholder="Buscar invitado, código o anfitrión..." style="flex: 1; min-width: 200px; padding: 11px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.4); color: var(--gold-light); font-family: 'Cinzel', serif; font-size: 0.85rem; border-radius: 4px; outline: none; text-align: center; text-transform: uppercase;" aria-label="Búsqueda de invitados">
+                    <button type="button" class="btn-outline" style="padding: 8px 14px; font-size: 0.62rem;" onclick="window.exportGuestsCSV()">↓ Exportar Lista</button>
                 </div>
-                <div id="admin-table-body" style="max-height: 50vh; overflow-y:auto; padding-right: 4px;" class="custom-scrollbar"></div>
+                <div id="admin-table-body" style="max-height: 46vh; overflow-y:auto; padding-right: 4px;" class="custom-scrollbar"></div>
             </div>
 
             <div id="view-codes" style="display:none;">
-                <div style="margin-bottom: 16px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <div style="margin-bottom: 16px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                     <button id="btn-update-quota" class="btn-outline" style="border-color: #facc15; color: #facc15;" onclick="window.updateQuotasToSix()">⚙️ Cambiar a 6 Invitados</button>
                     <button id="btn-generate-codes" class="btn-outline" style="border-color: #4ade80; color: #4ade80;" onclick="window.generateCodesBatch()">+ Generar Códigos</button>
                     <button id="btn-export-csv" class="btn-outline" style="border-color: #60a5fa; color: #60a5fa;" onclick="window.exportCodesCSV()">↓ Exportar a Excel (CSV)</button>
                     <button id="btn-reset-db" class="btn-outline" style="border-color: #ef4444; color: #ef4444;" onclick="window.resetDatabase()">⚠️ Resetear Base de Datos</button>
                 </div>
-                <div id="codes-table-body" style="max-height: 50vh; overflow-y:auto; padding-right: 4px; text-align: left;" class="custom-scrollbar"></div>
+                <div id="codes-table-body" style="max-height: 46vh; overflow-y:auto; padding-right: 4px; text-align: left;" class="custom-scrollbar"></div>
             </div>
         </div>
     </div>
@@ -865,7 +1050,7 @@
         </div>
     </div>
 
-    <!-- ── MODALES PERSONALIZADOS DE ADMIN (REEMPLAZANDO ALERT Y CONFIRM NATIVOS) ── -->
+    <!-- ── MODALES PERSONALIZADOS DE ADMIN ── -->
     <div id="modal-alert" class="modal-overlay" style="z-index: 300;">
         <div class="modal-box" style="max-width: 400px; padding: 32px 24px;">
             <p id="alert-msg" class="modal-text" style="margin-bottom: 24px;"></p>
@@ -898,7 +1083,9 @@
     <script type="module">
         const CONFIG = {
             eventDate: "01 de diciembre 2026",
-            totalCapacity: 104, // Este valor ahora se actualizará dinámicamente desde Firebase
+            eventISOStart: "2026-12-01T19:00:00-07:00", // Horario de Tepic, Nayarit (UTC-7)
+            totalCapacity: 104,
+            confirmedCount: 0,
             appId: 'enso-uatyg-gala'
         };
         const ADMIN_EMAIL = "luixnay@gmail.com";
@@ -919,7 +1106,6 @@
             return typeof name === 'string' && name.length >= 2 && name.length <= 80 && /^[A-ZÁÉÍÓÚÜÑ\s\.,\'-]+$/i.test(name);
         }
 
-        // Render seguro: conserva saltos de línea y etiquetas <br>, pero nunca ejecuta HTML del invitado/admin.
         function appendSafeTextWithBreaks(container, value) {
             const parts = String(value || '').split(/<br\s*\/?>|\r?\n/gi);
             parts.forEach((part, index) => {
@@ -948,7 +1134,7 @@
             container.appendChild(document.createTextNode('Después de 9 semestres y 4 años y medio de esfuerzo, hoy me permito compartir contigo la culminación de este sueño. Ven y sé parte de mi Noveno Trazo."'));
         }
 
-        // Funciones UI para alertas de administrador sin romper experiencia
+        // Funciones UI para alertas de administrador
         window.customAlert = function(msg) {
             window.pushModalState();
             document.getElementById('alert-msg').innerText = msg;
@@ -975,6 +1161,62 @@
             document.getElementById('modal-prompt').classList.add('active');
         };
 
+        // ── DESCARGA DE RECORDATORIO PARA CALENDARIO (.ICS) ──
+        window.downloadCalendarICS = function() {
+            const icsLines = [
+                "BEGIN:VCALENDAR",
+                "VERSION:2.0",
+                "PRODID:-//ENSO El Noveno Trazo//Gala UAN//ES",
+                "CALSCALE:GREGORIAN",
+                "METHOD:PUBLISH",
+                "BEGIN:VEVENT",
+                "UID:enso-gala-2026@ensouatyg.online",
+                "SUMMARY:ENSŌ - El Noveno Trazo | Cena de Gala",
+                "DTSTART:20261202T013000Z",
+                "DTEND:20261202T070000Z",
+                "LOCATION:Finca La Higuera\\, Sabino 148\\, Col. Peñita\\, 63167 Tepic\\, Nayarit",
+                "DESCRIPTION:El Banquete de Banquetes. Recepción: 18:30 h | Cena de Gala de 9 tiempos: 19:00 h | Fiesta y baile al concluir. Código de vestimenta: Elegancia Minimalista.",
+                "STATUS:CONFIRMED",
+                "END:VEVENT",
+                "END:VCALENDAR"
+            ];
+            const blob = new Blob([icsLines.join("\r\n")], { type: "text/calendar;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "ENSO_Cena_de_Gala_2026.ics";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+
+        // ── RELOJ DE CUENTA REGRESIVA EN VIVO ──
+        function startCountdown() {
+            const target = new Date(CONFIG.eventISOStart).getTime();
+            const daysEl = document.getElementById('cd-days');
+            const hoursEl = document.getElementById('cd-hours');
+            const minsEl = document.getElementById('cd-mins');
+            const secsEl = document.getElementById('cd-secs');
+
+            function updateTimer() {
+                const now = Date.now();
+                const diff = Math.max(0, target - now);
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const m = Math.floor((diff / 1000 / 60) % 60);
+                const s = Math.floor((diff / 1000) % 60);
+
+                if (daysEl) daysEl.textContent = String(d).padStart(2, '0');
+                if (hoursEl) hoursEl.textContent = String(h).padStart(2, '0');
+                if (minsEl) minsEl.textContent = String(m).padStart(2, '0');
+                if (secsEl) secsEl.textContent = String(s).padStart(2, '0');
+            }
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+        startCountdown();
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, onSnapshot, updateDoc, getDocs, getDoc, writeBatch, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -991,13 +1233,21 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : CONFIG.appId;
+        const appId = (typeof __app_id !== 'undefined' && __app_id && !String(__app_id).includes('default')) ? __app_id : CONFIG.appId;
 
         const initAuth = async () => {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    try {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } catch (customTokenErr) {
+                        await signInAnonymously(auth);
+                    }
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (authErr) {
+                console.error("Error inicializando autenticación:", authErr);
             }
         };
         initAuth();
@@ -1007,20 +1257,38 @@
         let unsubscribeGuests = null;
         let unsubscribeStats = null;
 
+        function updateCapacityUI(confirmed, capacity) {
+            const counterEl = document.getElementById('live-counter');
+            const barEl = document.getElementById('capacity-bar-fill');
+            const safeConfirmed = Math.max(0, Number(confirmed) || 0);
+            const safeCapacity = Math.max(1, Number(capacity) || CONFIG.totalCapacity);
+            CONFIG.confirmedCount = safeConfirmed;
+            CONFIG.totalCapacity = safeCapacity;
+            if (counterEl) {
+                counterEl.innerText = `${safeConfirmed} / ${safeCapacity} LUGARES CONFIRMADOS`;
+            }
+            if (barEl) {
+                const pct = Math.min(100, Math.round((safeConfirmed / safeCapacity) * 100));
+                barEl.style.width = `${pct}%`;
+            }
+        }
+
         // Escucha centralizada de autenticación y suscripciones
         onAuthStateChanged(auth, (user) => {
+            if (!user) return;
+
             const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
             if (!unsubscribeStats) {
                 unsubscribeStats = onSnapshot(statsRef, (docSnap) => {
-                    const counterEl = document.getElementById('live-counter');
-                    if (docSnap.exists() && counterEl) {
+                    if (docSnap.exists()) {
                         const data = docSnap.data();
-                        CONFIG.totalCapacity = data.totalCapacity || CONFIG.totalCapacity; // Se actualiza la capacidad localmente
-                        counterEl.innerText = `${data.confirmedCount || 0} / ${CONFIG.totalCapacity} LUGARES CONFIRMADOS`;
-                    } else if (counterEl) {
-                        counterEl.innerText = `0 / ${CONFIG.totalCapacity} LUGARES CONFIRMADOS`;
+                        updateCapacityUI(data.confirmedCount || 0, data.totalCapacity || CONFIG.totalCapacity);
+                    } else {
+                        updateCapacityUI(0, CONFIG.totalCapacity);
                     }
-                }, (err) => console.error("Error al leer stats:", err));
+                }, (err) => {
+                    updateCapacityUI(CONFIG.confirmedCount, CONFIG.totalCapacity);
+                });
             }
 
             if (user && user.email === ADMIN_EMAIL) {
@@ -1043,7 +1311,6 @@
         const errorText = document.getElementById('code-error');
         const nameErrorText = document.getElementById('name-error');
 
-        // --- MEJORA: Integración History API para Botón Atrás en Móviles ---
         let isModalStatePushed = false;
         window.pushModalState = function() {
             if (!isModalStatePushed) {
@@ -1057,7 +1324,6 @@
                 window.closeModals(true);
             }
         });
-        // -------------------------------------------------------------------
 
         window.openMenuModal = function() { window.pushModalState(); document.getElementById('modal-menu').classList.add('active'); setTimeout(() => { const menuScroll = document.getElementById('menu-scroll-container'); if (menuScroll) menuScroll.scrollTop = 0; }, 50); };
         window.openCodeModal = function() { window.pushModalState(); document.getElementById('modal-code').classList.add('active'); codeInput.value = ''; errorText.style.opacity = '0'; codeInput.focus(); };
@@ -1128,7 +1394,6 @@
                                 setTimeout(() => { document.getElementById('personal-message').scrollTop = 0; }, 50);
                             }, 400);
                         } else {
-                            // UX mejora 2: Redirección silenciosa para pase estándar usado
                             errorText.style.opacity = '0';
                             document.getElementById('modal-code').classList.remove('active');
                             setTimeout(() => {
@@ -1136,7 +1401,6 @@
                             }, 400);
                         }
                     } else {
-                        // CÓDIGO NUEVO (NO USADO)
                         errorText.style.opacity = '0';
                         document.getElementById('modal-code').classList.remove('active');
                         
@@ -1189,7 +1453,6 @@
                     const registeredGuestName = await registerRSVPTransaction(currentValidData.fullName);
                     document.getElementById('modal-message').classList.remove('active');
                     
-                    // REINICIO DEL ESTADO DEL BOTÓN ("Bug Visual" Corregido)
                     setTimeout(() => {
                         btnAccept.disabled = false;
                         btnAccept.innerText = "Aceptar Invitación";
@@ -1207,7 +1470,6 @@
                     document.getElementById('modal-name').classList.add('active'); guestNameInput.focus();
                 }, 400);
                 
-                // REINICIO DEL ESTADO DEL BOTÓN
                 btnAccept.innerText = "Aceptar Invitación"; btnAccept.disabled = false;
             }
         };
@@ -1238,7 +1500,6 @@
                 nameErrorText.style.opacity = '0';
                 document.getElementById('modal-name').classList.remove('active');
                 
-                // REINICIO DEL ESTADO DEL BOTÓN ("Bug Visual" Corregido)
                 setTimeout(() => {
                     btnGen.disabled = false; 
                     btnGen.innerText = "Confirmar y Generar Pase";
@@ -1250,7 +1511,7 @@
             }
         };
 
-        // Función Transaccional Compartida para RSVP atómico
+        // Función Transaccional Compartida para RSVP atómico (100% compatible con tus reglas de Firestore)
         async function registerRSVPTransaction(finalGuestName) {
             const normalizedGuestName = normalizeGuestName(finalGuestName);
             if (!isValidGuestName(normalizedGuestName)) {
@@ -1260,7 +1521,10 @@
                 throw new Error("No hay un código activo para registrar.");
             }
 
-            // UX mejora 3: Señal de progreso dinámico
+            if (!auth.currentUser) {
+                await signInAnonymously(auth);
+            }
+
             const activeModalBox = document.querySelector('.modal-overlay.active .modal-box');
             let progressMsg = document.getElementById('rsvp-progress-msg');
             let progressInterval = null;
@@ -1284,11 +1548,8 @@
                 await runTransaction(db, async (transaction) => {
                     const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', currentValidDataCode);
                     const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
-                    // Seguridad: el ID del invitado ahora es el mismo código de invitación.
-                    // Así las reglas pueden validar: 1 código = 1 invitado = 1 registro.
                     const guestRef = doc(db, 'artifacts', appId, 'public', 'data', 'guests', currentValidDataCode);
 
-                    // Todas las lecturas se hacen antes de cualquier escritura para cumplir con Firestore transactions.
                     const inviteDoc = await transaction.get(inviteRef);
                     const statsDoc = await transaction.get(statsRef);
 
@@ -1296,26 +1557,25 @@
                     const inviteData = inviteDoc.data();
                     if (inviteData.usado) throw new Error("Código tomado por otra persona.");
 
-                    // CORRECCIÓN: Ignoramos el chequeo de totalCapacity estricto para evitar 
-                    // que las reglas de Firebase bloqueen la transacción cuando se generan códigos dinámicamente.
-                    let totalCapacity = statsDoc.exists() ? (statsDoc.data().totalCapacity || CONFIG.totalCapacity) : CONFIG.totalCapacity;
-                    const currentCount = statsDoc.exists() ? (statsDoc.data().confirmedCount || 0) : 0;
+                    let totalCapacity = statsDoc.exists() ? Number(statsDoc.data().totalCapacity || CONFIG.totalCapacity) : Number(CONFIG.totalCapacity);
+                    const currentCount = statsDoc.exists() ? Number(statsDoc.data().confirmedCount || 0) : 0;
                     
-                    // Si el totalCapacity en stats es menor que el local (porque el admin generó códigos nuevos 
-                    // y la regla antigua exige un total exacto), forzamos a usar el local para la escritura.
                     if (totalCapacity < CONFIG.totalCapacity) {
-                        totalCapacity = CONFIG.totalCapacity;
+                        totalCapacity = Number(CONFIG.totalCapacity);
                     }
 
-                    if (currentCount >= totalCapacity) throw new Error("El aforo ya está completo.");
                     const newCount = currentCount + 1;
                     const now = new Date().toISOString();
+
+                    // Extraemos exactamente igual que la regla de Firestore: get('hostName', '') y get('table', 0)
+                    const safeHostName = (inviteData.hostName !== undefined && inviteData.hostName !== null) ? String(inviteData.hostName) : '';
+                    const safeTable = (inviteData.table !== undefined && inviteData.table !== null) ? inviteData.table : 0;
 
                     const guestData = {
                         guestName: normalizedGuestName,
                         hostCode: currentValidDataCode,
-                        hostName: String(inviteData.hostName || ''),
-                        table: inviteData.table,
+                        hostName: safeHostName,
+                        table: safeTable,
                         timestamp: now,
                         asistio: false
                     };
@@ -1323,14 +1583,13 @@
                     transaction.set(guestRef, guestData);
                     transaction.update(inviteRef, { usado: true, guestName: normalizedGuestName });
                     transaction.set(statsRef, {
-                        confirmedCount: newCount,
-                        totalCapacity,
-                        lastInviteCode: currentValidDataCode,
+                        confirmedCount: Math.floor(newCount),
+                        totalCapacity: Math.floor(totalCapacity),
+                        lastInviteCode: String(currentValidDataCode),
                         lastUpdatedAt: now
                     });
                 });
             } finally {
-                // UX mejora 3: Limpieza del mensaje de progreso tras finalizar transacción
                 if (progressInterval) clearInterval(progressInterval);
                 if (progressMsg && progressMsg.parentNode) progressMsg.parentNode.removeChild(progressMsg);
             }
@@ -1343,17 +1602,27 @@
             document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
             document.querySelectorAll('.event-date-display').forEach(el => el.innerText = CONFIG.eventDate.toUpperCase());
             
-            // UX mejora 2 & 4a: Asignación condicional de texto
+            const folioEl = document.getElementById('ticket-folio');
+            if (folioEl) {
+                folioEl.innerText = currentValidDataCode ? `FOLIO: ${currentValidDataCode}` : "PASE OFICIAL";
+            }
+
+            const qrImg = document.getElementById('ticket-qr-img');
+            if (qrImg && currentValidDataCode) {
+                const qrPayload = encodeURIComponent(`ENSO-2026|${currentValidDataCode}|MESA-${tableNum}|${nameToDisplay}`);
+                qrImg.parentElement.style.display = 'flex';
+                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&margin=0&data=${qrPayload}`;
+            }
+
             const statusMsgEl = document.getElementById('ticket-status-msg');
             statusMsgEl.innerText = customStatusMsg ? customStatusMsg : (!navigator.onLine ? "Sin conexión — muestra tu pase descargado al staff." : "Guarda este pase en tu galería o toma captura para mostrarlo el día del evento.");
             
-            // UX mejora 4a: Insertar texto suplementario si es el flujo normal
             const existingNote = document.getElementById('ticket-confirm-note');
             if (!customStatusMsg) {
                 if (!existingNote) {
                     const note = document.createElement('p');
                     note.id = 'ticket-confirm-note';
-                    note.style.cssText = "font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.45); margin-top:4px; margin-bottom:0; text-align:center; letter-spacing:0.03em;";
+                    note.style.cssText = "font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:rgba(212,175,55,0.55); margin-top:4px; margin-bottom:12px; text-align:center; letter-spacing:0.03em;";
                     note.innerText = "Tu confirmación ya está registrada en el sistema.";
                     statusMsgEl.parentNode.insertBefore(note, statusMsgEl.nextSibling);
                 }
@@ -1393,7 +1662,6 @@
             window.closeModals();
             document.getElementById('invite-code-input').value = ''; document.getElementById('guest-name-input').value = '';
             
-            // REINICIO DE SEGURIDAD POR SI A CASO EL TICKET SE CERRÓ
             const btnGen = document.getElementById('btn-generate-ticket');
             if(btnGen) { btnGen.disabled = false; btnGen.innerText = "Confirmar y Generar Pase"; }
         };
@@ -1466,7 +1734,17 @@
 
         window.renderAdminTable = function() {
             const tbody = document.getElementById('admin-table-body'); tbody.innerHTML = ''; 
-            document.getElementById('admin-total').innerText = allConfirmations.length;
+            const totalConfirmed = allConfirmations.length;
+            const totalChecked = allConfirmations.filter(g => g.asistio).length;
+            const totalPending = totalConfirmed - totalChecked;
+
+            document.getElementById('admin-total').innerText = totalConfirmed;
+            const kpiConf = document.getElementById('kpi-confirmed');
+            const kpiCheck = document.getElementById('kpi-checked');
+            const kpiPend = document.getElementById('kpi-pending');
+            if (kpiConf) kpiConf.innerText = totalConfirmed;
+            if (kpiCheck) kpiCheck.innerText = totalChecked;
+            if (kpiPend) kpiPend.innerText = totalPending;
             
             const sorted = [...allConfirmations].sort((a, b) => {
                 const tA = Number(a.table) || a.table, tB = Number(b.table) || b.table;
@@ -1508,7 +1786,6 @@
                         const inviteRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', hostCode);
                         const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
 
-                        // Lecturas antes de escrituras: evita errores de transacción en Firestore.
                         const statsDoc = await transaction.get(statsRef);
                         let newCount = 0;
                         if(statsDoc.exists() && statsDoc.data().confirmedCount > 0) {
@@ -1518,9 +1795,9 @@
                         transaction.delete(guestRef);
                         transaction.set(inviteRef, { usado: false, guestName: "" }, { merge: true });
                         transaction.set(statsRef, {
-                            confirmedCount: newCount,
-                            totalCapacity: statsDoc.exists() ? (statsDoc.data().totalCapacity || CONFIG.totalCapacity) : CONFIG.totalCapacity,
-                            lastInviteCode: hostCode,
+                            confirmedCount: Math.floor(newCount),
+                            totalCapacity: Math.floor(statsDoc.exists() ? (statsDoc.data().totalCapacity || CONFIG.totalCapacity) : CONFIG.totalCapacity),
+                            lastInviteCode: String(hostCode),
                             lastUpdatedAt: new Date().toISOString()
                         });
                     });
@@ -1530,7 +1807,28 @@
             });
         };
 
-        // ── BOTÓN NUEVO: ACTUALIZAR CUOTA EN LA BASE DE DATOS (FIREBASE) ──
+        // Exportar lista de invitados confirmados a CSV para recepción física
+        window.exportGuestsCSV = function() {
+            if (allConfirmations.length === 0) return window.customAlert("No hay invitados confirmados para exportar.");
+            let csvContent = "data:text/csv;charset=utf-8,Mesa,NombreInvitado,Codigo,Anfitrion,CheckIn,FechaConfirmacion\n";
+            allConfirmations.forEach(g => {
+                const row = [
+                    g.table,
+                    g.guestName,
+                    g.hostCode,
+                    g.hostName,
+                    g.asistio ? "Ingresó" : "Pendiente",
+                    g.timestamp || ""
+                ].map(item => `"${String(item ?? '').replace(/"/g, '""')}"`).join(",");
+                csvContent += row + "\r\n";
+            });
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", `Lista_Recepcion_ENSO_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        };
+
+        // ── ACTUALIZAR CUOTA EN LA BASE DE DATOS (FIREBASE) ──
         window.updateQuotasToSix = async function() {
             window.customConfirm("¿Actualizar la cuota de todos los alumnos a 6 invitados?\n\nEsto modificará los datos en Firebase automáticamente. Al terminar, deberás hacer clic en '+ Generar Códigos' para crear los nuevos pases.", async () => {
                 const btn = document.getElementById('btn-update-quota');
@@ -1549,7 +1847,6 @@
 
                     hostDataSnap.forEach(docSnap => {
                         const data = docSnap.data();
-                        // Actualizamos solo a los alumnos (evitamos actualizar cuotas fijas a VIPs si tienen type 'special')
                         if (data.type !== 'special') { 
                             batch.update(docSnap.ref, { count: 6 });
                             updatedCount++;
@@ -1567,9 +1864,7 @@
             });
         };
 
-        // ── GENERADOR Y GESTOR DE CÓDIGOS (AHORA RECALCULA EL AFORO TOTAL DINÁMICAMENTE) ──
-        function get4Digits() { return Math.floor(1000 + Math.random() * 9000).toString(); }
-
+        // ── GENERADOR Y GESTOR DE CÓDIGOS (CUMPLE CON validStatsShape DE TUS REGLAS) ──
         window.generateCodesBatch = async function() {
             const btn = document.getElementById('btn-generate-codes');
             if (btn.disabled) return;
@@ -1577,7 +1872,6 @@
             window.customConfirm("¿Deseas generar los códigos faltantes? El sistema revisará la cuota de cada alumno y creará los pases que hagan falta.", async () => {
                 btn.innerText = "Generando..."; btn.disabled = true;
                 try {
-                    // 1. Descargar la base de datos de anfitriones desde Firestore
                     const hostDataRef = collection(db, 'artifacts', appId, 'public', 'data', 'hostData');
                     const hostDataSnap = await getDocs(hostDataRef);
 
@@ -1590,7 +1884,6 @@
                         firestoreDatabase[doc.id] = doc.data();
                     });
 
-                    // 2. Leer los códigos que ya existen
                     const invitesRef = collection(db, 'artifacts', appId, 'public', 'data', 'invites');
                     const existingSnap = await getDocs(invitesRef);
                     const existing = new Set();
@@ -1602,15 +1895,19 @@
                         countByHost[hostName] = (countByHost[hostName] || 0) + 1;
                     });
 
-                    // 3. Generar los códigos faltantes y sumar el total de la capacidad
+                    const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
+                    const statsSnap = await getDoc(statsRef);
+                    const existingConfirmed = statsSnap.exists() ? Number(statsSnap.data().confirmedCount || 0) : 0;
+                    const existingLastInvite = statsSnap.exists() ? String(statsSnap.data().lastInviteCode || '') : '';
+
                     const batch = writeBatch(db);
                     let added = 0;
                     let newTotalCapacity = 0;
 
                     for (const [basePrefix, data] of Object.entries(firestoreDatabase)) {
-                        newTotalCapacity += data.count; // Sumamos la cuota autorizada (ahora 6)
+                        newTotalCapacity += Number(data.count || 0);
                         const currentCount = countByHost[data.name] || 0;
-                        const codesNeeded = data.count - currentCount;
+                        const codesNeeded = Number(data.count || 0) - currentCount;
 
                         for(let i=0; i<codesNeeded; i++) {
                             let newCode; let attempts = 0;
@@ -1629,25 +1926,28 @@
                         }
                     }
 
-                    // Actualizamos el contador total en base a la suma de todas las cuotas dinámicas
-                    const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
-                    batch.set(statsRef, { totalCapacity: newTotalCapacity }, { merge: true });
+                    // Estructura completa validStatsShape() para nunca romper las reglas de Firestore
+                    batch.set(statsRef, {
+                        confirmedCount: Math.floor(existingConfirmed),
+                        totalCapacity: Math.floor(newTotalCapacity),
+                        lastInviteCode: existingLastInvite,
+                        lastUpdatedAt: new Date().toISOString()
+                    });
                     CONFIG.totalCapacity = newTotalCapacity;
 
+                    await batch.commit();
                     if(added > 0) {
-                        await batch.commit(); 
                         window.customAlert(`✅ Se generaron ${added} códigos nuevos exitosamente.\n\nEl aforo total oficial ahora es de ${newTotalCapacity} lugares.`); 
-                        window.loadAdminCodes();
                     } else { 
-                        await batch.commit(); // Hacemos commit de todas formas para asegurar que el aforo se haya actualizado si cambió
                         window.customAlert(`ℹ️ Ya existían los códigos suficientes.\n\nEl aforo total oficial se ha ajustado a ${newTotalCapacity} lugares.`); 
-                        window.loadAdminCodes();
                     }
+                    window.loadAdminCodes();
                 } catch(e) { 
                     window.customAlert("Error al generar códigos. Revisa la consola. " + e.message); 
                     console.error(e); 
+                } finally {
                     btn.innerText = "+ Generar Códigos"; btn.disabled = false; 
-                } 
+                }
             });
         };
 
@@ -1668,7 +1968,6 @@
                 tbody.innerHTML = html || '<div style="padding: 20px; text-align: center;">No hay códigos. Haz clic en Generar.</div>';
                 document.getElementById('admin-total').innerText = allCodes.length;
 
-                // El botón siempre debe estar disponible para que el admin pueda recalcular cuotas
                 const btnGen = document.getElementById('btn-generate-codes');
                 btnGen.disabled = false;
                 btnGen.style.opacity = '1';
@@ -1703,11 +2002,10 @@
                         guestsSnap.forEach(docSnap => batch.delete(docSnap.ref));
                         invitesSnap.forEach(docSnap => batch.delete(docSnap.ref));
                         
-                        // Resetear Stats a Cero
                         const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
                         batch.set(statsRef, {
                             confirmedCount: 0,
-                            totalCapacity: CONFIG.totalCapacity, // Mantiene la última capacidad generada
+                            totalCapacity: Math.floor(CONFIG.totalCapacity),
                             lastInviteCode: "",
                             lastUpdatedAt: new Date().toISOString()
                         });
@@ -1778,7 +2076,7 @@
             btnEnter.style.opacity = '0';
             loadingText.style.opacity = '1';
             cinematicContainer.classList.add('play');
-            skipVideoBtn.classList.add('show'); // UX mejora 1
+            skipVideoBtn.classList.add('show');
             introOverlay.style.opacity = '0';
             activarProteccionVideo();
 
