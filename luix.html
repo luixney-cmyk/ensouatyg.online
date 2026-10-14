@@ -1289,13 +1289,23 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : CONFIG.appId;
+        // Aseguramos que se use el ID de proyecto real 'enso-uatyg-gala' y no una cadena vacía del entorno de previsualización
+        const appId = (typeof __app_id !== 'undefined' && __app_id && !String(__app_id).includes('default')) ? __app_id : CONFIG.appId;
 
         const initAuth = async () => {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    try {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } catch (customTokenErr) {
+                        // Si el token del entorno de previsualización no pertenece a tu proyecto 'enso-gala-2026', hacemos fallback a sesión anónima
+                        await signInAnonymously(auth);
+                    }
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (authErr) {
+                console.warn("Aviso de autenticación inicial:", authErr.message);
             }
         };
         initAuth();
@@ -1321,6 +1331,9 @@
 
         // Escucha centralizada de autenticación y suscripciones
         onAuthStateChanged(auth, (user) => {
+            // 1. Esperamos a que exista sesión autenticada (anónima o admin) antes de abrir listeners en Firestore
+            if (!user) return;
+
             const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
             if (!unsubscribeStats) {
                 unsubscribeStats = onSnapshot(statsRef, (docSnap) => {
@@ -1330,7 +1343,10 @@
                     } else {
                         updateCapacityUI(0, CONFIG.totalCapacity);
                     }
-                }, (err) => console.error("Error al leer stats:", err));
+                }, (err) => {
+                    // Fallback limpio si las reglas publicadas en consola requieren sesión previa o si el documento aún no se ha creado
+                    updateCapacityUI(CONFIG.confirmedCount, CONFIG.totalCapacity);
+                });
             }
 
             if (user && user.email === ADMIN_EMAIL) {
