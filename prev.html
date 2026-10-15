@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación Oficial | ENSŌ - El Noveno Trazo (E5)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Noto+Serif+JP:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold: #D4AF37;
+            --gold-light: #F5E17A;
+            --gold-dim: #8A6F27;
+            --ink: #050505;
+            --card-bg: rgba(18, 15, 11, 0.88);
+            --border-gold: rgba(212, 175, 55, 0.28);
+            --red-seal: #8B1A2A;
+            --off-white: #EAE2D3;
+            --muted: #A69D8D;
+            --green: #34D399;
+            --amber: #FBBF24;
+        }
+
+        body {
+            background-color: var(--ink);
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(212, 175, 55, 0.06) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(139, 26, 42, 0.07) 0%, transparent 45%);
+            color: var(--off-white);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            user-select: none;
+        }
+
+        .cinzel { font-family: 'Cinzel', serif; }
+        .garamond { font-family: 'Cormorant Garamond', serif; }
+        .kanji { font-family: 'Noto Serif JP', serif; }
+
+        .text-gold {
+            background: linear-gradient(105deg, #BF953F 0%, #FCF6BA 45%, #D4AF37 75%, #FBF5B7 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* ── TOP BAR ── */
+        .top-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 54px;
+            background: rgba(5, 5, 5, 0.9);
+            border-bottom: 1px solid var(--border-gold);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+        .brand-pill {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            letter-spacing: 0.25em;
+            color: var(--gold-light);
+        }
+        .brand-pill span.seal {
+            background: var(--red-seal);
+            color: #fff;
+            font-family: 'Noto Serif JP', serif;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 2px;
+            letter-spacing: 0;
+        }
+        .slide-counter {
+            font-family: 'Cinzel', serif;
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+            color: var(--muted);
+        }
+
+        /* ── SLIDES CONTAINER ── */
+        .deck-container {
+            position: relative;
+            width: 100vw;
+            height: calc(100vh - 110px);
+            margin-top: 54px;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 28px 5vw;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(40px);
+            transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .slide.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(0);
+        }
+
+        .slide-bg-kanji {
+            position: fixed;
+            right: 4vw;
+            bottom: 6vh;
+            font-family: 'Noto Serif JP', serif;
+            font-size: clamp(8rem, 18vw, 15rem);
+            color: rgba(212, 175, 55, 0.035);
+            pointer-events: none;
+            z-index: 0;
+            line-height: 1;
+        }
+
+        .slide-header {
+            margin-bottom: 22px;
+            position: relative;
+            z-index: 2;
+            border-left: 3px solid var(--gold);
+            padding-left: 16px;
+        }
+        .slide-eyebrow {
+            font-family: 'Cinzel', serif;
+            font-size: 0.72rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--gold);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .slide-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.5rem, 2.6vw, 2.2rem);
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 0.08em;
+        }
+
+        /* ── GRIDS & CARDS ── */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; position: relative; z-index: 2; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; position: relative; z-index: 2; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; position: relative; z-index: 2; }
+
+        @media (max-width: 980px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .slide { justify-content: flex-start; padding-top: 20px; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-gold);
+            border-radius: 6px;
+            padding: 20px 22px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            position: relative;
+            overflow: hidden;
+        }
+        .card-highlight {
+            border-color: var(--gold);
+            background: linear-gradient(145deg, rgba(212,175,55,0.1), rgba(15,12,8,0.92));
+        }
+        .card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            letter-spacing: 0.12em;
+            color: var(--gold-light);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card p, .card li {
+            font-size: 0.9rem;
+            line-height: 1.55;
+            color: var(--off-white);
+        }
+        .card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .card ul li {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(212,175,55,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card ul li:last-child { border-bottom: none; }
+
+        .stat-big {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            font-weight: 700;
+            color: var(--gold-light);
+            line-height: 1.1;
+            margin: 6px 0;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.68rem;
+            letter-spacing: 0.15em;
+            border-radius: 99px;
+            border: 1px solid var(--gold);
+            color: var(--gold-light);
+            background: rgba(212, 175, 55, 0.12);
+            text-transform: uppercase;
+        }
+        .badge-green { border-color: var(--green); color: var(--green); background: rgba(52, 211, 153, 0.1); }
+        .badge-red { border-color: #F87171; color: #F87171; background: rgba(248, 113, 113, 0.1); }
+
+        /* ── TABLES ── */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .data-table th {
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-size: 0.72rem;
+            color: var(--gold-light);
+            text-align: left;
+            padding: 10px 12px;
+            background: rgba(212, 175, 55, 0.12);
+            border-bottom: 1px solid var(--gold);
+        }
+        .data-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+            color: var(--off-white);
+        }
+        .data-table tr:hover td {
+            background: rgba(212, 175, 55, 0.05);
+        }
+        .data-table tr.total-row td {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            color: var(--gold-light);
+            border-top: 2px solid var(--gold);
+            background: rgba(212, 175, 55, 0.1);
+            font-size: 0.95rem;
+        }
+
+        /* ── TIMELINE PROTOCOLO ── */
+        .timeline-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            position: relative;
+            z-index: 2;
+        }
+        .timeline-step {
+            background: var(--card-bg);
+            border: 1px solid var(--border-gold);
+            border-left: 3px solid var(--gold);
+            padding: 12px 14px;
+            border-radius: 4px;
+        }
+        .timeline-step.drink-step {
+            border-left-color: var(--green);
+            background: rgba(52, 211, 153, 0.05);
+        }
+        .timeline-step.speech-step {
+            border-left-color: #F59E0B;
+            background: rgba(245, 158, 11, 0.07);
+        }
+        .timeline-step .step-tag {
+            font-family: 'Cinzel', serif;
+            font-size: 0.65rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--gold-light);
+            display: block;
+            margin-bottom: 3px;
+        }
+        .timeline-step h4 {
+            font-size: 0.88rem;
+            color: #fff;
+            margin-bottom: 3px;
+        }
+        .timeline-step p {
+            font-size: 0.76rem;
+            color: var(--muted);
+            line-height: 1.35;
+        }
+
+        /* ── INTERACTIVE INPUTS FOR CLASS VOTING ── */
+        .live-input {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-gold);
+            color: var(--gold-light);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            width: 100%;
+            outline: none;
+        }
+        .live-input:focus {
+            border-color: var(--gold-light);
+            background: rgba(212,175,55,0.08);
+        }
+        .btn-gold {
+            background: linear-gradient(105deg, #BF953F, #D4AF37, #F5E17A);
+            color: #050505;
+            border: none;
+            padding: 8px 16px;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 0.72rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+        }
+        .btn-gold:hover {
+            box-shadow: 0 0 15px rgba(212,175,55,0.4);
+            transform: translateY(-1px);
+        }
+        .vote-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(212,175,55,0.2);
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-top: 8px;
+        }
+
+        /* ── BOTTOM NAVIGATION ── */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 56px;
+            background: rgba(5, 5, 5, 0.95);
+            border-top: 1px solid var(--border-gold);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            z-index: 100;
+        }
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--border-gold);
+            color: var(--gold-light);
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .nav-btn:hover:not(:disabled) {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: var(--gold-light);
+        }
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .progress-dots {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(212, 175, 55, 0.25);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .dot.active {
+            width: 24px;
+            border-radius: 99px;
+            background: var(--gold);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BARRA SUPERIOR -->
+    <header class="top-bar">
+        <div class="brand-pill">
+            <span class="seal">円相</span>
+            <span>ENSŌ · EL NOVENO TRAZO</span>
+        </div>
+        <div class="slide-counter" id="slide-counter">DIAPOSITIVA 1 / 12</div>
+    </header>
+
+    <!-- CONTENEDOR DE DIAPOSITIVAS -->
+    <main class="deck-container">
+
+        <!-- SLIDE 1: PORTADA -->
+        <section class="slide active" data-kanji="円">
+            <div style="text-align: center; max-width: 850px; margin: 0 auto; z-index: 2;">
+                <span class="badge" style="margin-bottom: 18px;">Licenciatura en Gastronomía · UATyG · Grupo E5 (2022–2027)</span>
+                <h1 class="cinzel text-gold" style="font-size: clamp(3rem, 7vw, 5.5rem); letter-spacing: 0.22em; font-weight: 400; line-height: 1.05;">ENSŌ</h1>
+                <p class="cinzel" style="font-size: clamp(1rem, 2.2vw, 1.5rem); letter-spacing: 0.45em; color: #fff; margin-top: 8px; margin-bottom: 28px;">EL NOVENO TRAZO · PROYECTO INTEGRADOR FINAL</p>
+                <p class="garamond" style="font-size: clamp(1.2rem, 2vw, 1.5rem); font-style: italic; color: var(--muted); line-height: 1.7; margin-bottom: 36px;">
+                    "Nueve semestres. Nueve etapas de aprendizaje. Nueve experiencias gastronómicas.<br>
+                    Presentación oficial de logística, finanzas, brigadas, protocolo y responsabilidades del grupo."
+                </p>
+                <div style="display: flex; justify-content: center; gap: 18px; flex-wrap: wrap;">
+                    <div class="card" style="padding: 14px 24px; min-width: 210px;">
+                        <span class="slide-eyebrow">Fecha del Evento</span>
+                        <strong class="cinzel" style="font-size: 1.05rem; color: #fff;">01 Diciembre 2026</strong>
+                    </div>
+                    <div class="card" style="padding: 14px 24px; min-width: 210px;">
+                        <span class="slide-eyebrow">Sede Oficial</span>
+                        <strong class="cinzel" style="font-size: 1.05rem; color: #fff;">Finca La Higuera</strong>
+                    </div>
+                    <div class="card" style="padding: 14px 24px; min-width: 210px;">
+                        <span class="slide-eyebrow">Concepto</span>
+                        <strong class="cinzel" style="font-size: 1.05rem; color: #fff;">9 Tiempos + 4 Bebidas</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 2: SEDE Y HORARIOS DEL CONTRATO -->
+        <section class="slide" data-kanji="場">
+            <div class="slide-header">
+                <span class="slide-eyebrow">01 · Sede y Logística de Tiempos</span>
+                <h2 class="slide-title">Dónde Está el Casino y Horarios de Contrato</h2>
+            </div>
+            <div class="grid-2">
+                <div class="card card-highlight">
+                    <h3>📍 Ubicación del Casino: Finca La Higuera</h3>
+                    <p style="margin-bottom: 14px; color: var(--muted);">Dirección oficial para invitados y proveedores:</p>
+                    <div class="stat-big" style="font-size: 1.45rem;">Sabino 148, Col. Peñita</div>
+                    <p style="margin-bottom: 16px;">C.P. 63167 · Tepic, Nayarit.</p>
+                    <ul>
+                        <li><span>Contrato de Evento Efectivo:</span> <strong>5 Horas (7:00 PM a 12:00 AM)</strong></li>
+                        <li><span>Tolerancia de Entrada / Recepción:</span> <strong style="color:var(--green);">+30 min antes (6:30 PM)</strong></li>
+                        <li><span>Tolerancia de Salida / Desalojo:</span> <strong style="color:var(--green);">+30 min después (12:30 AM)</strong></li>
+                        <li><span>Música, Sonido y Pantalla:</span> <strong>Mismo horario que el casino</strong></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>⏰ Cronograma Operativo del Día (01 Dic)</h3>
+                    <ul>
+                        <li>
+                            <span><strong>18:30 h (6:30 PM)</strong> · Apertura de Puertas</span>
+                            <span class="badge">Recepción QR + Bebida Bienvenida</span>
+                        </li>
+                        <li>
+                            <span><strong>19:00 h (7:00 PM)</strong> · Inicio Oficial</span>
+                            <span class="badge">Apertura Mtra. Celina + 9 Tiempos</span>
+                        </li>
+                        <li>
+                            <span><strong>19:15 a 21:45 h</strong> · Servicio de Gala</span>
+                            <span class="badge">9 Tiempos + Videos + 3 Bebidas</span>
+                        </li>
+                        <li>
+                            <span><strong>21:45 h</strong> · Cierre de Banquete</span>
+                            <span class="badge">Video Generación + Discurso Final</span>
+                        </li>
+                        <li>
+                            <span><strong>22:00 a 00:00 h</strong> · Fiesta y Baile</span>
+                            <span class="badge">Celebración de Graduación</span>
+                        </li>
+                        <li>
+                            <span><strong>00:00 a 00:30 h</strong> · Cierre y Salida</span>
+                            <span class="badge">Media hora de desalojo</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 3: DISTRIBUCIÓN DE MESAS Y CAPACIDAD -->
+        <section class="slide" data-kanji="席">
+            <div class="slide-header">
+                <span class="slide-eyebrow">02 · Aforo y Distribución</span>
+                <h2 class="slide-title">Reglas de Mesas y Cuota de Invitados por Alumno</h2>
+            </div>
+            <div class="grid-3">
+                <div class="card card-highlight">
+                    <h3>🪑 Capacidad por Mesa</h3>
+                    <div class="stat-big">12 Personas</div>
+                    <p style="color:var(--muted); margin-bottom:12px;">Capacidad máxima por mesa redonda.</p>
+                    <ul>
+                        <li><span>Derecho base por alumno:</span> <strong>6 Invitados</strong></li>
+                        <li><span>Distribución estándar:</span> <strong>2 Alumnos por Mesa</strong></li>
+                        <li><span>Total alumnos E5:</span> <strong>22 Alumnos (11 Mesas base)</strong></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>➕ Compra de Lugares Extra</h3>
+                    <div class="stat-big">+6 Máximo</div>
+                    <p style="color:var(--muted); margin-bottom:12px;">Si un alumno desea llevar más invitados:</p>
+                    <ul>
+                        <li><span>Lugares base incluidos:</span> <strong>6 pases</strong></li>
+                        <li><span>Compra adicional máxima:</span> <strong>Hasta 6 pases extra</strong></li>
+                        <li><span>Beneficio directo:</span> <strong style="color:var(--gold-light);">1 Mesa completa (12 pax) para él solo</strong></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>📊 Total de Mesas Proyectadas</h3>
+                    <div class="stat-big">13 a 16 Mesas</div>
+                    <p style="color:var(--muted); margin-bottom:12px;">Dependiendo de los lugares extra adquiridos:</p>
+                    <ul>
+                        <li><span>Mesas de Docentes / Escuela:</span> <strong>2 Mesas (Mesa 1 y 2)</strong></li>
+                        <li><span>Mesas base de Alumnos (132 pax):</span> <strong>11 Mesas</strong></li>
+                        <li><span>Escenario 150 / 185 invitados:</span> <strong>13 a 16 Mesas totales</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: INVITADOS DOCENTES Y ORADORES -->
+        <section class="slide" data-kanji="師">
+            <div class="slide-header">
+                <span class="slide-eyebrow">03 · Invitados Especiales UATyG</span>
+                <h2 class="slide-title">Listas de Invitados Docentes y Orden de Palabra</h2>
+            </div>
+            <div class="grid-3">
+                <div class="card">
+                    <h3>🏅 Mesa 1 · Escuela (8 Invitados)</h3>
+                    <ul>
+                        <li><span>1. Ventura</span> <span class="badge">Habla tras Tiempo 2</span></li>
+                        <li><span>2. Jeraar</span> <span class="badge">Habla tras Tiempo 4</span></li>
+                        <li><span>3. Dalia</span> <span style="color:var(--muted);">Invitada VIP</span></li>
+                        <li><span>4. Alejandro</span> <span class="badge">Habla tras Tiempo 6</span></li>
+                        <li><span>5. Martha</span> <span style="color:var(--muted);">Invitada VIP</span></li>
+                        <li><span>6. Jesús</span> <span style="color:var(--muted);">Invitado VIP</span></li>
+                        <li><span>7. Aldo</span> <span style="color:var(--muted);">Invitado VIP</span></li>
+                        <li><span>8. Ena</span> <span style="color:var(--muted);">Invitada VIP</span></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🏅 Mesa 2 · Escuela (9 Invitados)</h3>
+                    <ul>
+                        <li><span>1. Celina</span> <span class="badge">Apertura del Evento</span></li>
+                        <li><span>2. Paty</span> <span style="color:var(--muted);">Invitada VIP</span></li>
+                        <li><span>3. Magally</span> <span style="color:var(--muted);">Invitada VIP</span></li>
+                        <li><span>4. Yuri</span> <span class="badge">Cierre Docente (Tiempo 8)</span></li>
+                        <li><span>5. Tere</span> <span style="color:var(--muted);">Invitada VIP</span></li>
+                        <li><span>6. Tania</span> <span style="color:var(--muted);">Invitada VIP</span></li>
+                        <li><span>7. Lilian</span> <span style="color:var(--muted);">Invitada VIP</span></li>
+                        <li><span>8. Manuel</span> <span style="color:var(--muted);">Invitado VIP</span></li>
+                        <li><span>9. Jaime</span> <span style="color:var(--muted);">Invitado VIP</span></li>
+                    </ul>
+                </div>
+                <div class="card card-highlight">
+                    <h3>🎙️ Protocolo de Intervenciones</h3>
+                    <p style="color:var(--muted); margin-bottom:10px;">17 invitados especiales confirmados en las Mesas 1 y 2. Los docentes toman la palabra cada 2 tiempos:</p>
+                    <ul>
+                        <li><span><strong>Inicio (Antes de T1):</strong></span> <strong style="color:var(--gold-light);">Mtra. Celina (Apertura)</strong></li>
+                        <li><span><strong>Tras Tiempos 1 y 2:</strong></span> <strong style="color:var(--gold-light);">Mtro. Ventura</strong></li>
+                        <li><span><strong>Tras Tiempos 3 y 4:</strong></span> <strong style="color:var(--gold-light);">Chef Jeraar</strong></li>
+                        <li><span><strong>Tras Tiempos 5 y 6:</strong></span> <strong style="color:var(--gold-light);">Mtro. Alejandro</strong></li>
+                        <li><span><strong>Tras Tiempos 7 y 8:</strong></span> <strong style="color:var(--gold-light);">Mtra. Yuri (Cierre)</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 5: PRESUPUESTO Y CONTRATACIONES -->
+        <section class="slide" data-kanji="金">
+            <div class="slide-header">
+                <span class="slide-eyebrow">04 · Finanzas y Proveedores</span>
+                <h2 class="slide-title">Presupuesto Proyectado y Costos de Casino y Música</h2>
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>📊 Comparativa de Presupuesto Proyectado</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Rubro / Proveedor</th>
+                                <th>150 Invitados</th>
+                                <th>185 Invitados (A)</th>
+                                <th>185 + Shots (B)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>🏛️ Casino (Finca La Higuera)</strong></td>
+                                <td>$13,000.00</td>
+                                <td>$16,400.00</td>
+                                <td>$16,400.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🎵 Música, Sonido y Pantalla</strong></td>
+                                <td>$13,000.00</td>
+                                <td>$13,000.00</td>
+                                <td>$13,000.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🍽️ Comida (Insumos 9 Tiempos)</strong></td>
+                                <td>$32,500.00</td>
+                                <td>$35,000.00</td>
+                                <td>$33,000.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🥂 Cristalería y Loza</strong></td>
+                                <td>$7,000.00</td>
+                                <td>$9,500.00</td>
+                                <td>$9,000.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🎋 Decoración y Photo Spots</strong></td>
+                                <td>$3,500.00</td>
+                                <td>$4,900.00</td>
+                                <td>$5,000.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🤵 Meseros</strong></td>
+                                <td>$4,000.00</td>
+                                <td>$5,000.00</td>
+                                <td>$5,000.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🍹 Bebidas (4 Tiempos)</strong></td>
+                                <td>$4,000.00</td>
+                                <td>$4,000.00</td>
+                                <td>$4,000.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🥃 Shots***</strong></td>
+                                <td>—</td>
+                                <td>—</td>
+                                <td>$2,500.00</td>
+                            </tr>
+                            <tr class="total-row">
+                                <td>TOTAL PROYECTADO</td>
+                                <td>$77,000.00</td>
+                                <td>$87,800.00</td>
+                                <td>$87,900.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card card-highlight">
+                    <h3>✅ Lo que Ya Se Lleva Contratado y Avance</h3>
+                    <ul>
+                        <li>
+                            <span><strong>1. Casino (Finca La Higuera):</strong> Apartado ($150 x 22 alumnos = $3,300 recaudados en Pago 1)</span>
+                            <span class="badge badge-green">Contratado</span>
+                        </li>
+                        <li>
+                            <span><strong>2. Sonido, Pantalla y Música:</strong> Apartado ($150 x 22 alumnos = $3,300 recaudados en Pago 2)</span>
+                            <span class="badge badge-green">Contratado</span>
+                        </li>
+                        <li>
+                            <span><strong>Cuota Base por Alumno:</strong> 22 alumnos × $3,500.00 MXN</span>
+                            <strong>$77,000.00 MXN</strong>
+                        </li>
+                        <li>
+                            <span><strong>Total Recaudado a la Fecha (Pagos 1 al 5):</strong></span>
+                            <strong style="color:var(--green);">$17,250.00 MXN</strong>
+                        </li>
+                        <li>
+                            <span><strong>Saldo Pendiente por Recaudar del Grupo:</strong></span>
+                            <strong style="color:#F87171;">$59,750.00 MXN</strong>
+                        </li>
+                    </ul>
+                    <p style="margin-top: 14px; font-size: 0.8rem; color: var(--muted);">
+                        *Nota: El escenario de 150 invitados ($77,000) se cubre exactamente con los $3,500 por alumno. Si subimos a 185 invitados ($87,800), la diferencia ($10,800) se cubre con la venta de lugares/mesas extra.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 6: ESTADO DE PAGOS DE LOS 22 ALUMNOS -->
+        <section class="slide" data-kanji="納">
+            <div class="slide-header">
+                <span class="slide-eyebrow">05 · Control de Aportaciones ($3,500 por Alumno)</span>
+                <h2 class="slide-title">Estado de Cuenta Actual del Grupo E5</h2>
+            </div>
+            <div class="grid-2">
+                <div class="card" style="padding: 12px 16px;">
+                    <table class="data-table" style="font-size: 0.76rem;">
+                        <thead>
+                            <tr><th>#</th><th>Alumno</th><th>Pagado</th><th>Falta</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>Aron Rafael Bañuelos Cortez</td><td>$300</td><td style="color:#F87171;">-$3,200</td></tr>
+                            <tr><td>2</td><td>Brandon Jaramillo Rosas</td><td style="color:var(--green);">$1,650</td><td>-$1,850</td></tr>
+                            <tr><td>3</td><td>Carlos Isac Luna</td><td>$500</td><td>-$3,000</td></tr>
+                            <tr><td>4</td><td>Cristhian Iván López Ponce</td><td>$450</td><td>-$3,050</td></tr>
+                            <tr><td>5</td><td>Daniela Rivera Carrillo</td><td style="color:var(--green);">$1,850</td><td>-$1,650</td></tr>
+                            <tr><td>6</td><td>David Villagrana Ibarra</td><td style="color:var(--green);">$2,750</td><td>-$750</td></tr>
+                            <tr><td>7</td><td>Diego De La Rosa Torres</td><td>$500</td><td>-$3,000</td></tr>
+                            <tr><td>8</td><td>Fátima Lizbeth Gómez Flores</td><td>$500</td><td>-$3,000</td></tr>
+                            <tr><td>9</td><td>Fernando Rincón Mendiola</td><td>$500</td><td>-$3,000</td></tr>
+                            <tr><td>10</td><td>Francisco Sepúlveda Paredes</td><td>$300</td><td style="color:#F87171;">-$3,200</td></tr>
+                            <tr><td>11</td><td>Giselle Fabiola Jiménez Silva</td><td>$600</td><td>-$2,900</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card" style="padding: 12px 16px;">
+                    <table class="data-table" style="font-size: 0.76rem;">
+                        <thead>
+                            <tr><th>#</th><th>Alumno</th><th>Pagado</th><th>Falta</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>12</td><td>Gloria Estefanía Barraza Taracena</td><td>$300</td><td style="color:#F87171;">-$3,200</td></tr>
+                            <tr><td>13</td><td>Heidi Gisela Castillo Ramírez</td><td>$300</td><td style="color:#F87171;">-$3,200</td></tr>
+                            <tr><td>14</td><td>Iván Salinas Rosales</td><td>$650</td><td>-$2,850</td></tr>
+                            <tr><td>15</td><td>Julieta Esmeralda Hernández</td><td>$300</td><td style="color:#F87171;">-$3,200</td></tr>
+                            <tr><td>16</td><td>Kestin Yaletzi Gutiérrez Álvarez</td><td>$500</td><td>-$3,000</td></tr>
+                            <tr><td>17</td><td>Leonel Aldair Arroyo Soria</td><td style="color:var(--green);">$2,300</td><td>-$1,200</td></tr>
+                            <tr><td>18</td><td>Luis Armando Santiago González</td><td>$500</td><td>-$3,000</td></tr>
+                            <tr><td>19</td><td>Martín Enrique Márquez Abascal</td><td>$500</td><td>-$3,000</td></tr>
+                            <tr><td>20</td><td>Nazbith Adilene Fletes Guardado</td><td>$500</td><td>-$3,000</td></tr>
+                            <tr><td>21</td><td>Gerardo Tovar Estrada</td><td>$500</td><td>-$3,000</td></tr>
+                            <tr><td>22</td><td>Zully Adolfo González Hernández</td><td>$300</td><td style="color:#F87171;">-$3,200</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: PLATAFORMA WEB Y SISTEMA DE RECEPCIÓN QR -->
+        <section class="slide" data-kanji="招待">
+            <div class="slide-header">
+                <span class="slide-eyebrow">06 · Tecnología e Invitaciones Digitales</span>
+                <h2 class="slide-title">Página Web de Invitaciones y Sistema de Recepción QR</h2>
+            </div>
+            <div class="grid-3">
+                <div class="card card-highlight">
+                    <h3>🌐 1. Web Oficial de Invitación</h3>
+                    <div class="stat-big" style="font-size: 1.3rem;">ensouatyg.online</div>
+                    <p style="color:var(--muted); margin-bottom:10px;">Experiencia interactiva con video introductorio, narrativa de los 9 tiempos, Google Maps y Dress Code.</p>
+                    <ul>
+                        <li><span>Códigos por alumno:</span> <strong>6 códigos únicos</strong></li>
+                        <li><span>Cartas especiales VIP:</span> <strong>Personalizadas para profes</strong></li>
+                        <li><span>Fecha límite confirmación:</span> <strong style="color:var(--amber);">14 de Noviembre</strong></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🎟️ 2. Pase Digital con QR</h3>
+                    <p style="color:var(--muted); margin-bottom:10px;">Al ingresar su código y nombre, el sistema registra en Firebase en tiempo real y genera el boleto descargable:</p>
+                    <ul>
+                        <li><span>Diseño oficial:</span> <strong>ENSŌ Negro y Oro</strong></li>
+                        <li><span>Datos visibles:</span> <strong>Nombre + Número de Mesa</strong></li>
+                        <li><span>Código QR:</span> <strong>Único e intransferible</strong></li>
+                        <li><span>Extra:</span> <strong>Botón para agendar en Calendario</strong></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>📲 3. Proceso de Recepción</h3>
+                    <div class="stat-big" style="font-size: 1.3rem;">ensouatyg.online/entrada</div>
+                    <p style="color:var(--muted); margin-bottom:10px;">El día del evento (18:30 h) el equipo de recepción tendrá 3 claves de Staff para escanear desde su celular:</p>
+                    <ul>
+                        <li><span>1. Escaneo del QR del invitado en puerta.</span></li>
+                        <li><span>2. El sistema valida si ya ingresó y muestra su Mesa.</span></li>
+                        <li><span>3. Se entrega bebida de bienvenida y se acompaña a su mesa.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 8: PRUEBA DE MENÚ Y ORGANIZACIÓN POR BRIGADAS -->
+        <section class="slide" data-kanji="味">
+            <div class="slide-header">
+                <span class="slide-eyebrow">07 · Organización Gastronómica</span>
+                <h2 class="slide-title">Prueba de Menú (10 de Noviembre) y División de 4 Brigadas</h2>
+            </div>
+            <div class="grid-2">
+                <div class="card card-highlight">
+                    <h3>📅 Prueba de Menú: 10 de Noviembre</h3>
+                    <p style="margin-bottom: 14px;">El grupo se divide en <strong>4 Brigadas</strong> para diseñar y presentar las propuestas gastronómicas de los 9 semestres:</p>
+                    <ul>
+                        <li>
+                            <span><strong>Brigada 1 (2 propuestas por semestre):</strong></span>
+                            <span class="badge">Semestres 1°, 2°, 3° y 4°</span>
+                        </li>
+                        <li>
+                            <span><strong>Brigada 2 (2 propuestas por semestre):</strong></span>
+                            <span class="badge">Semestres 1°, 2°, 3° y 4°</span>
+                        </li>
+                        <li>
+                            <span><strong>Brigada 3 (2 propuestas por semestre):</strong></span>
+                            <span class="badge">Semestres 5°, 6°, 7° y 8°</span>
+                        </li>
+                        <li>
+                            <span><strong>Brigada 4 (2 propuestas por semestre):</strong></span>
+                            <span class="badge">Semestres 5°, 6°, 7° y 8°</span>
+                        </li>
+                        <li>
+                            <span><strong>9° Semestre (El Gran Final):</strong></span>
+                            <span class="badge badge-green">Sí o sí Postre / Dulce (Chocolatería)</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🍜 Propuesta Base Actual en Plataforma (9 Tiempos)</h3>
+                    <ul style="font-size: 0.82rem;">
+                        <li><span><strong>I. Salsas Madre:</strong> Dumpling de Velouté y Miso</span></li>
+                        <li><span><strong>II. Panadería:</strong> Bao al Vapor Artesanal (Cerdo laqueado)</span></li>
+                        <li><span><strong>III. Panadería Fina & Mex:</strong> La Concha de Matcha y Anko</span></li>
+                        <li><span><strong>IV. Vinos & Norte:</strong> Tataki de Res Glaseado en Vino Tinto y Soya</span></li>
+                        <li><span><strong>V. Centro & Repostería:</strong> Tamal de Elote y Espuma de Coco</span></li>
+                        <li><span><strong>VI. Nayarita & Coctelería:</strong> Tostada Oriental de Atún</span></li>
+                        <li><span><strong>VII. Francesa & Repostería Fina:</strong> Mille-Feuille de Hojicha</span></li>
+                        <li><span><strong>VIII. Italiana & Autor:</strong> Ravioli Transparente (Camarón y Shiitake)</span></li>
+                        <li><span><strong>IX. Oriental & Chocolatería:</strong> El Gran Final (Dulce)</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 9: PROTOCOLO MINUTO A MINUTO (9 TIEMPOS, VIDEOS, 4 BEBIDAS Y DISCURSOS) -->
+        <section class="slide" data-kanji="道">
+            <div class="slide-header">
+                <span class="slide-eyebrow">08 · Escaleta del Servicio (18:30 a 22:00 h)</span>
+                <h2 class="slide-title">Los 9 Tiempos, Videos por Semestre, 4 Bebidas y Oradores</h2>
+            </div>
+            <div class="timeline-grid">
+                <div class="timeline-step drink-step">
+                    <span class="step-tag">18:30 h · Recepción + Bebida 1</span>
+                    <h4>🍸 Bebida 1: Bienvenida + Apertura</h4>
+                    <p>Ingreso con QR. A las 19:00 h: <strong>Palabras de Apertura por Mtra. Celina</strong>.</p>
+                </div>
+                <div class="timeline-step">
+                    <span class="step-tag">Tanda 1 · Semestres 1° y 2°</span>
+                    <h4>🎬 Videos Sem 1 y 2 + Platillos I y II</h4>
+                    <p>Se proyecta video de vivencias/prácticas de 1° y 2° sem y salen Tiempos 1 y 2.</p>
+                </div>
+                <div class="timeline-step speech-step">
+                    <span class="step-tag">Intervención 1 + Bebida 2</span>
+                    <h4>🎙️ Habla Mtro. Ventura + 🍹 Bebida 2</h4>
+                    <p>Al concluir los primeros 2 tiempos, dirige mensaje Mtro. Ventura y sale la <strong>2da Bebida</strong>.</p>
+                </div>
+
+                <div class="timeline-step">
+                    <span class="step-tag">Tanda 2 · Semestres 3° y 4°</span>
+                    <h4>🎬 Videos Sem 3 y 4 + Platillos III y IV</h4>
+                    <p>Videos de recuerdos, viajes y proyectos de 3° y 4° sem + degustación Tiempos 3 y 4.</p>
+                </div>
+                <div class="timeline-step speech-step">
+                    <span class="step-tag">Intervención 2 + Bebida 3</span>
+                    <h4>🎙️ Habla Chef Jeraar + 🍹 Bebida 3</h4>
+                    <p>Tras dos tiempos más, toma la palabra el Chef Jeraar y se sirve la <strong>3ra Bebida</strong>.</p>
+                </div>
+                <div class="timeline-step">
+                    <span class="step-tag">Tanda 3 · Semestres 5° y 6°</span>
+                    <h4>🎬 Videos Sem 5 y 6 + Platillos V y VI</h4>
+                    <p>Videos de 5° y 6° semestre + degustación de Tiempos 5 y 6.</p>
+                </div>
+
+                <div class="timeline-step speech-step">
+                    <span class="step-tag">Intervención 3 + Bebida 4</span>
+                    <h4>🎙️ Habla Mtro. Alejandro + 🍹 Bebida 4</h4>
+                    <p>Toma la palabra el Mtro. Alejandro y se entrega la <strong>4ta Bebida</strong> de maridaje.</p>
+                </div>
+                <div class="timeline-step">
+                    <span class="step-tag">Tanda 4 · Semestres 7° y 8°</span>
+                    <h4>🎬 Videos Sem 7 y 8 + Platillos VII y VIII</h4>
+                    <p>Videos de 7° y 8° semestre + degustación Tiempos 7 y 8. <strong>Cierra Mtra. Yuri</strong>.</p>
+                </div>
+                <div class="timeline-step card-highlight">
+                    <span class="step-tag">Gran Cierre · 9° Semestre</span>
+                    <h4>🍫 Tiempo IX (Dulce) + Video Generación</h4>
+                    <p>Video de 9° sem, Postre Final, <strong>Video General de Graduación</strong> y Discurso de Alumnos.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 10: VESTIMENTA Y DECORACIÓN -->
+        <section class="slide" data-kanji="美">
+            <div class="slide-header">
+                <span class="slide-eyebrow">09 · Imagen, Vestimenta y Ambientación</span>
+                <h2 class="slide-title">Código de Vestimenta (Alumnos e Invitados) y Decoración</h2>
+            </div>
+            <div class="grid-3">
+                <div class="card card-highlight">
+                    <h3>👩‍🍳 Vestimenta Alumnos E5</h3>
+                    <p style="margin-bottom: 12px;">Será <strong>decisión libre de cada alumno</strong> elegir entre dos opciones:</p>
+                    <ul>
+                        <li><span>Opción A:</span> <strong>Filipina de Gala</strong></li>
+                        <li><span>Opción B:</span> <strong>Vestimenta Formal / Elegante de Gala</strong></li>
+                    </ul>
+                    <p style="margin-top: 12px; font-size: 0.82rem; color: var(--gold-light);">
+                        ⚠️ <strong>Indicación importante:</strong> Quienes decidan ir vestidos de gala para tomarse fotos con sus familiares, deberán considerar que <strong>aun así cumplirán su rol asignado en cocina o en recepción</strong>.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>🧥 Dress Code Invitados</h3>
+                    <div class="stat-big" style="font-size: 1.3rem;">Elegancia Minimalista</div>
+                    <p style="color:var(--muted); margin-bottom: 12px;">Prendas lisas, tonos neutros y siluetas elegantes:</p>
+                    <div style="display:flex; gap:10px; justify-content:center; margin-top:14px; flex-wrap:wrap;">
+                        <span class="badge" style="background:#0A0A0A; color:#fff;">Negro Tinta</span>
+                        <span class="badge" style="background:#EAE0C8; color:#000;">Marfil</span>
+                        <span class="badge" style="background:#8B8C89; color:#fff;">Gris Piedra</span>
+                        <span class="badge" style="background:#C2B29A; color:#000;">Beige Arena</span>
+                        <span class="badge" style="background:#6B0F1A; color:#fff;">Rojo Profundo</span>
+                        <span class="badge" style="background:#D4AF37; color:#000;">Oro Antiguo</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>🎋 Decoración y Photo Spots</h3>
+                    <div class="stat-big" style="font-size: 1.3rem;">$3,500 – $5,000</div>
+                    <p style="color:var(--muted); margin-bottom: 10px;">Con base en el presupuesto asignado:</p>
+                    <ul>
+                        <li><span>Ambientación de salón y centros de mesa minimalistas orientales.</span></li>
+                        <li><span><strong>Montaje de Áreas para Fotos (Photo Spots)</strong> temáticas de ENSŌ para que los alumnos y sus familias se tomen fotografías de graduación.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 11: RESPONSABLES Y COMISIONES -->
+        <section class="slide" data-kanji="任">
+            <div class="slide-header">
+                <span class="slide-eyebrow">10 · Estructura Operativa del Grupo</span>
+                <h2 class="slide-title">Quién Está Encargado de Qué Cosa (Comisiones)</h2>
+            </div>
+            <div class="grid-2">
+                <div class="card card-highlight">
+                    <h3>📲 Recepción, Accesos QR y Bienvenida</h3>
+                    <p style="color:var(--muted); margin-bottom: 12px;">Encargados oficiales de escanear pases QR en puerta (18:30 h) y dirigir a las mesas:</p>
+                    <ul>
+                        <li><span>🔑 Staff Recepción 1:</span> <strong>Esmeralda (Julieta Esmeralda)</strong></li>
+                        <li><span>🔑 Staff Recepción 2:</span> <strong>Daniela Rivera</strong></li>
+                        <li><span>🔑 Staff Recepción 3:</span> <strong>Luis Armando (Luix)</strong></li>
+                    </ul>
+                    <div style="margin-top: 14px;">
+                        <label style="font-size: 0.78rem; color: var(--gold-light); display:block; margin-bottom:6px;">+ Si alguien más se suma hoy en la presentación, anótalo aquí:</label>
+                        <input type="text" class="live-input" placeholder="Escribir nombres de apoyo en recepción / hostess...">
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>🛠️ Comisiones Operativas (Definición con el Grupo)</h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div>
+                            <label style="font-size: 0.75rem; color: var(--gold-light);">🎬 Encargados de Videos (9 semestres + Video Final Generación):</label>
+                            <input type="text" class="live-input" placeholder="Anote responsables de recopilar fotos/videos y edición...">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; color: var(--gold-light);">🎋 Comisión de Decoración y Montaje de Set de Fotos:</label>
+                            <input type="text" class="live-input" placeholder="Anote responsables de decoración y photo booth...">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; color: var(--gold-light);">🍹 Comisión de Barra (Bebida de bienvenida + 3 maridajes):</label>
+                            <input type="text" class="live-input" placeholder="Anote responsables de coctelería y servicio de bebidas...">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; color: var(--gold-light);">🍽️ Líderes de las 4 Brigadas de Cocina (Prueba 10 Nov):</label>
+                            <input type="text" class="live-input" placeholder="Brigada 1, Brigada 2, Brigada 3 y Brigada 4...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 12: VOTACIÓN EN VIVO (DISCURSO Y MAESTROS DE CEREMONIA) -->
+        <section class="slide" data-kanji="票">
+            <div class="slide-header">
+                <span class="slide-eyebrow">11 · Toma de Decisiones del Grupo E5</span>
+                <h2 class="slide-title">Votación en Vivo: Discurso de Graduación y Maestros de Ceremonia</h2>
+            </div>
+            <div class="grid-2">
+                <div class="card card-highlight">
+                    <h3>🎓 Votación: Discurso Final de Graduación</h3>
+                    <p style="color:var(--muted); margin-bottom: 12px;">Agrega a los compañeros candidatos para dar el discurso final de generación y registra los votos del grupo en vivo:</p>
+                    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                        <input type="text" id="candidate-input" class="live-input" placeholder="Nombre del alumno candidato...">
+                        <button class="btn-gold" onclick="addCandidate()">+ Agregar</button>
+                    </div>
+                    <div id="voting-list" style="max-height: 210px; overflow-y: auto;"></div>
+                </div>
+                <div class="card">
+                    <h3>🎤 Elección de Maestros de Ceremonia y Acuerdos</h3>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--gold-light); display:block; margin-bottom:4px;">🎙️ Maestros de Ceremonia (presentación de tiempos, videos y docentes):</label>
+                            <input type="text" class="live-input" placeholder="Escribir quiénes serán los Maestros de Ceremonia...">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--gold-light); display:block; margin-bottom:4px;">💰 Acuerdo de Aforo Definitivo (150 vs 185 invitados):</label>
+                            <input type="text" class="live-input" placeholder="Escribir acuerdo final de presupuesto y fechas de pago...">
+                        </div>
+                        <div style="background: rgba(212,175,55,0.08); border: 1px solid var(--border-gold); padding: 12px; border-radius: 4px; margin-top: 4px;">
+                            <strong class="cinzel" style="font-size: 0.8rem; color: var(--gold-light); display:block; margin-bottom: 4px;">📌 Fechas Clave a Recordar:</strong>
+                            <p style="font-size: 0.8rem; color: var(--off-white);">
+                                • <strong>10 de Noviembre:</strong> Prueba de Menú (4 Brigadas).<br>
+                                • <strong>14 de Noviembre:</strong> Cierre de confirmaciones en <em>ensouatyg.online</em>.<br>
+                                • <strong>01 de Diciembre (18:30 h):</strong> Gran Gala ENSŌ en Finca La Higuera.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- KANJI DE FONDO DINÁMICO -->
+    <div class="slide-bg-kanji" id="bg-kanji">円</div>
+
+    <!-- NAVEGACIÓN INFERIOR -->
+    <footer class="bottom-nav">
+        <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)" disabled>← Anterior</button>
+        <div class="progress-dots" id="dots-container"></div>
+        <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">Siguiente →</button>
+    </footer>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const counter = document.getElementById('slide-counter');
+        const bgKanji = document.getElementById('bg-kanji');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const dotsContainer = document.getElementById('dots-container');
+        let currentSlide = 0;
+
+        // Crear puntos de navegación
+        slides.forEach((_, idx) => {
+            const dot = document.createElement('div');
+            dot.className = 'dot' + (idx === 0 ? ' active' : '');
+            dot.onclick = () => goToSlide(idx);
+            dotsContainer.appendChild(dot);
+        });
+
+        function updateDeck() {
+            slides.forEach((s, idx) => {
+                s.classList.toggle('active', idx === currentSlide);
+            });
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((d, idx) => {
+                d.classList.toggle('active', idx === currentSlide);
+            });
+            counter.innerText = `DIAPOSITIVA ${currentSlide + 1} / ${slides.length}`;
+            bgKanji.innerText = slides[currentSlide].getAttribute('data-kanji') || '円';
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        function changeSlide(dir) {
+            const next = currentSlide + dir;
+            if (next >= 0 && next < slides.length) {
+                currentSlide = next;
+                updateDeck();
+            }
+        }
+
+        function goToSlide(idx) {
+            currentSlide = idx;
+            updateDeck();
+        }
+
+        // Navegación con teclado (ignorando cuando escribes en un input)
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                changeSlide(-1);
+            }
+        });
+
+        // Sistema de Votación en Vivo (Slide 12)
+        const candidates = [];
+        function renderVotes() {
+            const list = document.getElementById('voting-list');
+            list.innerHTML = '';
+            candidates.forEach((c, i) => {
+                const row = document.createElement('div');
+                row.className = 'vote-item';
+                row.innerHTML = `
+                    <strong style="font-size:0.9rem; color:#fff;">${c.name}</strong>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="badge" style="font-size:0.8rem;">${c.votes} votos</span>
+                        <button class="btn-gold" style="padding:4px 10px;" onclick="vote(${i}, 1)">+1</button>
+                        <button class="nav-btn" style="padding:4px 8px; font-size:0.65rem;" onclick="vote(${i}, -1)">-1</button>
+                    </div>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        function addCandidate() {
+            const input = document.getElementById('candidate-input');
+            const name = input.value.trim();
+            if (!name) return;
+            candidates.push({ name, votes: 0 });
+            input.value = '';
+            renderVotes();
+        }
+
+        function vote(index, delta) {
+            candidates[index].votes = Math.max(0, candidates[index].votes + delta);
+            renderVotes();
+        }
+    </script>
+</body>
+</html>
