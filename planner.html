@@ -499,22 +499,22 @@
             </div>
         </div>
     </div>
-
-    <!-- Modal: Invitados Confirmados por Mesa -->
+            <!-- Modal: Invitados Confirmados por Mesa -->
     <div id="modal-table-guests" class="modal-overlay">
         <div class="modal-box w-full max-w-lg">
-            <div class="flex justify-between items-center mb-5 border-b border-[rgba(229,193,88,0.2)] pb-3">
+            <div class="flex justify-between items-center mb-4 border-b border-[rgba(229,193,88,0.2)] pb-3">
                 <div class="text-left">
                     <h3 id="tg-title" class="cinzel text-xl text-gold uppercase tracking-widest font-semibold">Mesa</h3>
-                    <p id="tg-subtitle" class="font-serif text-sm text-gray-300 italic mt-0.5">Invitados Confirmados en tiempo real (Firebase)</p>
+                    <p id="tg-subtitle" class="font-serif text-sm text-gray-300 italic mt-0.5">Sincronizado en tiempo real con Firebase</p>
                 </div>
                 <button onclick="window.closeModals()" class="text-2xl text-[#FFF099]/70 hover:text-white transition-colors">&times;</button>
             </div>
             <div class="grid grid-cols-12 gap-2 text-[0.68rem] cinzel uppercase tracking-wider text-[#FFF099] mb-2 border-b border-[rgba(229,193,88,0.2)] pb-2 text-left font-semibold">
-                <div class="col-span-7">Nombre del Invitado</div>
-                <div class="col-span-5 text-right">Anfitrión</div>
+                <div class="col-span-6">Invitado / Pase</div>
+                <div class="col-span-4">Anfitrión / Código</div>
+                <div class="col-span-2 text-right">Estado</div>
             </div>
-            <div id="tg-list" class="space-y-1.5 max-h-72 overflow-y-auto custom-scrollbar text-left pr-1">
+            <div id="tg-list" class="space-y-1.5 max-h-80 overflow-y-auto custom-scrollbar text-left pr-1">
                 <!-- Renderizado por JS -->
             </div>
             <div class="mt-5 text-right border-t border-[rgba(229,193,88,0.15)] pt-3">
@@ -618,6 +618,8 @@
 
         let state = JSON.parse(JSON.stringify(INITIAL_STATE)); 
         let allConfirmedGuests = []; 
+        let allInvites = [];
+        let allHostData = [];
         let activeTableHosts = [];
         let activeTableLabel = '';
         let activeTableNumber = null;
@@ -625,7 +627,88 @@
         const ADMIN_EMAIL = "luixnay@gmail.com";
 
         const formatMoney = (val) => '$' + (Number(val) || 0).toLocaleString('es-MX');
-        const cleanText = (str) => (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z]/gi, '').toUpperCase();
+        const cleanText = (str) => (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]/gi, '').toUpperCase();
+
+        // Extrae de forma exacta el número de mesa (ej. 1, "1", "VIP 1", "Mesa 10" -> 1, 10)
+        function parseTableNum(val) {
+            if (val === null || val === undefined || val === '') return null;
+            if (typeof val === 'number' && !isNaN(val)) return val;
+            const match = String(val).match(/\d+/);
+            return match ? parseInt(match[0], 10) : null;
+        }
+
+        // Empareja nombres de alumnos entre hostData y la lista del planner sin falsos positivos
+        function isSamePerson(nameA, nameB) {
+            const cleanA = cleanText(nameA);
+            const cleanB = cleanText(nameB);
+            if (!cleanA || !cleanB) return false;
+            if (cleanA === cleanB) return true;
+
+            const wordsA = (nameA || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z\s]/gi, '').trim().toUpperCase().split(/\s+/).filter(Boolean);
+            const wordsB = (nameB || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z\s]/gi, '').trim().toUpperCase().split(/\s+/).filter(Boolean);
+            if (wordsA.length >= 2 && wordsB.length >= 2) {
+                return wordsA[0] === wordsB[0] && (wordsA[1] === wordsB[1] || wordsA[wordsA.length - 1] === wordsB[wordsB.length - 1]);
+            }
+            return false;
+        }
+
+        // Sincroniza en memoria el estado del Planner tomando como verdad absoluta lo que hay en Firebase (hostData e invites)
+        function reconcileStateWithFirebase() {
+            const baseSeats = Number(state.settings.baseSeats) || 6;
+
+            // 1. Actualizar mesas y cupos de los 22 alumnos desde hostData / invites
+            if (allHostData.length > 0) {
+                const standardHosts = allHostData.filter(h => h.type !== 'special');
+                state.students.forEach(st => {
+                    const match = standardHosts.find(h => isSamePerson(h.name, st.name) || cleanText(h.id) === cleanText(st.hostPrefix));
+                    if (match) {
+                        st.hostPrefix = match.id;
+                        st.firebaseName = match.name;
+                        const tNum = parseTableNum(match.table);
+                        if (tNum !== null) st.baseTable = tNum;
+                        if (match.count !== undefined && match.count !== null) {
+                            st.extra = Math.max(0, Number(match.count) - baseSeats);
+                        }
+                    }
+                });
+            }
+
+            // Si en 'invites' hay códigos generados con mesa actualizada, respaldamos la mesa real de cada alumno
+            if (allInvites.length > 0) {
+                state.students.forEach(st => {
+                    const stInvite = allInvites.find(inv =>
+                        inv.type !== 'special' &&
+                        ((st.hostPrefix && inv.hostCode === st.hostPrefix) || isSamePerson(inv.hostName, st.name))
+                    );
+                    if (stInvite) {
+                        if (!st.hostPrefix && stInvite.hostCode) st.hostPrefix = stInvite.hostCode;
+                        // Si hostData no tenía a este alumno, tomamos la mesa y cantidad desde invites
+                        const hasHostDoc = allHostData.some(h => h.id === st.hostPrefix || isSamePerson(h.name, st.name));
+                        if (!hasHostDoc) {
+                            const tNum = parseTableNum(stInvite.table);
+                            if (tNum !== null) st.baseTable = tNum;
+                            const countInInvites = allInvites.filter(i => i.hostCode === stInvite.hostCode).length;
+                            if (countInInvites > 0) {
+                                st.extra = Math.max(0, countInInvites - baseSeats);
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. Actualizar capacidad real de las Mesas VIP (Mesa 1 y Mesa 2) según Firebase
+            state.vipTables.forEach((vip, idx) => {
+                const vipTableNum = idx + 1;
+                const invitesInVip = allInvites.filter(inv => parseTableNum(inv.table) === vipTableNum);
+                const hostsInVip = allHostData.filter(h => h.type === 'special' && parseTableNum(h.table) === vipTableNum);
+
+                if (invitesInVip.length > 0) {
+                    vip.capacity = invitesInVip.length;
+                } else if (hostsInVip.length > 0) {
+                    vip.capacity = hostsInVip.reduce((acc, h) => acc + (Number(h.count) || 1), 0);
+                }
+            });
+        }
 
         window.showNotice = function(title, message) {
             document.getElementById('notice-title').innerText = title;
@@ -657,29 +740,58 @@
                     loginModal.classList.remove('active');
                     errorEl.style.opacity = '0';
 
-                    // Leemos el documento existente en Firebase y preservamos cualquier campo previo sin borrar nada
+                    // 1. Escuchar configuración del planner (como el precio por extra)
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'planner', 'state_v2');
                     onSnapshot(docRef, (snapshot) => {
                         if (snapshot.exists()) {
                             let data = snapshot.data();
-                            if (!data.settings) data.settings = { ...INITIAL_STATE.settings };
-                            if (typeof data.settings.extraPrice !== 'number') data.settings.extraPrice = 300;
-                            if (typeof data.settings.baseSeats !== 'number') data.settings.baseSeats = 6;
-                            if (typeof data.settings.maxExtra !== 'number') data.settings.maxExtra = 6;
-                            if (typeof data.settings.maxTotalGuests !== 'number') data.settings.maxTotalGuests = 200;
-
-                            state = data;
-                            renderAll();
-                        } else {
-                            window.saveData();
+                            if (data.settings) {
+                                state.settings.extraPrice = typeof data.settings.extraPrice === 'number' ? data.settings.extraPrice : 300;
+                                state.settings.baseSeats = typeof data.settings.baseSeats === 'number' ? data.settings.baseSeats : 6;
+                                state.settings.maxExtra = typeof data.settings.maxExtra === 'number' ? data.settings.maxExtra : 6;
+                                state.settings.maxTotalGuests = typeof data.settings.maxTotalGuests === 'number' ? data.settings.maxTotalGuests : 200;
+                            }
+                            // Si aún no ha cargado hostData, usamos temporalmente las mesas de state_v2
+                            if (allHostData.length === 0 && Array.isArray(data.students)) {
+                                data.students.forEach(savedSt => {
+                                    const localSt = state.students.find(s => s.id === savedSt.id || isSamePerson(s.name, savedSt.name));
+                                    if (localSt) {
+                                        localSt.baseTable = savedSt.baseTable;
+                                        localSt.extra = savedSt.extra || 0;
+                                    }
+                                });
+                            }
+                            reconcileStateWithFirebase();
                             renderAll();
                         }
-                    }, (error) => console.error("Firebase err:", error));
+                    }, (error) => console.error("Firebase planner err:", error));
 
-                    // Escuchar a los invitados confirmados en tiempo real (colección 'guests' intacta)
+                    // 2. Escuchar hostData en tiempo real (Fuente de verdad de mesas y cupos en Firebase)
+                    const hostDataRef = collection(db, 'artifacts', appId, 'public', 'data', 'hostData');
+                    onSnapshot(hostDataRef, (snapshot) => {
+                        allHostData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                        reconcileStateWithFirebase();
+                        renderAll();
+                        if (document.getElementById('modal-table-guests').classList.contains('active')) {
+                            renderActiveTableGuests();
+                        }
+                    }, (error) => console.error("Error cargando hostData:", error));
+
+                    // 3. Escuchar invites en tiempo real (Códigos e invitaciones generadas por mesa)
+                    const invitesRef = collection(db, 'artifacts', appId, 'public', 'data', 'invites');
+                    onSnapshot(invitesRef, (snapshot) => {
+                        allInvites = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                        reconcileStateWithFirebase();
+                        renderAll();
+                        if (document.getElementById('modal-table-guests').classList.contains('active')) {
+                            renderActiveTableGuests();
+                        }
+                    }, (error) => console.error("Error cargando invites:", error));
+
+                    // 4. Escuchar a los invitados confirmados en tiempo real (colección 'guests')
                     const guestsRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
                     onSnapshot(guestsRef, (snapshot) => {
-                        allConfirmedGuests = snapshot.docs.map(doc => doc.data());
+                        allConfirmedGuests = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                         renderAll();
                         if (document.getElementById('modal-table-guests').classList.contains('active')) {
                             renderActiveTableGuests();
@@ -870,54 +982,106 @@
             document.getElementById('modal-extras-summary').classList.add('active');
         };
 
-        // Cuenta cuántos invitados han confirmado en Firebase para un alumno o mesa
-        function getConfirmedCountForStudent(studentName) {
-            const cleanSt = cleanText(studentName);
-            const firstPart = cleanSt.substring(0, 6);
+        // Cuenta exactamente cuántos invitados han confirmado en Firebase para un alumno específico (sin mezclar nombres parecidos)
+        function getConfirmedCountForStudent(studentObjOrName) {
+            const student = typeof studentObjOrName === 'string'
+                ? state.students.find(s => isSamePerson(s.name, studentObjOrName)) || { name: studentObjOrName }
+                : studentObjOrName;
+
             return allConfirmedGuests.filter(g => {
-                const cleanHost = cleanText(g.hostName);
-                return cleanHost && (cleanHost === cleanSt || cleanHost.includes(firstPart) || cleanSt.includes(cleanHost.substring(0, 6)));
+                // Si conocemos el prefijo del anfitrión (ej. LUIS, ZULLY), verificamos si el código del invitado pertenece a sus códigos en invites
+                if (student.hostPrefix && g.hostCode) {
+                    const inv = allInvites.find(i => i.codigo === g.hostCode || i.id === g.hostCode);
+                    if (inv && inv.hostCode) {
+                        return inv.hostCode === student.hostPrefix;
+                    }
+                }
+                return isSamePerson(g.hostName, student.name);
             }).length;
         }
 
-        function getConfirmedGuestsForTable(tableNum, hostNames) {
-            const cleanedHosts = (hostNames || []).map(h => cleanText(h));
+        // Obtiene ESTRICTAMENTE los invitados confirmados que pertenecen al número de mesa indicado en Firebase
+        function getConfirmedGuestsForTable(tableNum) {
+            const targetTable = parseTableNum(tableNum);
+            if (targetTable === null) return [];
+
             return allConfirmedGuests.filter(g => {
-                if (tableNum !== null && Number(g.table) === Number(tableNum)) return true;
-                const cleanGuestHost = cleanText(g.hostName);
-                return cleanedHosts.some(ch => ch && cleanGuestHost && (cleanGuestHost === ch || cleanGuestHost.includes(ch.substring(0, 6)) || ch.includes(cleanGuestHost.substring(0, 6))));
+                const guestTable = parseTableNum(g.table);
+                if (guestTable !== null) {
+                    return guestTable === targetTable;
+                }
+                // Respaldo solo si el registro en 'guests' no tuviera campo 'table': buscamos la mesa en su código de invitación
+                if (g.hostCode) {
+                    const inv = allInvites.find(i => i.codigo === g.hostCode || i.id === g.hostCode);
+                    if (inv) return parseTableNum(inv.table) === targetTable;
+                }
+                return false;
             });
         }
 
         window.openTableGuests = function(tableLabel, tableNum, hostNamesEncoded) {
             activeTableHosts = JSON.parse(decodeURIComponent(hostNamesEncoded));
             activeTableLabel = tableLabel;
-            activeTableNumber = tableNum;
+            activeTableNumber = parseTableNum(tableNum);
             renderActiveTableGuests();
             document.getElementById('modal-table-guests').classList.add('active');
         };
 
         function renderActiveTableGuests() {
             document.getElementById('tg-title').innerText = activeTableLabel;
-            const guestsInTable = getConfirmedGuestsForTable(activeTableNumber, activeTableHosts);
-            document.getElementById('tg-subtitle').innerText = `${guestsInTable.length} invitado(s) confirmado(s) en Firebase`;
+            const guestsInTable = getConfirmedGuestsForTable(activeTableNumber);
+            const invitesInTable = allInvites.filter(inv => parseTableNum(inv.table) === activeTableNumber);
+
+            const confirmedCodes = new Set(guestsInTable.map(g => g.hostCode || g.id));
+            const pendingInvites = invitesInTable.filter(inv => !inv.usado && !confirmedCodes.has(inv.codigo));
+
+            document.getElementById('tg-subtitle').innerText =
+                `${guestsInTable.length} confirmado(s) en Firebase · ${invitesInTable.length} código(s) generados en Mesa ${activeTableNumber}`;
 
             let html = '';
-            if (guestsInTable.length === 0) {
-                html = '<p class="text-center text-gray-400 text-base py-8 font-serif italic">Aún no hay invitados confirmados registrados en esta mesa.</p>';
+
+            if (guestsInTable.length === 0 && pendingInvites.length === 0) {
+                html = '<p class="text-center text-gray-400 text-base py-8 font-serif italic">Aún no hay invitados confirmados ni códigos asignados en esta mesa.</p>';
             } else {
-                guestsInTable.sort((a, b) => String(a.guestName || '').localeCompare(String(b.guestName || '')));
-                html = guestsInTable.map(g => `
-                    <div class="grid grid-cols-12 gap-2 items-center py-2.5 px-2 border-b border-[rgba(255,255,255,0.07)] hover:bg-[rgba(229,193,88,0.05)] rounded">
-                        <div class="col-span-7 font-serif text-white text-base md:text-lg truncate" title="${g.guestName}">
-                            <span class="text-xs mr-1.5" title="${g.asistio ? 'Ya ingresó al salón' : 'Pendiente de llegada'}">${g.asistio ? '✅' : '⏳'}</span>
-                            ${g.guestName}
+                if (guestsInTable.length > 0) {
+                    const sortedConfirmed = [...guestsInTable].sort((a, b) => String(a.guestName || '').localeCompare(String(b.guestName || '')));
+                    html += sortedConfirmed.map(g => `
+                        <div class="grid grid-cols-12 gap-2 items-center py-2.5 px-2.5 border-b border-[rgba(255,255,255,0.07)] bg-[rgba(16,185,129,0.05)] hover:bg-[rgba(229,193,88,0.08)] rounded">
+                            <div class="col-span-6 font-serif text-white text-base truncate" title="${g.guestName}">
+                                <span class="text-xs mr-1" title="${g.asistio ? 'Ya ingresó al salón' : 'Confirmado (Pendiente de llegada)'}">${g.asistio ? '✅' : '🎟️'}</span>
+                                ${g.guestName}
+                            </div>
+                            <div class="col-span-4 text-left text-[0.65rem] text-[#FFF099] cinzel uppercase tracking-wider truncate" title="${g.hostName || ''} (${g.hostCode || ''})">
+                                ${g.hostName || 'VIP'} <span class="text-gray-400 font-mono">[${g.hostCode || ''}]</span>
+                            </div>
+                            <div class="col-span-2 text-right text-[0.65rem] font-mono ${g.asistio ? 'text-emerald-400 font-bold' : 'text-emerald-300'}">
+                                ${g.asistio ? 'En Salón' : 'Confirmado'}
+                            </div>
                         </div>
-                        <div class="col-span-5 text-right text-[0.68rem] text-[#FFF099] cinzel uppercase tracking-wider truncate" title="${g.hostName}">
-                            ${g.hostName || 'Invitación Especial'}
+                    `).join('');
+                }
+
+                if (pendingInvites.length > 0) {
+                    html += `
+                        <div class="pt-3 pb-1 px-1 text-[0.65rem] cinzel uppercase tracking-widest text-gray-400 border-t border-[rgba(229,193,88,0.15)] mt-2">
+                            Lugares / Códigos Pendientes de Confirmar en Mesa ${activeTableNumber} (${pendingInvites.length})
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                    const sortedPending = [...pendingInvites].sort((a, b) => String(a.fullName || a.hostName || a.codigo).localeCompare(String(b.fullName || b.hostName || b.codigo)));
+                    html += sortedPending.map(inv => `
+                        <div class="grid grid-cols-12 gap-2 items-center py-2 px-2.5 border-b border-[rgba(255,255,255,0.04)] opacity-75 hover:opacity-100 rounded">
+                            <div class="col-span-6 font-serif text-gray-300 text-sm truncate" title="${inv.fullName || 'Pase disponible'}">
+                                ⏳ ${inv.fullName || 'Pase sin confirmar'}
+                            </div>
+                            <div class="col-span-4 text-left text-[0.65rem] text-gray-400 cinzel uppercase tracking-wider truncate">
+                                ${inv.hostName || 'VIP'} <span class="text-[#FFF099] font-mono">[${inv.codigo}]</span>
+                            </div>
+                            <div class="col-span-2 text-right text-[0.62rem] font-mono text-amber-300/80">
+                                Libre
+                            </div>
+                        </div>
+                    `).join('');
+                }
             }
 
             document.getElementById('tg-list').innerHTML = html;
@@ -1085,7 +1249,7 @@
                 const totalSeats = baseSeats + extra;
                 const canAdd = extra < maxAllowedExtras;
                 const extraCost = extra * extraPrice;
-                const confirmedCount = getConfirmedCountForStudent(s.name);
+                const confirmedCount = getConfirmedCountForStudent(s);
                 
                 const shortName = s.name.split(' ').slice(0, 2).join(' ');
 
@@ -1134,7 +1298,7 @@
                 const extra = Number(s.extra) || 0;
                 const totalSeats = baseSeats + extra;
                 const extraAmount = extra * extraPrice;
-                const confirmed = getConfirmedCountForStudent(s.name);
+                const confirmed = getConfirmedCountForStudent(s);
 
                 totalExtras += extra;
                 totalSeatsAll += totalSeats;
@@ -1185,7 +1349,7 @@
 
             const vipFloor = computedTables.vip.map((t, idx) => {
                 const namesJSON = encodeURIComponent(JSON.stringify(t.names));
-                const confirmedInVip = getConfirmedGuestsForTable(t.displayNumber, t.names).length;
+                const confirmedInVip = getConfirmedGuestsForTable(t.displayNumber).length;
                 return `
                 <div class="enso-table w-40 h-40 border-vip ${getShape(idx)} flex flex-col justify-center shadow-lg bg-[rgba(229,193,88,0.06)] cursor-pointer hover:border-[#FFF099] transition-all"
                      onclick="window.openTableGuests('${t.names[0]}', ${t.displayNumber}, '${namesJSON}')">
@@ -1200,7 +1364,7 @@
             const studentFloor = computedTables.students.map((t, idx) => {
                 const shape = getShape(idx + 5);
                 const namesJSON = encodeURIComponent(JSON.stringify(t.names));
-                const confirmedInTable = getConfirmedGuestsForTable(t.displayNumber, t.names).length;
+                const confirmedInTable = getConfirmedGuestsForTable(t.displayNumber).length;
 
                 let borderClass = 'border-student cursor-pointer hover:border-[#FFF099] transition-all';
                 let widthClass = 'w-36 h-36';
