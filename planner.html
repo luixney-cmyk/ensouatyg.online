@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ENSŌ - Organizador de Banquete</title>
+    <title>ENSŌ - Organizador de Banquete y Aforo</title>
     
-    <!-- Carga de Tailwind CSS para maquetado responsivo rápido -->
+    <!-- Carga de Tailwind CSS para maquetado responsivo -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Fuentes tipográficas de la invitación -->
+    <!-- Fuentes tipográficas oficiales de ENSŌ -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     
     <!-- Iconos Phosphor -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <style>
         :root {
-            --gold:       #D4AF37;
-            --gold-light: #F5E17A;
-            --gold-dim:   #7A6120;
+            --gold:       #E5C158;
+            --gold-light: #FFF099;
+            --gold-dim:   #9E7D28;
             --ink:        #050505;
             --parchment:  #0D0B08;
-            --parchment-light: #16130e;
-            --red-seal:   #8B1A2A;
-            --off-white:  #D9D0C0;
+            --parchment-light: #15120D;
+            --red-seal:   #9E2032;
+            --off-white:  #F4EFE6;
         }
 
         body {
@@ -44,21 +44,23 @@
         }
 
         .text-gold {
-            background: linear-gradient(105deg, #BF953F 0%, #FCF6BA 40%, #B38728 70%, #FBF5B7 100%);
-            -webkit-background-clip: text; background-clip: text; color: transparent;
+            background: linear-gradient(105deg, #D4AF37 0%, #FFF6C2 40%, #C99E32 70%, #FFF8CC 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
         .bg-panel {
             background: var(--parchment-light);
-            border: 1px solid rgba(212, 175, 55, 0.15);
-            box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
+            border-color: rgba(229, 193, 88, 0.22);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.6);
         }
 
         /* Scrollbar personalizada */
-        ::-webkit-scrollbar { width: 6px; height: 6px;}
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--ink); }
-        ::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.6); }
+        ::-webkit-scrollbar-thumb { background: rgba(229, 193, 88, 0.35); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(229, 193, 88, 0.65); }
 
         .enso-table {
             position: relative;
@@ -66,45 +68,46 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 1.5rem;
+            padding: 1.25rem;
             text-align: center;
-            transition: all 0.4s ease;
-            background: rgba(13, 11, 8, 0.8);
-            backdrop-filter: blur(4px);
+            transition: all 0.35s ease;
+            background: rgba(13, 11, 8, 0.88);
+            backdrop-filter: blur(6px);
         }
 
         .enso-table:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 26px rgba(0,0,0,0.75), 0 0 18px rgba(229, 193, 88, 0.15);
         }
 
-        /* Formas orgánicas usando border-radius */
+        /* Formas orgánicas inspiradas en trazos zen */
         .shape-1 { border-radius: 48% 52% 51% 49% / 50% 49% 51% 50%; }
         .shape-2 { border-radius: 51% 49% 48% 52% / 49% 52% 48% 51%; }
         .shape-3 { border-radius: 50% 50% 49% 51% / 52% 48% 51% 49%; }
 
         .border-vip {
             border: 2px solid var(--gold);
-            box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.1), 0 0 15px rgba(212, 175, 55, 0.15);
+            box-shadow: inset 0 0 15px rgba(229, 193, 88, 0.12), 0 0 15px rgba(229, 193, 88, 0.18);
         }
 
         .border-student {
-            border: 1px solid rgba(212, 175, 55, 0.4);
+            border: 1px solid rgba(229, 193, 88, 0.45);
         }
 
         .border-combined {
-            border: 1.5px dashed rgba(212, 175, 55, 0.5);
+            border: 1.5px dashed rgba(229, 193, 88, 0.65);
         }
 
         .table-size-indicator {
-            font-size: 0.75rem;
-            letter-spacing: 0.1em;
-            color: rgba(212, 175, 55, 0.7);
-            margin-top: 0.25rem;
+            font-size: 0.72rem;
+            letter-spacing: 0.12em;
+            color: var(--gold-light);
+            margin-top: 0.3rem;
+            font-weight: 600;
         }
 
-        .warning-text { color: #ff6b6b; }
-        .warning-border { border-color: var(--red-seal) !important; box-shadow: 0 0 20px rgba(139, 26, 42, 0.3) !important; }
+        .warning-text { color: #fb7185; }
+        .warning-border { border-color: var(--red-seal) !important; box-shadow: 0 0 20px rgba(158, 32, 50, 0.45) !important; }
 
         /* Controles +/- */
         .btn-ctrl {
@@ -114,321 +117,374 @@
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            border: 1px solid rgba(212, 175, 55, 0.4);
+            border: 1px solid rgba(229, 193, 88, 0.5);
             color: var(--gold-light);
-            background: transparent;
+            background: rgba(229, 193, 88, 0.05);
             cursor: pointer;
             transition: all 0.2s;
             font-family: sans-serif;
             font-size: 0.9rem;
+            line-height: 1;
         }
         .btn-ctrl:hover:not(:disabled) {
-            background: rgba(212, 175, 55, 0.2);
-            border-color: var(--gold);
+            background: rgba(229, 193, 88, 0.25);
+            border-color: var(--gold-light);
+            color: #ffffff;
         }
         .btn-ctrl:disabled {
-            opacity: 0.3;
+            opacity: 0.28;
             cursor: not-allowed;
-            border-color: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.12);
         }
         
         .student-row {
             transition: background 0.2s;
         }
         .student-row:hover {
-            background: rgba(212, 175, 55, 0.05);
+            background: rgba(229, 193, 88, 0.07);
         }
 
-        /* ── Modales ENSO ── */
+        /* ── Modales ENSŌ ── */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(5, 5, 5, 0.85);
-            backdrop-filter: blur(5px); z-index: 100;
+            position: fixed; inset: 0; background: rgba(5, 5, 5, 0.88);
+            backdrop-filter: blur(6px); z-index: 100;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-box {
-            background: var(--parchment-light); border: 1px solid rgba(212, 175, 55, 0.3);
-            padding: 2rem; border-radius: 4px; width: 90%; max-width: 450px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(212, 175, 55, 0.05);
+            background: var(--parchment-light); border: 1px solid rgba(229, 193, 88, 0.38);
+            padding: 2rem; border-radius: 6px; width: 92%; max-width: 480px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 20px rgba(229, 193, 88, 0.05);
             max-height: 90vh;
             overflow-y: auto;
         }
         .modal-box.wide-modal {
-            max-width: 900px;
+            max-width: 820px;
         }
         .input-gold {
-            background: rgba(5,5,5,0.5); border: 1px solid rgba(212,175,55,0.4);
-            color: white; padding: 0.6rem; border-radius: 2px; width: 100%;
-            outline: none; margin-bottom: 1rem; font-family: 'Cormorant Garamond', serif;
-            font-size: 1.1rem;
+            background: rgba(5,5,5,0.65); border: 1px solid rgba(229,193,88,0.45);
+            color: white; padding: 0.55rem 0.75rem; border-radius: 4px; width: 100%;
+            outline: none; font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
         }
-        .input-gold:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(212,175,55,0.2); }
-        .input-gold::placeholder { color: rgba(212,175,55,0.4); font-size: 0.9rem; font-style: italic; }
+        .input-gold:focus { border-color: var(--gold-light); box-shadow: 0 0 12px rgba(229,193,88,0.28); }
         
         .btn-gold {
-            background: rgba(212, 175, 55, 0.1); border: 1px solid var(--gold);
-            color: var(--gold-light); padding: 0.6rem 1.2rem; border-radius: 2px;
+            background: rgba(229, 193, 88, 0.14); border: 1px solid var(--gold);
+            color: var(--gold-light); padding: 0.6rem 1.25rem; border-radius: 4px;
             cursor: pointer; transition: all 0.2s; text-transform: uppercase;
-            font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.1em;
+            font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.12em;
+            font-weight: 600;
         }
-        .btn-gold:hover { background: var(--gold); color: var(--ink); box-shadow: 0 0 15px rgba(212,175,55,0.3); }
+        .btn-gold:hover { background: var(--gold); color: var(--ink); box-shadow: 0 0 18px rgba(229,193,88,0.35); }
         
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px;}
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(5,5,5,0.5); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(229, 193, 88, 0.38); border-radius: 4px; }
         
         .data-table-container {
             overflow-x: auto;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border: 1px solid rgba(229, 193, 88, 0.25);
             border-radius: 4px;
-            background: rgba(5,5,5,0.3);
+            background: rgba(5,5,5,0.35);
         }
         .data-table {
             width: 100%;
             border-collapse: collapse;
             font-family: sans-serif;
-            font-size: 0.75rem;
-            min-width: 700px; /* Ensure horizontal scroll on small screens */
+            font-size: 0.78rem;
         }
         .data-table th, .data-table td {
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            padding: 0.5rem;
+            border: 1px solid rgba(229, 193, 88, 0.18);
+            padding: 0.55rem 0.65rem;
             text-align: right;
             white-space: nowrap;
         }
         .data-table th {
-            background: rgba(212, 175, 55, 0.1);
+            background: rgba(229, 193, 88, 0.12);
             color: var(--gold-light);
             text-align: center;
-            font-weight: normal;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
+            font-family: 'Cinzel', serif;
+            font-size: 0.68rem;
         }
         .data-table td.text-left { text-align: left; }
         .data-table td.text-center { text-align: center; }
-        .data-table tr:hover { background: rgba(212, 175, 55, 0.05); }
-        .text-deficit { color: #ff6b6b; }
-        .text-paid { color: #4ade80; }
+        .data-table tr:hover { background: rgba(229, 193, 88, 0.06); }
     </style>
 </head>
-<body class="text-gray-300">
+<body class="text-gray-200">
 
-    <header class="border-b border-[rgba(212,175,55,0.2)] bg-[#050505] p-4 lg:p-6 sticky top-0 z-50 shadow-xl">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+    <header class="border-b border-[rgba(229,193,88,0.25)] bg-[#050505] p-4 lg:px-8 lg:py-5 sticky top-0 z-50 shadow-2xl">
+        <div class="max-w-[1600px] mx-auto flex flex-col xl:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-full border border-yellow-600 flex items-center justify-center shape-1">
-                    <span class="font-serif text-yellow-600 text-xl leading-none pt-1">円</span>
+                <div class="w-11 h-11 rounded-full border border-[#E5C158] flex items-center justify-center shape-1 shadow-[0_0_15px_rgba(229,193,88,0.2)]">
+                    <span class="font-serif text-[#FFF099] text-xl leading-none pt-0.5">円</span>
                 </div>
                 <div>
-                    <h1 class="text-xl md:text-2xl text-gold tracking-widest uppercase">ENSŌ Planner</h1>
-                    <p class="text-xs uppercase tracking-[0.2em] opacity-50 italic">Control Financiero y Aforo <span id="sync-status" class="ml-2 font-bold tracking-normal"></span></p>
+                    <h1 class="text-xl md:text-2xl text-gold tracking-widest uppercase font-semibold">ENSŌ Planner</h1>
+                    <p class="text-xs uppercase tracking-[0.2em] text-[rgba(244,239,230,0.75)] italic">
+                        Organizador de Mesas, Invitados y Extras
+                        <span id="sync-status" class="ml-2 font-bold tracking-normal not-italic"></span>
+                    </p>
                 </div>
             </div>
 
-            <!-- Panel de Métricas Rápidas -->
-            <div class="flex flex-wrap justify-center gap-4 md:gap-6 bg-[rgba(212,175,55,0.05)] px-6 py-2 rounded border border-[rgba(212,175,55,0.15)] w-full lg:w-auto">
+            <!-- Panel de Métricas de Invitados y Proyección de Extras -->
+            <div class="flex flex-wrap justify-center items-center gap-4 md:gap-6 bg-[rgba(229,193,88,0.06)] px-5 py-2.5 rounded border border-[rgba(229,193,88,0.25)] w-full xl:w-auto">
                 <div class="text-center">
-                    <p class="text-[0.55rem] md:text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.6)]">Invitados</p>
-                    <p id="stat-total" class="cinzel text-lg md:text-xl font-bold text-white">0<span class="text-xs font-normal text-gray-500">/200</span></p>
+                    <p class="text-[0.6rem] md:text-[0.65rem] uppercase tracking-widest text-[#FFF099]/80">Aforo Total Planificado</p>
+                    <p id="stat-total" class="cinzel text-lg md:text-xl font-bold text-white">0<span class="text-xs font-normal text-gray-400">/200</span></p>
                 </div>
-                <div class="w-px bg-[rgba(212,175,55,0.2)]"></div>
+                <div class="w-px h-8 bg-[rgba(229,193,88,0.25)] hidden sm:block"></div>
                 <div class="text-center">
-                    <p class="text-[0.55rem] md:text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.6)]">Mesas</p>
-                    <p id="stat-tables" class="cinzel text-lg md:text-xl text-white">0</p>
+                    <p class="text-[0.6rem] md:text-[0.65rem] uppercase tracking-widest text-[#FFF099]/80">Confirmados Reales (QR)</p>
+                    <p id="stat-confirmed-live" class="cinzel text-lg md:text-xl font-bold text-emerald-400">0</p>
                 </div>
-                <div class="w-px bg-[rgba(212,175,55,0.2)]"></div>
-                <div class="text-center group relative cursor-pointer" onclick="window.openIncomeDetails()">
-                    <p class="text-[0.55rem] md:text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.6)] group-hover:text-white transition-colors">Ingresos ⓘ</p>
-                    <p id="stat-income" class="cinzel text-lg md:text-xl text-[#a8d5ba]">$0</p>
-                </div>
-                <div class="w-px bg-[rgba(212,175,55,0.2)]"></div>
-                <div class="text-center group relative cursor-pointer" onclick="window.openExpensesModal()">
-                    <p class="text-[0.55rem] md:text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.6)] group-hover:text-white transition-colors">Gastos ⚙️</p>
-                    <p id="stat-expenses" class="cinzel text-lg md:text-xl text-[#ff6b6b]">$0</p>
-                </div>
-                <div class="w-px bg-[rgba(212,175,55,0.2)]"></div>
+                <div class="w-px h-8 bg-[rgba(229,193,88,0.25)] hidden sm:block"></div>
                 <div class="text-center">
-                    <p class="text-[0.55rem] md:text-[0.65rem] uppercase tracking-widest text-gold">Balance</p>
-                    <p id="stat-balance" class="cinzel text-lg md:text-xl font-bold text-white">$0</p>
+                    <p class="text-[0.6rem] md:text-[0.65rem] uppercase tracking-widest text-[#FFF099]/80">Mesas Activas</p>
+                    <p id="stat-tables" class="cinzel text-lg md:text-xl font-bold text-white">0</p>
+                </div>
+                <div class="w-px h-8 bg-[rgba(229,193,88,0.25)] hidden sm:block"></div>
+                <div class="text-center cursor-pointer group" onclick="window.openExtrasSummaryModal()" title="Ver desglose de invitados extras">
+                    <p class="text-[0.6rem] md:text-[0.65rem] uppercase tracking-widest text-[#FFF099] group-hover:text-white transition-colors">Total Invitados Extras ⓘ</p>
+                    <p id="stat-extras-count" class="cinzel text-lg md:text-xl font-bold text-[#FFF099]">0 <span class="text-xs font-normal text-gray-300">lug.</span></p>
+                </div>
+                <div class="w-px h-8 bg-[rgba(229,193,88,0.25)] hidden sm:block"></div>
+                <div class="text-center cursor-pointer group" onclick="window.openExtrasSummaryModal()" title="Configurar costo por extra y ver desglose">
+                    <p class="text-[0.6rem] md:text-[0.65rem] uppercase tracking-widest text-gold group-hover:text-white transition-colors">Se Reuniría por Extras ⚙️</p>
+                    <p id="stat-extras-money" class="cinzel text-lg md:text-xl font-bold text-emerald-300">$0</p>
                 </div>
             </div>
         </div>
         
         <!-- Barra de Progreso de Capacidad -->
-        <div class="max-w-7xl mx-auto mt-4 h-1 bg-[rgba(255,255,255,0.1)] rounded-full overflow-hidden">
-            <div id="capacity-bar" class="h-full bg-yellow-600 transition-all duration-500 w-0"></div>
+        <div class="max-w-[1600px] mx-auto mt-3.5 h-1.5 bg-[rgba(255,255,255,0.1)] rounded-full overflow-hidden">
+            <div id="capacity-bar" class="h-full bg-[#E5C158] transition-all duration-500 w-0"></div>
         </div>
-        <p id="capacity-warning" class="max-w-7xl mx-auto mt-2 text-xs text-center uppercase tracking-widest warning-text opacity-0 transition-opacity">¡Advertencia: Se ha superado el límite de 200 invitados!</p>
+        <p id="capacity-warning" class="max-w-[1600px] mx-auto mt-1.5 text-xs text-center uppercase tracking-widest warning-text hidden font-semibold">
+            ¡Advertencia: Se ha superado el límite de 200 invitados en el salón!
+        </p>
     </header>
 
     <main class="flex-grow flex flex-col lg:flex-row max-w-[1600px] mx-auto w-full overflow-hidden">
         
-        <aside class="lg:w-[450px] w-full flex-shrink-0 bg-panel border-r border-[rgba(212,175,55,0.15)] flex flex-col lg:h-[calc(100vh-130px)] overflow-hidden">
+        <aside class="lg:w-[480px] w-full flex-shrink-0 bg-panel border-r border-[rgba(229,193,88,0.22)] flex flex-col lg:h-[calc(100vh-125px)] overflow-hidden">
             
-            <div class="p-5 border-b border-[rgba(212,175,55,0.1)]">
-                <h2 class="text-sm tracking-[0.2em] text-gold uppercase mb-4">Mesas Especiales (Fijas)</h2>
-                <div id="vip-list" class="space-y-3">
+            <!-- Mesas Especiales -->
+            <div class="p-4 border-b border-[rgba(229,193,88,0.18)] flex-shrink-0">
+                <div class="flex justify-between items-center mb-2.5">
+                    <h2 class="text-xs tracking-[0.22em] text-gold uppercase font-semibold">Mesas Especiales (Presídium)</h2>
+                    <span id="vip-total-badge" class="text-[0.68rem] font-mono text-[#FFF099] bg-[rgba(229,193,88,0.12)] px-2 py-0.5 rounded border border-[rgba(229,193,88,0.3)]">18 lug.</span>
+                </div>
+                <div id="vip-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <!-- VIPs renderizados por JS -->
                 </div>
             </div>
 
-            <div class="p-5 flex-grow overflow-y-auto custom-scrollbar flex flex-col h-full">
-                <div class="flex justify-between items-end mb-4 flex-shrink-0">
-                    <h2 class="text-sm tracking-[0.2em] text-gold uppercase">Generación (22)</h2>
-                    <span class="text-[0.65rem] text-gray-500 italic text-right leading-tight">Mesa base: 6.<br>Max: 12 (6 extras por alumno)</span>
-                </div>
-                
-                <!-- Tabla de control rápido -->
-                <div class="grid grid-cols-12 gap-2 mb-2 px-2 text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.5)] border-b border-[rgba(212,175,55,0.1)] pb-2 text-center flex-shrink-0">
-                    <div class="col-span-4 text-left">Alumno</div>
-                    <div class="col-span-3">Detalle Pagos</div>
-                    <div class="col-span-3">Extra</div>
-                    <div class="col-span-2 text-right">Lug.</div>
-                </div>
-
-                <div id="student-list" class="space-y-1 mb-6 flex-shrink-0">
-                    <!-- Alumnos renderizados por JS -->
-                </div>
-                
-                <div class="mt-4 pt-4 border-t border-[rgba(212,175,55,0.1)] flex-grow flex flex-col overflow-hidden">
-                    <h2 class="text-sm tracking-[0.2em] text-gold uppercase mb-4 flex-shrink-0 flex justify-between items-center">
-                        Desglose de Pagos
-                        <button onclick="window.openFullPaymentsModal()" class="text-[0.65rem] font-sans bg-[rgba(212,175,55,0.1)] text-gold-light px-2 py-1 rounded hover:bg-gold hover:text-ink transition-colors border border-gold">Ampliar Tabla</button>
-                    </h2>
-                    <div class="data-table-container custom-scrollbar flex-grow overflow-auto">
-                        <table class="data-table" id="payments-table-compact">
-                            <!-- JS Render -->
-                        </table>
+            <!-- Simulador de Precio por Invitado Extra -->
+            <div class="px-4 py-3 border-b border-[rgba(229,193,88,0.18)] bg-[rgba(229,193,88,0.04)] flex-shrink-0">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="cinzel text-[0.68rem] tracking-widest text-[#FFF099] uppercase font-semibold">Costo por Invitado Extra</p>
+                        <p class="text-xs text-gray-300 italic">Calcula cuánto se reuniría por los extras</p>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[#FFF099] font-mono text-sm font-bold">$</span>
+                        <input type="number" id="extra-price-input" min="0" step="50"
+                            class="w-24 bg-[#050505] border border-[rgba(229,193,88,0.5)] text-[#FFF099] font-mono text-sm font-bold text-center py-1 px-2 rounded focus:border-[#FFF099] outline-none"
+                            onchange="window.updateExtraPrice(this.value)" oninput="window.updateExtraPrice(this.value)">
+                        <span class="text-[0.65rem] text-gray-400 uppercase font-sans">MXN</span>
                     </div>
                 </div>
             </div>
+
+            <!-- Lista de Generación y Control de Extras -->
+            <div class="p-4 flex-grow overflow-y-auto custom-scrollbar flex flex-col">
+                <div class="flex justify-between items-end mb-3 flex-shrink-0">
+                    <div>
+                        <h2 class="text-xs tracking-[0.2em] text-gold uppercase font-semibold">Generación (22 Alumnos)</h2>
+                        <p class="text-xs text-gray-300 italic">Base: <strong class="text-[#FFF099]">6</strong> invitados · Máx: <strong class="text-[#FFF099]">+6 extras</strong> (12 total)</p>
+                    </div>
+                    <button onclick="window.openExtrasSummaryModal()" class="text-[0.65rem] cinzel tracking-wider bg-[rgba(229,193,88,0.15)] text-[#FFF099] px-2.5 py-1 rounded hover:bg-[#E5C158] hover:text-black transition-colors border border-[rgba(229,193,88,0.45)] font-semibold">
+                        Ver Sumatoria Extras
+                    </button>
+                </div>
+
+                <!-- Buscador rápido de alumno -->
+                <div class="mb-3 flex-shrink-0">
+                    <input type="text" id="student-search" placeholder="Filtrar alumno por nombre o mesa..."
+                        class="w-full bg-[rgba(5,5,5,0.6)] border border-[rgba(229,193,88,0.3)] rounded px-3 py-1.5 text-sm text-white placeholder-gray-400 focus:border-[#FFF099] outline-none"
+                        oninput="window.filterStudents(this.value)">
+                </div>
+                
+                <!-- Encabezado de tabla de alumnos -->
+                <div class="grid grid-cols-12 gap-1 mb-1.5 px-2 text-[0.62rem] uppercase tracking-wider text-[#FFF099]/80 border-b border-[rgba(229,193,88,0.25)] pb-1.5 text-center font-sans font-semibold flex-shrink-0">
+                    <div class="col-span-5 text-left">Alumno / Mesa</div>
+                    <div class="col-span-3">Inv. Extras</div>
+                    <div class="col-span-2">Lugares</div>
+                    <div class="col-span-2 text-right">Aportación</div>
+                </div>
+
+                <div id="student-list" class="space-y-1 flex-grow">
+                    <!-- Alumnos renderizados por JS -->
+                </div>
+            </div>
             
-            <div class="p-4 border-t border-[rgba(212,175,55,0.1)] bg-[rgba(5,5,5,0.5)] flex flex-col gap-2 flex-shrink-0">
-                <button onclick="window.openTableManager()" class="w-full py-2 border border-blue-500/50 text-blue-400 text-xs uppercase tracking-widest hover:bg-blue-500/10 transition-colors rounded">
-                    Gestor Maestro de Mesas
-                </button>
-                <button onclick="window.syncHostData()" class="w-full py-2 border border-green-500/50 text-green-400 text-xs uppercase tracking-widest hover:bg-green-500/10 transition-colors rounded">
-                    ⟳ Sincronizar Base de Datos
-                </button>
-                <button onclick="resetData()" class="w-full py-2 border border-[rgba(139,26,42,0.5)] text-[rgba(139,26,42,0.8)] text-xs uppercase tracking-widest hover:bg-[rgba(139,26,42,0.1)] transition-colors rounded">
-                    Reiniciar Datos Locales
+            <!-- Acciones de Sincronización con Firebase -->
+            <div class="p-3.5 border-t border-[rgba(229,193,88,0.22)] bg-[#080705] flex flex-col gap-2 flex-shrink-0">
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="window.openTableManager()" class="py-2 px-2 border border-[#E5C158]/60 text-[#FFF099] text-[0.68rem] cinzel uppercase tracking-wider hover:bg-[#E5C158]/15 transition-colors rounded font-semibold">
+                        🪑 Gestor de Mesas
+                    </button>
+                    <button onclick="window.openExtrasSummaryModal()" class="py-2 px-2 border border-emerald-500/60 text-emerald-300 text-[0.68rem] cinzel uppercase tracking-wider hover:bg-emerald-500/15 transition-colors rounded font-semibold">
+                        📊 Reporte de Extras
+                    </button>
+                </div>
+                <button onclick="window.syncHostData()" class="w-full py-2.5 bg-[rgba(229,193,88,0.14)] border border-[#E5C158] text-[#FFF099] text-xs cinzel uppercase tracking-widest hover:bg-[#E5C158] hover:text-black transition-all rounded font-bold shadow-[0_0_15px_rgba(229,193,88,0.15)]">
+                    ⟳ Guardar y Sincronizar Cupos con Invitación (Firebase)
                 </button>
             </div>
         </aside>
 
-        <section class="flex-grow p-4 lg:p-8 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] lg:h-[calc(100vh-130px)] overflow-y-auto relative custom-scrollbar">
-            <h2 class="cinzel text-xl text-center text-gray-400 tracking-[0.3em] uppercase mb-8 opacity-50">Plano del Salón</h2>
-            
-            <!-- Contenedor del Presidium (VIP) -->
-            <div class="mb-12">
-                <h3 class="text-xs tracking-[0.4em] text-center text-[rgba(212,175,55,0.4)] uppercase mb-6">— Presídium —</h3>
-                <div id="floor-vip" class="flex flex-wrap justify-center gap-8">
-                    <!-- Render JS -->
+        <section class="flex-grow p-4 lg:p-8 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] lg:h-[calc(100vh-125px)] overflow-y-auto relative custom-scrollbar">
+            <div class="max-w-5xl mx-auto">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-2 border-b border-[rgba(229,193,88,0.15)] pb-4">
+                    <div>
+                        <h2 class="cinzel text-lg md:text-xl text-[#FFF099] tracking-[0.25em] uppercase">Plano del Salón y Ocupación</h2>
+                        <p class="text-sm text-gray-300 italic">Haz clic en cualquier mesa para ver la lista de invitados que ya confirmaron su asistencia con código.</p>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs">
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full border border-[#E5C158] inline-block"></span> Individual</span>
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full border border-dashed border-[#FFF099] inline-block"></span> Compartida</span>
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#9E2032] inline-block"></span> Exceso (&gt;12)</span>
+                    </div>
                 </div>
-            </div>
+                
+                <!-- Contenedor del Presídium (VIP) -->
+                <div class="mb-10">
+                    <h3 class="cinzel text-xs tracking-[0.35em] text-center text-[#FFF099]/80 uppercase mb-5">— Presídium & Invitados Especiales —</h3>
+                    <div id="floor-vip" class="flex flex-wrap justify-center gap-8">
+                        <!-- Render JS -->
+                    </div>
+                </div>
 
-            <!-- Contenedor de Mesas de Alumnos -->
-            <div>
-                <h3 class="text-xs tracking-[0.4em] text-center text-[rgba(212,175,55,0.4)] uppercase mb-6">— Mesas de Generación —</h3>
-                <div id="floor-students" class="flex flex-wrap justify-center gap-6 max-w-5xl mx-auto">
-                    <!-- Render JS -->
+                <!-- Contenedor de Mesas de Alumnos -->
+                <div>
+                    <h3 class="cinzel text-xs tracking-[0.35em] text-center text-[#FFF099]/80 uppercase mb-5">— Mesas de Generación —</h3>
+                    <div id="floor-students" class="flex flex-wrap justify-center gap-6">
+                        <!-- Render JS -->
+                    </div>
                 </div>
-            </div>
-            
-            <div class="mt-16 text-center text-xs opacity-30 italic font-serif px-4">
-                <p>Las parejas asignadas comparten una mesa de 12 lugares para optimizar el espacio.</p>
-                <p>Si un alumno adquiere extras, se separa en su propia mesa. Los alumnos que se queden en 6 lugares se emparejarán automáticamente con otros para formar mesas de 12.</p>
+                
+                <!-- Resumen inferior en el salón -->
+                <div class="mt-12 p-5 rounded border border-[rgba(229,193,88,0.25)] bg-[rgba(13,11,8,0.85)] grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div>
+                        <p class="cinzel text-[0.65rem] uppercase tracking-widest text-gray-400">Lugares Base (22 Alumnos × 6)</p>
+                        <p id="summary-base-seats" class="cinzel text-xl text-white font-bold mt-1">132 lugares</p>
+                    </div>
+                    <div>
+                        <p class="cinzel text-[0.65rem] uppercase tracking-widest text-[#FFF099]">Sumatoria Invitados Extras</p>
+                        <p id="summary-extra-seats" class="cinzel text-xl text-[#FFF099] font-bold mt-1">+0 invitados extras</p>
+                    </div>
+                    <div>
+                        <p class="cinzel text-[0.65rem] uppercase tracking-widest text-emerald-300">Recaudación Proyectada por Extras</p>
+                        <p id="summary-extra-revenue" class="cinzel text-xl text-emerald-400 font-bold mt-1">$0 MXN</p>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
 
-    <!-- Modales Financieros -->
-    <div id="modal-payment" class="modal-overlay">
+    <!-- Modal: Sumatoria y Proyección de Invitados Extras -->
+    <div id="modal-extras-summary" class="modal-overlay">
         <div class="modal-box wide-modal">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="cinzel text-xl text-gold uppercase tracking-widest">Registrar Pago</h3>
-                <button onclick="window.closeModals()" class="text-2xl text-[rgba(212,175,55,0.5)] hover:text-white transition-colors">&times;</button>
+            <div class="flex justify-between items-center mb-4 border-b border-[rgba(229,193,88,0.2)] pb-3">
+                <div>
+                    <h3 class="cinzel text-lg md:text-xl text-gold uppercase tracking-widest font-semibold">Proyección de Invitados Extras</h3>
+                    <p class="font-serif text-sm text-gray-300 italic mt-0.5">Cálculo exclusivo de lugares adicionales sobre la base de 6 invitados por alumno.</p>
+                </div>
+                <button onclick="window.closeModals()" class="text-2xl text-[#FFF099]/70 hover:text-white transition-colors">&times;</button>
             </div>
-            <p id="payment-student-name" class="mb-6 text-gray-400 font-serif italic text-sm"></p>
-            
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                <div>
-                    <label class="block text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.7)] mb-1">Salón</label>
-                    <input type="number" id="pay-salon" class="input-gold !mb-0" placeholder="Monto">
+
+            <!-- Tarjetas de resumen de extras -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                <div class="bg-[rgba(5,5,5,0.55)] border border-[rgba(229,193,88,0.3)] rounded p-3 text-center">
+                    <span class="text-[0.65rem] cinzel uppercase tracking-widest text-gray-300 block">Costo por Invitado Extra</span>
+                    <span id="modal-stat-price" class="cinzel text-xl text-[#FFF099] font-bold mt-1 block">$300</span>
                 </div>
-                <div>
-                    <label class="block text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.7)] mb-1">Sonido/Pantalla/Música</label>
-                    <input type="number" id="pay-sonido" class="input-gold !mb-0" placeholder="Monto">
+                <div class="bg-[rgba(5,5,5,0.55)] border border-[rgba(229,193,88,0.3)] rounded p-3 text-center">
+                    <span class="text-[0.65rem] cinzel uppercase tracking-widest text-gray-300 block">Total Invitados Extras</span>
+                    <span id="modal-stat-extras" class="cinzel text-xl text-white font-bold mt-1 block">0 extras</span>
                 </div>
-                <div>
-                    <label class="block text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.7)] mb-1">3er Pago</label>
-                    <input type="number" id="pay-p3" class="input-gold !mb-0" placeholder="Monto">
-                </div>
-                <div>
-                    <label class="block text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.7)] mb-1">4to Pago</label>
-                    <input type="number" id="pay-p4" class="input-gold !mb-0" placeholder="Monto">
-                </div>
-                <div>
-                    <label class="block text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.7)] mb-1">5to Pago</label>
-                    <input type="number" id="pay-p5" class="input-gold !mb-0" placeholder="Monto">
-                </div>
-                <div>
-                    <label class="block text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.7)] mb-1">6to Pago</label>
-                    <input type="number" id="pay-p6" class="input-gold !mb-0" placeholder="Monto">
+                <div class="bg-[rgba(16,185,129,0.08)] border border-emerald-500/40 rounded p-3 text-center">
+                    <span class="text-[0.65rem] cinzel uppercase tracking-widest text-emerald-300 block">Total que se Reuniría</span>
+                    <span id="modal-stat-revenue" class="cinzel text-xl text-emerald-400 font-bold mt-1 block">$0</span>
                 </div>
             </div>
 
-            <div class="flex justify-end gap-4 mt-6 border-t border-[rgba(212,175,55,0.1)] pt-4">
-                <button onclick="window.closeModals()" class="text-gray-400 hover:text-white text-xs uppercase tracking-widest font-serif transition-colors">Cancelar</button>
-                <button onclick="window.confirmPaymentDetails()" class="btn-gold">Guardar Pagos</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Full Payments Table -->
-    <div id="modal-full-payments" class="modal-overlay">
-        <div class="modal-box wide-modal">
-            <div class="flex justify-between items-center mb-6">
+            <!-- Simulador rápido también si todos los invitados pagaran boleto -->
+            <div class="mb-5 p-3.5 rounded bg-[rgba(229,193,88,0.06)] border border-[rgba(229,193,88,0.25)] flex flex-col sm:flex-row justify-between items-center gap-3 text-sm">
                 <div>
-                    <h3 class="cinzel text-xl text-gold uppercase tracking-widest">ALUMNOS E5 PROYECTO INTEGRADOR 9° SEMESTRE</h3>
-                    <p class="font-serif text-sm text-gray-400 italic mt-1">$3,500 pesos por Alumno</p>
+                    <span class="text-[#FFF099] font-semibold">Simulación General de Banquete:</span>
+                    <span class="text-gray-300">Si se cobrara esa misma cuota (<strong id="sim-unit-price" class="text-white">$300</strong>) por la totalidad de los <strong id="sim-all-student-guests" class="text-white">132</strong> lugares de alumnos (base + extras):</span>
                 </div>
-                <button onclick="window.closeModals()" class="text-2xl text-[rgba(212,175,55,0.5)] hover:text-white transition-colors">&times;</button>
+                <div id="sim-all-revenue" class="cinzel text-lg font-bold text-[#FFF099] whitespace-nowrap bg-[rgba(5,5,5,0.6)] px-3 py-1 rounded border border-[rgba(229,193,88,0.35)]">
+                    $0
+                </div>
             </div>
-            
-            <div class="data-table-container custom-scrollbar">
-                <table class="data-table" id="payments-table-full">
-                    <!-- JS Render -->
+
+            <div class="data-table-container custom-scrollbar max-h-[46vh] overflow-y-auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th class="text-left w-10">#</th>
+                            <th class="text-left">Alumno</th>
+                            <th>Mesa</th>
+                            <th>Base</th>
+                            <th>Invitados Extras</th>
+                            <th>Total Lugares</th>
+                            <th>Confirmados (QR)</th>
+                            <th>Total por Extras</th>
+                        </tr>
+                    </thead>
+                    <tbody id="extras-breakdown-tbody">
+                        <!-- JS Render -->
+                    </tbody>
                 </table>
             </div>
-            
-            <div class="mt-4 text-right flex justify-end gap-4 items-center">
-                <span class="text-xs uppercase tracking-widest text-gold-light">Total Recaudado:</span>
-                <span id="full-payments-total" class="font-mono text-xl text-white font-bold bg-[rgba(212,175,55,0.1)] px-4 py-2 border border-gold rounded"></span>
+
+            <div class="mt-5 flex justify-end">
+                <button onclick="window.closeModals()" class="btn-gold">Cerrar Reporte</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Gestor Maestro de Mesas -->
+    <!-- Modal: Gestor Maestro de Mesas -->
     <div id="modal-table-manager" class="modal-overlay">
         <div class="modal-box wide-modal">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-5 border-b border-[rgba(229,193,88,0.2)] pb-3">
                 <div>
-                    <h3 class="cinzel text-xl text-gold uppercase tracking-widest">Gestor Maestro de Mesas</h3>
-                    <p class="font-serif text-sm text-gray-400 italic mt-1">Asigna manualmente el número de mesa para cada alumno. Quienes compartan número, compartirán mesa.</p>
+                    <h3 class="cinzel text-xl text-gold uppercase tracking-widest font-semibold">Gestor Maestro de Mesas</h3>
+                    <p class="font-serif text-sm text-gray-300 italic mt-1">Asigna el número de mesa para cada alumno. Quienes tengan el mismo número compartirán mesa en el salón.</p>
                 </div>
-                <button onclick="window.closeModals()" class="text-2xl text-[rgba(212,175,55,0.5)] hover:text-white transition-colors">&times;</button>
+                <button onclick="window.closeModals()" class="text-2xl text-[#FFF099]/70 hover:text-white transition-colors">&times;</button>
             </div>
             
-            <div class="data-table-container custom-scrollbar max-h-[50vh] overflow-y-auto mb-6">
+            <div class="data-table-container custom-scrollbar max-h-[52vh] overflow-y-auto mb-6">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th class="text-left w-12">No.</th>
                             <th class="text-left">Alumno</th>
-                            <th class="text-center w-24">Lugares</th>
-                            <th class="text-center w-32">Mesa Asignada</th>
+                            <th class="text-center w-24">Base</th>
+                            <th class="text-center w-24">Extras</th>
+                            <th class="text-center w-24">Total Lug.</th>
+                            <th class="text-center w-36">Mesa Asignada</th>
                         </tr>
                     </thead>
                     <tbody id="table-manager-list">
@@ -437,93 +493,55 @@
                 </table>
             </div>
 
-            <div class="flex justify-end gap-4 border-t border-[rgba(212,175,55,0.1)] pt-4">
-                <button onclick="window.closeModals()" class="text-gray-400 hover:text-white text-xs uppercase tracking-widest font-serif transition-colors">Cancelar</button>
+            <div class="flex justify-end gap-4 border-t border-[rgba(229,193,88,0.18)] pt-4">
+                <button onclick="window.closeModals()" class="text-gray-300 hover:text-white text-xs uppercase tracking-widest cinzel transition-colors px-3 py-2">Cancelar</button>
                 <button onclick="window.saveTableAssignments()" class="btn-gold">Guardar Distribución</button>
             </div>
         </div>
     </div>
 
-    <div id="modal-expenses" class="modal-overlay">
-        <div class="modal-box w-full max-w-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="cinzel text-xl text-gold uppercase tracking-widest">Control de Gastos</h3>
-                <button onclick="window.closeModals()" class="text-2xl text-[rgba(212,175,55,0.5)] hover:text-white transition-colors">&times;</button>
-            </div>
-            
-            <div class="grid grid-cols-12 gap-2 mb-6">
-                <input type="text" id="expense-concept" class="input-gold col-span-7 !mb-0" placeholder="Concepto (ej. Anticipo Salón)">
-                <input type="number" id="expense-amount" class="input-gold col-span-3 !mb-0" placeholder="$ Monto">
-                <button onclick="window.addExpense()" class="btn-gold col-span-2 flex items-center justify-center text-xl">+</button>
-            </div>
-
-            <div class="border border-[rgba(212,175,55,0.2)] bg-[rgba(5,5,5,0.4)] rounded p-4 max-h-64 overflow-y-auto custom-scrollbar">
-                <div class="grid grid-cols-12 gap-2 text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.6)] mb-2 border-b border-[rgba(212,175,55,0.1)] pb-2">
-                    <div class="col-span-7">Concepto</div>
-                    <div class="col-span-3 text-right">Monto</div>
-                    <div class="col-span-2 text-center">Borrar</div>
-                </div>
-                <div id="expenses-list" class="space-y-2"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-income" class="modal-overlay">
-        <div class="modal-box">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="cinzel text-xl text-gold uppercase tracking-widest">Desglose de Ingresos</h3>
-                <button onclick="window.closeModals()" class="text-2xl text-[rgba(212,175,55,0.5)] hover:text-white transition-colors">&times;</button>
-            </div>
-            <div class="space-y-4 text-gray-300 font-serif text-lg">
-                <div class="flex justify-between border-b border-[rgba(212,175,55,0.1)] pb-2">
-                    <span>Recaudado por Cuotas:</span>
-                    <span id="detail-quotas" class="text-white font-mono font-bold">$0</span>
-                </div>
-                <div class="flex justify-between border-b border-[rgba(212,175,55,0.1)] pb-2">
-                    <span>Recaudado por Extras:</span>
-                    <span id="detail-extras" class="text-[#a8d5ba] font-mono font-bold">$0</span>
-                </div>
-                <div class="flex justify-between pt-2">
-                    <span class="text-gold tracking-widest uppercase text-sm">Ingreso Total:</span>
-                    <span id="detail-total" class="text-gold-light font-mono font-bold text-xl">$0</span>
-                </div>
-            </div>
-            <div class="mt-8 text-center">
-                <button onclick="window.closeModals()" class="btn-gold w-full">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Invitados por Mesa -->
+    <!-- Modal: Invitados Confirmados por Mesa -->
     <div id="modal-table-guests" class="modal-overlay">
         <div class="modal-box w-full max-w-lg">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-5 border-b border-[rgba(229,193,88,0.2)] pb-3">
                 <div class="text-left">
-                    <h3 id="tg-title" class="cinzel text-xl text-gold uppercase tracking-widest">Mesa</h3>
-                    <p class="font-serif text-sm text-gray-400 italic mt-1">Invitados Confirmados en Firebase</p>
+                    <h3 id="tg-title" class="cinzel text-xl text-gold uppercase tracking-widest font-semibold">Mesa</h3>
+                    <p id="tg-subtitle" class="font-serif text-sm text-gray-300 italic mt-0.5">Invitados Confirmados en tiempo real (Firebase)</p>
                 </div>
-                <button onclick="window.closeModals()" class="text-2xl text-[rgba(212,175,55,0.5)] hover:text-white transition-colors">&times;</button>
+                <button onclick="window.closeModals()" class="text-2xl text-[#FFF099]/70 hover:text-white transition-colors">&times;</button>
             </div>
-            <div class="grid grid-cols-12 gap-2 text-[0.65rem] uppercase tracking-widest text-[rgba(212,175,55,0.6)] mb-2 border-b border-[rgba(212,175,55,0.1)] pb-2 text-left">
+            <div class="grid grid-cols-12 gap-2 text-[0.68rem] cinzel uppercase tracking-wider text-[#FFF099] mb-2 border-b border-[rgba(229,193,88,0.2)] pb-2 text-left font-semibold">
                 <div class="col-span-7">Nombre del Invitado</div>
                 <div class="col-span-5 text-right">Anfitrión</div>
             </div>
-            <div id="tg-list" class="space-y-1 max-h-64 overflow-y-auto custom-scrollbar text-left">
+            <div id="tg-list" class="space-y-1.5 max-h-72 overflow-y-auto custom-scrollbar text-left pr-1">
                 <!-- Renderizado por JS -->
             </div>
+            <div class="mt-5 text-right border-t border-[rgba(229,193,88,0.15)] pt-3">
+                <button onclick="window.closeModals()" class="btn-gold">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Notificación (Reemplazo elegante de alert) -->
+    <div id="modal-notice" class="modal-overlay" style="z-index: 250;">
+        <div class="modal-box max-w-md text-center">
+            <h4 id="notice-title" class="cinzel text-lg text-gold uppercase tracking-widest mb-3">Aviso del Sistema</h4>
+            <p id="notice-message" class="text-base text-gray-200 whitespace-pre-line leading-relaxed mb-6"></p>
+            <button onclick="document.getElementById('modal-notice').classList.remove('active')" class="btn-gold w-full">Entendido</button>
         </div>
     </div>
 
     <!-- Modal de Login Restringido -->
     <div id="modal-planner-login" class="modal-overlay active" style="z-index: 9999; background: var(--ink);">
         <div class="modal-box w-full max-w-sm text-center">
-            <div class="w-16 h-16 mx-auto mb-6 rounded-full border border-yellow-600 flex items-center justify-center shape-1">
-                <span class="font-serif text-yellow-600 text-3xl leading-none pt-1">円</span>
+            <div class="w-16 h-16 mx-auto mb-6 rounded-full border border-[#E5C158] flex items-center justify-center shape-1 shadow-[0_0_20px_rgba(229,193,88,0.2)]">
+                <span class="font-serif text-[#FFF099] text-3xl leading-none pt-1">円</span>
             </div>
-            <h3 class="cinzel text-xl text-gold mb-2 uppercase tracking-widest">Acceso Restringido</h3>
-            <p class="mb-8 text-gray-400 font-serif text-sm">Solo el administrador maestro tiene autorización para modificar el plano y las finanzas del evento.</p>
+            <h3 class="cinzel text-xl text-gold mb-2 uppercase tracking-widest font-semibold">Acceso Restringido</h3>
+            <p class="mb-8 text-gray-300 font-serif text-base">Solo el administrador maestro tiene autorización para modificar el aforo, las mesas y los invitados extras del evento.</p>
             
-            <button onclick="window.loginWithGoogle()" class="w-full flex justify-center items-center gap-3 bg-[rgba(255,255,255,0.05)] border border-[rgba(212,175,55,0.3)] text-[rgba(212,175,55,0.9)] hover:text-white hover:bg-[rgba(212,175,55,0.15)] hover:border-gold transition-all py-3 rounded">
+            <button onclick="window.loginWithGoogle()" class="w-full flex justify-center items-center gap-3 bg-[rgba(255,255,255,0.06)] border border-[rgba(229,193,88,0.45)] text-[#FFF099] hover:text-white hover:bg-[rgba(229,193,88,0.18)] hover:border-[#FFF099] transition-all py-3.5 rounded cursor-pointer">
                 <svg width="18" height="18" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M47.532 24.5528C47.532 22.9214 47.3997 21.2811 47.1175 19.6761H24.48V28.5181H37.4434C36.9055 31.3393 35.177 33.8239 32.6461 35.5056V41.4107H40.4001C44.9468 37.229 47.532 31.4239 47.532 24.5528Z" fill="#4285F4"/>
                     <path d="M24.48 48.0016C30.9529 48.0016 36.4116 45.8764 40.4088 41.4107L32.6549 35.5056C30.5038 36.958 27.7552 37.8687 24.48 37.8687C18.132 37.8687 12.756 33.5936 10.8228 27.8385H2.8941V33.993C7.0255 42.195 15.3402 48.0016 24.48 48.0016Z" fill="#34A853"/>
@@ -532,16 +550,16 @@
                 </svg>
                 <span class="cinzel text-xs tracking-widest font-bold">Ingresar con Google</span>
             </button>
-            <p id="login-error" class="mt-4 text-red-500 font-serif text-sm italic opacity-0 transition-opacity"></p>
+            <p id="login-error" class="mt-4 text-rose-400 font-serif text-sm italic opacity-0 transition-opacity"></p>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global Vars for Firebase
+        // Configuración oficial de Firebase (NO SE ALTERA NINGÚN DATO EXISTENTE)
         const appId = 'enso-uatyg-gala'; 
         const firebaseConfig = {
             apiKey: "AIzaSyAd_rViRrwdsigVaJNJO82nvVpGzywQT30",
@@ -556,75 +574,64 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Helper to construct payment object
-        const createPayments = (salon=0, sonido=0, p3=0, p4=0, p5=0, p6=0) => ({
-            salon, sonido, p3, p4, p5, p6
-        });
-
         const INITIAL_STATE = {
             settings: {
                 maxTotalGuests: 200,
                 baseSeats: 6,
-                maxExtra: 6, // CHANGED: Now everyone can have up to 6 extras (12 total)
-                extraPrice: 300,
-                quotaPrice: 3500
+                maxExtra: 6,
+                extraPrice: 300
             },
             vipTables: [
                 { id: 'v1', name: 'Mesa 1 (Maestros)', capacity: 9 },
                 { id: 'v2', name: 'Mesa 2 (Directivos)', capacity: 9 }
             ],
-            expenses: [],
-            // Data extracted from the image provided
             students: [
-                { name: "Aron Rafael Bañuelos Cortez.", table: 7, pmts: createPayments(150, 150) },
-                { name: "Brandon Jaramillo Rosas.", table: 8, pmts: createPayments(150, 150, 200, 1150) },
-                { name: "Carlos Isac Luna", table: 5, pmts: createPayments(150, 150) },
-                { name: "Cristhian Iván López Ponce.", table: 6, pmts: createFirebaseReadyPayments(150, 150, 150) }, // Helper mapped below
-                { name: "Daniela Rivera Carrillo.", table: 9, pmts: createPayments(150, 150, 200, 750) },
-                { name: "David Villagrana Ibarra.", table: 10, pmts: createPayments(150, 150, 200, 750, 1500) },
-                { name: "Diego De La Rosa Torres.", table: 11, pmts: createPayments(150, 150) },
-                { name: "Fátima Lizbeth Gómez Flores.", table: 3, pmts: createPayments(150, 150) },
-                { name: "Fernando Rincon Mendiola", table: 12, pmts: createPayments(150, 150) },
-                { name: "Francisco Sepulveda Paredes", table: 5, pmts: createPayments(150, 150) },
-                { name: "Giselle Fabiola Jiménez Silva.", table: 4, pmts: createPayments(150, 150, 150) },
-                { name: "Gloria Estefanía Barraza Taracena", table: 3, pmts: createPayments(150, 150) },
-                { name: "Heidi Gisela Castillo Ramírez.", table: 7, pmts: createPayments(150, 150) },
-                { name: "Iván Salinas Rosales.", table: 6, pmts: createPayments(150, 150, 200, 150) },
-                { name: "Julieta Esmeralda Hernández .", table: 13, pmts: createPayments(150, 150) },
-                { name: "Kestin Yaletzi Gutiérrez Álvarez.", table: 4, pmts: createPayments(150, 150) },
-                { name: "Leonel Aldair Arroyo Soria.", table: 9, pmts: createPayments(150, 150, 200, 800) },
-                { name: "Luis Armando Santiago Gonzales.", table: 11, pmts: createPayments(150, 150) },
-                { name: "Martin Enrique Márquez Abascal.", table: 13, pmts: createPayments(150, 150, 200) },
-                { name: "Nazbith Adilene Fletes Guardado.", table: 12, pmts: createPayments(150, 150) },
-                { name: "Gerardo Tovar Estrada", table: 8, pmts: createPayments(150, 150) },
-                { name: "Zully Adolfo Gonzales Hernández.", table: 10, pmts: createPayments(150, 150) }
+                { name: "Aron Rafael Bañuelos Cortez.", table: 7 },
+                { name: "Brandon Jaramillo Rosas.", table: 8 },
+                { name: "Carlos Isac Luna", table: 5 },
+                { name: "Cristhian Iván López Ponce.", table: 6 },
+                { name: "Daniela Rivera Carrillo.", table: 9 },
+                { name: "David Villagrana Ibarra.", table: 10 },
+                { name: "Diego De La Rosa Torres.", table: 11 },
+                { name: "Fátima Lizbeth Gómez Flores.", table: 3 },
+                { name: "Fernando Rincon Mendiola", table: 12 },
+                { name: "Francisco Sepulveda Paredes", table: 5 },
+                { name: "Giselle Fabiola Jiménez Silva.", table: 4 },
+                { name: "Gloria Estefanía Barraza Taracena", table: 3 },
+                { name: "Heidi Gisela Castillo Ramírez.", table: 7 },
+                { name: "Iván Salinas Rosales.", table: 6 },
+                { name: "Julieta Esmeralda Hernández .", table: 13 },
+                { name: "Kestin Yaletzi Gutiérrez Álvarez.", table: 4 },
+                { name: "Leonel Aldair Arroyo Soria.", table: 9 },
+                { name: "Luis Armando Santiago Gonzales.", table: 11 },
+                { name: "Martin Enrique Márquez Abascal.", table: 13 },
+                { name: "Nazbith Adilene Fletes Guardado.", table: 12 },
+                { name: "Gerardo Tovar Estrada", table: 8 },
+                { name: "Zully Adolfo Gonzales Hernández.", table: 10 }
             ].map((s, index) => ({
                 id: `s${index}`,
                 name: s.name,
                 baseTable: s.table,
-                extra: 0,
-                payments: s.pmts // New structure
+                extra: 0
             }))
         };
 
-        // Helper used above to bypass hoisting issues in mapping
-        function createFirebaseReadyPayments(salon=0, sonido=0, p3=0, p4=0, p5=0, p6=0) {
-            return {salon, sonido, p3, p4, p5, p6};
-        }
-
         let state = JSON.parse(JSON.stringify(INITIAL_STATE)); 
-        let activeStudentIdForPayment = null;
         let allConfirmedGuests = []; 
         let activeTableHosts = [];
         let activeTableLabel = '';
+        let activeTableNumber = null;
+        let searchFilter = '';
         const ADMIN_EMAIL = "luixnay@gmail.com";
 
-        // Helper to calculate total paid by a student based on new structure
-        function getStudentTotalPaid(student) {
-            if (!student.payments) return student.paid || 0; // Fallback for old data
-            const p = student.payments;
-            return (p.salon || 0) + (p.sonido || 0) + (p.p3 || 0) + (p.p4 || 0) + (p.p5 || 0) + (p.p6 || 0);
-        }
+        const formatMoney = (val) => '$' + (Number(val) || 0).toLocaleString('es-MX');
+        const cleanText = (str) => (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z]/gi, '').toUpperCase();
+
+        window.showNotice = function(title, message) {
+            document.getElementById('notice-title').innerText = title;
+            document.getElementById('notice-message').innerText = message;
+            document.getElementById('modal-notice').classList.add('active');
+        };
 
         window.loginWithGoogle = async function() {
             const provider = new GoogleAuthProvider();
@@ -650,38 +657,30 @@
                     loginModal.classList.remove('active');
                     errorEl.style.opacity = '0';
 
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'planner', 'state_v2'); // Use v2 to force new state with payments
+                    // Leemos el documento existente en Firebase y preservamos cualquier campo previo sin borrar nada
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'planner', 'state_v2');
                     onSnapshot(docRef, (snapshot) => {
                         if (snapshot.exists()) {
                             let data = snapshot.data();
-                            let needsUpdate = false;
-                            
-                            // Migrations & Fallbacks
-                            if (!data.expenses) { data.expenses = []; needsUpdate = true; }
-                            if (!data.settings.quotaPrice) { data.settings.quotaPrice = 3500; needsUpdate = true; }
-                            if (data.settings.maxExtra !== 6) { data.settings.maxExtra = 6; needsUpdate = true; } // Enforce new max
-                            
-                            data.students.forEach(s => {
-                                if (!s.payments) {
-                                    // Migration from old simple 'paid' to structured 'payments'
-                                    s.payments = createPayments(s.paid || 0, 0, 0, 0, 0, 0);
-                                    needsUpdate = true;
-                                }
-                            });
-                            
+                            if (!data.settings) data.settings = { ...INITIAL_STATE.settings };
+                            if (typeof data.settings.extraPrice !== 'number') data.settings.extraPrice = 300;
+                            if (typeof data.settings.baseSeats !== 'number') data.settings.baseSeats = 6;
+                            if (typeof data.settings.maxExtra !== 'number') data.settings.maxExtra = 6;
+                            if (typeof data.settings.maxTotalGuests !== 'number') data.settings.maxTotalGuests = 200;
+
                             state = data;
-                            if (needsUpdate) window.saveData();
-                            else renderAll();
+                            renderAll();
                         } else {
-                            window.saveData(); // Save INITIAL_STATE_V2
+                            window.saveData();
                             renderAll();
                         }
                     }, (error) => console.error("Firebase err:", error));
 
-                    // Escuchar a los invitados confirmados en tiempo real
+                    // Escuchar a los invitados confirmados en tiempo real (colección 'guests' intacta)
                     const guestsRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
                     onSnapshot(guestsRef, (snapshot) => {
                         allConfirmedGuests = snapshot.docs.map(doc => doc.data());
+                        renderAll();
                         if (document.getElementById('modal-table-guests').classList.contains('active')) {
                             renderActiveTableGuests();
                         }
@@ -696,15 +695,19 @@
             }
         });
 
+        // Guardamos usando merge: true para no destruir ningún dato histórico en el documento
         window.saveData = function() {
             if (!auth.currentUser || auth.currentUser.email !== ADMIN_EMAIL) return;
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'planner', 'state_v2'); // Save to v2
-            setDoc(docRef, state, { merge: false });
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'planner', 'state_v2');
+            setDoc(docRef, state, { merge: true });
         };
 
         window.syncHostData = async function() {
             const syncStatus = document.getElementById('sync-status');
-            if(syncStatus) { syncStatus.innerText = 'Sincronizando...'; syncStatus.style.color = 'var(--gold)'; }
+            if (syncStatus) {
+                syncStatus.innerText = 'Sincronizando...';
+                syncStatus.style.color = 'var(--gold-light)';
+            }
             
             try {
                 calculateFloorPlan();
@@ -713,8 +716,6 @@
                 const hostDataSnap = await getDocs(hostDataRef);
                 const batch = writeBatch(db);
                 let updates = 0;
-                
-                const cleanText = (str) => (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z]/gi, '').toUpperCase();
 
                 hostDataSnap.forEach(docSnap => {
                     const data = docSnap.data();
@@ -723,12 +724,11 @@
                         
                         const studentInPlan = state.students.find(st => {
                             const planName = cleanText(st.name);
-                            // Relaxed matching for longer names
                             return fireName === planName || fireName.includes(planName.split(' ')[0]) || planName.includes(fireName.split(' ')[0]);
                         });
                         
                         if (studentInPlan) {
-                            const newCount = Number(state.settings.baseSeats) + Number(studentInPlan.extra);
+                            const newCount = Number(state.settings.baseSeats) + Number(studentInPlan.extra || 0);
                             const newTable = Number(studentInPlan.assignedTable || studentInPlan.baseTable);
                             const currentCount = Number(data.count || 0);
                             const currentTable = Number(data.table || 0);
@@ -742,7 +742,7 @@
                 });
                 
                 let newTotalCapacity = 0;
-                state.students.forEach(s => newTotalCapacity += (Number(state.settings.baseSeats) + Number(s.extra)));
+                state.students.forEach(s => newTotalCapacity += (Number(state.settings.baseSeats) + Number(s.extra || 0)));
                 state.vipTables.forEach(v => newTotalCapacity += Number(v.capacity));
                 
                 const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
@@ -750,29 +750,29 @@
                 
                 await batch.commit();
                 
-                if(syncStatus) { syncStatus.innerText = '✔ Sincronizado'; syncStatus.style.color = '#4ade80'; setTimeout(()=>syncStatus.innerText='', 3500);}
-                alert(`¡Sincronización exitosa!\nSe actualizaron los datos de ${updates} alumnos.\nCapacidad total en sistema ajustada a: ${newTotalCapacity} lugares.\n\nIMPORTANTE: Recuerda ir a tu página principal y darle a '+ Generar Códigos' si aumentaste lugares.`);
+                if (syncStatus) {
+                    syncStatus.innerText = '✔ Sincronizado';
+                    syncStatus.style.color = '#4ade80';
+                    setTimeout(() => syncStatus.innerText = '', 3500);
+                }
+                window.showNotice(
+                    "Sincronización Exitosa",
+                    `Se actualizaron los cupos/mesas de ${updates} alumnos en Firebase.\n\nCapacidad total en sistema ajustada a: ${newTotalCapacity} lugares.\n\nNota: Si aumentaste lugares extras a un alumno, recuerda entrar al Panel de Control de la invitación principal y pulsar "+ Generar Códigos" para crear sus códigos nuevos.`
+                );
             } catch (e) {
                 console.error("Error al sincronizar con Firebase:", e);
-                if(syncStatus) { syncStatus.innerText = '❌ Error DB'; syncStatus.style.color = '#ff6b6b'; }
-                alert("Error al sincronizar con Firebase: " + e.message);
-            }
-        }
-
-        window.resetData = function() {
-            const isConfirmed = prompt("Peligro: Esto borrará TODOS los abonos y gastos volviendo a la base inicial. Escribe 'RESET' para confirmar.");
-            if(isConfirmed === 'RESET') {
-                state = JSON.parse(JSON.stringify(INITIAL_STATE));
-                window.saveData();
-                renderAll();
+                if (syncStatus) {
+                    syncStatus.innerText = '❌ Error DB';
+                    syncStatus.style.color = '#fb7185';
+                }
+                window.showNotice("Error de Sincronización", "Ocurrió un problema al sincronizar con Firebase: " + e.message);
             }
         };
 
         window.updateVIPCapacity = function(id, delta) {
             const table = state.vipTables.find(t => t.id === id);
             if (table) {
-                table.capacity += delta;
-                if (table.capacity < 1) table.capacity = 1;
+                table.capacity = Math.max(1, Number(table.capacity) + delta);
                 window.saveData();
                 renderAll();
             }
@@ -781,30 +781,45 @@
         window.updateStudentExtra = function(id, delta) {
             const student = state.students.find(s => s.id === id);
             if (student) {
-                const maxAllowedExtras = state.settings.maxExtra; // Now 6 for everyone
-                
-                let newExtra = student.extra + delta;
+                const maxAllowedExtras = Number(state.settings.maxExtra) || 6;
+                let newExtra = (Number(student.extra) || 0) + delta;
                 if (newExtra < 0) newExtra = 0;
                 if (newExtra > maxAllowedExtras) newExtra = maxAllowedExtras; 
                 
                 student.extra = newExtra;
-                
                 renderAll(); 
                 window.saveData(); 
             }
         };
 
+        window.updateExtraPrice = function(val) {
+            const parsed = parseFloat(val);
+            if (isNaN(parsed) || parsed < 0) return;
+            state.settings.extraPrice = parsed;
+            renderAll();
+            window.saveData();
+        };
+
+        window.filterStudents = function(term) {
+            searchFilter = (term || '').trim().toLowerCase();
+            renderSidebar();
+        };
+
         window.openTableManager = function() {
             const tbody = document.getElementById('table-manager-list');
             tbody.innerHTML = state.students.map((s, index) => {
-                const seats = Number(state.settings.baseSeats) + Number(s.extra);
+                const base = Number(state.settings.baseSeats) || 6;
+                const extra = Number(s.extra) || 0;
+                const seats = base + extra;
                 return `
                 <tr>
-                    <td class="text-left text-gray-500">${index + 1}</td>
-                    <td class="text-left text-gray-300 font-serif">${s.name}</td>
-                    <td class="text-center text-gray-400 font-mono">${seats}</td>
-                    <td class="text-center p-1">
-                        <input type="number" id="tm-input-${s.id}" class="input-gold !mb-0 text-center !p-1 !text-sm w-full font-mono" value="${s.baseTable}">
+                    <td class="text-left text-gray-400 font-mono">${index + 1}</td>
+                    <td class="text-left text-white font-serif text-base">${s.name}</td>
+                    <td class="text-center text-gray-300 font-mono">${base}</td>
+                    <td class="text-center ${extra > 0 ? 'text-[#FFF099] font-bold' : 'text-gray-500'} font-mono">+${extra}</td>
+                    <td class="text-center text-white font-mono font-bold">${seats}</td>
+                    <td class="text-center p-1.5">
+                        <input type="number" id="tm-input-${s.id}" min="1" max="30" class="input-gold !mb-0 text-center !p-1 !text-sm w-24 font-mono font-bold" value="${s.baseTable}">
                     </td>
                 </tr>
             `}).join('');
@@ -817,7 +832,7 @@
                 const input = document.getElementById(`tm-input-${s.id}`);
                 if (input) {
                     const newVal = parseInt(input.value, 10);
-                    if (!isNaN(newVal) && newVal !== s.baseTable) {
+                    if (!isNaN(newVal) && newVal > 0 && newVal !== s.baseTable) {
                         s.baseTable = newVal;
                         changed = true;
                     }
@@ -832,168 +847,74 @@
         };
 
         window.editBaseTable = function(studentId) {
-            // Ya no usamos prompt(). Ahora abre el gestor maestro para evitar que se cierre de golpe.
             window.openTableManager();
-            
-            // Hacemos scroll hacia el input del alumno específico después de un breve momento
             setTimeout(() => {
                 const input = document.getElementById(`tm-input-${studentId}`);
-                if(input) {
+                if (input) {
                     input.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     input.focus();
-                    input.style.borderColor = 'var(--gold)';
-                    input.style.boxShadow = '0 0 15px rgba(212,175,55,0.5)';
+                    input.style.borderColor = 'var(--gold-light)';
+                    input.style.boxShadow = '0 0 15px rgba(255,240,153,0.5)';
                 }
             }, 100);
         };
 
-        const formatMoney = (val) => '$' + val.toLocaleString('en-US');
-
         window.closeModals = function() {
-            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
-            activeStudentIdForPayment = null;
-        };
-
-        window.openPaymentModal = function(studentId) {
-            const student = state.students.find(s => s.id === studentId);
-            if (!student) return;
-            
-            activeStudentIdForPayment = studentId;
-            const totalPaid = getStudentTotalPaid(student);
-            const p = student.payments || {};
-
-            document.getElementById('payment-student-name').innerText = `Alumno: ${student.name} | Total Pagado: ${formatMoney(totalPaid)} de ${formatMoney(state.settings.quotaPrice)}`;
-            
-            // Populate inputs
-            document.getElementById('pay-salon').value = p.salon || '';
-            document.getElementById('pay-sonido').value = p.sonido || '';
-            document.getElementById('pay-p3').value = p.p3 || '';
-            document.getElementById('pay-p4').value = p.p4 || '';
-            document.getElementById('pay-p5').value = p.p5 || '';
-            document.getElementById('pay-p6').value = p.p6 || '';
-
-            document.getElementById('modal-payment').classList.add('active');
-        };
-
-        window.confirmPaymentDetails = function() {
-            if (!activeStudentIdForPayment) return;
-            const student = state.students.find(s => s.id === activeStudentIdForPayment);
-            if (!student) return;
-
-            const getVal = (id) => {
-                const v = parseFloat(document.getElementById(id).value);
-                return isNaN(v) ? 0 : v;
-            };
-
-            student.payments = {
-                salon: getVal('pay-salon'),
-                sonido: getVal('pay-sonido'),
-                p3: getVal('pay-p3'),
-                p4: getVal('pay-p4'),
-                p5: getVal('pay-p5'),
-                p6: getVal('pay-p6')
-            };
-
-            window.saveData();
-            renderAll();
-            window.closeModals();
-        };
-
-        window.openFullPaymentsModal = function() {
-            renderFullPaymentsTable();
-            document.getElementById('modal-full-payments').classList.add('active');
-        }
-
-        window.openExpensesModal = function() {
-            document.getElementById('expense-concept').value = '';
-            document.getElementById('expense-amount').value = '';
-            renderExpensesList();
-            document.getElementById('modal-expenses').classList.add('active');
-        };
-
-        window.addExpense = function() {
-            const concept = document.getElementById('expense-concept').value.trim();
-            const amount = parseFloat(document.getElementById('expense-amount').value);
-            
-            if (!concept || isNaN(amount) || amount <= 0) return;
-            
-            state.expenses.push({
-                id: 'exp_' + Date.now(),
-                concept: concept,
-                amount: amount,
-                timestamp: new Date().toISOString()
+            document.querySelectorAll('.modal-overlay').forEach(m => {
+                if (m.id !== 'modal-planner-login') m.classList.remove('active');
             });
-            
-            window.saveData();
-            renderExpensesList();
-            renderAll();
         };
 
-        window.deleteExpense = function(expId) {
-            state.expenses = state.expenses.filter(e => e.id !== expId);
-            window.saveData();
-            renderExpensesList();
-            renderAll();
+        window.openExtrasSummaryModal = function() {
+            renderExtrasBreakdownModal();
+            document.getElementById('modal-extras-summary').classList.add('active');
         };
 
-        function renderExpensesList() {
-            const html = state.expenses.map(e => `
-                <div class="grid grid-cols-12 gap-2 items-center py-3 border-b border-[rgba(255,255,255,0.05)] text-sm font-serif">
-                    <div class="col-span-7 text-white truncate text-lg">${e.concept}</div>
-                    <div class="col-span-3 text-right text-[#ff6b6b] font-mono">-${formatMoney(e.amount)}</div>
-                    <div class="col-span-2 text-center">
-                        <button onclick="window.deleteExpense('${e.id}')" class="text-red-500 hover:text-red-400 font-bold border border-red-900 rounded px-2 bg-red-950 transition-colors">&times;</button>
-                    </div>
-                </div>
-            `).join('');
-            document.getElementById('expenses-list').innerHTML = html || '<p class="text-center text-gray-500 text-sm mt-4 font-serif italic">No hay gastos registrados en este evento.</p>';
+        // Cuenta cuántos invitados han confirmado en Firebase para un alumno o mesa
+        function getConfirmedCountForStudent(studentName) {
+            const cleanSt = cleanText(studentName);
+            const firstPart = cleanSt.substring(0, 6);
+            return allConfirmedGuests.filter(g => {
+                const cleanHost = cleanText(g.hostName);
+                return cleanHost && (cleanHost === cleanSt || cleanHost.includes(firstPart) || cleanSt.includes(cleanHost.substring(0, 6)));
+            }).length;
         }
 
-        window.openIncomeDetails = function() {
-            const elTotal = document.getElementById('stat-income').innerText;
-            const extraTotal = state.students.reduce((acc, s) => acc + ((s.extra || 0) * state.settings.extraPrice), 0);
-            const quotaTotal = state.students.reduce((acc, s) => acc + getStudentTotalPaid(s), 0);
-            
-            document.getElementById('detail-quotas').innerText = formatMoney(quotaTotal);
-            document.getElementById('detail-extras').innerText = formatMoney(extraTotal);
-            document.getElementById('detail-total').innerText = elTotal;
-            document.getElementById('modal-income').classList.add('active');
-        };
+        function getConfirmedGuestsForTable(tableNum, hostNames) {
+            const cleanedHosts = (hostNames || []).map(h => cleanText(h));
+            return allConfirmedGuests.filter(g => {
+                if (tableNum !== null && Number(g.table) === Number(tableNum)) return true;
+                const cleanGuestHost = cleanText(g.hostName);
+                return cleanedHosts.some(ch => ch && cleanGuestHost && (cleanGuestHost === ch || cleanGuestHost.includes(ch.substring(0, 6)) || ch.includes(cleanGuestHost.substring(0, 6))));
+            });
+        }
 
-        window.openTableGuests = function(tableLabel, hostNamesEncoded) {
-            activeTableHosts = JSON.parse(decodeURIComponent(hostNamesEncoded)).map(n => n.trim().toUpperCase());
+        window.openTableGuests = function(tableLabel, tableNum, hostNamesEncoded) {
+            activeTableHosts = JSON.parse(decodeURIComponent(hostNamesEncoded));
             activeTableLabel = tableLabel;
+            activeTableNumber = tableNum;
             renderActiveTableGuests();
             document.getElementById('modal-table-guests').classList.add('active');
         };
 
         function renderActiveTableGuests() {
-            if(!activeTableHosts.length) return;
             document.getElementById('tg-title').innerText = activeTableLabel;
-
-            const cleanText = (str) => (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z]/gi, '').toUpperCase();
-            
-            const guestsInTable = allConfirmedGuests.filter(g => {
-                const safeName = cleanText(g.hostName);
-                return activeTableHosts.some(host => {
-                    const cleanHost = cleanText(host);
-                    // Match logic
-                    return safeName === cleanHost || safeName.includes(cleanHost.substring(0,5)) || cleanHost.includes(safeName.substring(0,5));
-                });
-            });
+            const guestsInTable = getConfirmedGuestsForTable(activeTableNumber, activeTableHosts);
+            document.getElementById('tg-subtitle').innerText = `${guestsInTable.length} invitado(s) confirmado(s) en Firebase`;
 
             let html = '';
             if (guestsInTable.length === 0) {
-                html = '<p class="text-center text-gray-500 text-sm mt-8 font-serif italic col-span-12">Aún no hay invitados confirmados para esta mesa.</p>';
+                html = '<p class="text-center text-gray-400 text-base py-8 font-serif italic">Aún no hay invitados confirmados registrados en esta mesa.</p>';
             } else {
-                guestsInTable.sort((a, b) => a.guestName.localeCompare(b.guestName));
+                guestsInTable.sort((a, b) => String(a.guestName || '').localeCompare(String(b.guestName || '')));
                 html = guestsInTable.map(g => `
-                    <div class="grid grid-cols-12 gap-2 items-center py-2 border-b border-[rgba(255,255,255,0.05)]">
-                        <div class="col-span-7 font-serif text-white text-lg truncate" title="${g.guestName}">
-                            <span class="text-[0.6rem] mr-1 ${g.asistio ? 'text-green-400' : 'text-gray-500'}" title="${g.asistio ? 'Ya ingresó' : 'Pendiente'}">${g.asistio ? '✅' : '⏳'}</span> ${g.guestName}
+                    <div class="grid grid-cols-12 gap-2 items-center py-2.5 px-2 border-b border-[rgba(255,255,255,0.07)] hover:bg-[rgba(229,193,88,0.05)] rounded">
+                        <div class="col-span-7 font-serif text-white text-base md:text-lg truncate" title="${g.guestName}">
+                            <span class="text-xs mr-1.5" title="${g.asistio ? 'Ya ingresó al salón' : 'Pendiente de llegada'}">${g.asistio ? '✅' : '⏳'}</span>
+                            ${g.guestName}
                         </div>
-                        <div class="col-span-5 text-right text-[0.65rem] text-gold uppercase tracking-widest truncate" title="${g.hostName}">
-                            ${g.hostName}
+                        <div class="col-span-5 text-right text-[0.68rem] text-[#FFF099] cinzel uppercase tracking-wider truncate" title="${g.hostName}">
+                            ${g.hostName || 'Invitación Especial'}
                         </div>
                     </div>
                 `).join('');
@@ -1004,56 +925,63 @@
 
         function calculateFloorPlan() {
             let totalGuests = 0;
-            let extrasIncome = 0;
-            let quotasIncome = 0;
-            let totalExpenses = state.expenses ? state.expenses.reduce((sum, e) => sum + e.amount, 0) : 0;
+            let totalExtrasCount = 0;
+            const baseSeats = Number(state.settings.baseSeats) || 6;
+            const extraPrice = Number(state.settings.extraPrice) || 0;
 
             const computedTables = {
                 vip: [],
                 students: []
             };
 
-            state.vipTables.forEach(t => {
-                totalGuests += Number(t.capacity);
+            state.vipTables.forEach((t, idx) => {
+                const cap = Number(t.capacity) || 0;
+                totalGuests += cap;
                 computedTables.vip.push({
-                    type: 'vip', names: [t.name], capacity: t.capacity, guests: t.capacity, label: t.name
+                    type: 'vip',
+                    names: [t.name],
+                    capacity: cap,
+                    guests: cap,
+                    label: t.name,
+                    displayNumber: idx + 1
                 });
             });
 
             const tableGroups = {};
             state.students.forEach(s => {
-                quotasIncome += getStudentTotalPaid(s);
-                extrasIncome += Number(s.extra || 0) * state.settings.extraPrice;
+                const extra = Number(s.extra) || 0;
+                totalExtrasCount += extra;
                 
-                // Agrupamos ESTRICTAMENTE por la mesa base que asignó el usuario
                 const tNum = Number(s.baseTable) || 0;
                 if (!tableGroups[tNum]) tableGroups[tNum] = [];
                 tableGroups[tNum].push(s);
             });
 
-            // Procesamos las mesas creadas, respetando los números
-            Object.keys(tableGroups).sort((a,b) => Number(a) - Number(b)).forEach(tableNum => {
+            Object.keys(tableGroups).sort((a, b) => Number(a) - Number(b)).forEach(tableNum => {
                 const group = tableGroups[tableNum];
                 let tableCapacity = 0;
+                let tableExtras = 0;
                 let names = [];
                 
                 group.forEach(s => {
-                    const seats = Number(state.settings.baseSeats) + Number(s.extra);
+                    const ext = Number(s.extra) || 0;
+                    const seats = baseSeats + ext;
                     tableCapacity += seats;
+                    tableExtras += ext;
                     names.push(s.name);
-                    s.assignedTable = tableNum; // Fijamos estrictamente este número para Firebase
+                    s.assignedTable = tableNum;
                 });
                 
-                // Si la mesa supera los 12 lugares (ej. asignaste a 3 personas en la misma mesa)
                 const isOver = tableCapacity > 12;
                 
                 computedTables.students.push({
                     type: isOver ? 'error' : (group.length > 1 ? 'combined' : 'individual'),
                     names: names,
-                    capacity: tableCapacity, 
+                    capacity: tableCapacity,
+                    extras: tableExtras,
                     guests: tableCapacity, 
                     label: `MESA ${tableNum}`,
-                    displayNumber: tableNum,
+                    displayNumber: Number(tableNum),
                     isOvercapacity: isOver,
                     studentsObj: group
                 });
@@ -1061,170 +989,192 @@
                 totalGuests += tableCapacity;
             });
 
-            const totalIncome = quotasIncome + extrasIncome;
-            const balance = totalIncome - totalExpenses;
+            const totalExtrasRevenue = totalExtrasCount * extraPrice;
+            const totalStudentSeats = (state.students.length * baseSeats) + totalExtrasCount;
 
-            return { computedTables, totalGuests, totalIncome, totalExpenses, balance };
+            return {
+                computedTables,
+                totalGuests,
+                totalExtrasCount,
+                totalExtrasRevenue,
+                totalStudentSeats
+            };
         }
 
         function renderAll() {
-            const { computedTables, totalGuests, totalIncome, totalExpenses, balance } = calculateFloorPlan();
+            const plan = calculateFloorPlan();
             
-            renderHeader(totalGuests, computedTables.vip.length + computedTables.students.length, totalIncome, totalExpenses, balance);
+            renderHeader(plan);
             renderSidebar();
-            renderPaymentsTables();
-            renderFloorPlan(computedTables);
+            renderFloorPlan(plan.computedTables);
+
+            if (document.getElementById('modal-extras-summary').classList.contains('active')) {
+                renderExtrasBreakdownModal();
+            }
         }
 
-        function renderHeader(totalGuests, totalTables, totalIncome, totalExpenses, balance) {
-            const maxGuests = state.settings.maxTotalGuests;
+        function renderHeader(plan) {
+            const { computedTables, totalGuests, totalExtrasCount, totalExtrasRevenue } = plan;
+            const maxGuests = Number(state.settings.maxTotalGuests) || 200;
+            const baseTotal = state.students.length * (Number(state.settings.baseSeats) || 6);
+
             const elTotal = document.getElementById('stat-total');
             const capBar = document.getElementById('capacity-bar');
+            const priceInput = document.getElementById('extra-price-input');
+            if (priceInput && document.activeElement !== priceInput) {
+                priceInput.value = state.settings.extraPrice;
+            }
             
-            elTotal.innerHTML = `${totalGuests}<span class="text-xs font-normal text-gray-500">/${maxGuests}</span>`;
-            document.getElementById('stat-tables').innerText = totalTables;
-            document.getElementById('stat-income').innerText = formatMoney(totalIncome);
-            document.getElementById('stat-expenses').innerText = formatMoney(totalExpenses);
-            
-            const balEl = document.getElementById('stat-balance');
-            balEl.innerText = formatMoney(balance);
-            if (balance < 0) { balEl.classList.remove('text-white'); balEl.classList.add('text-red-400'); } 
-            else { balEl.classList.add('text-white'); balEl.classList.remove('text-red-400'); }
+            elTotal.innerHTML = `${totalGuests}<span class="text-xs font-normal text-gray-400">/${maxGuests}</span>`;
+            document.getElementById('stat-confirmed-live').innerText = allConfirmedGuests.length;
+            document.getElementById('stat-tables').innerText = computedTables.vip.length + computedTables.students.length;
+            document.getElementById('stat-extras-count').innerHTML = `+${totalExtrasCount} <span class="text-xs font-normal text-gray-300">lug.</span>`;
+            document.getElementById('stat-extras-money').innerText = formatMoney(totalExtrasRevenue);
+
+            // Resumen inferior del salón
+            document.getElementById('summary-base-seats').innerText = `${baseTotal} lugares`;
+            document.getElementById('summary-extra-seats').innerText = `+${totalExtrasCount} invitados extras`;
+            document.getElementById('summary-extra-revenue').innerText = `${formatMoney(totalExtrasRevenue)} MXN`;
 
             let percentage = (totalGuests / maxGuests) * 100;
             if (percentage > 100) percentage = 100;
             capBar.style.width = `${percentage}%`;
 
+            const warnEl = document.getElementById('capacity-warning');
             if (totalGuests > maxGuests) {
-                elTotal.classList.add('text-red-500'); elTotal.classList.remove('text-white');
-                document.getElementById('capacity-warning').style.opacity = '1';
-                capBar.classList.replace('bg-yellow-600', 'bg-red-600');
+                elTotal.classList.add('text-rose-400');
+                elTotal.classList.remove('text-white');
+                warnEl.classList.remove('hidden');
+                capBar.classList.replace('bg-[#E5C158]', 'bg-rose-600');
             } else {
-                elTotal.classList.remove('text-red-500'); elTotal.classList.add('text-white');
-                document.getElementById('capacity-warning').style.opacity = '0';
-                capBar.classList.replace('bg-red-600', 'bg-yellow-600');
+                elTotal.classList.remove('text-rose-400');
+                elTotal.classList.add('text-white');
+                warnEl.classList.add('hidden');
+                capBar.classList.replace('bg-rose-600', 'bg-[#E5C158]');
             }
         }
 
         function renderSidebar() {
+            const vipTotal = state.vipTables.reduce((acc, t) => acc + Number(t.capacity || 0), 0);
+            const vipBadge = document.getElementById('vip-total-badge');
+            if (vipBadge) vipBadge.innerText = `${vipTotal} lug.`;
+
             const vipHtml = state.vipTables.map(t => `
-                <div class="flex items-center justify-between bg-[rgba(255,255,255,0.02)] p-2 rounded border border-[rgba(212,175,55,0.1)]">
-                    <span class="cinzel text-sm text-[rgba(212,175,55,0.9)] tracking-widest">${t.name}</span>
-                    <div class="flex items-center gap-3">
-                        <button onclick="window.updateVIPCapacity('${t.id}', -1)" class="btn-ctrl">-</button>
-                        <span class="font-mono text-sm w-4 text-center">${t.capacity}</span>
-                        <button onclick="window.updateVIPCapacity('${t.id}', 1)" class="btn-ctrl">+</button>
+                <div class="flex items-center justify-between bg-[rgba(255,255,255,0.03)] px-3 py-2 rounded border border-[rgba(229,193,88,0.22)]">
+                    <span class="cinzel text-xs text-[#FFF099] tracking-wider font-semibold truncate pr-2">${t.name}</span>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <button onclick="window.updateVIPCapacity('${t.id}', -1)" class="btn-ctrl !w-5 !h-5">-</button>
+                        <span class="font-mono text-sm font-bold text-white w-5 text-center">${t.capacity}</span>
+                        <button onclick="window.updateVIPCapacity('${t.id}', 1)" class="btn-ctrl !w-5 !h-5">+</button>
                     </div>
                 </div>
             `).join('');
             document.getElementById('vip-list').innerHTML = vipHtml;
 
-            const studentHtml = state.students.map(s => {
-                const totalSeats = Number(state.settings.baseSeats) + Number(s.extra);
-                const maxAllowedExtras = state.settings.maxExtra;
-                const canAdd = s.extra < maxAllowedExtras;
+            const baseSeats = Number(state.settings.baseSeats) || 6;
+            const maxAllowedExtras = Number(state.settings.maxExtra) || 6;
+            const extraPrice = Number(state.settings.extraPrice) || 0;
+
+            const filteredStudents = state.students.filter(s => {
+                if (!searchFilter) return true;
+                return s.name.toLowerCase().includes(searchFilter) || `m${s.baseTable}`.includes(searchFilter) || `mesa ${s.baseTable}`.includes(searchFilter);
+            });
+
+            const studentHtml = filteredStudents.map(s => {
+                const extra = Number(s.extra) || 0;
+                const totalSeats = baseSeats + extra;
+                const canAdd = extra < maxAllowedExtras;
+                const extraCost = extra * extraPrice;
+                const confirmedCount = getConfirmedCountForStudent(s.name);
                 
-                const totalPaid = getStudentTotalPaid(s);
-                const isFullyPaid = totalPaid >= state.settings.quotaPrice;
-                
-                // Truncate name for sidebar summary
-                const shortName = s.name.split(' ')[0] + ' ' + (s.name.split(' ')[1] || '');
+                const shortName = s.name.split(' ').slice(0, 2).join(' ');
 
                 return `
-                <div class="student-row grid grid-cols-12 gap-2 items-center py-2 px-2 border-b border-[rgba(255,255,255,0.05)]">
-                    <div class="col-span-4 cinzel text-[0.65rem] tracking-wider truncate flex flex-col justify-center" title="${s.name}">
-                        <span class="truncate">${shortName}</span>
-                        <div class="flex items-center gap-1 mt-[2px]">
-                            <span class="text-[0.5rem] w-fit py-[1px] px-[4px] border border-[rgba(212,175,55,0.3)] rounded bg-[rgba(212,175,55,0.1)] text-gold-light" title="Mesa de referencia">M${s.baseTable}</span>
-                            <button onclick="window.editBaseTable('${s.id}')" class="text-[0.75rem] text-[rgba(212,175,55,0.5)] hover:text-white transition-colors cursor-pointer" title="Editar mesa">✎</button>
+                <div class="student-row grid grid-cols-12 gap-1 items-center py-2 px-2 border-b border-[rgba(255,255,255,0.06)] rounded">
+                    <div class="col-span-5 flex flex-col justify-center pr-1" title="${s.name}">
+                        <span class="cinzel text-xs text-white font-semibold truncate">${shortName}</span>
+                        <div class="flex items-center gap-1.5 mt-0.5">
+                            <button onclick="window.editBaseTable('${s.id}')" class="text-[0.6rem] font-mono py-0.5 px-1.5 border border-[rgba(229,193,88,0.4)] rounded bg-[rgba(229,193,88,0.12)] text-[#FFF099] hover:bg-[#E5C158] hover:text-black transition-colors cursor-pointer" title="Cambiar mesa asignada">
+                                M${s.baseTable} ✎
+                            </button>
+                            <span class="text-[0.62rem] font-mono ${confirmedCount > 0 ? 'text-emerald-400' : 'text-gray-400'}" title="Invitados que ya confirmaron con su código">
+                                ✓${confirmedCount}/${totalSeats}
+                            </span>
                         </div>
                     </div>
-                    
-                    <div class="col-span-3 flex justify-center items-center">
-                        <button onclick="window.openPaymentModal('${s.id}')" class="text-[0.6rem] font-mono border border-[rgba(212,175,55,0.3)] rounded px-1 py-1 hover:bg-[rgba(212,175,55,0.2)] transition-colors w-full text-center ${isFullyPaid ? 'bg-[rgba(74,222,128,0.1)] text-green-400 border-green-500/50' : 'bg-[rgba(255,255,255,0.05)] text-gray-400'}">
-                            $${totalPaid}
-                        </button>
+
+                    <div class="col-span-3 flex justify-center items-center gap-1.5">
+                        <button onclick="window.updateStudentExtra('${s.id}', -1)" class="btn-ctrl !w-5 !h-5 !text-xs" ${extra <= 0 ? 'disabled' : ''} title="Quitar invitado extra">-</button>
+                        <span class="font-mono text-xs font-bold ${extra > 0 ? 'text-[#FFF099]' : 'text-gray-400'} w-5 text-center">+${extra}</span>
+                        <button onclick="window.updateStudentExtra('${s.id}', 1)" class="btn-ctrl !w-5 !h-5 !text-xs" ${!canAdd ? 'disabled' : ''} title="Añadir invitado extra (Máx +${maxAllowedExtras})">+</button>
                     </div>
 
-                    <div class="col-span-3 flex justify-center items-center gap-1">
-                        <button onclick="window.updateStudentExtra('${s.id}', -1)" class="btn-ctrl !w-4 !h-4 !text-[10px]" ${s.extra <= 0 ? 'disabled' : ''} title="Quitar Extra">-</button>
-                        <span class="text-[0.65rem] text-gold-light w-2 text-center">${s.extra}</span>
-                        <button onclick="window.updateStudentExtra('${s.id}', 1)" class="btn-ctrl !w-4 !h-4 !text-[10px]" ${!canAdd ? 'disabled' : ''} title="Añadir Extra (Máx ${maxAllowedExtras})">+</button>
+                    <div class="col-span-2 text-center font-mono text-xs font-bold ${extra > 0 ? 'text-white' : 'text-gray-300'}">
+                        ${totalSeats} <span class="text-[0.6rem] font-normal text-gray-400">lug</span>
                     </div>
 
-                    <div class="col-span-2 text-right font-mono text-xs ${s.extra > 0 ? 'text-white' : 'text-gray-500'}">
-                        ${totalSeats}
+                    <div class="col-span-2 text-right font-mono text-xs font-bold ${extraCost > 0 ? 'text-emerald-300' : 'text-gray-500'}">
+                        ${extraCost > 0 ? formatMoney(extraCost) : '$0'}
                     </div>
                 </div>
                 `;
             }).join('');
-            document.getElementById('student-list').innerHTML = studentHtml;
+            document.getElementById('student-list').innerHTML = studentHtml || '<p class="text-center text-gray-400 text-sm py-6 italic">No se encontraron alumnos con ese filtro.</p>';
         }
 
-        function renderPaymentsTables() {
-            const thead = `
-                <thead>
+        function renderExtrasBreakdownModal() {
+            const baseSeats = Number(state.settings.baseSeats) || 6;
+            const extraPrice = Number(state.settings.extraPrice) || 0;
+
+            let totalExtras = 0;
+            let totalSeatsAll = 0;
+            let rowsHtml = '';
+
+            state.students.forEach((s, idx) => {
+                const extra = Number(s.extra) || 0;
+                const totalSeats = baseSeats + extra;
+                const extraAmount = extra * extraPrice;
+                const confirmed = getConfirmedCountForStudent(s.name);
+
+                totalExtras += extra;
+                totalSeatsAll += totalSeats;
+
+                rowsHtml += `
                     <tr>
-                        <th class="text-left w-8">#</th>
-                        <th class="text-left">Alumno</th>
-                        <th>Salón</th>
-                        <th>Sonido/<br>Pantalla</th>
-                        <th>3 Pago</th>
-                        <th>4 Pago</th>
-                        <th>5 Pago</th>
-                        <th>6 Pago</th>
-                        <th>Pagado</th>
-                        <th>Falta</th>
-                    </tr>
-                </thead>
-            `;
-            
-            let tbody = '<tbody>';
-            let globalTotal = 0;
-
-            state.students.forEach((s, i) => {
-                const p = s.payments || {};
-                const vSal = p.salon || 0;
-                const vSon = p.sonido || 0;
-                const v3 = p.p3 || 0;
-                const v4 = p.p4 || 0;
-                const v5 = p.p5 || 0;
-                const v6 = p.p6 || 0;
-                
-                const total = vSal + vSon + v3 + v4 + v5 + v6;
-                globalTotal += total;
-                const falta = total - state.settings.quotaPrice;
-                
-                const formatCell = (val, isTotal=false) => {
-                    if (val === 0 && !isTotal) return '';
-                    return val;
-                };
-
-                const shortName = s.name.split(' ').slice(0,2).join(' ');
-
-                // Table Row
-                tbody += `
-                    <tr class="cursor-pointer" onclick="window.openPaymentModal('${s.id}')">
-                        <td class="text-left text-gray-500">${i+1}</td>
-                        <td class="text-left text-gray-300 truncate" title="${s.name}">${shortName}</td>
-                        <td class="text-gray-400">${formatCell(vSal)}</td>
-                        <td class="text-gray-400">${formatCell(vSon)}</td>
-                        <td class="${v3>0 ? 'bg-[rgba(96,165,250,0.1)] text-blue-300' : ''}">${formatCell(v3)}</td>
-                        <td class="${v4>0 ? 'bg-[rgba(96,165,250,0.1)] text-blue-300' : ''}">${formatCell(v4)}</td>
-                        <td class="${v5>0 ? 'bg-[rgba(96,165,250,0.1)] text-blue-300' : ''}">${formatCell(v5)}</td>
-                        <td class="${v6>0 ? 'bg-[rgba(96,165,250,0.1)] text-blue-300' : ''}">${formatCell(v6)}</td>
-                        <td class="font-bold ${total >= state.settings.quotaPrice ? 'text-paid' : 'text-white'}">${total}</td>
-                        <td class="font-mono ${falta < 0 ? 'text-deficit' : 'text-gray-500'}">${falta}</td>
+                        <td class="text-left text-gray-400 font-mono">${idx + 1}</td>
+                        <td class="text-left text-white font-serif text-sm md:text-base">${s.name}</td>
+                        <td class="text-center font-mono text-[#FFF099]">Mesa ${s.baseTable}</td>
+                        <td class="text-center font-mono text-gray-300">${baseSeats}</td>
+                        <td class="text-center font-mono font-bold ${extra > 0 ? 'text-[#FFF099] bg-[rgba(229,193,88,0.1)]' : 'text-gray-500'}">+${extra}</td>
+                        <td class="text-center font-mono font-bold text-white">${totalSeats}</td>
+                        <td class="text-center font-mono ${confirmed > 0 ? 'text-emerald-400 font-bold' : 'text-gray-400'}">${confirmed} / ${totalSeats}</td>
+                        <td class="font-mono font-bold ${extraAmount > 0 ? 'text-emerald-300' : 'text-gray-500'}">${formatMoney(extraAmount)}</td>
                     </tr>
                 `;
             });
-            tbody += '</tbody>';
 
-            const fullHtml = thead + tbody;
-            
-            document.getElementById('payments-table-compact').innerHTML = fullHtml;
-            document.getElementById('payments-table-full').innerHTML = fullHtml;
-            document.getElementById('full-payments-total').innerText = formatMoney(globalTotal);
+            const totalExtrasRevenue = totalExtras * extraPrice;
+            const simulatedAllSeatsRevenue = totalSeatsAll * extraPrice;
+
+            rowsHtml += `
+                <tr class="bg-[rgba(229,193,88,0.12)] font-bold">
+                    <td colspan="3" class="text-left cinzel text-xs text-[#FFF099] uppercase">Totales Generación (22 Alumnos)</td>
+                    <td class="text-center font-mono text-white">${state.students.length * baseSeats}</td>
+                    <td class="text-center font-mono text-[#FFF099]">+${totalExtras} extras</td>
+                    <td class="text-center font-mono text-white">${totalSeatsAll} lug.</td>
+                    <td class="text-center font-mono text-emerald-300">${allConfirmedGuests.length} conf.</td>
+                    <td class="font-mono text-emerald-300 text-sm">${formatMoney(totalExtrasRevenue)}</td>
+                </tr>
+            `;
+
+            document.getElementById('extras-breakdown-tbody').innerHTML = rowsHtml;
+            document.getElementById('modal-stat-price').innerText = formatMoney(extraPrice);
+            document.getElementById('modal-stat-extras').innerText = `+${totalExtras} extras`;
+            document.getElementById('modal-stat-revenue').innerText = formatMoney(totalExtrasRevenue);
+
+            document.getElementById('sim-unit-price').innerText = formatMoney(extraPrice);
+            document.getElementById('sim-all-student-guests').innerText = totalSeatsAll;
+            document.getElementById('sim-all-revenue').innerText = formatMoney(simulatedAllSeatsRevenue);
         }
 
         function renderFloorPlan(computedTables) {
@@ -1235,10 +1185,13 @@
 
             const vipFloor = computedTables.vip.map((t, idx) => {
                 const namesJSON = encodeURIComponent(JSON.stringify(t.names));
+                const confirmedInVip = getConfirmedGuestsForTable(t.displayNumber, t.names).length;
                 return `
-                <div class="enso-table w-36 h-36 border-vip ${getShape(idx)} flex flex-col justify-center shadow-lg bg-[rgba(212,175,55,0.05)] cursor-pointer hover:border-gold hover:shadow-2xl transition-all" onclick="window.openTableGuests('${t.names[0]}', '${namesJSON}')">
-                    <span class="table-name text-gold tracking-widest text-sm leading-tight">${t.names[0]}</span>
-                    <span class="table-size-indicator mt-2">${t.guests} LUG.</span>
+                <div class="enso-table w-40 h-40 border-vip ${getShape(idx)} flex flex-col justify-center shadow-lg bg-[rgba(229,193,88,0.06)] cursor-pointer hover:border-[#FFF099] transition-all"
+                     onclick="window.openTableGuests('${t.names[0]}', ${t.displayNumber}, '${namesJSON}')">
+                    <span class="table-name text-gold tracking-widest text-xs md:text-sm font-semibold leading-tight">${t.names[0]}</span>
+                    <span class="table-size-indicator mt-2">${t.guests} LUGARES</span>
+                    <span class="text-[0.65rem] font-mono mt-1 ${confirmedInVip > 0 ? 'text-emerald-400' : 'text-gray-400'}">✓ ${confirmedInVip}/${t.guests} conf.</span>
                 </div>
                 `;
             }).join('');
@@ -1247,46 +1200,48 @@
             const studentFloor = computedTables.students.map((t, idx) => {
                 const shape = getShape(idx + 5);
                 const namesJSON = encodeURIComponent(JSON.stringify(t.names));
-                let borderClass = 'border-student cursor-pointer hover:border-gold-light hover:shadow-2xl transition-all';
-                let widthClass = 'w-32 h-32';
-                let bgClass = 'bg-[rgba(255,255,255,0.02)]';
+                const confirmedInTable = getConfirmedGuestsForTable(t.displayNumber, t.names).length;
+
+                let borderClass = 'border-student cursor-pointer hover:border-[#FFF099] transition-all';
+                let widthClass = 'w-36 h-36';
+                let bgClass = 'bg-[rgba(255,255,255,0.03)]';
                 
                 const formatName = (n) => n.split(' ')[0] + ' ' + (n.split(' ')[1] || '');
 
                 if (t.isOvercapacity) {
-                    // Si sobrepasan los 12 lugares, se alerta con rojo
-                    borderClass = 'warning-border cursor-pointer hover:shadow-2xl transition-all';
-                    bgClass = 'bg-[rgba(139,26,42,0.1)]';
+                    borderClass = 'warning-border cursor-pointer transition-all';
+                    widthClass = 'w-44 h-44';
+                    bgClass = 'bg-[rgba(158,32,50,0.14)]';
                 } else if (t.names.length > 1) {
-                    borderClass = 'border-combined cursor-pointer hover:border-gold-light hover:shadow-2xl transition-all';
+                    borderClass = 'border-combined cursor-pointer hover:border-[#FFF099] transition-all';
                     widthClass = 'w-44 h-44'; 
-                    bgClass = 'bg-[rgba(212,175,55,0.03)]';
+                    bgClass = 'bg-[rgba(229,193,88,0.05)]';
                 } else if (t.capacity > 6) {
-                    bgClass = 'bg-[rgba(212,175,55,0.08)]'; 
+                    widthClass = 'w-40 h-40';
+                    bgClass = 'bg-[rgba(229,193,88,0.09)]'; 
                 }
 
-                // Generar la lista de nombres para la UI dinámicamente sin importar cuántos haya
-                let namesHtml = t.names.map(n => `<span class="table-name tracking-widest text-[0.65rem] text-gray-300 uppercase leading-tight truncate w-full px-2">${formatName(n)}</span>`).join('<div class="w-8 h-px bg-[rgba(212,175,55,0.3)] my-1"></div>');
+                const namesHtml = t.names.map(n => `<span class="table-name tracking-wider text-[0.68rem] text-white font-semibold uppercase leading-tight truncate w-full px-1">${formatName(n)}</span>`).join('<div class="w-10 h-px bg-[rgba(229,193,88,0.35)] my-1"></div>');
 
-                let nameHtml = `
-                    <span class="table-name tracking-widest text-[0.6rem] ${t.isOvercapacity ? 'text-red-400' : 'text-gold'} uppercase mb-1">${t.label}</span>
-                    <div class="flex flex-col items-center w-full justify-center">
-                        ${namesHtml}
-                    </div>
-                `;
-                
-                let infoHtml = `<span class="table-size-indicator ${t.isOvercapacity ? 'text-red-400 font-bold' : ''}">${t.capacity} LUG.</span>`;
+                const extrasBadge = t.extras > 0
+                    ? `<span class="text-[0.6rem] font-mono text-[#FFF099] bg-[rgba(229,193,88,0.15)] px-1.5 py-0.2 rounded mt-0.5">+${t.extras} ext.</span>`
+                    : '';
 
                 return `
-                    <div class="enso-table ${widthClass} ${borderClass} ${shape} ${bgClass}" onclick="window.openTableGuests('${t.label}', '${namesJSON}')">
-                        ${nameHtml}
-                        ${infoHtml}
+                    <div class="enso-table ${widthClass} ${borderClass} ${shape} ${bgClass}"
+                         onclick="window.openTableGuests('${t.label}', ${t.displayNumber}, '${namesJSON}')">
+                        <span class="table-name tracking-widest text-[0.65rem] font-bold ${t.isOvercapacity ? 'text-rose-400' : 'text-gold'} uppercase mb-1">${t.label}</span>
+                        <div class="flex flex-col items-center w-full justify-center">
+                            ${namesHtml}
+                        </div>
+                        <span class="table-size-indicator ${t.isOvercapacity ? 'text-rose-400 font-bold' : ''}">${t.capacity} LUG.</span>
+                        ${extrasBadge}
+                        <span class="text-[0.62rem] font-mono mt-0.5 ${confirmedInTable > 0 ? 'text-emerald-400 font-semibold' : 'text-gray-400'}">✓ ${confirmedInTable}/${t.capacity} conf.</span>
                     </div>
                 `;
             }).join('');
             document.getElementById('floor-students').innerHTML = studentFloor;
         }
-
     </script>
 </body>
 </html>
