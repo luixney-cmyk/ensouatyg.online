@@ -158,126 +158,17 @@
 
     <!-- Modal de Seguridad -->
     <div id="auth-modal" class="modal-overlay">
-        <div class="modal-box w-[400px] shadow-2xl">
+        <div class="modal-box w-[440px] shadow-2xl">
             <h2 class="font-cinzel text-2xl text-[#F5E17A] mb-2 tracking-widest">Seguridad</h2>
-            <p class="font-cormorant text-gray-400 mb-8 italic">Acceso exclusivo al Centro de Distribución e Impresión.</p>
+            <p class="font-cormorant text-gray-400 mb-6 italic">Acceso exclusivo al Centro de Distribución e Impresión.</p>
             
-            <button id="btn-ingresar" onclick="window.verifyAdminGoogle()" class="border border-[#D4AF37] text-[#D4AF37] px-6 py-3 font-cinzel text-sm tracking-widest hover:bg-[#D4AF37]/10 transition w-full flex items-center justify-center gap-3">
+            <!-- Aviso automático si se abre como archivo local file:// -->
+            <div id="file-protocol-warning" class="hidden mb-5 p-3 border border-amber-500/60 bg-amber-950/40 text-amber-200 text-xs font-cormorant text-left leading-relaxed">
+                <strong class="font-cinzel text-[#F5E17A] block mb-1">⚠️ Archivo abierto como ruta local (file://)</strong>
+                Google bloquea la ventana de inicio de sesión cuando abres el HTML con doble clic desde una carpeta. Ábrelo con <b>Live Server (localhost)</b> o súbelo a tu web, o usa el botón de carga directa abajo.
+            </div>
+
+            <button id="btn-ingresar" onclick="window.verifyAdminGoogle()" class="border border-[#D4AF37] text-[#D4AF37] px-6 py-3 font-cinzel text-sm tracking-widest hover:bg-[#D4AF37]/10 transition w-full flex items-center justify-center gap-3 cursor-pointer">
                 <svg width="18" height="18" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M47.532 24.5528C47.532 22.9214 47.3997 21.2811 47.1175 19.6761H24.48V28.5181H37.4434C36.9055 31.3393 35.177 33.8239 32.6461 35.5056V41.4107H40.4001C44.9468 37.229 47.532 31.4239 47.532 24.5528Z" fill="#4285F4"/>
-                    <path d="M24.48 48.0016C30.9529 48.0016 36.4116 45.8764 40.4088 41.4107L32.6549 35.5056C30.5038 36.958 27.7552 37.8687 24.48 37.8687C18.132 37.8687 12.756 33.5936 10.8228 27.8385H2.8941V33.993C7.0255 42.195 15.3402 48.0016 24.48 48.0016Z" fill="#34A853"/>
-                    <path d="M10.8142 27.8385C9.82424 24.8967 9.82424 21.657 10.8142 18.7153V12.5608H2.88554C-0.961846 20.219 -0.961846 29.3548 2.88554 37.0131L10.8142 27.8385Z" fill="#FBBC05"/>
-                    <path d="M24.48 10.1329C27.9158 10.054 31.2389 11.3655 33.6826 13.7235L40.573 6.83315C36.2307 2.76632 30.4357 0.448564 24.48 0.480021C15.3402 0.480021 7.0255 6.28665 2.8941 14.4886L10.8228 20.6432C12.7473 14.8794 18.1233 10.1329 24.48 10.1329Z" fill="#EA4335"/>
-                </svg>
-                Ingresar con Google
-            </button>
-            <p id="auth-error" class="text-red-500 font-cormorant italic text-sm mt-4 opacity-0 transition-opacity">Error de acceso.</p>
-        </div>
-    </div>
-
-    <!-- Toast Container -->
-    <div id="toast-container"></div>
-
-    <!-- Header Superior -->
-    <header class="border-b border-[#D4AF37]/20 px-6 py-3 flex justify-between items-center bg-[#0a0806] shrink-0 z-20">
-        <div class="flex items-center gap-4">
-            <h1 class="font-cinzel text-xl text-[#F5E17A] tracking-widest">ENSŌ <span class="text-gray-400 text-sm ml-2 font-cormorant italic">Centro de Pases e Impresión Carta (12x Hoja)</span></h1>
-        </div>
-        <div class="flex items-center gap-3">
-            <button onclick="window.selectBackSheetMode()" class="bg-[#D4AF37]/15 border border-[#D4AF37] text-[#F5E17A] px-4 py-1.5 font-cinzel text-xs tracking-wider hover:bg-[#D4AF37] hover:text-black transition flex items-center gap-2 shadow">
-                <span>❖</span> Plantilla Reverso (QR General)
-            </button>
-            <button onclick="window.logoutAdmin()" class="border border-gray-600 text-gray-400 px-4 py-1.5 font-cinzel text-xs hover:border-white hover:text-white transition">Cerrar Sesión</button>
-        </div>
-    </header>
-
-    <!-- Layout Principal a 2 Columnas -->
-    <div class="flex flex-1 overflow-hidden">
-        
-        <!-- COLUMNA 1: Lista de Mesas VIP, Hojas Combinadas y Alumnos -->
-        <div class="w-80 border-r border-[#D4AF37]/20 bg-[#0a0806] flex flex-col z-10 shadow-xl shrink-0">
-            
-            <!-- Acceso Rápido a Reverso Universal -->
-            <div class="p-3 border-b border-[#D4AF37]/20 bg-[#120f0a]">
-                <button onclick="window.selectBackSheetMode()" class="w-full text-left p-3 border border-[#D4AF37]/50 bg-gradient-to-r from-[#D4AF37]/20 to-transparent hover:border-[#F5E17A] transition flex justify-between items-center group">
-                    <div>
-                        <div class="font-cinzel text-xs text-[#F5E17A] tracking-wider flex items-center gap-1.5">
-                            <span>🖨️</span> HOJA REVERSO (12 QRs)
-                        </div>
-                        <div class="font-cormorant text-xs text-gray-300 mt-0.5 italic">Imprimir una sola vez al reverso</div>
-                    </div>
-                    <div class="font-cinzel text-[#D4AF37] text-xs group-hover:translate-x-1 transition">Ver ➔</div>
-                </button>
-            </div>
-
-            <!-- Buscador -->
-            <div class="p-3 border-b border-[#D4AF37]/10">
-                <input type="text" id="search-host" oninput="window.filterHosts()" placeholder="Buscar Mesa VIP, pareja o alumno..." class="w-full bg-black/50 border border-[#D4AF37]/30 text-[#D4AF37] p-2.5 font-cinzel text-xs outline-none placeholder:text-[#D4AF37]/40 focus:border-[#D4AF37]">
-            </div>
-
-            <!-- Lista de Anfitriones Agrupados -->
-            <div id="host-list" class="flex-1 overflow-y-auto custom-scrollbar p-3 flex flex-col gap-2">
-                <div class="text-center text-gray-500 font-cormorant mt-10">Esperando autenticación...</div>
-            </div>
-        </div>
-
-        <!-- COLUMNA 2: Espacio de Trabajo -->
-        <div class="flex-1 bg-[#080705] flex flex-col relative overflow-hidden">
-            
-            <div id="host-details-empty" class="absolute inset-0 flex flex-col items-center justify-center font-cormorant italic text-gray-500 p-8 text-center text-lg">
-                <p class="mb-2 text-xl text-[#D4AF37]/60 font-cinzel not-italic tracking-widest">CENTRO DE IMPRESIÓN ENSŌ</p>
-                <p>Selecciona **Mesa VIP 1**, **Mesa VIP 2**, una **Pareja de Alumnos (6+6)** o un alumno individual a la izquierda,</p>
-                <p>o selecciona <span class="text-[#F5E17A] underline cursor-pointer" onclick="window.selectBackSheetMode()">Hoja Reverso (12 QRs)</span> para descargar la parte trasera.</p>
-            </div>
-            
-            <div id="host-details-content" class="hidden h-full flex-col overflow-hidden">
-                
-                <!-- Barra Superior del Anfitrión y Controles de Modo -->
-                <div class="px-6 py-4 border-b border-[#D4AF37]/20 bg-[#0c0a08] flex flex-wrap justify-between items-center gap-4 shrink-0 shadow-md z-10">
-                    <div>
-                        <div class="flex items-center gap-3 flex-wrap">
-                            <h2 id="detail-host-name" class="font-cinzel text-[#F5E17A] text-xl tracking-widest">Nombre</h2>
-                            <span id="detail-badge" class="px-2.5 py-0.5 text-[10px] font-cinzel border border-[#D4AF37]/40 text-[#D4AF37] bg-[#D4AF37]/10">12 Pases</span>
-                        </div>
-                        <p id="detail-host-info" class="font-cormorant text-gray-400 italic text-sm mt-0.5">Hoja Tamaño Carta (3 columnas × 4 filas)</p>
-                    </div>
-
-                    <!-- Pestañas de Modo -->
-                    <div class="flex items-center bg-black/60 p-1 border border-[#D4AF37]/30">
-                        <button id="tab-sheet-front" onclick="window.switchViewMode('sheet-front')" class="px-3.5 py-1.5 font-cinzel text-xs tracking-wider transition bg-[#D4AF37] text-black font-semibold">
-                            📄 Hoja Frontal (Pases)
-                        </button>
-                        <button id="tab-sheet-back" onclick="window.switchViewMode('sheet-back')" class="px-3.5 py-1.5 font-cinzel text-xs tracking-wider transition text-gray-400 hover:text-[#F5E17A]">
-                            🔄 Hoja Reverso (QR)
-                        </button>
-                        <button id="tab-single-wa" onclick="window.switchViewMode('single-wa')" class="px-3.5 py-1.5 font-cinzel text-xs tracking-wider transition text-gray-400 hover:text-[#F5E17A]">
-                            📱 Individual (WhatsApp)
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Barra de Herramientas Contextual -->
-                <div id="sheet-toolbar" class="px-6 py-3 border-b border-[#D4AF37]/15 bg-[#110e0b] flex flex-wrap justify-between items-center gap-4 shrink-0 z-10">
-                    
-                    <!-- Controles de Configuración de QR (Visibles en Modo Reverso) -->
-                    <div id="back-config-controls" class="hidden items-center gap-3 flex-wrap">
-                        <label class="font-cinzel text-[11px] text-[#D4AF37] tracking-wider">URL DEL QR / CONFIRMACIÓN:</label>
-                        <input type="text" id="rsvp-url-input" value="https://enso-gala-2026.web.app" oninput="window.updateBackSheetQR()" class="bg-black border border-[#D4AF37]/40 text-[#F5E17A] px-3 py-1 font-mono text-xs w-64 outline-none focus:border-[#D4AF37]">
-                        <label class="font-cinzel text-[11px] text-gray-400 tracking-wider ml-2">TEXTO URL:</label>
-                        <input type="text" id="rsvp-label-input" value="enso-gala-2026.web.app" oninput="window.updateBackSheetQR()" class="bg-black border border-[#D4AF37]/40 text-gray-200 px-3 py-1 font-cinzel text-xs w-48 outline-none focus:border-[#D4AF37]">
-                    </div>
-
-                    <!-- Controles de Paginación y Combinación Manual de Alumnos (Visibles en Modo Frontal) -->
-                    <div id="front-pagination-controls" class="flex items-center gap-3 flex-wrap">
-                        <span id="sheet-page-indicator" class="font-cinzel text-xs text-gray-300 tracking-wider">Hoja 1 de 1 (Mostrando pases 1 al 12)</span>
-                        
-                        <div id="pagination-buttons" class="hidden items-center gap-1">
-                            <button onclick="window.changeSheetPage(-1)" class="px-2.5 py-1 border border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/20 font-cinzel text-xs">◀ Anterior</button>
-                            <button onclick="window.changeSheetPage(1)" class="px-2.5 py-1 border border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/20 font-cinzel text-xs">Siguiente ▶</button>
-                        </div>
-
-                        <!-- Selector para combinar manualmente otro alumno si sobran espacios en la hoja -->
-                        <div id="combine-host-box" class="hidden items-center gap-2 ml-2 pl-3 border-l border-[#D4AF37]/30">
-                            <label class="font-cinzel text-[10px] text-[#F5E17A] tracking-wider">➕ RELLENAR HOJA CON:</label>
-                            <select id="combine-host-select" onchange="window.combineWithSelectedHost(this.value)" class="bg-black border border-[#D4AF37]/50 text-[#F5E17A] px-2.5 py-1 font-cinzel text-xs outline-none">
-                                <option value="">-- Eleg
+                    <path d="M24.48 48.0016C30.9529 48.0016 36.4116 45.8764 40.4088 41.4107L32.6549 35.5056C30.5038 36.958 27.7552 37.8687 24.48 37.8687C18.132 37.8687 12.756 33.5936 10.8228 27.8385H2.8941V33.993C7.0255 42.195 15.3402 48.00
