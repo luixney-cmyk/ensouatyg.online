@@ -624,12 +624,13 @@
         let activeTableLabel = '';
         let activeTableNumber = null;
         let searchFilter = '';
+        let hasLoadedPlannerState = false;
+        let isLocalEditing = false;
         const ADMIN_EMAIL = "luixnay@gmail.com";
 
         const formatMoney = (val) => '$' + (Number(val) || 0).toLocaleString('es-MX');
         const cleanText = (str) => (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]/gi, '').toUpperCase();
 
-        // Extrae de forma exacta el número de mesa (ej. 1, "1", "VIP 1", "Mesa 10" -> 1, 10)
         function parseTableNum(val) {
             if (val === null || val === undefined || val === '') return null;
             if (typeof val === 'number' && !isNaN(val)) return val;
@@ -637,7 +638,6 @@
             return match ? parseInt(match[0], 10) : null;
         }
 
-        // Empareja nombres de alumnos entre hostData y la lista del planner sin falsos positivos
         function isSamePerson(nameA, nameB) {
             const cleanA = cleanText(nameA);
             const cleanB = cleanText(nameB);
@@ -652,11 +652,9 @@
             return false;
         }
 
-        // Sincroniza en memoria el estado del Planner tomando como verdad absoluta lo que hay en Firebase (hostData e invites)
-        function reconcileStateWithFirebase() {
+        function reconcileStateWithFirebase(allowOverwriteFromHostData = false) {
             const baseSeats = Number(state.settings.baseSeats) || 6;
 
-            // 1. Actualizar mesas y cupos de los 22 alumnos desde hostData / invites
             if (allHostData.length > 0) {
                 const standardHosts = allHostData.filter(h => h.type !== 'special');
                 state.students.forEach(st => {
@@ -665,49 +663,41 @@
                         st.hostPrefix = match.id;
                         st.firebaseName = match.name;
                         const tNum = parseTableNum(match.table);
-                        if (tNum !== null) st.baseTable = tNum;
-                        if (match.count !== undefined && match.count !== null) {
-                            st.extra = Math.max(0, Number(match.count) - baseSeats);
+                        if (tNum !== null && (allowOverwriteFromHostData || !isLocalEditing)) {
+                            st.baseTable = tNum;
+                        }
+                        if ((allowOverwriteFromHostData || !hasLoadedPlannerState) && match.count !== undefined && match.count !== null) {
+                            st.extra = Math.max(0, Math.min(6, Number(match.count) - baseSeats));
                         }
                     }
                 });
             }
 
-            // Si en 'invites' hay códigos generados con mesa actualizada, respaldamos la mesa real de cada alumno
             if (allInvites.length > 0) {
                 state.students.forEach(st => {
                     const stInvite = allInvites.find(inv =>
                         inv.type !== 'special' &&
                         ((st.hostPrefix && inv.hostCode === st.hostPrefix) || isSamePerson(inv.hostName, st.name))
                     );
-                    if (stInvite) {
-                        if (!st.hostPrefix && stInvite.hostCode) st.hostPrefix = stInvite.hostCode;
-                        // Si hostData no tenía a este alumno, tomamos la mesa y cantidad desde invites
-                        const hasHostDoc = allHostData.some(h => h.id === st.hostPrefix || isSamePerson(h.name, st.name));
-                        if (!hasHostDoc) {
-                            const tNum = parseTableNum(stInvite.table);
-                            if (tNum !== null) st.baseTable = tNum;
-                            const countInInvites = allInvites.filter(i => i.hostCode === stInvite.hostCode).length;
-                            if (countInInvites > 0) {
-                                st.extra = Math.max(0, countInInvites - baseSeats);
-                            }
-                        }
+                    if (stInvite && !st.hostPrefix && stInvite.hostCode) {
+                        st.hostPrefix = stInvite.hostCode;
                     }
                 });
             }
 
-            // 2. Actualizar capacidad real de las Mesas VIP (Mesa 1 y Mesa 2) según Firebase
-            state.vipTables.forEach((vip, idx) => {
-                const vipTableNum = idx + 1;
-                const invitesInVip = allInvites.filter(inv => parseTableNum(inv.table) === vipTableNum);
-                const hostsInVip = allHostData.filter(h => h.type === 'special' && parseTableNum(h.table) === vipTableNum);
+            if (!isLocalEditing) {
+                state.vipTables.forEach((vip, idx) => {
+                    const vipTableNum = idx + 1;
+                    const invitesInVip = allInvites.filter(inv => parseTableNum(inv.table) === vipTableNum);
+                    const hostsInVip = allHostData.filter(h => h.type === 'special' && parseTableNum(h.table) === vipTableNum);
 
-                if (invitesInVip.length > 0) {
-                    vip.capacity = invitesInVip.length;
-                } else if (hostsInVip.length > 0) {
-                    vip.capacity = hostsInVip.reduce((acc, h) => acc + (Number(h.count) || 1), 0);
-                }
-            });
+                    if (invitesInVip.length > 0) {
+                        vip.capacity = invitesInVip.length;
+                    } else if (hostsInVip.length > 0) {
+                        vip.capacity = hostsInVip.reduce((acc, h) => acc + (Number(h.count) || 1), 0);
+                    }
+                });
+            }
         }
 
         window.showNotice = function(title, message) {
@@ -740,44 +730,51 @@
                     loginModal.classList.remove('active');
                     errorEl.style.opacity = '0';
 
-                    // 1. Escuchar configuración del planner (como el precio por extra)
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'planner', 'state_v2');
                     onSnapshot(docRef, (snapshot) => {
                         if (snapshot.exists()) {
                             let data = snapshot.data();
+                            hasLoadedPlannerState = true;
                             if (data.settings) {
                                 state.settings.extraPrice = typeof data.settings.extraPrice === 'number' ? data.settings.extraPrice : 300;
-                                state.settings.baseSeats = typeof data.settings.baseSeats === 'number' ? data.settings.baseSeats : 6;
-                                state.settings.maxExtra = typeof data.settings.maxExtra === 'number' ? data.settings.maxExtra : 6;
+                                state.settings.baseSeats = 6;
+                                state.settings.maxExtra = 6;
                                 state.settings.maxTotalGuests = typeof data.settings.maxTotalGuests === 'number' ? data.settings.maxTotalGuests : 200;
                             }
-                            // Si aún no ha cargado hostData, usamos temporalmente las mesas de state_v2
-                            if (allHostData.length === 0 && Array.isArray(data.students)) {
-                                data.students.forEach(savedSt => {
-                                    const localSt = state.students.find(s => s.id === savedSt.id || isSamePerson(s.name, savedSt.name));
-                                    if (localSt) {
-                                        localSt.baseTable = savedSt.baseTable;
-                                        localSt.extra = savedSt.extra || 0;
+                            if (Array.isArray(data.vipTables) && !isLocalEditing) {
+                                data.vipTables.forEach((savedVip, idx) => {
+                                    if (state.vipTables[idx] && savedVip.capacity !== undefined) {
+                                        state.vipTables[idx].capacity = Number(savedVip.capacity) || 9;
                                     }
                                 });
                             }
-                            reconcileStateWithFirebase();
+                            if (Array.isArray(data.students) && !isLocalEditing) {
+                                data.students.forEach(savedSt => {
+                                    const localSt = state.students.find(s => s.id === savedSt.id || isSamePerson(s.name, savedSt.name));
+                                    if (localSt) {
+                                        if (savedSt.baseTable !== undefined) localSt.baseTable = Number(savedSt.baseTable);
+                                        if (savedSt.extra !== undefined) {
+                                            localSt.extra = Math.max(0, Math.min(6, Number(savedSt.extra) || 0));
+                                        }
+                                    }
+                                });
+                            }
+                            reconcileStateWithFirebase(false);
                             renderAll();
                         }
                     }, (error) => console.error("Firebase planner err:", error));
 
-                    // 2. Escuchar hostData en tiempo real (Fuente de verdad de mesas y cupos en Firebase)
                     const hostDataRef = collection(db, 'artifacts', appId, 'public', 'data', 'hostData');
                     onSnapshot(hostDataRef, (snapshot) => {
+                        const isFirstHostLoad = allHostData.length === 0;
                         allHostData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                        reconcileStateWithFirebase();
+                        reconcileStateWithFirebase(isFirstHostLoad && !hasLoadedPlannerState);
                         renderAll();
                         if (document.getElementById('modal-table-guests').classList.contains('active')) {
                             renderActiveTableGuests();
                         }
                     }, (error) => console.error("Error cargando hostData:", error));
 
-                    // 3. Escuchar invites en tiempo real (Códigos e invitaciones generadas por mesa)
                     const invitesRef = collection(db, 'artifacts', appId, 'public', 'data', 'invites');
                     onSnapshot(invitesRef, (snapshot) => {
                         allInvites = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -788,7 +785,6 @@
                         }
                     }, (error) => console.error("Error cargando invites:", error));
 
-                    // 4. Escuchar a los invitados confirmados en tiempo real (colección 'guests')
                     const guestsRef = collection(db, 'artifacts', appId, 'public', 'data', 'guests');
                     onSnapshot(guestsRef, (snapshot) => {
                         allConfirmedGuests = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -807,12 +803,57 @@
             }
         });
 
-        // Guardamos usando merge: true para no destruir ningún dato histórico en el documento
-        window.saveData = function() {
+        window.saveData = async function() {
             if (!auth.currentUser || auth.currentUser.email !== ADMIN_EMAIL) return;
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'planner', 'state_v2');
-            setDoc(docRef, state, { merge: true });
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'planner', 'state_v2');
+                await setDoc(docRef, state, { merge: true });
+            } catch (e) {
+                console.error("Error guardando state_v2:", e);
+            }
         };
+
+        async function syncSingleStudentToHostData(student) {
+            if (!auth.currentUser || auth.currentUser.email !== ADMIN_EMAIL) return;
+            try {
+                const baseSeats = Number(state.settings.baseSeats) || 6;
+                const newCount = baseSeats + (Number(student.extra) || 0);
+                const newTable = Number(student.baseTable);
+
+                const match = allHostData.find(h =>
+                    h.type !== 'special' &&
+                    ((student.hostPrefix && h.id === student.hostPrefix) || isSamePerson(h.name, student.name))
+                );
+
+                const batch = writeBatch(db);
+                if (match && match.id) {
+                    const hostDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'hostData', match.id);
+                    batch.update(hostDocRef, { count: newCount, table: newTable });
+                    match.count = newCount;
+                    match.table = newTable;
+                }
+
+                let newTotalCapacity = 0;
+                state.students.forEach(s => newTotalCapacity += (baseSeats + Number(s.extra || 0)));
+                state.vipTables.forEach(v => newTotalCapacity += Number(v.capacity || 0));
+
+                const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
+                batch.set(statsRef, { totalCapacity: newTotalCapacity }, { merge: true });
+
+                await batch.commit();
+
+                const syncStatus = document.getElementById('sync-status');
+                if (syncStatus) {
+                    syncStatus.innerText = '✔ Guardado en Firebase';
+                    syncStatus.style.color = '#4ade80';
+                    setTimeout(() => {
+                        if (syncStatus.innerText === '✔ Guardado en Firebase') syncStatus.innerText = '';
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error("Error actualizando alumno en hostData:", err);
+            }
+        }
 
         window.syncHostData = async function() {
             const syncStatus = document.getElementById('sync-status');
@@ -832,18 +873,16 @@
                 hostDataSnap.forEach(docSnap => {
                     const data = docSnap.data();
                     if (data.type !== 'special') { 
-                        const fireName = cleanText(data.name || docSnap.id);
-                        
-                        const studentInPlan = state.students.find(st => {
-                            const planName = cleanText(st.name);
-                            return fireName === planName || fireName.includes(planName.split(' ')[0]) || planName.includes(fireName.split(' ')[0]);
-                        });
+                        const studentInPlan = state.students.find(st =>
+                            (st.hostPrefix && st.hostPrefix === docSnap.id) ||
+                            isSamePerson(data.name, st.name)
+                        );
                         
                         if (studentInPlan) {
                             const newCount = Number(state.settings.baseSeats) + Number(studentInPlan.extra || 0);
                             const newTable = Number(studentInPlan.assignedTable || studentInPlan.baseTable);
                             const currentCount = Number(data.count || 0);
-                            const currentTable = Number(data.table || 0);
+                            const currentTable = parseTableNum(data.table);
                             
                             if (currentCount !== newCount || currentTable !== newTable) {
                                 batch.update(docSnap.ref, { count: newCount, table: newTable });
@@ -884,23 +923,34 @@
         window.updateVIPCapacity = function(id, delta) {
             const table = state.vipTables.find(t => t.id === id);
             if (table) {
+                isLocalEditing = true;
                 table.capacity = Math.max(1, Number(table.capacity) + delta);
-                window.saveData();
                 renderAll();
+                window.saveData().finally(() => {
+                    setTimeout(() => { isLocalEditing = false; }, 600);
+                });
             }
         };
 
         window.updateStudentExtra = function(id, delta) {
             const student = state.students.find(s => s.id === id);
             if (student) {
-                const maxAllowedExtras = Number(state.settings.maxExtra) || 6;
+                isLocalEditing = true;
+                state.settings.baseSeats = 6;
+                state.settings.maxExtra = 6;
+                const maxAllowedExtras = 6;
                 let newExtra = (Number(student.extra) || 0) + delta;
                 if (newExtra < 0) newExtra = 0;
                 if (newExtra > maxAllowedExtras) newExtra = maxAllowedExtras; 
                 
                 student.extra = newExtra;
                 renderAll(); 
-                window.saveData(); 
+                Promise.all([
+                    window.saveData(),
+                    syncSingleStudentToHostData(student)
+                ]).finally(() => {
+                    setTimeout(() => { isLocalEditing = false; }, 600);
+                });
             }
         };
 
@@ -940,6 +990,8 @@
 
         window.saveTableAssignments = function() {
             let changed = false;
+            isLocalEditing = true;
+            const changedStudents = [];
             state.students.forEach(s => {
                 const input = document.getElementById(`tm-input-${s.id}`);
                 if (input) {
@@ -947,13 +999,21 @@
                     if (!isNaN(newVal) && newVal > 0 && newVal !== s.baseTable) {
                         s.baseTable = newVal;
                         changed = true;
+                        changedStudents.push(s);
                     }
                 }
             });
             
             if (changed) {
-                window.saveData();
                 renderAll();
+                Promise.all([
+                    window.saveData(),
+                    ...changedStudents.map(st => syncSingleStudentToHostData(st))
+                ]).finally(() => {
+                    setTimeout(() => { isLocalEditing = false; }, 600);
+                });
+            } else {
+                isLocalEditing = false;
             }
             window.closeModals();
         };
@@ -982,14 +1042,12 @@
             document.getElementById('modal-extras-summary').classList.add('active');
         };
 
-        // Cuenta exactamente cuántos invitados han confirmado en Firebase para un alumno específico (sin mezclar nombres parecidos)
         function getConfirmedCountForStudent(studentObjOrName) {
             const student = typeof studentObjOrName === 'string'
                 ? state.students.find(s => isSamePerson(s.name, studentObjOrName)) || { name: studentObjOrName }
                 : studentObjOrName;
 
             return allConfirmedGuests.filter(g => {
-                // Si conocemos el prefijo del anfitrión (ej. LUIS, ZULLY), verificamos si el código del invitado pertenece a sus códigos en invites
                 if (student.hostPrefix && g.hostCode) {
                     const inv = allInvites.find(i => i.codigo === g.hostCode || i.id === g.hostCode);
                     if (inv && inv.hostCode) {
@@ -1000,7 +1058,6 @@
             }).length;
         }
 
-        // Obtiene ESTRICTAMENTE los invitados confirmados que pertenecen al número de mesa indicado en Firebase
         function getConfirmedGuestsForTable(tableNum) {
             const targetTable = parseTableNum(tableNum);
             if (targetTable === null) return [];
@@ -1010,7 +1067,6 @@
                 if (guestTable !== null) {
                     return guestTable === targetTable;
                 }
-                // Respaldo solo si el registro en 'guests' no tuviera campo 'table': buscamos la mesa en su código de invitación
                 if (g.hostCode) {
                     const inv = allInvites.find(i => i.codigo === g.hostCode || i.id === g.hostCode);
                     if (inv) return parseTableNum(inv.table) === targetTable;
@@ -1195,7 +1251,6 @@
             document.getElementById('stat-extras-count').innerHTML = `+${totalExtrasCount} <span class="text-xs font-normal text-gray-300">lug.</span>`;
             document.getElementById('stat-extras-money').innerText = formatMoney(totalExtrasRevenue);
 
-            // Resumen inferior del salón
             document.getElementById('summary-base-seats').innerText = `${baseTotal} lugares`;
             document.getElementById('summary-extra-seats').innerText = `+${totalExtrasCount} invitados extras`;
             document.getElementById('summary-extra-revenue').innerText = `${formatMoney(totalExtrasRevenue)} MXN`;
