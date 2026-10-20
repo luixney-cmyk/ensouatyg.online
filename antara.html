@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ENSŌ - Centro de Pases e Impresión</title>
+    <title>ENSŌ - Centro de Pases e Impresión (Optimizado Couché 300g)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -16,23 +16,27 @@
 
     <style>
         :root {
-            --gold: #D4AF37; --ink: #050505; --parchment: #0D0B08;
+            --gold: #D4AF37;
+            --gold-bright: #FFE875;
+            --ink: #050505;
+            --parchment: #0D0B08;
         }
-        body { background-color: var(--ink); color: #D9D0C0; font-family: 'Cormorant Garamond', serif; }
+        body { background-color: var(--ink); color: #F4EFE6; font-family: 'Cormorant Garamond', serif; }
         .font-cinzel { font-family: 'Cinzel', serif; }
         .font-cormorant { font-family: 'Cormorant Garamond', serif; }
+        .font-sans-clean { font-family: 'Montserrat', sans-serif; }
         
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.35); border-radius: 3px; }
 
         /* Modales y utilidades */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(8,8,8,0.98); z-index: 50; display: flex; justify-content: center; align-items: center; }
-        .modal-box { background: var(--parchment); border: 1px solid rgba(212,175,55,0.3); padding: 40px; text-align: center; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(8,8,8,0.96); z-index: 50; display: flex; justify-content: center; align-items: center; }
+        .modal-box { background: var(--parchment); border: 1px solid rgba(212,175,55,0.4); padding: 40px; text-align: center; }
         
         /* Toast Notifications */
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 100; display: flex; flex-direction: column; gap: 10px; }
-        .toast { background: #0D0B08; border: 1px solid #D4AF37; color: #F5E17A; padding: 12px 24px; font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.1em; opacity: 0; transform: translateY(20px); transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .toast { background: #0D0B08; border: 1px solid #FFE875; color: #FFE875; padding: 12px 24px; font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.1em; opacity: 0; transform: translateY(20px); transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.7); }
         .toast.show { opacity: 1; transform: translateY(0); }
 
         /* Estilos del Lienzo Tamaño Carta (8.5 x 11 pulgadas -> proporción exacta 816px x 1056px) */
@@ -59,7 +63,8 @@
             margin-bottom: 8px;
             font-family: 'Cinzel', serif;
             font-size: 11px;
-            color: #444444;
+            color: #222222;
+            font-weight: 700;
             letter-spacing: 0.12em;
         }
 
@@ -72,7 +77,8 @@
             margin-top: 8px;
             font-family: 'Cormorant Garamond', serif;
             font-size: 11px;
-            color: #666666;
+            color: #444444;
+            font-weight: 600;
         }
 
         .sheet-grid {
@@ -88,10 +94,10 @@
         .pass-card {
             width: 240px;
             height: 225px;
-            background-color: #050505;
+            background-color: #080808;
             position: relative;
             overflow: hidden;
-            border: 1px dashed rgba(212, 175, 55, 0.55);
+            border: 1.5px dashed #C59B27;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -103,12 +109,12 @@
         .pass-card-empty {
             width: 240px;
             height: 225px;
-            border: 1px dashed #e5e5e5;
+            border: 1px dashed #cccccc;
             box-sizing: border-box;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #cccccc;
+            color: #999999;
             font-family: 'Cinzel', serif;
             font-size: 10px;
             letter-spacing: 0.1em;
@@ -159,10 +165,10 @@
     <!-- Modal de Seguridad -->
     <div id="auth-modal" class="modal-overlay">
         <div class="modal-box w-[400px] shadow-2xl">
-            <h2 class="font-cinzel text-2xl text-[#F5E17A] mb-2 tracking-widest">Seguridad</h2>
-            <p class="font-cormorant text-gray-400 mb-8 italic">Acceso exclusivo al Centro de Distribución e Impresión.</p>
+            <h2 class="font-cinzel text-2xl text-[#FFE875] mb-2 tracking-widest">Seguridad</h2>
+            <p class="font-cormorant text-gray-300 mb-8 italic text-base">Acceso exclusivo al Centro de Distribución e Impresión.</p>
             
-            <button id="btn-ingresar" onclick="window.verifyAdminGoogle()" class="border border-[#D4AF37] text-[#D4AF37] px-6 py-3 font-cinzel text-sm tracking-widest hover:bg-[#D4AF37]/10 transition w-full flex items-center justify-center gap-3">
+            <button id="btn-ingresar" onclick="window.verifyAdminGoogle()" class="border border-[#D4AF37] text-[#FFE875] px-6 py-3 font-cinzel text-sm tracking-widest hover:bg-[#D4AF37]/20 transition w-full flex items-center justify-center gap-3 cursor-pointer">
                 <svg width="18" height="18" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M47.532 24.5528C47.532 22.9214 47.3997 21.2811 47.1175 19.6761H24.48V28.5181H37.4434C36.9055 31.3393 35.177 33.8239 32.6461 35.5056V41.4107H40.4001C44.9468 37.229 47.532 31.4239 47.532 24.5528Z" fill="#4285F4"/>
                     <path d="M24.48 48.0016C30.9529 48.0016 36.4116 45.8764 40.4088 41.4107L32.6549 35.5056C30.5038 36.958 27.7552 37.8687 24.48 37.8687C18.132 37.8687 12.756 33.5936 10.8228 27.8385H2.8941V33.993C7.0255 42.195 15.3402 48.0016 24.48 48.0016Z" fill="#34A853"/>
@@ -171,7 +177,40 @@
                 </svg>
                 Ingresar con Google
             </button>
-            <p id="auth-error" class="text-red-500 font-cormorant italic text-sm mt-4 opacity-0 transition-opacity">Error de acceso.</p>
+            <p id="auth-error" class="text-red-400 font-cormorant italic text-sm mt-4 opacity-0 transition-opacity">Error de acceso.</p>
+        </div>
+    </div>
+
+    <!-- Modal Guía de Impresión Canon G4010 Couché 300g -->
+    <div id="printer-guide-modal" class="modal-overlay hidden">
+        <div class="modal-box max-w-xl w-[92%] text-left relative">
+            <button onclick="document.getElementById('printer-guide-modal').classList.add('hidden')" class="absolute top-4 right-5 text-2xl text-[#FFE875] hover:text-white">&times;</button>
+            <h3 class="font-cinzel text-lg text-[#FFE875] tracking-widest mb-2">🖨️ Configuración Exacta para Canon G4010 (Couché 300g)</h3>
+            <p class="text-gray-300 text-sm mb-4 font-sans-clean leading-relaxed">
+                El papel couché absorbe la tinta de forma lateral (ganancia de punto). Si imprimes en "Papel Normal", la Canon G4010 dispara demasiada tinta negra pigmentada y <strong>tapa las letras finas</strong>. Sigue estos 4 pasos al imprimir:
+            </p>
+            <ol class="space-y-2.5 text-sm text-gray-200 font-sans-clean list-decimal pl-5 mb-5">
+                <li>
+                    <strong class="text-[#FFE875]">Tipo de Papel (Media Type):</strong> En las preferencias de tu Canon G4010, cámbialo de "Papel Normal" a <strong class="text-emerald-300">"Papel Fotográfico Mate" (Matte Photo Paper)</strong> o <strong>"Papel de Alta Resolución"</strong>. Esto obliga a la impresora a usar gotas finas que no se corren.
+                </li>
+                <li>
+                    <strong class="text-[#FFE875]">Calidad de Impresión:</strong> Selecciónala en <strong class="text-emerald-300">Alta (High)</strong>.
+                </li>
+                <li>
+                    <strong class="text-[#FFE875]">Elige tu Estilo Anti-Sangrado arriba en la barra:</strong>
+                    <ul class="list-disc pl-5 mt-1 space-y-1 text-xs text-gray-300">
+                        <li><strong>Oscuro Inkjet (100% Blanco Puro):</strong> Usa letras `#FFFFFF` más gruesas y grandes para que la impresora deje el papel blanco intacto sin disparar tinta encima de las letras.</li>
+                        <li><strong>Oscuro con Sello Blanco (Recomendado si tu papel absorbe mucho):</strong> Pone el texto dentro de una placa blanca marfil con letras negras ultra nítidas (imposible que se borre).</li>
+                        <li><strong>Editorial Marfil (Fondo Claro):</strong> Fondo claro de gala con letras negras/doradas. Cero saturación de tinta y secado instantáneo en couché.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong class="text-[#FFE875]">Tamaño Real (100%):</strong> Al imprimir el PDF descargado, asegúrate de elegir <strong>"Tamaño real" (Actual Size / Escala 100%)</strong> para que el frente y el reverso coincidan al milímetro.
+                </li>
+            </ol>
+            <div class="text-right">
+                <button onclick="document.getElementById('printer-guide-modal').classList.add('hidden')" class="bg-[#D4AF37] text-black font-cinzel text-xs font-bold px-6 py-2.5 tracking-wider">Entendido</button>
+            </div>
         </div>
     </div>
 
@@ -179,15 +218,18 @@
     <div id="toast-container"></div>
 
     <!-- Header Superior -->
-    <header class="border-b border-[#D4AF37]/20 px-6 py-3 flex justify-between items-center bg-[#0a0806] shrink-0 z-20">
+    <header class="border-b border-[#D4AF37]/30 px-6 py-3 flex flex-wrap justify-between items-center gap-3 bg-[#0a0806] shrink-0 z-20">
         <div class="flex items-center gap-4">
-            <h1 class="font-cinzel text-xl text-[#F5E17A] tracking-widest">ENSŌ <span class="text-gray-400 text-sm ml-2 font-cormorant italic">Centro de Pases e Impresión Carta (12x Hoja)</span></h1>
+            <h1 class="font-cinzel text-lg md:text-xl text-[#FFE875] tracking-widest font-bold">ENSŌ <span class="text-gray-300 text-sm ml-2 font-cormorant italic font-normal">Centro de Impresión HD (Couché 300g / Canon G4010)</span></h1>
         </div>
-        <div class="flex items-center gap-3">
-            <button onclick="window.selectBackSheetMode()" class="bg-[#D4AF37]/15 border border-[#D4AF37] text-[#F5E17A] px-4 py-1.5 font-cinzel text-xs tracking-wider hover:bg-[#D4AF37] hover:text-black transition flex items-center gap-2 shadow">
+        <div class="flex items-center gap-2.5 flex-wrap">
+            <button onclick="document.getElementById('printer-guide-modal').classList.remove('hidden')" class="bg-emerald-950/80 border border-emerald-400/70 text-emerald-200 px-3.5 py-1.5 font-cinzel text-xs tracking-wider hover:bg-emerald-400 hover:text-black transition flex items-center gap-1.5 font-semibold">
+                <span>💡</span> Guía Impresión Canon G4010
+            </button>
+            <button onclick="window.selectBackSheetMode()" class="bg-[#D4AF37]/20 border border-[#FFE875] text-[#FFE875] px-4 py-1.5 font-cinzel text-xs tracking-wider hover:bg-[#FFE875] hover:text-black transition flex items-center gap-2 shadow font-semibold">
                 <span>❖</span> Plantilla Reverso (QR General)
             </button>
-            <button onclick="window.logoutAdmin()" class="border border-gray-600 text-gray-400 px-4 py-1.5 font-cinzel text-xs hover:border-white hover:text-white transition">Cerrar Sesión</button>
+            <button onclick="window.logoutAdmin()" class="border border-gray-600 text-gray-300 px-3.5 py-1.5 font-cinzel text-xs hover:border-white hover:text-white transition">Cerrar Sesión</button>
         </div>
     </header>
 
@@ -195,107 +237,135 @@
     <div class="flex flex-1 overflow-hidden">
         
         <!-- COLUMNA 1: Lista de Mesas VIP, Hojas Combinadas y Alumnos -->
-        <div class="w-80 border-r border-[#D4AF37]/20 bg-[#0a0806] flex flex-col z-10 shadow-xl shrink-0">
+        <div class="w-80 border-r border-[#D4AF37]/25 bg-[#0a0806] flex flex-col z-10 shadow-xl shrink-0">
             
             <!-- Acceso Rápido a Reverso Universal -->
-            <div class="p-3 border-b border-[#D4AF37]/20 bg-[#120f0a]">
-                <button onclick="window.selectBackSheetMode()" class="w-full text-left p-3 border border-[#D4AF37]/50 bg-gradient-to-r from-[#D4AF37]/20 to-transparent hover:border-[#F5E17A] transition flex justify-between items-center group">
+            <div class="p-3 border-b border-[#D4AF37]/25 bg-[#120f0a]">
+                <button onclick="window.selectBackSheetMode()" class="w-full text-left p-3 border border-[#FFE875]/60 bg-gradient-to-r from-[#D4AF37]/25 to-transparent hover:border-[#FFE875] transition flex justify-between items-center group">
                     <div>
-                        <div class="font-cinzel text-xs text-[#F5E17A] tracking-wider flex items-center gap-1.5">
+                        <div class="font-cinzel text-xs text-[#FFE875] tracking-wider font-bold flex items-center gap-1.5">
                             <span>🖨️</span> HOJA REVERSO (12 QRs)
                         </div>
-                        <div class="font-cormorant text-xs text-gray-300 mt-0.5 italic">Imprimir una sola vez al reverso</div>
+                        <div class="font-cormorant text-xs text-gray-200 mt-0.5 italic">Con letras de alto contraste legibles</div>
                     </div>
-                    <div class="font-cinzel text-[#D4AF37] text-xs group-hover:translate-x-1 transition">Ver ➔</div>
+                    <div class="font-cinzel text-[#FFE875] text-xs group-hover:translate-x-1 transition font-bold">Ver ➔</div>
                 </button>
             </div>
 
             <!-- Buscador -->
-            <div class="p-3 border-b border-[#D4AF37]/10">
-                <input type="text" id="search-host" oninput="window.filterHosts()" placeholder="Buscar Mesa VIP, pareja o alumno..." class="w-full bg-black/50 border border-[#D4AF37]/30 text-[#D4AF37] p-2.5 font-cinzel text-xs outline-none placeholder:text-[#D4AF37]/40 focus:border-[#D4AF37]">
+            <div class="p-3 border-b border-[#D4AF37]/15">
+                <input type="text" id="search-host" oninput="window.filterHosts()" placeholder="Buscar Mesa VIP, pareja o alumno..." class="w-full bg-black/70 border border-[#D4AF37]/40 text-[#FFE875] p-2.5 font-cinzel text-xs outline-none placeholder:text-[#D4AF37]/50 focus:border-[#FFE875]">
             </div>
 
             <!-- Lista de Anfitriones Agrupados -->
             <div id="host-list" class="flex-1 overflow-y-auto custom-scrollbar p-3 flex flex-col gap-2">
-                <div class="text-center text-gray-500 font-cormorant mt-10">Esperando autenticación...</div>
+                <div class="text-center text-gray-400 font-cormorant mt-10">Esperando autenticación...</div>
             </div>
         </div>
 
         <!-- COLUMNA 2: Espacio de Trabajo -->
         <div class="flex-1 bg-[#080705] flex flex-col relative overflow-hidden">
             
-            <div id="host-details-empty" class="absolute inset-0 flex flex-col items-center justify-center font-cormorant italic text-gray-500 p-8 text-center text-lg">
-                <p class="mb-2 text-xl text-[#D4AF37]/60 font-cinzel not-italic tracking-widest">CENTRO DE IMPRESIÓN ENSŌ</p>
-                <p>Selecciona **Mesa VIP 1**, **Mesa VIP 2**, una **Pareja de Alumnos (6+6)** o un alumno individual a la izquierda,</p>
-                <p>o selecciona <span class="text-[#F5E17A] underline cursor-pointer" onclick="window.selectBackSheetMode()">Hoja Reverso (12 QRs)</span> para descargar la parte trasera.</p>
+            <div id="host-details-empty" class="absolute inset-0 flex flex-col items-center justify-center font-cormorant italic text-gray-400 p-8 text-center text-lg">
+                <p class="mb-2 text-xl text-[#FFE875] font-cinzel not-italic tracking-widest font-bold">CENTRO DE IMPRESIÓN ENSŌ</p>
+                <p>Selecciona <strong>Mesa VIP 1</strong>, <strong>Mesa VIP 2</strong>, una <strong>Pareja de Alumnos (6+6)</strong> o un alumno individual a la izquierda,</p>
+                <p>o selecciona <span class="text-[#FFE875] underline cursor-pointer font-semibold" onclick="window.selectBackSheetMode()">Hoja Reverso (12 QRs)</span> para probar los 3 modos de alto contraste para tu Canon G4010.</p>
             </div>
             
             <div id="host-details-content" class="hidden h-full flex-col overflow-hidden">
                 
                 <!-- Barra Superior del Anfitrión y Controles de Modo -->
-                <div class="px-6 py-4 border-b border-[#D4AF37]/20 bg-[#0c0a08] flex flex-wrap justify-between items-center gap-4 shrink-0 shadow-md z-10">
+                <div class="px-6 py-3.5 border-b border-[#D4AF37]/25 bg-[#0c0a08] flex flex-wrap justify-between items-center gap-4 shrink-0 shadow-md z-10">
                     <div>
                         <div class="flex items-center gap-3 flex-wrap">
-                            <h2 id="detail-host-name" class="font-cinzel text-[#F5E17A] text-xl tracking-widest">Nombre</h2>
-                            <span id="detail-badge" class="px-2.5 py-0.5 text-[10px] font-cinzel border border-[#D4AF37]/40 text-[#D4AF37] bg-[#D4AF37]/10">12 Pases</span>
+                            <h2 id="detail-host-name" class="font-cinzel text-[#FFE875] text-lg md:text-xl tracking-widest font-bold">Nombre</h2>
+                            <span id="detail-badge" class="px-2.5 py-0.5 text-[10px] font-cinzel border border-[#FFE875]/50 text-[#FFE875] bg-[#D4AF37]/15 font-bold">12 Pases</span>
                         </div>
-                        <p id="detail-host-info" class="font-cormorant text-gray-400 italic text-sm mt-0.5">Hoja Tamaño Carta (3 columnas × 4 filas)</p>
+                        <p id="detail-host-info" class="font-cormorant text-gray-300 italic text-sm mt-0.5">Hoja Tamaño Carta (3 columnas × 4 filas)</p>
                     </div>
 
                     <!-- Pestañas de Modo -->
-                    <div class="flex items-center bg-black/60 p-1 border border-[#D4AF37]/30">
-                        <button id="tab-sheet-front" onclick="window.switchViewMode('sheet-front')" class="px-3.5 py-1.5 font-cinzel text-xs tracking-wider transition bg-[#D4AF37] text-black font-semibold">
+                    <div class="flex items-center bg-black/80 p-1 border border-[#D4AF37]/40">
+                        <button id="tab-sheet-front" onclick="window.switchViewMode('sheet-front')" class="px-3.5 py-1.5 font-cinzel text-xs tracking-wider transition bg-[#D4AF37] text-black font-bold">
                             📄 Hoja Frontal (Pases)
                         </button>
-                        <button id="tab-sheet-back" onclick="window.switchViewMode('sheet-back')" class="px-3.5 py-1.5 font-cinzel text-xs tracking-wider transition text-gray-400 hover:text-[#F5E17A]">
+                        <button id="tab-sheet-back" onclick="window.switchViewMode('sheet-back')" class="px-3.5 py-1.5 font-cinzel text-xs tracking-wider transition text-gray-300 hover:text-[#FFE875]">
                             🔄 Hoja Reverso (QR)
                         </button>
-                        <button id="tab-single-wa" onclick="window.switchViewMode('single-wa')" class="px-3.5 py-1.5 font-cinzel text-xs tracking-wider transition text-gray-400 hover:text-[#F5E17A]">
+                        <button id="tab-single-wa" onclick="window.switchViewMode('single-wa')" class="px-3.5 py-1.5 font-cinzel text-xs tracking-wider transition text-gray-300 hover:text-[#FFE875]">
                             📱 Individual (WhatsApp)
                         </button>
                     </div>
                 </div>
 
-                <!-- Barra de Herramientas Contextual -->
-                <div id="sheet-toolbar" class="px-6 py-3 border-b border-[#D4AF37]/15 bg-[#110e0b] flex flex-wrap justify-between items-center gap-4 shrink-0 z-10">
+                <!-- Barra de Herramientas Contextual + Selector de Modo de Impresión Couché -->
+                <div id="sheet-toolbar" class="px-6 py-3 border-b border-[#D4AF37]/20 bg-[#120f0b] flex flex-col gap-3 shrink-0 z-10">
                     
-                    <!-- Controles de Configuración de QR (Visibles en Modo Reverso) -->
-                    <div id="back-config-controls" class="hidden items-center gap-3 flex-wrap">
-                        <label class="font-cinzel text-[11px] text-[#D4AF37] tracking-wider">URL DEL QR / CONFIRMACIÓN:</label>
-                        <input type="text" id="rsvp-url-input" value="https://enso-gala-2026.web.app" oninput="window.updateBackSheetQR()" class="bg-black border border-[#D4AF37]/40 text-[#F5E17A] px-3 py-1 font-mono text-xs w-64 outline-none focus:border-[#D4AF37]">
-                        <label class="font-cinzel text-[11px] text-gray-400 tracking-wider ml-2">TEXTO URL:</label>
-                        <input type="text" id="rsvp-label-input" value="enso-gala-2026.web.app" oninput="window.updateBackSheetQR()" class="bg-black border border-[#D4AF37]/40 text-gray-200 px-3 py-1 font-cinzel text-xs w-48 outline-none focus:border-[#D4AF37]">
-                    </div>
-
-                    <!-- Controles de Paginación y Combinación Manual de Alumnos (Visibles en Modo Frontal) -->
-                    <div id="front-pagination-controls" class="flex items-center gap-3 flex-wrap">
-                        <span id="sheet-page-indicator" class="font-cinzel text-xs text-gray-300 tracking-wider">Hoja 1 de 1 (Mostrando pases 1 al 12)</span>
-                        
-                        <div id="pagination-buttons" class="hidden items-center gap-1">
-                            <button onclick="window.changeSheetPage(-1)" class="px-2.5 py-1 border border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/20 font-cinzel text-xs">◀ Anterior</button>
-                            <button onclick="window.changeSheetPage(1)" class="px-2.5 py-1 border border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/20 font-cinzel text-xs">Siguiente ▶</button>
+                    <!-- Fila 1: Selector de Estilo de Impresión para Canon G4010 / Couché 300g -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 pb-2.5 border-b border-[#D4AF37]/15">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-cinzel text-[11px] text-[#FFE875] tracking-wider font-bold">🎨 ESTILO DE IMPRESIÓN (COUCHÉ 300G):</span>
+                            
+                            <button id="style-btn-dark-hd" onclick="window.setPrintContrastStyle('dark-hd')" class="px-3 py-1 font-cinzel text-[11px] border border-[#FFE875] bg-[#D4AF37] text-black font-bold transition">
+                                1. Negro + Letras 100% Blanco Puro Grueso
+                            </button>
+                            <button id="style-btn-dark-badge" onclick="window.setPrintContrastStyle('dark-badge')" class="px-3 py-1 font-cinzel text-[11px] border border-[#D4AF37]/50 bg-black/60 text-gray-200 hover:border-[#FFE875] transition">
+                                2. Negro + Recuadro Blanco Nítido (Anti-Sangrado)
+                            </button>
+                            <button id="style-btn-ivory" onclick="window.setPrintContrastStyle('ivory')" class="px-3 py-1 font-cinzel text-[11px] border border-[#D4AF37]/50 bg-black/60 text-gray-200 hover:border-[#FFE875] transition">
+                                3. Gala Marfil Claro (Cero exceso de tinta)
+                            </button>
                         </div>
 
-                        <!-- Selector para combinar manualmente otro alumno si sobran espacios en la hoja -->
-                        <div id="combine-host-box" class="hidden items-center gap-2 ml-2 pl-3 border-l border-[#D4AF37]/30">
-                            <label class="font-cinzel text-[10px] text-[#F5E17A] tracking-wider">➕ RELLENAR HOJA CON:</label>
-                            <select id="combine-host-select" onchange="window.combineWithSelectedHost(this.value)" class="bg-black border border-[#D4AF37]/50 text-[#F5E17A] px-2.5 py-1 font-cinzel text-xs outline-none">
-                                <option value="">-- Elegir otro alumno --</option>
-                            </select>
+                        <!-- Opción para quitar o suavizar la imagen de fondo en el frente si oscurece el código -->
+                        <div id="front-bg-toggle-wrap" class="flex items-center gap-2">
+                            <label class="font-sans-clean text-xs text-gray-300 flex items-center gap-1.5 cursor-pointer">
+                                <input type="checkbox" id="toggle-front-bg" checked onchange="window.renderFrontSheet()" class="accent-[#D4AF37] w-3.5 h-3.5">
+                                Mostrar ilustración de fondo (`enso2.png`)
+                            </label>
                         </div>
                     </div>
 
-                    <!-- Botones de Acción Directa (PDF, PNG, Imprimir) -->
-                    <div class="flex items-center gap-2.5 ml-auto">
-                        <button id="btn-download-pdf" onclick="window.exportCurrentSheetPDF()" class="bg-[#D4AF37] text-black font-semibold px-4 py-2 font-cinzel text-xs tracking-wider hover:bg-[#F5E17A] transition flex items-center gap-2 shadow-lg">
-                            <span>📄</span> Descargar PDF (Tamaño Carta)
-                        </button>
-                        <button id="btn-download-png" onclick="window.exportCurrentSheetPNG()" class="bg-[#D4AF37]/15 border border-[#D4AF37] text-[#F5E17A] px-4 py-2 font-cinzel text-xs tracking-wider hover:bg-[#D4AF37] hover:text-black transition flex items-center gap-2">
-                            <span>🖼️</span> Descargar PNG
-                        </button>
-                        <button onclick="window.print()" class="border border-gray-500 text-gray-300 px-3.5 py-2 font-cinzel text-xs tracking-wider hover:border-white hover:text-white transition flex items-center gap-1.5" title="Imprimir directamente desde el navegador">
-                            <span>🖨️</span> Imprimir
-                        </button>
+                    <!-- Fila 2: Controles de URL / Paginación / Descarga -->
+                    <div class="flex flex-wrap justify-between items-center gap-4">
+                        <!-- Controles de Configuración de QR (Visibles en Modo Reverso) -->
+                        <div id="back-config-controls" class="hidden items-center gap-3 flex-wrap">
+                            <label class="font-cinzel text-[11px] text-[#FFE875] tracking-wider font-bold">URL DEL QR:</label>
+                            <input type="text" id="rsvp-url-input" value="https://ensouatyg.online" oninput="window.updateBackSheetQR()" class="bg-black border border-[#D4AF37]/60 text-[#FFE875] px-3 py-1 font-mono text-xs w-56 outline-none focus:border-[#FFE875]">
+                            <label class="font-cinzel text-[11px] text-gray-300 tracking-wider ml-1 font-bold">TEXTO IMPRESO:</label>
+                            <input type="text" id="rsvp-label-input" value="ENSOUATYG.ONLINE" oninput="window.updateBackSheetQR()" class="bg-black border border-[#D4AF37]/60 text-white px-3 py-1 font-cinzel text-xs w-48 outline-none focus:border-[#FFE875] font-bold">
+                        </div>
+
+                        <!-- Controles de Paginación y Combinación Manual de Alumnos (Visibles en Modo Frontal) -->
+                        <div id="front-pagination-controls" class="flex items-center gap-3 flex-wrap">
+                            <span id="sheet-page-indicator" class="font-cinzel text-xs text-gray-200 tracking-wider font-semibold">Hoja 1 de 1 (Mostrando pases 1 al 12)</span>
+                            
+                            <div id="pagination-buttons" class="hidden items-center gap-1">
+                                <button onclick="window.changeSheetPage(-1)" class="px-2.5 py-1 border border-[#D4AF37]/60 text-[#FFE875] hover:bg-[#D4AF37]/20 font-cinzel text-xs">◀ Anterior</button>
+                                <button onclick="window.changeSheetPage(1)" class="px-2.5 py-1 border border-[#D4AF37]/60 text-[#FFE875] hover:bg-[#D4AF37]/20 font-cinzel text-xs">Siguiente ▶</button>
+                            </div>
+
+                            <!-- Selector para combinar manualmente otro alumno si sobran espacios en la hoja -->
+                            <div id="combine-host-box" class="hidden items-center gap-2 ml-2 pl-3 border-l border-[#D4AF37]/30">
+                                <label class="font-cinzel text-[10px] text-[#FFE875] tracking-wider font-bold">➕ RELLENAR HOJA CON:</label>
+                                <select id="combine-host-select" onchange="window.combineWithSelectedHost(this.value)" class="bg-black border border-[#D4AF37]/60 text-[#FFE875] px-2.5 py-1 font-cinzel text-xs outline-none">
+                                    <option value="">-- Elegir otro alumno --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción Directa (PDF, PNG, Imprimir) -->
+                        <div class="flex items-center gap-2.5 ml-auto">
+                            <button id="btn-download-pdf" onclick="window.exportCurrentSheetPDF()" class="bg-[#FFE875] text-black font-bold px-4 py-2 font-cinzel text-xs tracking-wider hover:bg-white transition flex items-center gap-2 shadow-lg cursor-pointer">
+                                <span>📄</span> Descargar PDF Alta Nitidez (300 DPI)
+                            </button>
+                            <button id="btn-download-png" onclick="window.exportCurrentSheetPNG()" class="bg-[#D4AF37]/20 border border-[#FFE875] text-[#FFE875] px-4 py-2 font-cinzel text-xs tracking-wider hover:bg-[#FFE875] hover:text-black transition flex items-center gap-2 font-semibold cursor-pointer">
+                                <span>🖼️</span> Descargar PNG
+                            </button>
+                            <button onclick="window.print()" class="border border-gray-400 text-white px-3.5 py-2 font-cinzel text-xs tracking-wider hover:border-[#FFE875] hover:text-[#FFE875] transition flex items-center gap-1.5 cursor-pointer" title="Imprimir directamente desde el navegador">
+                                <span>🖨️</span> Imprimir Directo
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -304,8 +374,8 @@
                     
                     <!-- VISTA 1 Y 2: HOJA TAMAÑO CARTA (FRONTAL 12 PASES O REVERSO 12 QRS) -->
                     <div id="view-sheet-container" class="flex flex-col items-center my-auto">
-                        <p id="sheet-helper-text" class="font-cormorant italic text-gray-400 mb-3 text-center text-base">
-                            Vista previa a escala de la hoja Tamaño Carta (21.59 cm × 27.94 cm). El diseño es simétrico para impresión a doble cara.
+                        <p id="sheet-helper-text" class="font-sans-clean text-xs text-emerald-300 mb-3 text-center bg-emerald-950/50 border border-emerald-500/40 px-4 py-1.5 rounded">
+                            💡 <strong>Tip Canon G4010:</strong> Al imprimir en Couché 300g, selecciona <strong>"Papel Fotográfico Mate"</strong> y <strong>Calidad Alta</strong> en las propiedades de la impresora para que las letras salgan ultra definidas.
                         </p>
 
                         <div class="relative flex justify-center items-start overflow-visible">
@@ -327,7 +397,7 @@
 
                                     <!-- Pie de hoja con guía de recorte -->
                                     <div class="sheet-footer">
-                                        <span id="sheet-footer-left">✂ Recortar sobre las líneas punteadas doradas (Formato simétrico 3 × 4 para impresión frente y vuelta)</span>
+                                        <span id="sheet-footer-left">✂ Recortar sobre las líneas punteadas (Formato simétrico 3 × 4 para impresión frente y vuelta)</span>
                                         <span id="sheet-footer-right">Tamaño Carta (Letter 8.5" × 11")</span>
                                     </div>
                                 </div>
@@ -338,20 +408,20 @@
 
                     <!-- VISTA 3: MODO INDIVIDUAL WHATSAPP -->
                     <div id="view-single-wa-container" class="hidden flex-col items-center my-auto py-6">
-                        <p class="font-cinzel text-[#D4AF37] text-sm tracking-widest mb-4">Vista Previa Individual (Formato WhatsApp)</p>
+                        <p class="font-cinzel text-[#FFE875] text-sm tracking-widest mb-4 font-bold">Vista Previa Individual (Formato WhatsApp)</p>
                         
                         <div id="capture-digital" style="width: 400px; height: 400px; background-color: #050505; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 20px 40px rgba(0,0,0,0.8); text-align: center; overflow: hidden; border-radius: 4px;">
                             <img src="enso2.png" alt="Fondo Enso" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;" crossorigin="anonymous" onerror="this.style.display='none'">
-                            <p style="font-family: 'Cinzel', serif; color: rgba(255,255,255,0.95); font-size: 0.75rem; letter-spacing: 0.25em; position: absolute; top: 40px; width: 100%; left: 0; line-height: 1.6; text-shadow: 0 2px 8px rgba(0,0,0,0.9); z-index: 1;">CÓDIGO PARA REALIZAR<br>SU CONFIRMACIÓN</p>
-                            <div id="digital-code-display" style="position: absolute; bottom: 20px; width: 100%; left: 0; padding: 0 20px; box-sizing: border-box; color: #D4AF37; font-family: 'Cinzel', serif; font-size: 2.2rem; font-weight: bold; letter-spacing: 0.1em; word-break: break-all; line-height: 1.2; z-index: 1; font-variant-ligatures: none; text-shadow: 0 2px 8px rgba(0,0,0,0.9);">
+                            <p style="font-family: 'Cinzel', serif; color: #FFFFFF; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.25em; position: absolute; top: 40px; width: 100%; left: 0; line-height: 1.6; text-shadow: 0 2px 8px rgba(0,0,0,0.95); z-index: 1;">CÓDIGO PARA REALIZAR<br>SU CONFIRMACIÓN</p>
+                            <div id="digital-code-display" style="position: absolute; bottom: 20px; width: 100%; left: 0; padding: 0 20px; box-sizing: border-box; color: #FFE875; font-family: 'Cinzel', serif; font-size: 2.2rem; font-weight: 800; letter-spacing: 0.1em; word-break: break-all; line-height: 1.2; z-index: 1; font-variant-ligatures: none; text-shadow: 0 2px 8px rgba(0,0,0,0.95);">
                                 XXXX
                             </div>
                         </div>
 
-                        <button onclick="window.downloadDigitalWhatsApp()" class="mt-8 bg-[#D4AF37]/10 border border-[#D4AF37] text-[#D4AF37] px-8 py-3.5 font-cinzel text-sm tracking-widest hover:bg-[#D4AF37] hover:text-black transition shadow-lg">
+                        <button onclick="window.downloadDigitalWhatsApp()" class="mt-8 bg-[#D4AF37]/20 border border-[#FFE875] text-[#FFE875] px-8 py-3.5 font-cinzel text-sm tracking-widest hover:bg-[#FFE875] hover:text-black transition shadow-lg font-bold">
                             ↓ Descargar Imágenes Individuales (1 por 1)
                         </button>
-                        <p class="font-cormorant italic text-gray-500 mt-3">Se descargará un archivo PNG individual por cada código del grupo seleccionado.</p>
+                        <p class="font-cormorant italic text-gray-300 mt-3 text-base">Se descargará un archivo PNG individual por cada código del grupo seleccionado.</p>
                     </div>
 
                 </div>
@@ -381,15 +451,16 @@
 
         // Variables de Estado
         let allCodes = [];
-        let rawStudentGroups = {}; // Alumnos originales individuales
-        let printPackages = [];    // Lista inteligente: Mesas VIP 1 y 2 + Parejas (6+6) + Alumnos individuales
+        let rawStudentGroups = {};
+        let printPackages = [];
         let currentHostName = "";
         let currentHostCodes = [];
         let currentViewMode = "sheet-front"; 
         let currentSheetPage = 0; 
         let cachedQRDataUrl = "";
+        // Estilo de contraste para impresión en couché: 'dark-hd' | 'dark-badge' | 'ivory'
+        let printContrastStyle = "dark-hd";
 
-        // Notificaciones Toast
         window.showToast = function(message) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -403,15 +474,36 @@
             }, 3200);
         };
 
+        // Cambiar el estilo de contraste de impresión (resuelve el sangrado de tinta en couché 300g)
+        window.setPrintContrastStyle = function(styleName) {
+            printContrastStyle = styleName;
+            const styles = ['dark-hd', 'dark-badge', 'ivory'];
+            styles.forEach(s => {
+                const btn = document.getElementById(`style-btn-${s}`);
+                if (!btn) return;
+                if (s === styleName) {
+                    btn.className = "px-3 py-1 font-cinzel text-[11px] border border-[#FFE875] bg-[#D4AF37] text-black font-bold transition";
+                } else {
+                    btn.className = "px-3 py-1 font-cinzel text-[11px] border border-[#D4AF37]/50 bg-black/60 text-gray-200 hover:border-[#FFE875] transition";
+                }
+            });
+
+            if (currentViewMode === 'sheet-front') {
+                window.renderFrontSheet();
+            } else if (currentViewMode === 'sheet-back') {
+                window.renderBackSheet();
+            }
+        };
+
         // Autenticación
         onAuthStateChanged(auth, (user) => {
             if (user && user.email === ADMIN_EMAIL) {
                 document.getElementById('auth-modal').style.display = 'none';
-                document.getElementById('host-list').innerHTML = '<div class="text-center text-[#D4AF37] font-cormorant mt-10">Cargando base de datos...</div>';
+                document.getElementById('host-list').innerHTML = '<div class="text-center text-[#FFE875] font-cormorant mt-10">Cargando base de datos...</div>';
                 window.loadCodes();
             } else {
                 document.getElementById('auth-modal').style.display = 'flex';
-                document.getElementById('host-list').innerHTML = '<div class="text-center text-gray-500 font-cormorant mt-10">Esperando autenticación...</div>';
+                document.getElementById('host-list').innerHTML = '<div class="text-center text-gray-400 font-cormorant mt-10">Esperando autenticación...</div>';
             }
         });
 
@@ -455,7 +547,6 @@
             location.reload();
         };
 
-        // Detector inteligente de si un registro pertenece a las Mesas VIP
         function isVipRecord(c) {
             const typeStr = String(c.type || '').toLowerCase();
             const hostStr = String(c.hostName || '').toLowerCase();
@@ -470,17 +561,16 @@
             );
         }
 
-        // Detector de si un pase VIP pertenece explícitamente a la Mesa VIP 1 o a la Mesa VIP 2
         function getExplicitVipTable(c) {
+            const numTable = Number(c.table);
+            if (numTable === 1) return 1;
+            if (numTable === 2) return 2;
             const combined = `${c.table || ''} ${c.mesa || ''} ${c.tableNumber || ''} ${c.hostName || ''} ${c.codigo || ''}`.toLowerCase();
             if (/vip\s*[-_#]?\s*2|mesa\s*[-_#]?\s*2/.test(combined)) return 2;
             if (/vip\s*[-_#]?\s*1|mesa\s*[-_#]?\s*1/.test(combined)) return 1;
-            return 0; // No especificado explícitamente
+            return 0;
         }
 
-        // Carga y Agrupación Inteligente:
-        // 1. Agrupa TODOS los invitados VIP en "MESA VIP 1" y "MESA VIP 2" (para que no salgan de 1 por hoja)
-        // 2. Empareja automáticamente a los alumnos de <= 6 pases de dos en dos (6 + 6 = 12 pases en 1 sola hoja)
         window.loadCodes = async function() {
             const listEl = document.getElementById('host-list');
             try {
@@ -501,19 +591,16 @@
                     }
                 });
 
-                // Ordenar los códigos dentro de cada alumno
                 Object.keys(rawStudentGroups).forEach(k => {
                     rawStudentGroups[k].sort((a, b) => String(a.codigo).localeCompare(String(b.codigo), undefined, {numeric: true}));
                 });
 
-                // Ordenar los códigos VIP para que queden consistentes
                 vipPool.sort((a, b) => {
                     const cmpHost = String(a.hostName || '').localeCompare(String(b.hostName || ''));
                     if (cmpHost !== 0) return cmpHost;
                     return String(a.codigo || '').localeCompare(String(b.codigo || ''), undefined, {numeric: true});
                 });
 
-                // Separar en Mesa VIP 1 y Mesa VIP 2
                 let vipMesa1 = [];
                 let vipMesa2 = [];
                 let vipUnassigned = [];
@@ -525,7 +612,6 @@
                     else vipUnassigned.push(c);
                 });
 
-                // Repartir los VIP que no tenían número de mesa explícito en bloques de 12 (Mesa VIP 1 primeros 12, Mesa VIP 2 siguientes)
                 vipUnassigned.forEach(c => {
                     if (vipMesa1.length < 12) {
                         vipMesa1.push(c);
@@ -536,11 +622,10 @@
 
                 printPackages = [];
 
-                // 1. Agregar Paquetes de MESA VIP 1 y MESA VIP 2 al principio
                 if (vipMesa1.length > 0) {
                     printPackages.push({
                         id: 'vip-mesa-1',
-                        title: '🌟 MESA VIP 1 (Todos los Invitados)',
+                        title: '🌟 MESA VIP 1 (Maestros)',
                         subtitle: `Agrupado en 1 documento • ${vipMesa1.length} Pases`,
                         category: 'vip',
                         codes: vipMesa1
@@ -549,14 +634,13 @@
                 if (vipMesa2.length > 0) {
                     printPackages.push({
                         id: 'vip-mesa-2',
-                        title: '🌟 MESA VIP 2 (Todos los Invitados)',
+                        title: '🌟 MESA VIP 2 (Directivos)',
                         subtitle: `Agrupado en 1 documento • ${vipMesa2.length} Pases`,
                         category: 'vip',
                         codes: vipMesa2
                     });
                 }
 
-                // 2. Detectar alumnos con <= 6 pases para armar hojas combinadas (2 alumnos por hoja = hasta 12 pases)
                 const studentNames = Object.keys(rawStudentGroups).sort((a, b) => a.localeCompare(b));
                 const halfSheetStudents = studentNames.filter(name => rawStudentGroups[name].length > 0 && rawStudentGroups[name].length <= 6);
 
@@ -575,7 +659,6 @@
                     }
                 }
 
-                // 3. Agregar todos los alumnos en la lista general (indicando cuáles ya tienen hoja compartida arriba)
                 studentNames.forEach(name => {
                     const codes = rawStudentGroups[name];
                     const isSmall = codes.length <= 6;
@@ -593,11 +676,10 @@
                 await window.generateQRBase64();
             } catch (e) {
                 console.error(e);
-                listEl.innerHTML = `<div class="text-red-500 font-cormorant text-center mt-4 p-4 border border-red-900 bg-red-900/20">Error de permisos o conexión. ¿Eres administrador?</div>`;
+                listEl.innerHTML = `<div class="text-red-400 font-cormorant text-center mt-4 p-4 border border-red-900 bg-red-900/20">Error de permisos o conexión. ¿Eres administrador?</div>`;
             }
         };
 
-        // Llenar el selector manual para combinar cualquier alumno con otro en la misma hoja
         window.populateCombineDropdown = function(studentNames) {
             const select = document.getElementById('combine-host-select');
             if (!select) return;
@@ -611,7 +693,6 @@
             });
         };
 
-        // Combinar manualmente el alumno actual con otro alumno seleccionado del desplegable
         window.combineWithSelectedHost = function(secondHostName) {
             if (!secondHostName || !rawStudentGroups[secondHostName]) return;
             const secondCodes = rawStudentGroups[secondHostName];
@@ -637,7 +718,6 @@
             window.renderHostList(filtered);
         };
 
-        // Renderizar la lista lateral dividida por secciones claras
         window.renderHostList = function(packages) {
             const listEl = document.getElementById('host-list');
             listEl.innerHTML = '';
@@ -648,7 +728,7 @@
 
             const addSectionTitle = (label) => {
                 const div = document.createElement('div');
-                div.className = "font-cinzel text-[10px] text-[#D4AF37]/80 tracking-widest uppercase mt-2 mb-1 px-1";
+                div.className = "font-cinzel text-[10px] text-[#FFE875] tracking-widest uppercase mt-2 mb-1 px-1 font-bold";
                 div.innerText = label;
                 listEl.appendChild(div);
             };
@@ -657,18 +737,18 @@
                 const isVip = pkg.category === 'vip';
                 const isPaired = pkg.category === 'paired';
                 
-                let boxStyle = 'border-[#D4AF37]/20 bg-[#111]';
-                if (isVip) boxStyle = 'border-[#D4AF37]/70 bg-gradient-to-r from-[#241c0c] to-[#141008]';
-                else if (isPaired) boxStyle = 'border-emerald-600/50 bg-[#0d1914]';
+                let boxStyle = 'border-[#D4AF37]/25 bg-[#111]';
+                if (isVip) boxStyle = 'border-[#FFE875]/70 bg-gradient-to-r from-[#241c0c] to-[#141008]';
+                else if (isPaired) boxStyle = 'border-emerald-500/60 bg-[#0d1914]';
 
                 const btn = document.createElement('button');
-                btn.className = `text-left p-3 border ${boxStyle} hover:bg-[#D4AF37]/15 hover:border-[#D4AF37] transition flex justify-between items-center group w-full`;
+                btn.className = `text-left p-3 border ${boxStyle} hover:bg-[#D4AF37]/20 hover:border-[#FFE875] transition flex justify-between items-center group w-full`;
                 btn.innerHTML = `
                     <div class="pr-2">
-                        <div class="font-cinzel text-xs text-[#F5E17A] tracking-wide">${pkg.title}</div>
-                        <div class="font-cormorant text-xs text-gray-300 mt-0.5">${pkg.subtitle}</div>
+                        <div class="font-cinzel text-xs text-[#FFE875] tracking-wide font-semibold">${pkg.title}</div>
+                        <div class="font-cormorant text-xs text-gray-200 mt-0.5">${pkg.subtitle}</div>
                     </div>
-                    <div class="font-cinzel text-[#D4AF37] text-[11px] opacity-70 group-hover:opacity-100 transition shrink-0">Hoja ➔</div>
+                    <div class="font-cinzel text-[#FFE875] text-[11px] opacity-80 group-hover:opacity-100 transition shrink-0">Hoja ➔</div>
                 `;
                 btn.onclick = () => window.selectHost(pkg.title, pkg.codes);
                 listEl.appendChild(btn);
@@ -690,7 +770,6 @@
             }
         };
 
-        // Selección de una Mesa VIP, Pareja de Alumnos o Alumno Individual
         window.selectHost = function(hostName, codes) {
             currentHostName = hostName.replace(/^[🌟👥]\s*/, '');
             currentHostCodes = [...codes];
@@ -710,7 +789,6 @@
             window.switchViewMode('sheet-front');
         };
 
-        // Acceso directo al modo de Plantilla Reverso (QR General)
         window.selectBackSheetMode = async function() {
             document.getElementById('host-details-empty').classList.add('hidden');
             document.getElementById('host-details-content').classList.remove('hidden');
@@ -723,7 +801,6 @@
             await window.switchViewMode('sheet-back');
         };
 
-        // Cambio entre los 3 modos: 'sheet-front', 'sheet-back', 'single-wa'
         window.switchViewMode = async function(mode) {
             currentViewMode = mode;
 
@@ -735,9 +812,9 @@
 
             Object.keys(tabs).forEach(k => {
                 if (k === mode) {
-                    tabs[k].className = "px-3.5 py-1.5 font-cinzel text-xs tracking-wider transition bg-[#D4AF37] text-black font-semibold";
+                    tabs[k].className = "px-3.5 py-1.5 font-cinzel text-xs tracking-wider transition bg-[#D4AF37] text-black font-bold";
                 } else {
-                    tabs[k].className = "px-3.5 py-1.5 font-cinzel text-xs tracking-wider transition text-gray-400 hover:text-[#F5E17A]";
+                    tabs[k].className = "px-3.5 py-1.5 font-cinzel text-xs tracking-wider transition text-gray-300 hover:text-[#FFE875]";
                 }
             });
 
@@ -746,6 +823,7 @@
             const viewSingle = document.getElementById('view-single-wa-container');
             const backControls = document.getElementById('back-config-controls');
             const frontPagination = document.getElementById('front-pagination-controls');
+            const frontBgToggle = document.getElementById('front-bg-toggle-wrap');
 
             if (mode === 'single-wa') {
                 sheetToolbar.classList.add('hidden');
@@ -764,6 +842,7 @@
                     backControls.classList.remove('flex');
                     frontPagination.classList.remove('hidden');
                     frontPagination.classList.add('flex');
+                    frontBgToggle.classList.remove('hidden');
                     document.getElementById('detail-host-info').innerText = `Hoja Frontal lista para imprimir — ${currentHostName || 'Anfitrión'}`;
                     window.renderFrontSheet();
                 } else if (mode === 'sheet-back') {
@@ -771,7 +850,8 @@
                     backControls.classList.add('flex');
                     frontPagination.classList.add('hidden');
                     frontPagination.classList.remove('flex');
-                    document.getElementById('detail-host-info').innerText = "Hoja Reverso Universal (12 códigos QR alineados exactamente con el frente)";
+                    frontBgToggle.classList.add('hidden');
+                    document.getElementById('detail-host-info').innerText = "Hoja Reverso Universal (12 códigos QR con letras ultra nítidas para Couché 300g)";
                     await window.renderBackSheet();
                 }
             }
@@ -786,7 +866,7 @@
             }
         };
 
-        // Renderizar la Hoja Frontal Tamaño Carta (12 pases = 3x4)
+        // Renderizar la Hoja Frontal Tamaño Carta (12 pases = 3x4) adaptada al Modo de Contraste elegido
         window.renderFrontSheet = function() {
             const grid = document.getElementById('sheet-grid-container');
             grid.innerHTML = '';
@@ -796,6 +876,7 @@
                 return;
             }
 
+            const showBgImg = document.getElementById('toggle-front-bg')?.checked ?? true;
             const totalPages = Math.max(1, Math.ceil(currentHostCodes.length / 12));
             const startIdx = currentSheetPage * 12;
             const pageCodes = currentHostCodes.slice(startIdx, startIdx + 12);
@@ -813,7 +894,6 @@
                 pagBtns.classList.remove('flex');
             }
 
-            // Mostrar opción de rellenar hoja con otro alumno si la hoja actual tiene menos de 12 pases
             const combineBox = document.getElementById('combine-host-box');
             if (pageCodes.length < 12) {
                 combineBox.classList.remove('hidden');
@@ -830,34 +910,87 @@
                 const item = pageCodes[i];
                 if (item) {
                     const codeStr = String(item.codigo || '');
-                    const ownerLabel = String(item.hostName || '').trim();
+                    const ownerLabel = String(item.fullName || item.hostName || '').trim();
                     
-                    let codeFontSize = "1.25rem";
-                    if (codeStr.length > 15) codeFontSize = "0.82rem";
-                    else if (codeStr.length > 11) codeFontSize = "1.0rem";
+                    let codeFontSize = "1.32rem";
+                    if (codeStr.length > 15) codeFontSize = "0.9rem";
+                    else if (codeStr.length > 11) codeFontSize = "1.08rem";
 
                     const card = document.createElement('div');
                     card.className = 'pass-card';
-                    card.innerHTML = `
-                        <img src="enso2.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;" crossorigin="anonymous" onerror="this.style.display='none'">
-                        
-                        <!-- Etiqueta sutil superior con el nombre del alumno o invitado VIP para identificar al recortar -->
-                        <div style="position: absolute; top: 4px; right: 6px; z-index: 2; font-family: 'Cormorant Garamond', serif; font-size: 8px; color: rgba(212,175,55,0.65); letter-spacing: 0.04em; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            ${ownerLabel}
-                        </div>
 
-                        <div style="position: relative; z-index: 1; width: 100%; padding-top: 18px;">
-                            <p style="font-family: 'Cinzel', serif; color: rgba(255,255,255,0.95); font-size: 8.5px; letter-spacing: 0.22em; line-height: 1.5; text-shadow: 0 2px 6px rgba(0,0,0,0.95); margin: 0;">
-                                CÓDIGO PARA REALIZAR<br>SU CONFIRMACIÓN
-                            </p>
-                        </div>
-
-                        <div style="position: relative; z-index: 1; width: 100%; padding: 0 10px 14px 10px; box-sizing: border-box;">
-                            <div style="color: #D4AF37; font-family: 'Cinzel', serif; font-size: ${codeFontSize}; font-weight: 700; letter-spacing: 0.08em; word-break: break-all; line-height: 1.15; text-shadow: 0 2px 6px rgba(0,0,0,0.95);">
-                                ${codeStr}
+                    if (printContrastStyle === 'ivory') {
+                        // MODO 3: GALA MARFIL CLARO (Cero exceso de tinta negra en couché)
+                        card.style.backgroundColor = '#FAF7F0';
+                        card.style.border = '1.5px dashed #8B6F20';
+                        card.innerHTML = `
+                            <div style="position: absolute; inset: 7px; border: 1.5px solid #B38728; pointer-events: none;"></div>
+                            <div style="position: absolute; top: 10px; right: 12px; z-index: 2; font-family: 'Montserrat', sans-serif; font-size: 7.5px; font-weight: 700; color: #555555; letter-spacing: 0.04em; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${ownerLabel}
                             </div>
-                        </div>
-                    `;
+
+                            <div style="position: relative; z-index: 1; width: 100%; padding-top: 26px;">
+                                <div style="font-family: 'Cinzel', serif; color: #050505; font-size: 18px; font-weight: 900; letter-spacing: 0.28em; margin-bottom: 4px;">ENSŌ</div>
+                                <div style="width: 40px; height: 1.5px; background: #B38728; margin: 0 auto 8px auto;"></div>
+                                <p style="font-family: 'Montserrat', sans-serif; color: #111111; font-size: 8.5px; font-weight: 800; letter-spacing: 0.16em; line-height: 1.45; margin: 0;">
+                                    CÓDIGO PERSONAL DE<br>CONFIRMACIÓN
+                                </p>
+                            </div>
+
+                            <div style="position: relative; z-index: 1; width: 100%; padding: 0 12px 16px 12px; box-sizing: border-box;">
+                                <div style="background: #0A0A0A; color: #FFFFFF; border: 1.5px solid #B38728; padding: 7px 6px; border-radius: 2px; font-family: 'Cinzel', serif; font-size: ${codeFontSize}; font-weight: 900; letter-spacing: 0.1em; word-break: break-all; line-height: 1.1;">
+                                    ${codeStr}
+                                </div>
+                            </div>
+                        `;
+                    } else if (printContrastStyle === 'dark-badge') {
+                        // MODO 2: NEGRO CON SELLO BLANCO NÍTIDO (Evita que el fondo negro tape el código)
+                        card.style.backgroundColor = '#070707';
+                        card.innerHTML = `
+                            ${showBgImg ? `<img src="enso2.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;" crossorigin="anonymous" onerror="this.style.display='none'">` : ''}
+                            <div style="position: absolute; inset: 5px; border: 1px solid rgba(255,232,117,0.45); pointer-events: none; z-index: 1;"></div>
+
+                            <div style="position: absolute; top: 8px; right: 10px; z-index: 2; font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: #FFFFFF; letter-spacing: 0.04em; max-width: 155px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${ownerLabel}
+                            </div>
+
+                            <div style="position: relative; z-index: 2; width: 100%; padding-top: 20px;">
+                                <p style="font-family: 'Montserrat', sans-serif; color: #FFFFFF; font-size: 9px; font-weight: 800; letter-spacing: 0.18em; line-height: 1.45; margin: 0;">
+                                    CÓDIGO PARA REALIZAR<br>SU CONFIRMACIÓN
+                                </p>
+                            </div>
+
+                            <div style="position: relative; z-index: 2; width: 100%; padding: 0 12px 12px 12px; box-sizing: border-box;">
+                                <div style="background: #FFFFFF; color: #000000; border: 2px solid #D4AF37; padding: 6px 6px; border-radius: 2px; font-family: 'Cinzel', serif; font-size: ${codeFontSize}; font-weight: 900; letter-spacing: 0.1em; word-break: break-all; line-height: 1.1;">
+                                    ${codeStr}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // MODO 1: OSCURO INKJET HD (100% Blanco Puro #FFFFFF y Dorado Brillante #FFE875 con trazo grueso)
+                        card.style.backgroundColor = '#070707';
+                        card.innerHTML = `
+                            ${showBgImg ? `<img src="enso2.png" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;" crossorigin="anonymous" onerror="this.style.display='none'">` : ''}
+                            <div style="position: absolute; inset: 5px; border: 1px solid rgba(255,232,117,0.45); pointer-events: none; z-index: 1;"></div>
+
+                            <div style="position: absolute; top: 7px; right: 9px; z-index: 2; font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; color: #FFFFFF; letter-spacing: 0.04em; max-width: 155px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${ownerLabel}
+                            </div>
+
+                            <div style="position: relative; z-index: 2; width: 100%; padding-top: 18px;">
+                                <p style="font-family: 'Montserrat', sans-serif; color: #FFFFFF; font-size: 9px; font-weight: 800; letter-spacing: 0.2em; line-height: 1.5; margin: 0;">
+                                    CÓDIGO PARA REALIZAR<br>SU CONFIRMACIÓN
+                                </p>
+                            </div>
+
+                            <div style="position: relative; z-index: 2; width: 100%; padding: 0 10px 14px 10px; box-sizing: border-box;">
+                                <div style="color: #FFFFFF; font-family: 'Cinzel', serif; font-size: ${codeFontSize}; font-weight: 900; letter-spacing: 0.1em; word-break: break-all; line-height: 1.15;">
+                                    ${codeStr}
+                                </div>
+                            </div>
+                        `;
+                    }
+
                     grid.appendChild(card);
                 } else {
                     const emptyCard = document.createElement('div');
@@ -872,16 +1005,16 @@
         window.generateQRBase64 = function() {
             return new Promise((resolve) => {
                 const urlInput = document.getElementById('rsvp-url-input');
-                const targetUrl = (urlInput && urlInput.value.trim()) ? urlInput.value.trim() : "https://enso-gala-2026.web.app";
+                const targetUrl = (urlInput && urlInput.value.trim()) ? urlInput.value.trim() : "https://ensouatyg.online";
                 
                 const hiddenContainer = document.getElementById('hidden-qr-generator');
                 hiddenContainer.innerHTML = '';
 
                 new QRCode(hiddenContainer, {
                     text: targetUrl,
-                    width: 260,
-                    height: 260,
-                    colorDark: "#050505",
+                    width: 300,
+                    height: 300,
+                    colorDark: "#000000",
                     colorLight: "#FFFFFF",
                     correctLevel: QRCode.CorrectLevel.M
                 });
@@ -907,6 +1040,7 @@
         };
 
         // Renderizar la Hoja Reverso Tamaño Carta (12 Tarjetas Traseras con QR y Link)
+        // Soluciona directamente la foto que enviaste donde las letras de abajo no se veían en la Canon G4010
         window.renderBackSheet = async function() {
             if (!cachedQRDataUrl) {
                 await window.generateQRBase64();
@@ -915,40 +1049,95 @@
             const grid = document.getElementById('sheet-grid-container');
             grid.innerHTML = '';
 
-            const displayUrl = document.getElementById('rsvp-label-input').value.trim() || "enso-gala-2026.web.app";
+            const displayUrl = (document.getElementById('rsvp-label-input').value.trim() || "ENSOUATYG.ONLINE").toUpperCase();
 
             document.getElementById('sheet-header-left').innerText = `ENSŌ — EL NOVENO TRAZO | REVERSO GENERAL DE CONFIRMACIÓN (QR)`;
-            document.getElementById('sheet-header-right').innerText = `PLANTILLA SIMÉTRICA 3 × 4 (12 REVERSOS)`;
+            document.getElementById('sheet-header-right').innerText = `PLANTILLA SIMÉTRICA 3 × 4 (12 REVERSOS — ALTO CONTRASTE COUCHÉ)`;
 
             for (let i = 0; i < 12; i++) {
                 const card = document.createElement('div');
                 card.className = 'pass-card';
-                card.style.padding = '12px 10px';
-                card.innerHTML = `
-                    <div style="position: absolute; inset: 6px; border: 1px solid rgba(212,175,55,0.28); pointer-events: none;"></div>
 
-                    <div style="position: relative; z-index: 1; margin-top: 2px;">
-                        <div style="font-family: 'Cinzel', serif; color: #F5E17A; font-size: 16px; letter-spacing: 0.25em; font-weight: 600;">ENSŌ</div>
-                    </div>
+                if (printContrastStyle === 'ivory') {
+                    // MODO 3: GALA MARFIL CLARO (Letras negras ultra nítidas sobre fondo marfil, cero sangrado en Couché 300g)
+                    card.style.backgroundColor = '#FAF7F0';
+                    card.style.border = '1.5px dashed #8B6F20';
+                    card.style.padding = '12px 10px';
+                    card.innerHTML = `
+                        <div style="position: absolute; inset: 6px; border: 1.5px solid #B38728; pointer-events: none;"></div>
 
-                    <div style="position: relative; z-index: 1; background: #FFFFFF; padding: 5px; border: 1.5px solid #D4AF37; border-radius: 2px; box-shadow: 0 4px 12px rgba(0,0,0,0.7); my: 2px;">
-                        <img src="${cachedQRDataUrl}" alt="QR Confirmación" style="width: 96px; height: 96px; display: block;">
-                    </div>
-
-                    <div style="position: relative; z-index: 1; width: 100%; margin-bottom: 2px;">
-                        <p style="font-family: 'Cormorant Garamond', serif; color: #E5DEC9; font-size: 15px; line-height: 1.15; margin: 0 0 3px 0;">
-                            Escanea el QR para confirmar tu asistencia o ingresa a: <br>
-                        </p>
-                        <div style="font-family: 'Cinzel', serif; color: #D4AF37; font-size: 13px; letter-spacing: 0.06em; font-weight: 600; word-break: break-all;">
-                            ${displayUrl}
+                        <div style="position: relative; z-index: 1; margin-top: 1px;">
+                            <div style="font-family: 'Cinzel', serif; color: #050505; font-size: 19px; letter-spacing: 0.28em; font-weight: 900;">ENSŌ</div>
                         </div>
-                    </div>
-                `;
+
+                        <div style="position: relative; z-index: 1; background: #FFFFFF; padding: 6px; border: 2px solid #050505; border-radius: 2px;">
+                            <img src="${cachedQRDataUrl}" alt="QR Confirmación" style="width: 96px; height: 96px; display: block;">
+                        </div>
+
+                        <div style="position: relative; z-index: 1; width: 100%; padding: 0 4px;">
+                            <p style="font-family: 'Montserrat', sans-serif; color: #111111; font-size: 9.5px; font-weight: 700; line-height: 1.25; margin: 0 0 4px 0;">
+                                Escanea el QR para confirmar tu<br>asistencia o ingresa a:
+                            </p>
+                            <div style="font-family: 'Cinzel', serif; color: #000000; font-size: 13.5px; letter-spacing: 0.08em; font-weight: 900; border-top: 1px solid #B38728; padding-top: 2px;">
+                                ${displayUrl}
+                            </div>
+                        </div>
+                    `;
+                } else if (printContrastStyle === 'dark-badge') {
+                    // MODO 2: TARJETA NEGRA + SELLO BLANCO NÍTIDO ABAJO (Mantiene el look negro pero el texto va sobre cinta blanca para que la Canon G4010 no lo tape jamás)
+                    card.style.backgroundColor = '#080808';
+                    card.style.padding = '10px 10px';
+                    card.innerHTML = `
+                        <div style="position: absolute; inset: 5px; border: 1.2px solid #FFE875; pointer-events: none;"></div>
+
+                        <div style="position: relative; z-index: 1; margin-top: 1px;">
+                            <div style="font-family: 'Cinzel', serif; color: #FFFFFF; font-size: 19px; letter-spacing: 0.28em; font-weight: 900;">ENSŌ</div>
+                        </div>
+
+                        <div style="position: relative; z-index: 1; background: #FFFFFF; padding: 6px; border: 2px solid #FFE875; border-radius: 2px;">
+                            <img src="${cachedQRDataUrl}" alt="QR Confirmación" style="width: 92px; height: 92px; display: block;">
+                        </div>
+
+                        <div style="position: relative; z-index: 1; width: 94%; background: #FFFFFF; border: 1.5px solid #D4AF37; border-radius: 2px; padding: 4px 6px; margin-bottom: 2px;">
+                            <p style="font-family: 'Montserrat', sans-serif; color: #000000; font-size: 8.5px; font-weight: 700; line-height: 1.2; margin: 0 0 2px 0;">
+                                Escanea el QR o ingresa a:
+                            </p>
+                            <div style="font-family: 'Cinzel', serif; color: #000000; font-size: 12px; letter-spacing: 0.07em; font-weight: 900;">
+                                ${displayUrl}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // MODO 1: OSCURO INKJET HD (100% Blanco Puro #FFFFFF sin gotas de tinta dentro de la letra y tipografía sin patines gruesa que no se cierra)
+                    card.style.backgroundColor = '#080808';
+                    card.style.padding = '11px 10px';
+                    card.innerHTML = `
+                        <div style="position: absolute; inset: 5px; border: 1.2px solid #FFE875; pointer-events: none;"></div>
+
+                        <div style="position: relative; z-index: 1; margin-top: 1px;">
+                            <div style="font-family: 'Cinzel', serif; color: #FFFFFF; font-size: 19px; letter-spacing: 0.3em; font-weight: 900;">ENSŌ</div>
+                        </div>
+
+                        <div style="position: relative; z-index: 1; background: #FFFFFF; padding: 6px; border: 2px solid #FFE875; border-radius: 2px;">
+                            <img src="${cachedQRDataUrl}" alt="QR Confirmación" style="width: 94px; height: 94px; display: block;">
+                        </div>
+
+                        <div style="position: relative; z-index: 1; width: 100%; margin-bottom: 1px; padding: 0 4px;">
+                            <p style="font-family: 'Montserrat', sans-serif; color: #FFFFFF; font-size: 9.5px; font-weight: 800; letter-spacing: 0.03em; line-height: 1.28; margin: 0 0 4px 0;">
+                                Escanea el QR para confirmar tu<br>asistencia o ingresa a:
+                            </p>
+                            <div style="font-family: 'Montserrat', sans-serif; color: #FFE875; font-size: 12.5px; letter-spacing: 0.08em; font-weight: 800;">
+                                ${displayUrl}
+                            </div>
+                        </div>
+                    `;
+                }
+
                 grid.appendChild(card);
             }
         };
 
-        // Capturar Hoja Carta en alta resolución
+        // Capturar Hoja Carta en ultra alta resolución (Scale 3.2 = ~300 DPI reales para impresión nítida)
         window.captureSheetCanvas = async function() {
             const sheetEl = document.getElementById('letter-sheet-canvas');
             const wrapperEl = document.getElementById('print-sheet-wrapper');
@@ -958,11 +1147,12 @@
             wrapperEl.style.transform = 'none';
             wrapperEl.style.marginBottom = '0px';
 
-            await new Promise(r => setTimeout(r, 120));
+            await document.fonts.ready;
+            await new Promise(r => setTimeout(r, 150));
 
             try {
                 const canvas = await html2canvas(sheetEl, {
-                    scale: 2.5,
+                    scale: 3.2,
                     backgroundColor: '#FFFFFF',
                     useCORS: true,
                     allowTaint: true,
@@ -976,11 +1166,11 @@
             }
         };
 
-        // Descargar PDF Tamaño Carta
+        // Descargar PDF Tamaño Carta usando PNG sin pérdida para evitar artefactos borrosos alrededor de las letras
         window.exportCurrentSheetPDF = async function() {
             const btn = document.getElementById('btn-download-pdf');
             const originalHTML = btn.innerHTML;
-            btn.innerHTML = "Generando PDF...";
+            btn.innerHTML = "Generando PDF 300 DPI...";
             btn.disabled = true;
 
             try {
@@ -988,16 +1178,17 @@
                 const pdf = new jsPDF({
                     orientation: 'portrait',
                     unit: 'in',
-                    format: 'letter'
+                    format: 'letter',
+                    compress: true
                 });
 
                 if (currentViewMode === 'sheet-back') {
-                    window.showToast("Generando PDF de Hoja Reverso (QR)...");
+                    window.showToast("Generando PDF HD de Hoja Reverso (QR)...");
                     const canvas = await window.captureSheetCanvas();
-                    const imgData = canvas.toDataURL('image/jpeg', 0.98);
-                    pdf.addImage(imgData, 'JPEG', 0, 0, 8.5, 11);
-                    pdf.save('ENSO_Hoja_Reverso_QR_Carta.pdf');
-                    window.showToast("¡PDF de Reverso descargado!");
+                    const imgData = canvas.toDataURL('image/png');
+                    pdf.addImage(imgData, 'PNG', 0, 0, 8.5, 11, undefined, 'FAST');
+                    pdf.save(`ENSO_Hoja_Reverso_QR_${printContrastStyle}.pdf`);
+                    window.showToast("¡PDF HD de Reverso descargado!");
                 } else {
                     const totalPages = Math.max(1, Math.ceil(currentHostCodes.length / 12));
                     const savedPage = currentSheetPage;
@@ -1005,21 +1196,21 @@
                     for (let p = 0; p < totalPages; p++) {
                         currentSheetPage = p;
                         window.renderFrontSheet();
-                        window.showToast(`Capturando hoja ${p + 1} de ${totalPages}...`);
-                        await new Promise(r => setTimeout(r, 200));
+                        window.showToast(`Capturando hoja ${p + 1} de ${totalPages} en 300 DPI...`);
+                        await new Promise(r => setTimeout(r, 220));
 
                         const canvas = await window.captureSheetCanvas();
-                        const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                        const imgData = canvas.toDataURL('image/png');
                         if (p > 0) pdf.addPage('letter', 'portrait');
-                        pdf.addImage(imgData, 'JPEG', 0, 0, 8.5, 11);
+                        pdf.addImage(imgData, 'PNG', 0, 0, 8.5, 11, undefined, 'FAST');
                     }
 
                     currentSheetPage = savedPage;
                     window.renderFrontSheet();
 
                     const cleanName = (currentHostName || 'Anfitrion').replace(/[^a-zA-Z0-9_-]/g, '_');
-                    pdf.save(`ENSO_Pases_${cleanName}_Carta.pdf`);
-                    window.showToast(`¡PDF de ${currentHostName} descargado!`);
+                    pdf.save(`ENSO_Pases_${cleanName}_${printContrastStyle}.pdf`);
+                    window.showToast(`¡PDF HD de ${currentHostName} descargado!`);
                 }
             } catch (e) {
                 console.error("Error al generar PDF:", e);
@@ -1041,10 +1232,10 @@
                 const canvas = await window.captureSheetCanvas();
                 const link = document.createElement('a');
                 if (currentViewMode === 'sheet-back') {
-                    link.download = 'ENSO_Hoja_Reverso_QR_Carta.png';
+                    link.download = `ENSO_Hoja_Reverso_QR_${printContrastStyle}.png`;
                 } else {
                     const cleanName = (currentHostName || 'Anfitrion').replace(/[^a-zA-Z0-9_-]/g, '_');
-                    link.download = `ENSO_Pases_${cleanName}_Hoja_${currentSheetPage + 1}.png`;
+                    link.download = `ENSO_Pases_${cleanName}_Hoja_${currentSheetPage + 1}_${printContrastStyle}.png`;
                 }
                 link.href = canvas.toDataURL('image/png');
                 link.click();
@@ -1058,7 +1249,6 @@
             }
         };
 
-        // Funciones de Vista Individual WhatsApp
         window.updateDigitalPreview = function(codeStr) {
             const displayEl = document.getElementById('digital-code-display');
             if (!displayEl) return;
@@ -1112,7 +1302,6 @@
                 btn.disabled = false; 
             }, 2000);
         };
-
     </script>
 </body>
 </html>
