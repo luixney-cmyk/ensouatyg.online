@@ -40,84 +40,43 @@
         .toast.show { opacity: 1; transform: translateY(0); }
 
         /* Estilos del Lienzo Tamaño Carta (8.5 x 11 pulgadas -> proporción exacta 816px x 1056px) */
+        /* Hoja Carta fija 816x1056 px (8.5x11 in). TODO va posicionado de forma ABSOLUTA,
+           asi el frente y el reverso quedan identicos al pixel (antes el encabezado cambiaba de alto y movia la cuadricula). */
         .letter-sheet {
             width: 816px;
             height: 1056px;
             background-color: #FFFFFF;
-            padding: 36px 28px;
             box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
             box-shadow: 0 25px 60px rgba(0,0,0,0.95);
             position: relative;
+            overflow: hidden;
             user-select: none;
         }
-
         .sheet-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #d4d4d4;
-            padding-bottom: 6px;
-            margin-bottom: 8px;
-            font-family: 'Cinzel', serif;
-            font-size: 11px;
-            color: #222222;
-            font-weight: 700;
-            letter-spacing: 0.12em;
+            position: absolute; left: 48px; right: 48px; top: 28px; height: 22px;
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+            font-family: 'Cinzel', serif; font-size: 10px; color: #222222; font-weight: 700; letter-spacing: 0.1em;
         }
-
         .sheet-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid #d4d4d4;
-            padding-top: 6px;
-            margin-top: 8px;
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 11px;
-            color: #444444;
-            font-weight: 600;
+            position: absolute; left: 48px; right: 48px; bottom: 24px; height: 22px;
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+            font-family: 'Cormorant Garamond', serif; font-size: 11px; color: #444444; font-weight: 600;
         }
-
+        .sheet-header span, .sheet-footer span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+        /* 3 x 4 tarjetas PEGADAS (sin separacion): 720 x 900 px, centrado exacto en la hoja (margenes simetricos 48 / 78 px) */
         .sheet-grid {
-            flex: 1;
-            display: grid;
-            grid-template-columns: repeat(3, 240px);
-            grid-template-rows: repeat(4, 225px);
-            gap: 10px 16px;
-            justify-content: center;
-            align-content: center;
+            position: absolute; left: 48px; top: 78px; width: 720px; height: 900px;
+            display: grid; grid-template-columns: repeat(3, 240px); grid-template-rows: repeat(4, 225px); gap: 0;
         }
-
         .pass-card {
-            width: 240px;
-            height: 225px;
-            background-color: #080808;
-            position: relative;
-            overflow: hidden;
-            border: 1.5px dashed #C59B27;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            text-align: center;
+            width: 240px; height: 225px; background-color: #080808;
+            position: relative; z-index: 1; overflow: hidden; box-sizing: border-box;
+            display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center;
         }
-
         .pass-card-empty {
-            width: 240px;
-            height: 225px;
-            border: 1px dashed #cccccc;
-            box-sizing: border-box;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999999;
-            font-family: 'Cinzel', serif;
-            font-size: 10px;
-            letter-spacing: 0.1em;
+            width: 240px; height: 225px; box-sizing: border-box;
+            display: flex; align-items: center; justify-content: center;
+            color: #d6d6d6; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.1em;
         }
 
         /* Reglas de Impresión Nativa Directa */
@@ -187,7 +146,7 @@
             <button onclick="document.getElementById('printer-guide-modal').classList.add('hidden')" class="absolute top-4 right-5 text-2xl text-[#FFE875] hover:text-white">&times;</button>
             <h3 class="font-cinzel text-lg text-[#FFE875] tracking-widest mb-2">🖨️ Configuración Exacta para Canon G4010 (Couché 300g)</h3>
             <p class="text-gray-300 text-sm mb-4 font-sans-clean leading-relaxed">
-                El papel couché absorbe la tinta de forma lateral (ganancia de punto). Si imprimes en "Papel Normal", la Canon G4010 dispara demasiada tinta negra pigmentada y <strong>tapa las letras finas</strong>. Sigue estos 4 pasos al imprimir:
+                El papel couché absorbe la tinta de forma lateral (ganancia de punto). Si imprimes en "Papel Normal", la Canon G4010 dispara demasiada tinta negra pigmentada y <strong>tapa las letras finas</strong>. Sigue estos pasos al imprimir:
             </p>
             <ol class="space-y-2.5 text-sm text-gray-200 font-sans-clean list-decimal pl-5 mb-5">
                 <li>
@@ -205,7 +164,13 @@
                     </ul>
                 </li>
                 <li>
-                    <strong class="text-[#FFE875]">Tamaño Real (100%):</strong> Al imprimir el PDF descargado, asegúrate de elegir <strong>"Tamaño real" (Actual Size / Escala 100%)</strong> para que el frente y el reverso coincidan al milímetro.
+                    <strong class="text-[#FFE875]">Tamaño Real (100%) y SIN márgenes automáticos:</strong> Elige <strong>"Tamaño real" (Actual Size / 100%)</strong>. Nunca "Ajustar a página". Si imprimes desde el navegador: Escala 100%, Márgenes "Ninguno" y sin encabezados. Si tu impresora tiene "Sin bordes", déjalo <strong>apagado</strong> en ambas caras (el modo sin bordes reescala la imagen).
+                </li>
+                <li>
+                    <strong class="text-[#FFE875]">Cómo voltear:</strong> Marca con lápiz una esquina de la hoja. Voltéala como página de libro (por el lado largo) y vuelve a meterla con la <strong>misma orientación y el mismo lado contra la guía</strong> que usaste al imprimir el frente. Las marcas de las orillas y las tarjetas pegadas hacen que el diseño sea simétrico, por eso el reverso coincide.
+                </li>
+                <li>
+                    <strong class="text-[#FFE875]">Calibrar (una sola vez):</strong> Imprime 1 hoja de prueba frente y vuelta, ponla contra la luz y mide el desfase. Escríbelo en <strong>AJUSTE REVERSO X / Y (mm)</strong> de la pestaña Reverso (X positivo = mueve a la derecha, Y positivo = abajo) y se guarda en tu navegador. Además, el fondo se extiende 1.6 mm más allá del corte, así un error de ±1 mm no deja bordes blancos.
                 </li>
             </ol>
             <div class="text-right">
@@ -333,7 +298,11 @@
                             <label class="font-cinzel text-[11px] text-[#FFE875] tracking-wider font-bold">URL DEL QR:</label>
                             <input type="text" id="rsvp-url-input" value="https://ensouatyg.online" oninput="window.updateBackSheetQR()" class="bg-black border border-[#D4AF37]/60 text-[#FFE875] px-3 py-1 font-mono text-xs w-56 outline-none focus:border-[#FFE875]">
                             <label class="font-cinzel text-[11px] text-gray-300 tracking-wider ml-1 font-bold">TEXTO IMPRESO:</label>
-                            <input type="text" id="rsvp-label-input" value="ENSOUATYG.ONLINE" oninput="window.updateBackSheetQR()" class="bg-black border border-[#D4AF37]/60 text-white px-3 py-1 font-cinzel text-xs w-48 outline-none focus:border-[#FFE875] font-bold">
+                            <input type="text" id="rsvp-label-input" value="ENSOUATYG.ONLINE" oninput="window.updateBackSheetQR()" class="bg-black border border-[#D4AF37]/60 text-white px-3 py-1 font-cinzel text-xs w-40 outline-none focus:border-[#FFE875] font-bold">
+                            <label class="font-cinzel text-[11px] text-emerald-300 tracking-wider ml-1 font-bold" title="Mueve TODO el reverso para compensar el desfase de tu impresora">AJUSTE REVERSO X:</label>
+                            <input type="number" id="back-offset-x" step="0.25" value="0" oninput="window.applyBackOffset()" class="bg-black border border-emerald-400/60 text-white px-2 py-1 font-mono text-xs w-16 outline-none">
+                            <label class="font-cinzel text-[11px] text-emerald-300 tracking-wider font-bold">Y (mm):</label>
+                            <input type="number" id="back-offset-y" step="0.25" value="0" oninput="window.applyBackOffset()" class="bg-black border border-emerald-400/60 text-white px-2 py-1 font-mono text-xs w-16 outline-none">
                         </div>
 
                         <!-- Controles de Paginación y Combinación Manual de Alumnos (Visibles en Modo Frontal) -->
@@ -397,7 +366,7 @@
 
                                     <!-- Pie de hoja con guía de recorte -->
                                     <div class="sheet-footer">
-                                        <span id="sheet-footer-left">✂ Recortar sobre las líneas punteadas (Formato simétrico 3 × 4 para impresión frente y vuelta)</span>
+                                        <span id="sheet-footer-left">✂ Cortar sobre las marcas de las orillas, con regla o guillotina (tarjetas pegadas 3 × 4, simétrico frente y vuelta)</span>
                                         <span id="sheet-footer-right">Tamaño Carta (Letter 8.5" × 11")</span>
                                     </div>
                                 </div>
@@ -865,6 +834,45 @@
                 window.renderFrontSheet();
             }
         };
+        // Sangrado (fondo que sobresale 6px = 1.6 mm de las orillas exteriores) + marcas de corte en el margen.
+        // Se dibujan igual en frente y reverso, y son simétricas, para que el corte sea recto aunque haya +-1 mm de error.
+        function buildGridDecor(grid, filled, bleedColor) {
+            const B = 6, W = 240, H = 225;
+            filled.forEach((ok, i) => {
+                if (!ok) return;
+                const c = i % 3, r = Math.floor(i / 3);
+                const l = c * W - (c === 0 ? B : 0), t = r * H - (r === 0 ? B : 0);
+                const rg = (c + 1) * W + (c === 2 ? B : 0), bt = (r + 1) * H + (r === 3 ? B : 0);
+                const d = document.createElement('div');
+                d.style.cssText = `position:absolute;left:${l}px;top:${t}px;width:${rg - l}px;height:${bt - t}px;background:${bleedColor};z-index:0;`;
+                grid.appendChild(d);
+            });
+            const mk = (l, t, w, h) => {
+                const d = document.createElement('div');
+                d.style.cssText = `position:absolute;left:${l}px;top:${t}px;width:${w}px;height:${h}px;background:#000;z-index:2;`;
+                grid.appendChild(d);
+            };
+            for (let c = 0; c <= 3; c++) { const x = c * W - 0.5; mk(x, -22, 1, 12); mk(x, 910, 1, 12); }
+            for (let r = 0; r <= 4; r++) { const y = r * H - 0.5; mk(-22, y, 12, 1); mk(730, y, 12, 1); }
+        }
+
+        const MM = 96 / 25.4;
+        window.applyBackOffset = function() {
+            const grid = document.getElementById('sheet-grid-container');
+            const xi = document.getElementById('back-offset-x'), yi = document.getElementById('back-offset-y');
+            const dx = parseFloat(xi.value) || 0, dy = parseFloat(yi.value) || 0;
+            try { localStorage.setItem('enso-back-offset', JSON.stringify({ dx, dy })); } catch (e) {}
+            grid.style.transform = (currentViewMode === 'sheet-back') ? `translate(${(dx * MM).toFixed(2)}px, ${(dy * MM).toFixed(2)}px)` : '';
+        };
+        (function loadBackOffset() {
+            try {
+                const o = JSON.parse(localStorage.getItem('enso-back-offset') || 'null');
+                if (o) {
+                    document.getElementById('back-offset-x').value = o.dx || 0;
+                    document.getElementById('back-offset-y').value = o.dy || 0;
+                }
+            } catch (e) {}
+        })();
 
         // Renderizar la Hoja Frontal Tamaño Carta (12 pases = 3x4) adaptada al Modo de Contraste elegido
         window.renderFrontSheet = function() {
@@ -906,6 +914,9 @@
             document.getElementById('sheet-header-left').innerText = `ENSŌ — EL NOVENO TRAZO | FRENTE DE PASES`;
             document.getElementById('sheet-header-right').innerText = `${currentHostName.toUpperCase()} (${pageCodes.length} PASES — HOJA ${currentSheetPage + 1}/${totalPages})`;
 
+            grid.style.transform = '';
+            buildGridDecor(grid, Array.from({ length: 12 }, (_, k) => !!pageCodes[k]), printContrastStyle === 'ivory' ? '#FAF7F0' : '#070707');
+
             for (let i = 0; i < 12; i++) {
                 const item = pageCodes[i];
                 if (item) {
@@ -922,7 +933,6 @@
                     if (printContrastStyle === 'ivory') {
                         // MODO 3: GALA MARFIL CLARO (Cero exceso de tinta negra en couché)
                         card.style.backgroundColor = '#FAF7F0';
-                        card.style.border = '1.5px dashed #8B6F20';
                         card.innerHTML = `
                             <div style="position: absolute; inset: 7px; border: 1.5px solid #B38728; pointer-events: none;"></div>
                             <div style="position: absolute; top: 10px; right: 12px; z-index: 2; font-family: 'Montserrat', sans-serif; font-size: 7.5px; font-weight: 700; color: #555555; letter-spacing: 0.04em; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -1054,6 +1064,9 @@
             document.getElementById('sheet-header-left').innerText = `ENSŌ — EL NOVENO TRAZO | REVERSO GENERAL DE CONFIRMACIÓN (QR)`;
             document.getElementById('sheet-header-right').innerText = `PLANTILLA SIMÉTRICA 3 × 4 (12 REVERSOS — ALTO CONTRASTE COUCHÉ)`;
 
+            buildGridDecor(grid, Array(12).fill(true), printContrastStyle === 'ivory' ? '#FAF7F0' : '#080808');
+            window.applyBackOffset();
+
             for (let i = 0; i < 12; i++) {
                 const card = document.createElement('div');
                 card.className = 'pass-card';
@@ -1061,7 +1074,6 @@
                 if (printContrastStyle === 'ivory') {
                     // MODO 3: GALA MARFIL CLARO (Letras negras ultra nítidas sobre fondo marfil, cero sangrado en Couché 300g)
                     card.style.backgroundColor = '#FAF7F0';
-                    card.style.border = '1.5px dashed #8B6F20';
                     card.style.padding = '12px 10px';
                     card.innerHTML = `
                         <div style="position: absolute; inset: 6px; border: 1.5px solid #B38728; pointer-events: none;"></div>
@@ -1152,7 +1164,7 @@
 
             try {
                 const canvas = await html2canvas(sheetEl, {
-                    scale: 3.2,
+                    scale: 3.125,
                     backgroundColor: '#FFFFFF',
                     useCORS: true,
                     allowTaint: true,
