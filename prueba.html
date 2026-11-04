@@ -1,1133 +1,521 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ENSŌ - Prueba de Menú | Ficha Técnica y Costeo</title>
-    
-    <!-- Fuentes Oficiales de ENSŌ -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS para estructura responsiva -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Librería html2pdf para descarga directa en PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENSŌ · Planeación de Menú y Compras</title>
+<style>
+  :root{
+    --bg:#f6f4ef; --card:#ffffff; --ink:#1f2933; --muted:#6b7280; --line:#e2ddd0;
+    --gold:#8a6d1b; --gold-soft:#f5ecd0; --red:#9e2032; --green:#15803d; --amber:#b45309;
+    --blue:#1d4ed8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.45}
+  h1,h2,h3{font-family:Georgia,"Times New Roman",serif;margin:0}
+  header.top{background:#fff;border-bottom:3px solid var(--gold);padding:14px 18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+  header.top h1{font-size:1.35rem;letter-spacing:.04em}
+  header.top small{color:var(--muted)}
+  .wrap{max-width:1050px;margin:0 auto;padding:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .card h2{font-size:1.15rem;margin-bottom:12px;color:var(--gold)}
+  label{display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+  input,select,textarea{width:100%;padding:10px 11px;border:1px solid #cfc8b6;border-radius:7px;font:inherit;background:#fff;color:var(--ink)}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--gold);border-color:var(--gold)}
+  textarea{resize:vertical}
+  .grid{display:grid;gap:12px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:720px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  button{font:inherit;cursor:pointer;border-radius:7px;padding:10px 16px;border:1px solid var(--gold);background:#fff;color:var(--gold);font-weight:600}
+  button:hover{background:var(--gold-soft)}
+  button.primary{background:var(--gold);color:#fff}
+  button.primary:hover{background:#6f5614}
+  button.danger{border-color:var(--red);color:var(--red)}
+  button.small{padding:6px 10px;font-size:.85rem}
+  .hint{color:var(--muted);font-size:.9rem}
+  .status{font-size:.85rem;padding:4px 10px;border-radius:999px;background:#eef2f7;color:#374151;white-space:nowrap}
+  .status.ok{background:#dcfce7;color:#166534}.status.saving{background:#fef3c7;color:#92400e}.status.err{background:#fee2e2;color:#991b1b}
+  .hidden{display:none!important}
 
-    <style>
-        :root {
-            --gold:       #E5C158;
-            --gold-light: #FFF099;
-            --gold-dim:   #A6852E;
-            --ink:        #050505;
-            --parchment:  #0D0B08;
-            --red-seal:   #9E2032;
-            --off-white:  #F4EFE6;
-        }
+  /* presupuesto */
+  .budget{position:sticky;top:0;z-index:20;background:#fff;border:1px solid var(--line);border-left:6px solid var(--green);border-radius:10px;padding:12px 16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+  .budget.warn{border-left-color:var(--amber)}.budget.over{border-left-color:var(--red);background:#fff5f5}
+  .budget .row{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:baseline;justify-content:space-between}
+  .budget .big{font-size:1.5rem;font-weight:700}
+  .bar{height:10px;background:#e5e7eb;border-radius:6px;overflow:hidden;margin-top:8px}
+  .bar>div{height:100%;background:var(--green);width:0;transition:width .3s}
+  .budget.warn .bar>div{background:var(--amber)}.budget.over .bar>div{background:var(--red)}
+  .alert{display:none;margin-top:8px;color:var(--red);font-weight:600}
+  .budget.over .alert{display:block}
 
-        body {
-            background-color: var(--ink);
-            color: var(--off-white);
-            font-family: 'Cormorant Garamond', serif;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-        }
+  /* ingredientes */
+  .ing{border:1px solid var(--line);border-radius:9px;padding:12px;margin-bottom:10px;background:#fcfbf8}
+  .ing .grid{grid-template-columns:2fr 1.5fr 1fr 1fr 1fr auto;align-items:end}
+  @media(max-width:860px){.ing .grid{grid-template-columns:1fr 1fr}}
+  .sub{font-weight:700;color:var(--gold)}
+  .ing .sub-wrap{display:flex;flex-direction:column;justify-content:flex-end;min-height:62px}
 
-        .cinzel { font-family: 'Cinzel', serif; }
-        .kanji  { font-family: 'Noto Serif JP', serif; }
+  /* admin */
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .tabs button.active{background:var(--gold);color:#fff}
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+  th{background:#f3efe3;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em}
+  td.r,th.r{text-align:right}
+  tr.bought td{background:#ecfdf3}
+  .cat-title{margin:18px 0 6px;font-size:1.05rem;color:var(--gold);border-bottom:2px solid var(--gold);padding-bottom:3px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+  @media(max-width:720px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:9px;padding:10px;text-align:center}
+  .kpi b{display:block;font-size:1.3rem}
+  .kpi span{font-size:.78rem;color:var(--muted);text-transform:uppercase}
+  .tag{padding:2px 8px;border-radius:999px;font-size:.78rem;font-weight:700}
+  .tag.ok{background:#dcfce7;color:#166534}.tag.over{background:#fee2e2;color:#991b1b}.tag.none{background:#e5e7eb;color:#374151}
+  td input.real{width:100px;padding:5px 7px;text-align:right}
+  .adm-section{display:none}.adm-section.show{display:block}
 
-        .text-gold {
-            background: linear-gradient(105deg, #D4AF37 0%, #FFF6C2 38%, #C99E32 68%, #FFF8CC 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            filter: drop-shadow(0 2px 10px rgba(212, 175, 55, 0.16));
-        }
-
-        /* Estilo de Paneles ENSŌ */
-        .enso-card {
-            background: var(--parchment);
-            border: 1px solid rgba(229, 193, 88, 0.28);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.85), inset 0 0 0 1px rgba(229, 193, 88, 0.06);
-            border-radius: 4px;
-            position: relative;
-        }
-
-        /* Campos de Formulario */
-        .enso-input, .enso-select, .enso-textarea {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(229, 193, 88, 0.35);
-            color: #FFFFFF;
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.1rem;
-            padding: 10px 14px;
-            border-radius: 3px;
-            width: 100%;
-            transition: all 0.25s ease;
-            outline: none;
-        }
-
-        .enso-input:focus, .enso-select:focus, .enso-textarea:focus {
-            border-color: var(--gold-light);
-            background: rgba(229, 193, 88, 0.06);
-            box-shadow: 0 0 14px rgba(229, 193, 88, 0.2);
-        }
-
-        .enso-select option {
-            background-color: #0D0B08;
-            color: #F4EFE6;
-        }
-
-        .enso-label {
-            font-family: 'Cinzel', serif;
-            font-size: 0.72rem;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            color: var(--gold-light);
-            display: block;
-            margin-bottom: 6px;
-        }
-
-        /* Botones estilo ENSŌ */
-        .btn-gold {
-            padding: 13px 28px;
-            font-family: 'Cinzel', serif;
-            font-size: 0.76rem;
-            font-weight: 600;
-            letter-spacing: 0.28em;
-            text-transform: uppercase;
-            color: var(--ink);
-            background: linear-gradient(105deg, #D4AF37, #E5C158, #FFF099, #E5C158, #D4AF37);
-            background-size: 200%;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            box-shadow: 0 4px 20px rgba(229, 193, 88, 0.25);
-        }
-        .btn-gold:hover {
-            background-position: right;
-            box-shadow: 0 0 30px rgba(229, 193, 88, 0.55);
-            transform: translateY(-1px);
-        }
-
-        .btn-outline {
-            border: 1px solid rgba(229, 193, 88, 0.65);
-            color: var(--gold-light);
-            padding: 11px 22px;
-            font-family: 'Cinzel', serif;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            font-size: 0.72rem;
-            background: rgba(212, 175, 55, 0.05);
-            border-radius: 3px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .btn-outline:hover {
-            background: rgba(229, 193, 88, 0.16);
-            border-color: var(--gold-light);
-            color: #fff;
-            box-shadow: 0 0 16px rgba(229, 193, 88, 0.25);
-        }
-
-        /* Divisores ornamentales */
-        .divider-ornate {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin: 28px 0;
-        }
-        .divider-ornate .line {
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(to right, transparent, rgba(229, 193, 88, 0.5));
-        }
-        .divider-ornate .line.right {
-            background: linear-gradient(to left, transparent, rgba(229, 193, 88, 0.5));
-        }
-        .divider-ornate .diamond {
-            width: 6px;
-            height: 6px;
-            background: var(--gold-light);
-            transform: rotate(45deg);
-        }
-
-        /* Vista previa idéntica al modal de invitación web */
-        .web-menu-preview {
-            position: relative;
-            padding: 36px 20px;
-            border: 1px solid rgba(229, 193, 88, 0.35);
-            background: radial-gradient(circle at center, rgba(229, 193, 88, 0.06) 0%, rgba(10, 8, 6, 0.95) 100%);
-            border-radius: 4px;
-            text-align: center;
-            overflow: hidden;
-        }
-        .web-menu-kanji {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-family: 'Noto Serif JP', serif;
-            font-size: 7.5rem;
-            color: rgba(229, 193, 88, 0.07);
-            user-select: none;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Hoja de Impresión / PDF */
-        #printable-sheet {
-            background: #FFFFFF;
-            color: #111111;
-            border: 2px solid #B5902B;
-            border-radius: 4px;
-            padding: 32px;
-            font-family: 'Cormorant Garamond', Georgia, serif;
-        }
-
-        /* Estilos exclusivos al imprimir desde navegador */
-        @media print {
-            body {
-                background: #FFFFFF !important;
-                color: #000000 !important;
-            }
-            .no-print {
-                display: none !important;
-            }
-            #print-section-wrapper {
-                width: 100% !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            #printable-sheet {
-                border: 1px solid #8A6D1B !important;
-                box-shadow: none !important;
-                padding: 18px !important;
-                width: 100% !important;
-            }
-        }
-    </style>
+  @media print{
+    body>*{display:none!important}
+    body>#app-admin{display:block!important}
+    #app-admin .adm-section{display:none!important}
+    #app-admin .adm-section.print-target{display:block!important}
+    .no-print{display:none!important}
+    body{background:#fff}
+    .card{border:none;box-shadow:none;padding:0}
+    td input.real{border:none;width:auto;padding:0}
+    input[type=checkbox]{transform:scale(1.2)}
+  }
+</style>
 </head>
-<body class="min-h-screen pb-20">
-
-    <!-- ── ENCABEZADO PRINCIPAL (NO SE IMPRIME) ── -->
-    <header class="no-print relative pt-10 pb-6 px-4 text-center border-b border-[#E5C158]/25 bg-gradient-to-b from-[#050505] via-[#0D0B08] to-[#050505]">
-        <span class="kanji select-none pointer-events-none fixed top-6 left-6 text-7xl text-[#E5C158]/5">円</span>
-        <span class="kanji select-none pointer-events-none fixed bottom-6 right-6 text-7xl text-[#E5C158]/5">道</span>
-
-        <div class="max-w-5xl mx-auto">
-            <p class="cinzel text-xs tracking-[0.45em] text-[#FFF099] uppercase mb-2">
-                E5 Gastronomía · 2022 / 2027 · El Noveno Trazo
-            </p>
-            <h1 class="cinzel text-3xl sm:text-5xl font-normal tracking-[0.2em] text-gold mb-2">
-                ENSŌ · PRUEBA DE MENÚ
-            </h1>
-            <p class="text-lg sm:text-xl italic text-[#F4EFE6]/90 max-w-2xl mx-auto">
-                Generador Oficial de Ficha de Invitación Web, Ficha Técnica Operativa y Costeo por Porción para entrega de este martes.
-            </p>
-
-            <!-- Barra rápida para cargar ejemplos del menú actual -->
-            <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-                <label for="preset-selector" class="cinzel text-xs tracking-[0.2em] text-[#FFF099] uppercase">
-                    Cargar ejemplo del menú actual:
-                </label>
-                <select id="preset-selector" class="enso-select max-w-xs text-sm py-1.5 px-3" onchange="loadPresetCourse(this.value)">
-                    <option value="">-- Seleccionar tiempo o limpiar --</option>
-                    <option value="0">Ejemplo: Mi Tamal de Elote y Coco (Tiempo V)</option>
-                    <option value="1">I. Salsas Madre - Dumpling de Velouté y Miso</option>
-                    <option value="2">II. Panadería - Bao al Vapor Artesanal</option>
-                    <option value="3">III. Panadería Fina & Mex - La Concha de Matcha</option>
-                    <option value="4">IV. Vinos & Norte - Tataki Glaseado</option>
-                    <option value="5">VI. Nayarita & Coctelería - Tostada Oriental de Atún</option>
-                    <option value="6">VII. Francesa & Repostería - Mille-Feuille de Hojicha</option>
-                    <option value="7">VIII. Italiana & Autor - Ravioli Transparente</option>
-                    <option value="8">IX. Oriental & Chocolatería - El Gran Final</option>
-                </select>
-                <button type="button" onclick="clearAllFields()" class="btn-outline py-1.5 px-4 text-xs">
-                    Limpiar Todo
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- ── CONTENEDOR PRINCIPAL DE TRABAJO ── -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
-            <!-- =================================================================
-                 COLUMNA IZQUIERDA: FORMULARIO DE CAPTURA Y CALCULADORA DE COSTEO
-                 ================================================================= -->
-            <div class="no-print lg:col-span-7 space-y-8">
-
-                <!-- SECCIÓN 1: FICHA PARA LA INVITACIÓN WEB -->
-                <section class="enso-card p-6 sm:p-8">
-                    <div class="flex items-center justify-between border-b border-[#E5C158]/25 pb-4 mb-6">
-                        <div>
-                            <span class="cinzel text-xs tracking-[0.3em] text-[#FFF099] uppercase block">Paso 1 · Narrativa</span>
-                            <h2 class="cinzel text-xl sm:text-2xl text-white tracking-wider">Ficha de Presentación Web</h2>
-                        </div>
-                        <span class="kanji text-3xl text-[#E5C158]/30">一</span>
-                    </div>
-
-                    <p class="text-base italic text-[#FFF099]/85 mb-5">
-                        Así como redactes esta sección es exactamente como aparecerá descrito tu platillo en la invitación web oficial si queda seleccionado el martes.
-                    </p>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                        <div class="sm:col-span-2">
-                            <label class="enso-label">Tiempo y Asignatura que representa</label>
-                            <select id="course-time" class="enso-select" onchange="syncTimeKanji(); updateLivePreview()">
-                                <option value="I. Salsas Madre" data-kanji="一">I. Salsas Madre</option>
-                                <option value="II. Panadería" data-kanji="二">II. Panadería</option>
-                                <option value="III. Panadería Fina & Cocina Mexicana" data-kanji="三">III. Panadería Fina & Cocina Mexicana</option>
-                                <option value="IV. Vinos & Cocina del Norte" data-kanji="四">IV. Vinos & Cocina del Norte</option>
-                                <option value="V. Cocina Centro & Repostería Básica" data-kanji="五" selected>V. Cocina Centro & Repostería Básica</option>
-                                <option value="VI. Cocina Nayarita & Coctelería" data-kanji="六">VI. Cocina Nayarita & Coctelería</option>
-                                <option value="VII. Cocina Francesa & Repostería Fina" data-kanji="七">VII. Cocina Francesa & Repostería Fina</option>
-                                <option value="VIII. Cocina Italiana & De Autor" data-kanji="八">VIII. Cocina Italiana & De Autor</option>
-                                <option value="IX. Cocina Oriental & Chocolatería" data-kanji="九">IX. Cocina Oriental & Chocolatería</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="enso-label">Kanji de Fondo</label>
-                            <input type="text" id="course-kanji" class="enso-input text-center kanji" value="五" maxlength="2" oninput="updateLivePreview()">
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="enso-label">Nombre del Platillo (Título en el Menú)</label>
-                        <input type="text" id="dish-title" class="enso-input font-semibold" placeholder="Ej. Tamal de Elote y Coco" oninput="updateLivePreview()">
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="enso-label">Descripción Gastronómica para la Invitación (1 a 2 líneas)</label>
-                        <textarea id="dish-desc" rows="2" class="enso-textarea" placeholder="Ej. Tamal miniatura de elote tierno, coronado con una espuma etérea de coco y vainilla." oninput="updateLivePreview()"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="enso-label">Nota Narrativa / Significado en la Carrera (En cursiva dorada)</label>
-                        <input type="text" id="dish-note" class="enso-input italic" placeholder="Ej. Técnica mexicana presentada con delicada estética japonesa." oninput="updateLivePreview()">
-                    </div>
-                </section>
-
-                <!-- SECCIÓN 2: FICHA TÉCNICA, TÉCNICAS Y FUSIÓN -->
-                <section class="enso-card p-6 sm:p-8">
-                    <div class="flex items-center justify-between border-b border-[#E5C158]/25 pb-4 mb-6">
-                        <div>
-                            <span class="cinzel text-xs tracking-[0.3em] text-[#FFF099] uppercase block">Paso 2 · Operación y Concepto</span>
-                            <h2 class="cinzel text-xl sm:text-2xl text-white tracking-wider">Técnicas, Fusión y Datos del Equipo</h2>
-                        </div>
-                        <span class="kanji text-3xl text-[#E5C158]/30">二</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="enso-label">Alumno(s) / Equipo Responsable</label>
-                            <input type="text" id="team-names" class="enso-input" placeholder="Ej. Luis, Ana, Carlos..." oninput="updateLivePreview()">
-                        </div>
-                        <div>
-                            <label class="enso-label">Gramaje o Tamaño por Porción</label>
-                            <input type="text" id="portion-weight" class="enso-input" placeholder="Ej. 65 g por degustación / 1 pza mini" oninput="updateLivePreview()">
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="enso-label">Técnicas Culinarias Aplicadas</label>
-                        <textarea id="dish-techniques" rows="2" class="enso-textarea" placeholder="Ej. Nixtamalización / molienda en fresco, cocción al vapor en hoja de maíz, emulsión aireada con sifón (espuma de coco), reducción..." oninput="updateLivePreview()"></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="enso-label">¿Existe Fusión Culinaria?</label>
-                            <select id="fusion-type" class="enso-select" onchange="updateLivePreview()">
-                                <option value="No existe fusión">No existe fusión</option>
-                                <option value="Fusión México - Japón (Alta Gastronomía Oriental)">Fusión México - Japón</option>
-                                <option value="Fusión Nayarit - Asia Oriental">Fusión Nayarit - Asia Oriental</option>
-                                <option value="Fusión Francia - Japón">Fusión Francia - Japón</option>
-                                <option value="Fusión Italia - Asia Oriental">Fusión Italia - Asia Oriental</option>
-                                <option value="Cocina Oriental Contemporánea / De Autor">Cocina Oriental Contemporánea / De Autor</option>
-                                <option value="Tradicional Reinterpretada con Estética Oriental">Tradicional con Estética Oriental</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="enso-label">Temperatura y Loza de Servicio</label>
-                            <input type="text" id="dish-plating" class="enso-input" placeholder="Ej. Caliente (65°C) en plato hondo negro mate" oninput="updateLivePreview()">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="enso-label">Explicación de la Fusión y Balance Sensorial</label>
-                        <textarea id="fusion-explanation" rows="2" class="enso-textarea" placeholder="Ej. Se fusiona la untuosidad tradicional del tamal de elote del centro de México con una espuma ligera de leche de coco e infusión oriental, logrando un bocado sutil y limpio." oninput="updateLivePreview()"></textarea>
-                    </div>
-                </section>
-
-                <!-- SECCIÓN 3: CALCULADORA DE INGREDIENTES Y COSTEO EN VIVO -->
-                <section class="enso-card p-6 sm:p-8">
-                    <div class="flex items-center justify-between border-b border-[#E5C158]/25 pb-4 mb-6">
-                        <div>
-                            <span class="cinzel text-xs tracking-[0.3em] text-[#FFF099] uppercase block">Paso 3 · Finanzas de Cocina</span>
-                            <h2 class="cinzel text-xl sm:text-2xl text-white tracking-wider">Ingredientes y Costeo por Porción</h2>
-                        </div>
-                        <span class="kanji text-3xl text-[#E5C158]/30">三</span>
-                    </div>
-
-                    <!-- Guía rápida de cómo funciona el costeo -->
-                    <div class="bg-[#E5C158]/10 border border-[#E5C158]/35 rounded p-4 mb-6 text-base text-[#F4EFE6]/95 leading-relaxed">
-                        <strong class="cinzel text-xs tracking-wider text-[#FFF099] uppercase block mb-1">💡 ¿Cómo ingresar tus ingredientes fácilmente?</strong>
-                        Escribe el ingrediente (ej. <em>Hojas de tamal</em> o <em>Elote tierno</em>), cuánto te costó comprarlo (<strong>Costo Compra $</strong>), cuánto trae ese paquete/bulto/kilo que compraste (<strong>Cant. Comprada</strong>) y cuánto vas a usar para esta receta (<strong>Cant. Usada</strong>).<br>
-                        <span class="text-sm text-[#FFF099]/90 italic">*Si usas todo el paquete o bulto que compraste en tu receta, pon <strong>1 Paquete/Bulto</strong> en Comprado y <strong>1 Paquete/Bulto</strong> en Usado. Si compraste 1 Kilo y usaste 250 Gramos, el sistema hace la conversión sola.</span>
-                    </div>
-
-                    <!-- Configuración del rendimiento de la receta -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 p-4 bg-black/40 border border-[#E5C158]/25 rounded">
-                        <div>
-                            <label class="enso-label">¿Cuántas porciones salen de esta receta?</label>
-                            <input type="number" id="recipe-yield" min="1" step="1" value="15" class="enso-input text-center font-bold text-xl text-[#FFF099]" oninput="recalculateCosts()">
-                            <span class="text-xs italic text-[#F4EFE6]/70 block mt-1">Porciones que rinde tu lote</span>
-                        </div>
-                        <div>
-                            <label class="enso-label">% Merma / Condimentos extra</label>
-                            <input type="number" id="waste-percent" min="0" max="100" step="1" value="5" class="enso-input text-center font-semibold text-lg" oninput="recalculateCosts()">
-                            <span class="text-xs italic text-[#F4EFE6]/70 block mt-1">Sal, aceite, gas o merma (0% a 15%)</span>
-                        </div>
-                        <div class="flex flex-col justify-center items-center bg-[#E5C158]/10 border border-[#E5C158]/40 rounded p-3">
-                            <span class="cinzel text-[0.65rem] tracking-[0.2em] uppercase text-[#FFF099]">Costo por 1 Porción</span>
-                            <span id="live-portion-cost-badge" class="cinzel text-2xl sm:text-3xl font-bold text-gold mt-1">$0.00</span>
-                            <span class="text-xs text-[#F4EFE6]/75">MXN / degustación</span>
-                        </div>
-                    </div>
-
-                    <!-- Lista dinámica de ingredientes -->
-                    <div id="ingredients-list" class="space-y-4 mb-6"></div>
-
-                    <!-- Botón para agregar fila de ingrediente -->
-                    <div class="flex flex-wrap gap-3 justify-between items-center pt-2 border-t border-[#E5C158]/20">
-                        <button type="button" onclick="addIngredientRow()" class="btn-outline flex items-center gap-2">
-                            <span>+ Agregar Ingrediente</span>
-                        </button>
-                        <div class="text-right">
-                            <span class="text-sm uppercase tracking-widest text-[#FFF099]/80 block">Costo Total de la Receta (Lote):</span>
-                            <span id="live-batch-total" class="cinzel text-xl font-bold text-white">$0.00 MXN</span>
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-            <!-- =================================================================
-                 COLUMNA DERECHA: VISTA PREVIA EN VIVO + FICHA IMPRIMIBLE PDF
-                 ================================================================= -->
-            <div id="print-section-wrapper" class="lg:col-span-5 space-y-6 lg:sticky lg:top-6">
-
-                <!-- 1. SIMULADOR EN VIVO DE LA INVITACIÓN WEB (NO SE IMPRIME APARTE, YA VIENE EN LA HOJA) -->
-                <div class="no-print enso-card p-5">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="cinzel text-xs tracking-[0.25em] text-[#FFF099] uppercase">
-                            👁️ Vista en Vivo · Modal de la Invitación Web
-                        </span>
-                        <span class="text-xs italic text-[#F4EFE6]/70">Así se verá en ensouatyg.online</span>
-                    </div>
-
-                    <div class="web-menu-preview">
-                        <span id="preview-web-kanji" class="web-menu-kanji">五</span>
-                        <div class="relative z-10">
-                            <p id="preview-web-time" class="cinzel text-xs font-semibold text-[#FFF099] tracking-[0.3em] uppercase mb-2">
-                                V. Cocina Centro & Repostería Básica
-                            </p>
-                            <h4 id="preview-web-title" class="cinzel text-xl text-white mb-3">
-                                Tamal de Elote y Coco
-                            </h4>
-                            <p id="preview-web-desc" class="text-lg text-[#F9F6F0]/90 leading-relaxed mb-2">
-                                Tamal miniatura de elote tierno, coronado con una espuma etérea de coco y vainilla.
-                            </p>
-                            <span id="preview-web-note" class="italic text-[#FFF099] text-base inline-block">
-                                Técnica mexicana presentada con delicada estética japonesa.
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Botones de Acción Principal -->
-                    <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <button type="button" id="btn-download-pdf" onclick="downloadFichaPDF()" class="btn-gold w-full flex items-center justify-center gap-2">
-                            <span>📄 Descargar PDF</span>
-                        </button>
-                        <button type="button" onclick="window.print()" class="btn-outline w-full flex items-center justify-center gap-2">
-                            <span>🖨️ Imprimir Directo</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 2. HOJA OFICIAL DE ENTREGA (LO QUE SE EXPORTA A PDF E IMPRIME) -->
-                <div id="printable-sheet" class="shadow-2xl">
-                    <!-- Encabezado de la Hoja Impresa -->
-                    <div class="border-b-2 border-[#8A6D1B] pb-3 mb-4 flex justify-between items-center">
-                        <div>
-                            <p class="cinzel text-[10px] tracking-[0.3em] text-[#8A6D1B] uppercase font-bold">
-                                E5 Gastronomía · 2022 / 2027 · Prueba de Menú
-                            </p>
-                            <h2 class="cinzel text-2xl font-bold text-[#111111] tracking-wider">
-                                ENSŌ · FICHA DE PLATILLO Y COSTEO
-                            </h2>
-                        </div>
-                        <div class="text-right">
-                            <div class="inline-block border border-[#9E2032] px-2.5 py-1 text-[#9E2032] kanji font-bold text-xl">
-                                円
-                            </div>
-                            <p class="text-[11px] text-gray-600 mt-0.5">Entrega Oficial · Martes</p>
-                        </div>
-                    </div>
-
-                    <!-- Bloque 1: Cómo irá en la Invitación Web -->
-                    <div class="mb-4 bg-[#FAF7F0] border border-[#D4AF37] rounded p-3.5 text-center">
-                        <p class="cinzel text-[10px] tracking-[0.25em] text-[#8A6D1B] uppercase font-bold mb-1">
-                            1. Redacción Oficial para Invitación Web (ensouatyg.online)
-                        </p>
-                        <p id="sheet-time" class="cinzel text-xs font-bold text-[#5A4612] tracking-[0.2em] uppercase">
-                            V. Cocina Centro & Repostería Básica
-                        </p>
-                        <h3 id="sheet-title" class="cinzel text-lg font-bold text-[#111111] mt-0.5">
-                            Tamal de Elote y Coco
-                        </h3>
-                        <p id="sheet-desc" class="text-sm text-[#222222] leading-snug mt-1 max-w-xl mx-auto">
-                            Tamal miniatura de elote tierno, coronado con una espuma etérea de coco y vainilla.
-                        </p>
-                        <p id="sheet-note" class="text-xs italic text-[#7A5C12] font-semibold mt-1">
-                            "Técnica mexicana presentada con delicada estética japonesa."
-                        </p>
-                    </div>
-
-                    <!-- Bloque 2: Datos Técnicos y Fusión -->
-                    <div class="mb-4 text-xs">
-                        <p class="cinzel text-[10px] tracking-[0.22em] text-[#8A6D1B] uppercase font-bold border-b border-gray-300 pb-1 mb-2">
-                            2. Ficha Técnica, Técnicas Culinarias y Fusión
-                        </p>
-                        <div class="grid grid-cols-2 gap-2 mb-2">
-                            <div class="bg-gray-50 p-2 rounded border border-gray-200">
-                                <strong class="uppercase text-[10px] text-gray-500 block">Responsable(s):</strong>
-                                <span id="sheet-team" class="font-semibold text-gray-900 text-sm">Por definir</span>
-                            </div>
-                            <div class="bg-gray-50 p-2 rounded border border-gray-200">
-                                <strong class="uppercase text-[10px] text-gray-500 block">Gramaje / Porción y Servicio:</strong>
-                                <span id="sheet-portion-info" class="font-semibold text-gray-900 text-sm">65 g · Caliente</span>
-                            </div>
-                        </div>
-
-                        <div class="bg-gray-50 p-2 rounded border border-gray-200 mb-2">
-                            <strong class="uppercase text-[10px] text-gray-500 block">Técnicas Aplicadas:</strong>
-                            <p id="sheet-techniques" class="text-gray-900 text-xs leading-relaxed">
-                                Molienda de grano tierno, cocción al vapor en hoja de maíz y aireado con sifón.
-                            </p>
-                        </div>
-
-                        <div class="bg-gray-50 p-2 rounded border border-gray-200">
-                            <strong class="uppercase text-[10px] text-gray-500 block">
-                                Tipo de Fusión: <span id="sheet-fusion-type" class="text-[#8A6D1B] font-bold">Fusión México - Japón</span>
-                            </strong>
-                            <p id="sheet-fusion-desc" class="text-gray-900 text-xs leading-relaxed mt-0.5">
-                                Integración de técnica tradicional mexicana de tamal con textura etérea y emplatado minimalista japonés.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Bloque 3: Tabla de Ingredientes y Costeo -->
-                    <div>
-                        <div class="flex justify-between items-end border-b border-gray-300 pb-1 mb-2">
-                            <p class="cinzel text-[10px] tracking-[0.22em] text-[#8A6D1B] uppercase font-bold">
-                                3. Desglose de Ingredientes y Costeo Operativo
-                            </p>
-                            <p class="text-[11px] font-bold text-gray-700">
-                                Rendimiento de la receta: <span id="sheet-yield" class="text-[#8A6D1B]">15</span> porciones
-                            </p>
-                        </div>
-
-                        <table class="w-full text-left border-collapse text-[11px] mb-3">
-                            <thead>
-                                <tr class="bg-[#F3EFE6] text-[#333333] border-b border-[#B5902B]">
-                                    <th class="py-1.5 px-2 font-bold">Ingrediente</th>
-                                    <th class="py-1.5 px-2 font-bold">Compra Base</th>
-                                    <th class="py-1.5 px-2 font-bold">Cant. Usada</th>
-                                    <th class="py-1.5 px-2 font-bold text-right">Costo Receta</th>
-                                    <th class="py-1.5 px-2 font-bold text-right">Costo × Porción</th>
-                                </tr>
-                            </thead>
-                            <tbody id="sheet-ingredients-tbody" class="divide-y divide-gray-200">
-                                <!-- Se llena dinámicamente -->
-                            </tbody>
-                        </table>
-
-                        <!-- Resumen Financiero al pie de la hoja -->
-                        <div class="grid grid-cols-3 gap-2 bg-[#FAF7F0] border border-[#B5902B] rounded p-2.5 text-center">
-                            <div>
-                                <span class="text-[10px] uppercase text-gray-600 block">Materia Prima Lote</span>
-                                <strong id="sheet-raw-batch" class="text-sm text-gray-900">$0.00 MXN</strong>
-                            </div>
-                            <div>
-                                <span class="text-[10px] uppercase text-gray-600 block">+ Merma / Insumos (<span id="sheet-waste-pct">5</span>%)</span>
-                                <strong id="sheet-Batch-with-waste" class="text-sm text-gray-900">$0.00 MXN</strong>
-                            </div>
-                            <div class="bg-[#111111] text-[#FFF099] rounded py-1 px-2">
-                                <span class="cinzel text-[9px] tracking-wider uppercase block text-[#E5C158]">Costo Unitario Final</span>
-                                <strong id="sheet-final-portion-cost" class="cinzel text-base font-bold">$0.00 / porción</strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Pie de firma para la prueba de menú del martes -->
-                    <div class="mt-5 pt-3 border-t border-gray-300 flex justify-between items-center text-[10px] text-gray-500">
-                        <span>ENSŌ · El Noveno Trazo (ensouatyg.online)</span>
-                        <span>Vo. Bo. Comité de Prueba de Menú: ________________________</span>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-    </main>
-
-    <!-- ── LÓGICA INTERACTIVA DE COSTEO, PREVIEW Y EXPORTACIÓN A PDF ── -->
-    <script>
-        // Base de datos de los 9 platillos actuales de la página principal para carga rápida
-        const PRESET_COURSES = [
-            {
-                time: "V. Cocina Centro & Repostería Básica",
-                kanji: "五",
-                title: "Tamal de Elote y Coco",
-                desc: "Tamal miniatura de elote tierno, coronado con una espuma etérea de coco y vainilla.",
-                note: "Técnica mexicana presentada con delicada estética japonesa.",
-                team: "Equipo Tiempo V",
-                weight: "65 g por porción (1 pieza miniatura)",
-                techniques: "Molienda de elote tierno en fresco, batido aireado de mantequilla/manteca, cocción al vapor en hoja de maíz (totomoxtle) y espuma de coco con sifón.",
-                fusionType: "Fusión México - Japón (Alta Gastronomía Oriental)",
-                plating: "Caliente, sobre plato de cerámica negra con hoja estilizada.",
-                fusionDesc: "El dulzor natural del tamal de elote mexicano se equilibra con la ligereza aromática del coco y una presentación minimalista zen.",
-                yield: 15,
-                waste: 5,
-                ingredients: [
-                    { name: "Hojas de tamal (Totomoxtle)", buyQty: 1, buyUnit: "paquete", buyCost: 38, useQty: 1, useUnit: "paquete" },
-                    { name: "Elote tierno desgranado", buyQty: 1, buyUnit: "kg", buyCost: 55, useQty: 750, useUnit: "g" },
-                    { name: "Mantequilla sin sal", buyQty: 1, buyUnit: "kg", buyCost: 190, useQty: 200, useUnit: "g" },
-                    { name: "Crema de coco / Leche de coco", buyQty: 1, buyUnit: "l", buyCost: 78, useQty: 350, useUnit: "ml" },
-                    { name: "Azúcar refinada y extracto de vainilla", buyQty: 1, buyUnit: "kg", buyCost: 36, useQty: 180, useUnit: "g" }
-                ]
-            },
-            {
-                time: "I. Salsas Madre",
-                kanji: "一",
-                title: "Dumpling de Velouté y Miso",
-                desc: "Relleno de pollo con velouté de jengibre y salsa bechamel infusionada con miso.",
-                note: "El inicio: aprender las bases. Pequeño, elegante y técnico.",
-                team: "Equipo Tiempo I",
-                weight: "45 g (1 pieza con espejo de salsa)",
-                techniques: "Elaboración de roux rubio y blanco, fondo claro de ave, infusión de pasta miso blanca y plegado artesanal de masa gyoza cocida al vapor.",
-                fusionType: "Fusión Francia - Japón",
-                plating: "Plato hondo oscuro tibio",
-                fusionDesc: "Las dos salsas madre clásicas francesas (velouté y bechamel) reciben el umami profundo del miso japonés y el aroma fresco del jengibre.",
-                yield: 20,
-                waste: 5,
-                ingredients: [
-                    { name: "Pechuga de pollo molida", buyQty: 1, buyUnit: "kg", buyCost: 135, useQty: 500, useUnit: "g" },
-                    { name: "Pasta Miso blanco", buyQty: 500, buyUnit: "g", buyCost: 145, useQty: 80, useUnit: "g" },
-                    { name: "Masa para Dumpling / Gyoza", buyQty: 1, buyUnit: "paquete", buyCost: 65, useQty: 1, useUnit: "paquete" },
-                    { name: "Mantequilla y Harina (Roux)", buyQty: 1, buyUnit: "kg", buyCost: 120, useQty: 150, useUnit: "g" },
-                    { name: "Jengibre fresco y leche", buyQty: 1, buyUnit: "l", buyCost: 42, useQty: 500, useUnit: "ml" }
-                ]
-            },
-            {
-                time: "II. Panadería",
-                kanji: "二",
-                title: "Bao al Vapor Artesanal",
-                desc: "Esponjoso pan al vapor relleno de cerdo laqueado y vegetales orientales.",
-                note: "El descubrimiento de las masas y sus fermentaciones.",
-                team: "Equipo Tiempo II",
-                weight: "60 g (1 pieza mini)",
-                techniques: "Fermentación controlada con levadura y polvo para hornear, cocción en vaporera de bambú, braseado y laqueado de pork belly (Char Siu).",
-                fusionType: "Cocina Oriental Contemporánea / De Autor",
-                plating: "Vaporera individual o base de piedra negra",
-                fusionDesc: "Técnica de panificación asiática al vapor con glaseado agridulce especiado y encurtidos rápidos para limpiar el paladar.",
-                yield: 16,
-                waste: 5,
-                ingredients: [
-                    { name: "Harina de trigo suave", buyQty: 1, buyUnit: "kg", buyCost: 28, useQty: 500, useUnit: "g" },
-                    { name: "Pork Belly / Panceta de cerdo", buyQty: 1, buyUnit: "kg", buyCost: 165, useQty: 600, useUnit: "g" },
-                    { name: "Salsa Hoisin, soya y miel (Laqueado)", buyQty: 1, buyUnit: "lote", buyCost: 90, useQty: 1, useUnit: "lote" },
-                    { name: "Pepino y cebollín fresco", buyQty: 1, buyUnit: "kg", buyCost: 40, useQty: 250, useUnit: "g" }
-                ]
-            },
-            {
-                time: "III. Panadería Fina & Cocina Mexicana",
-                kanji: "三",
-                title: "La Concha de Matcha",
-                desc: "Mini concha reinterpretada con té matcha y relleno sedoso de frijol dulce rojo (anko).",
-                note: "México y Asia encontrándose en una sola pieza.",
-                team: "Equipo Tiempo III",
-                weight: "50 g (1 mini concha rellena)",
-                techniques: "Masa brioche enriquecida, costra crujiente (craquelin/pasta de concha) con matcha ceremonial y cocción lenta de frijol azuki para pasta anko.",
-                fusionType: "Fusión México - Japón (Alta Gastronomía Oriental)",
-                plating: "Plato plano color marfil o pizarra",
-                fusionDesc: "El pan dulce más icónico de México adopta el amargor herbal del té verde japonés y la tradición confitera del frijol dulce oriental.",
-                yield: 18,
-                waste: 5,
-                ingredients: [
-                    { name: "Té Matcha culinario premium", buyQty: 100, buyUnit: "g", buyCost: 220, useQty: 25, useUnit: "g" },
-                    { name: "Frijol rojo / Azuki para Anko", buyQty: 1, buyUnit: "kg", buyCost: 85, useQty: 400, useUnit: "g" },
-                    { name: "Harina, huevo y mantequilla (Brioche)", buyQty: 1, buyUnit: "lote", buyCost: 110, useQty: 1, useUnit: "lote" },
-                    { name: "Azúcar glass y manteca vegetal", buyQty: 1, buyUnit: "kg", buyCost: 60, useQty: 300, useUnit: "g" }
-                ]
-            },
-            {
-                time: "IV. Vinos & Cocina del Norte",
-                kanji: "四",
-                title: "Tataki Glaseado",
-                desc: "Lámina de res finamente sellada, bañada en una reducción profunda de vino tinto y soya.",
-                note: "Representando la sofisticación y el arte del maridaje.",
-                team: "Equipo Tiempo IV",
-                weight: "55 g de proteína glaseada",
-                techniques: "Sellado a fuego alto (técnica tataki con centro jugoso), corte fino a contrahilo y reducción de vino tinto con soya y mirin.",
-                fusionType: "Fusión México - Japón (Alta Gastronomía Oriental)",
-                plating: "Plato extendido oscuro con brotes",
-                fusionDesc: "La potencia cárnica del norte de México y la cultura vitivinícola unidas al corte y sellado milimétrico japonés.",
-                yield: 15,
-                waste: 5,
-                ingredients: [
-                    { name: "Filete de res / New York limpio", buyQty: 1, buyUnit: "kg", buyCost: 340, useQty: 750, useUnit: "g" },
-                    { name: "Vino tinto seco", buyQty: 750, buyUnit: "ml", buyCost: 180, useQty: 375, useUnit: "ml" },
-                    { name: "Salsa de soya y mirin", buyQty: 1, buyUnit: "l", buyCost: 110, useQty: 150, useUnit: "ml" }
-                ]
-            },
-            {
-                time: "VI. Cocina Nayarita & Coctelería",
-                kanji: "六",
-                title: "Tostada Oriental de Atún",
-                desc: "Tostada miniatura de atún curado, escoltada por un audaz mocktail shot de mango, yuzu y chile.",
-                note: "Un tributo a la identidad regional, encendiendo el paladar.",
-                team: "Equipo Tiempo VI",
-                weight: "45 g tostada + 45 ml mocktail shot",
-                techniques: "Curado rápido de lomo de atún, deshidratado/fritura limpia de wonton o maíz, clarificación/emulsión de mango con cítrico yuzu.",
-                fusionType: "Fusión Nayarit - Asia Oriental",
-                plating: "Dúo de tostada sobre piedra y vaso shot de cristal",
-                fusionDesc: "El marisco fresco y el mango de Nayarit dialogan con el perfume cítrico del yuzu japonés y el picor equilibrado.",
-                yield: 15,
-                waste: 5,
-                ingredients: [
-                    { name: "Medallón de atún fresco", buyQty: 1, buyUnit: "kg", buyCost: 290, useQty: 600, useUnit: "g" },
-                    { name: "Pulpa de mango y jugo de Yuzu/cítricos", buyQty: 1, buyUnit: "l", buyCost: 130, useQty: 600, useUnit: "ml" },
-                    { name: "Tostada mini / Wonton y ajonjolí", buyQty: 1, buyUnit: "paquete", buyCost: 55, useQty: 1, useUnit: "paquete" }
-                ]
-            },
-            {
-                time: "VII. Cocina Francesa & Repostería Fina",
-                kanji: "七",
-                title: "Mille-Feuille de Hojicha",
-                desc: "Milhojas crujiente de ajonjolí negro intercalado con un cremoso untuoso de té hojicha.",
-                note: "La inconfundible elegancia francesa fusionada con Asia.",
-                team: "Equipo Tiempo VII",
-                weight: "55 g por porción",
-                techniques: "Laminado de hojaldre caramelizado con ajonjolí negro y elaboración de diplomática/namelaka infusionada con té verde tostado (hojicha).",
-                fusionType: "Fusión Francia - Japón",
-                plating: "Plato negro mate minimalista",
-                fusionDesc: "La arquitectura clásica del milhojas francés rellena de notas tostadas de té japonés hojicha y sésamo negro.",
-                yield: 15,
-                waste: 5,
-                ingredients: [
-                    { name: "Masa hojaldre de mantequilla", buyQty: 1, buyUnit: "kg", buyCost: 135, useQty: 600, useUnit: "g" },
-                    { name: "Té Hojicha y Ajonjolí negro", buyQty: 1, buyUnit: "lote", buyCost: 160, useQty: 1, useUnit: "lote" },
-                    { name: "Crema para batir y chocolate blanco", buyQty: 1, buyUnit: "kg", buyCost: 175, useQty: 500, useUnit: "g" }
-                ]
-            },
-            {
-                time: "VIII. Cocina Italiana & De Autor",
-                kanji: "八",
-                title: "Ravioli Transparente",
-                desc: "Fina pasta translúcida rellena de camarón y hongos shiitake, sumergida en un caldo claro y aromático.",
-                note: "La expresión de la creatividad desarrollada al final de la carrera.",
-                team: "Equipo Tiempo VIII",
-                weight: "65 g + 60 ml de consomé dashi",
-                techniques: "Gelificación/almidón translúcido de tapioca y arroz, farsa fina de camarón con shiitake e infusión de caldo dashi clarificado en mesa.",
-                fusionType: "Fusión Italia - Asia Oriental",
-                plating: "Plato hondo con servicio de jarrita de caldo caliente",
-                fusionDesc: "El formato de pasta rellena italiana ejecutado con almidones orientales cristalinos y un caldo umami de hongos.",
-                yield: 15,
-                waste: 5,
-                ingredients: [
-                    { name: "Camarón limpio sin cabeza", buyQty: 1, buyUnit: "kg", buyCost: 240, useQty: 500, useUnit: "g" },
-                    { name: "Hongos Shiitake deshidratados/frescos", buyQty: 250, buyUnit: "g", buyCost: 120, useQty: 125, useUnit: "g" },
-                    { name: "Almidón de tapioca / Fécula de papa", buyQty: 1, buyUnit: "kg", buyCost: 65, useQty: 400, useUnit: "g" }
-                ]
-            },
-            {
-                time: "IX. Cocina Oriental & Chocolatería",
-                kanji: "九",
-                title: "El Gran Final",
-                desc: "Una obra maestra de chocolatería fina que integra ingredientes y técnicas orientales.",
-                note: "El último trazo. El momento en que el círculo se cierra.",
-                team: "Equipo Tiempo IX",
-                weight: "60 g",
-                techniques: "Templado de chocolate oscuro en molde o esfera Ensō, ganache emulsionada con especias orientales y acabado con matizador dorado comestible.",
-                fusionType: "Cocina Oriental Contemporánea / De Autor",
-                plating: "Plato de gala con trazo circular Ensō",
-                fusionDesc: "El cacao fino dialoga con notas cítricas y tostadas de Asia para cerrar el círculo de los nueve semestres.",
-                yield: 16,
-                waste: 5,
-                ingredients: [
-                    { name: "Chocolate semi-amargo cobertura 70%", buyQty: 1, buyUnit: "kg", buyCost: 280, useQty: 600, useUnit: "g" },
-                    { name: "Crema, mantequilla e infusión oriental", buyQty: 1, buyUnit: "l", buyCost: 140, useQty: 500, useUnit: "ml" },
-                    { name: "Polvo de oro comestible y crocante", buyQty: 1, buyUnit: "pieza", buyCost: 95, useQty: 1, useUnit: "pieza" }
-                ]
-            }
-        ];
-
-        // Sincronizar automáticamente el Kanji cuando eligen el Tiempo del menú
-        function syncTimeKanji() {
-            const select = document.getElementById('course-time');
-            const selectedOption = select.options[select.selectedIndex];
-            const kanji = selectedOption.getAttribute('data-kanji') || '円';
-            document.getElementById('course-kanji').value = kanji;
-        }
-
-        // Factor de conversión a unidad base (gramos, mililitros o unidad unitaria)
-        function toBaseFactor(unit) {
-            switch (unit) {
-                case 'kg': return 1000;
-                case 'g': return 1;
-                case 'l': return 1000;
-                case 'ml': return 1;
-                default: return 1; // pieza, paquete, bulto, manojo, hoja, lata, lote
-            }
-        }
-
-        function getUnitCategory(unit) {
-            if (unit === 'kg' || unit === 'g') return 'mass';
-            if (unit === 'l' || unit === 'ml') return 'volume';
-            return 'unit';
-        }
-
-        // Crear una fila de ingrediente en el formulario
-        function addIngredientRow(item = null) {
-            const container = document.getElementById('ingredients-list');
-            const row = document.createElement('div');
-            row.className = 'ingredient-row bg-black/35 border border-[#E5C158]/25 rounded p-3.5 transition hover:border-[#E5C158]/50';
-
-            const defaultData = item || {
-                name: '',
-                buyQty: 1,
-                buyUnit: 'paquete',
-                buyCost: '',
-                useQty: 1,
-                useUnit: 'paquete'
-            };
-
-            const unitOptions = (selected) => `
-                <option value="kg" ${selected === 'kg' ? 'selected' : ''}>Kilos (kg)</option>
-                <option value="g" ${selected === 'g' ? 'selected' : ''}>Gramos (g)</option>
-                <option value="l" ${selected === 'l' ? 'selected' : ''}>Litros (L)</option>
-                <option value="ml" ${selected === 'ml' ? 'selected' : ''}>Mililitros (ml)</option>
-                <option value="pieza" ${selected === 'pieza' ? 'selected' : ''}>Piezas (pza)</option>
-                <option value="paquete" ${selected === 'paquete' ? 'selected' : ''}>Paquete / Bolsa</option>
-                <option value="bulto" ${selected === 'bulto' ? 'selected' : ''}>Bulto / Mazo</option>
-                <option value="hoja" ${selected === 'hoja' ? 'selected' : ''}>Hojas</option>
-                <option value="lata" ${selected === 'lata' ? 'selected' : ''}>Lata / Frasco</option>
-                <option value="lote" ${selected === 'lote' ? 'selected' : ''}>Lote completo</option>
-            `;
-
-            row.innerHTML = `
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-                    <!-- Nombre del Ingrediente -->
-                    <div class="sm:col-span-4">
-                        <label class="text-[11px] uppercase tracking-wider text-[#FFF099]/80 block mb-1">Ingrediente / Insumo</label>
-                        <input type="text" class="ing-name enso-input text-base py-1.5 px-2.5" placeholder="Ej. Hojas de tamal" value="${defaultData.name}" oninput="recalculateCosts()">
-                    </div>
-
-                    <!-- Costo de Compra y Cantidad Comprada -->
-                    <div class="sm:col-span-4 grid grid-cols-2 gap-1.5">
-                        <div>
-                            <label class="text-[11px] uppercase tracking-wider text-[#FFF099]/80 block mb-1">Costo Compra ($)</label>
-                            <input type="number" min="0" step="0.5" class="ing-buy-cost enso-input text-base py-1.5 px-2" placeholder="$0.00" value="${defaultData.buyCost}" oninput="recalculateCosts()">
-                        </div>
-                        <div>
-                            <label class="text-[11px] uppercase tracking-wider text-[#FFF099]/80 block mb-1">Por cuánto (Compra)</label>
-                            <div class="flex gap-1">
-                                <input type="number" min="0.01" step="any" class="ing-buy-qty enso-input text-base py-1.5 px-1.5 w-1/2 text-center" value="${defaultData.buyQty}" oninput="recalculateCosts()">
-                                <select class="ing-buy-unit enso-select text-xs py-1.5 px-1 w-1/2" onchange="syncCompatibleUnit(this); recalculateCosts()">
-                                    ${unitOptions(defaultData.buyUnit)}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Cantidad Usada en la Receta -->
-                    <div class="sm:col-span-3">
-                        <label class="text-[11px] uppercase tracking-wider text-[#FFF099]/80 block mb-1">Cantidad Usada en Receta</label>
-                        <div class="flex gap-1">
-                            <input type="number" min="0" step="any" class="ing-use-qty enso-input text-base py-1.5 px-2 w-1/2 text-center" value="${defaultData.useQty}" oninput="recalculateCosts()">
-                            <select class="ing-use-unit enso-select text-xs py-1.5 px-1 w-1/2" onchange="recalculateCosts()">
-                                ${unitOptions(defaultData.useUnit)}
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Botón Eliminar -->
-                    <div class="sm:col-span-1 flex justify-end">
-                        <button type="button" onclick="removeIngredientRow(this)" class="text-rose-400 hover:text-rose-300 border border-rose-500/40 hover:border-rose-400 rounded px-2.5 py-1.5 text-xs transition" title="Eliminar ingrediente">
-                            ✕
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Barra inferior de resultado por ingrediente -->
-                <div class="mt-2 pt-2 border-t border-white/10 flex flex-wrap justify-between items-center text-xs text-[#F4EFE6]/80">
-                    <span class="ing-unit-note italic text-[#FFF099]/75">Cálculo automático proporcional</span>
-                    <div class="flex gap-4">
-                        <span>Costo en receta: <strong class="ing-recipe-cost text-white">$0.00</strong></span>
-                        <span>Costo por porción: <strong class="ing-portion-cost text-[#FFF099]">$0.00</strong></span>
-                    </div>
-                </div>
-            `;
-
-            container.appendChild(row);
-            recalculateCosts();
-        }
-
-        // Si el usuario cambia la unidad de compra a paquete/bulto/pieza, alinear por comodidad la unidad de uso
-        function syncCompatibleUnit(buyUnitSelect) {
-            const row = buyUnitSelect.closest('.ingredient-row');
-            const useUnitSelect = row.querySelector('.ing-use-unit');
-            const buyCat = getUnitCategory(buyUnitSelect.value);
-            const useCat = getUnitCategory(useUnitSelect.value);
-
-            if (buyCat === 'unit') {
-                useUnitSelect.value = buyUnitSelect.value;
-            } else if (buyCat !== useCat) {
-                useUnitSelect.value = buyUnitSelect.value === 'kg' ? 'g' : (buyUnitSelect.value === 'l' ? 'ml' : buyUnitSelect.value);
-            }
-        }
-
-        function removeIngredientRow(btn) {
-            const rows = document.querySelectorAll('.ingredient-row');
-            if (rows.length <= 1) {
-                // Si es la última fila, solo limpiarla
-                const row = btn.closest('.ingredient-row');
-                row.querySelector('.ing-name').value = '';
-                row.querySelector('.ing-buy-cost').value = '';
-                recalculateCosts();
-                return;
-            }
-            btn.closest('.ingredient-row').remove();
-            recalculateCosts();
-        }
-
-        // Recalcular costos en vivo y actualizar tanto los badges como la tabla de impresión
-        function recalculateCosts() {
-            const yieldPortions = Math.max(1, parseFloat(document.getElementById('recipe-yield').value) || 1);
-            const wastePercent = Math.max(0, parseFloat(document.getElementById('waste-percent').value) || 0);
-
-            const rows = document.querySelectorAll('.ingredient-row');
-            const sheetTbody = document.getElementById('sheet-ingredients-tbody');
-            sheetTbody.innerHTML = '';
-
-            let totalBatchCost = 0;
-
-            rows.forEach((row) => {
-                const name = row.querySelector('.ing-name').value.trim() || 'Ingrediente sin nombre';
-                const buyCost = Math.max(0, parseFloat(row.querySelector('.ing-buy-cost').value) || 0);
-                const buyQty = Math.max(0.0001, parseFloat(row.querySelector('.ing-buy-qty').value) || 1);
-                const buyUnit = row.querySelector('.ing-buy-unit').value;
-                const useQty = Math.max(0, parseFloat(row.querySelector('.ing-use-qty').value) || 0);
-                const useUnit = row.querySelector('.ing-use-unit').value;
-
-                const buyCat = getUnitCategory(buyUnit);
-                const useCat = getUnitCategory(useUnit);
-
-                let recipeCost = 0;
-                const noteEl = row.querySelector('.ing-unit-note');
-
-                if (buyCat === useCat && (buyCat === 'mass' || buyCat === 'volume')) {
-                    const buyInBase = buyQty * toBaseFactor(buyUnit);
-                    const useInBase = useQty * toBaseFactor(useUnit);
-                    recipeCost = (buyCost / buyInBase) * useInBase;
-                    noteEl.textContent = `Conversión exacta: ${useQty} ${useUnit} de ${buyQty} ${buyUnit} ($${buyCost.toFixed(2)})`;
-                    noteEl.className = 'ing-unit-note italic text-[#FFF099]/75';
-                } else {
-                    // Cálculo directo por proporción de unidades (ej. 1 bulto de 1 bulto, o 5 hojas de 50 hojas)
-                    recipeCost = (buyCost / buyQty) * useQty;
-                    if (buyCat !== useCat) {
-                        noteEl.textContent = `Proporción directa (${useQty} ${useUnit} sobre ${buyQty} ${buyUnit})`;
-                    } else {
-                        noteEl.textContent = `Cálculo por unidad: ${useQty} ${useUnit} de ${buyQty} ${buyUnit} ($${buyCost.toFixed(2)})`;
-                    }
-                }
-
-                const portionCost = recipeCost / yieldPortions;
-                totalBatchCost += recipeCost;
-
-                row.querySelector('.ing-recipe-cost').textContent = `$${recipeCost.toFixed(2)}`;
-                row.querySelector('.ing-portion-cost').textContent = `$${portionCost.toFixed(2)}`;
-
-                // Agregar a la hoja imprimible si tiene nombre o costo
-                if (row.querySelector('.ing-name').value.trim() !== '' || buyCost > 0) {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td class="py-1 px-2 font-semibold text-gray-900">${escapeHtml(name)}</td>
-                        <td class="py-1 px-2 text-gray-700">${buyQty} ${buyUnit} ($${buyCost.toFixed(2)})</td>
-                        <td class="py-1 px-2 text-gray-700">${useQty} ${useUnit}</td>
-                        <td class="py-1 px-2 text-right font-medium text-gray-900">$${recipeCost.toFixed(2)}</td>
-                        <td class="py-1 px-2 text-right font-bold text-[#8A6D1B]">$${portionCost.toFixed(2)}</td>
-                    `;
-                    sheetTbody.appendChild(tr);
-                }
-            });
-
-            if (sheetTbody.children.length === 0) {
-                sheetTbody.innerHTML = `<tr><td colspan="5" class="py-2 px-2 text-center italic text-gray-400">Agrega tus ingredientes en el panel izquierdo para ver el desglose.</td></tr>`;
-            }
-
-            const batchWithWaste = totalBatchCost * (1 + (wastePercent / 100));
-            const finalPortionCost = batchWithWaste / yieldPortions;
-
-            // Actualizar indicadores en vivo
-            document.getElementById('live-batch-total').textContent = `$${batchWithWaste.toFixed(2)} MXN`;
-            document.getElementById('live-portion-cost-badge').textContent = `$${finalPortionCost.toFixed(2)}`;
-
-            // Actualizar hoja imprimible
-            document.getElementById('sheet-yield').textContent = yieldPortions;
-            document.getElementById('sheet-waste-pct').textContent = wastePercent;
-            document.getElementById('sheet-raw-batch').textContent = `$${totalBatchCost.toFixed(2)} MXN`;
-            document.getElementById('sheet-Batch-with-waste').textContent = `$${batchWithWaste.toFixed(2)} MXN`;
-            document.getElementById('sheet-final-portion-cost').textContent = `$${finalPortionCost.toFixed(2)} MXN`;
-        }
-
-        // Actualizar en vivo el simulador del modal web y la hoja impresa
-        function updateLivePreview() {
-            const timeVal = document.getElementById('course-time').value;
-            const kanjiVal = document.getElementById('course-kanji').value.trim() || '円';
-            const titleVal = document.getElementById('dish-title').value.trim() || 'Nombre del Platillo';
-            const descVal = document.getElementById('dish-desc').value.trim() || 'Descripción de los componentes y texturas principales de tu platillo.';
-            const noteVal = document.getElementById('dish-note').value.trim() || 'Nota conceptual que conecta el platillo con el semestre.';
-
-            const teamVal = document.getElementById('team-names').value.trim() || 'Por definir';
-            const weightVal = document.getElementById('portion-weight').value.trim() || 'Porción degustación';
-            const platingVal = document.getElementById('dish-plating').value.trim() || 'Loza de gala';
-            const techVal = document.getElementById('dish-techniques').value.trim() || 'Sin especificar aún.';
-            const fusionTypeVal = document.getElementById('fusion-type').value;
-            const fusionDescVal = document.getElementById('fusion-explanation').value.trim() || 'Sin justificación registrada aún.';
-
-            // Simulador Web Oscuro
-            document.getElementById('preview-web-kanji').textContent = kanjiVal;
-            document.getElementById('preview-web-time').textContent = timeVal;
-            document.getElementById('preview-web-title').textContent = titleVal;
-            document.getElementById('preview-web-desc').textContent = descVal;
-            document.getElementById('preview-web-note').textContent = noteVal;
-
-            // Hoja de Impresión / PDF
-            document.getElementById('sheet-time').textContent = timeVal;
-            document.getElementById('sheet-title').textContent = titleVal;
-            document.getElementById('sheet-desc').textContent = descVal;
-            document.getElementById('sheet-note').textContent = `"${noteVal}"`;
-
-            document.getElementById('sheet-team').textContent = teamVal;
-            document.getElementById('sheet-portion-info').textContent = `${weightVal} · ${platingVal}`;
-            document.getElementById('sheet-techniques').textContent = techVal;
-            document.getElementById('sheet-fusion-type').textContent = fusionTypeVal;
-            document.getElementById('sheet-fusion-desc').textContent = fusionDescVal;
-        }
-
-        // Cargar cualquiera de los platillos predeterminados
-        function loadPresetCourse(indexStr) {
-            if (indexStr === '') return;
-            const preset = PRESET_COURSES[parseInt(indexStr, 10)];
-            if (!preset) return;
-
-            document.getElementById('course-time').value = preset.time;
-            document.getElementById('course-kanji').value = preset.kanji;
-            document.getElementById('dish-title').value = preset.title;
-            document.getElementById('dish-desc').value = preset.desc;
-            document.getElementById('dish-note').value = preset.note;
-            document.getElementById('team-names').value = preset.team;
-            document.getElementById('portion-weight').value = preset.weight;
-            document.getElementById('dish-techniques').value = preset.techniques;
-            document.getElementById('fusion-type').value = preset.fusionType;
-            document.getElementById('dish-plating').value = preset.plating;
-            document.getElementById('fusion-explanation').value = preset.fusionDesc;
-            document.getElementById('recipe-yield').value = preset.yield;
-            document.getElementById('waste-percent').value = preset.waste;
-
-            const container = document.getElementById('ingredients-list');
-            container.innerHTML = '';
-            preset.ingredients.forEach(ing => addIngredientRow(ing));
-
-            updateLivePreview();
-            recalculateCosts();
-        }
-
-        // Limpiar todos los campos para empezar en blanco
-        function clearAllFields() {
-            document.getElementById('preset-selector').value = '';
-            document.getElementById('dish-title').value = '';
-            document.getElementById('dish-desc').value = '';
-            document.getElementById('dish-note').value = '';
-            document.getElementById('team-names').value = '';
-            document.getElementById('portion-weight').value = '';
-            document.getElementById('dish-techniques').value = '';
-            document.getElementById('dish-plating').value = '';
-            document.getElementById('fusion-explanation').value = '';
-            document.getElementById('recipe-yield').value = 15;
-            document.getElementById('waste-percent').value = 5;
-
-            const container = document.getElementById('ingredients-list');
-            container.innerHTML = '';
-            addIngredientRow({ name: '', buyQty: 1, buyUnit: 'paquete', buyCost: '', useQty: 1, useUnit: 'paquete' });
-            addIngredientRow({ name: '', buyQty: 1, buyUnit: 'kg', buyCost: '', useQty: 250, useUnit: 'g' });
-
-            updateLivePreview();
-            recalculateCosts();
-        }
-
-        // Exportar la hoja directamente a un archivo PDF listo para enviar o imprimir
-        async function downloadFichaPDF() {
-            const btn = document.getElementById('btn-download-pdf');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<span>⏳ Generando PDF...</span>';
-            btn.disabled = true;
-
-            const element = document.getElementById('printable-sheet');
-            const dishTitle = (document.getElementById('dish-title').value.trim() || 'Platillo_ENSO').replace(/\s+/g, '_');
-
-            try {
-                if (typeof html2pdf !== 'undefined') {
-                    const opt = {
-                        margin:       [8, 8, 8, 8],
-                        filename:     `Ficha_ENSO_${dishTitle}.pdf`,
-                        image:        { type: 'jpeg', quality: 0.98 },
-                        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#FFFFFF' },
-                        jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' }
-                    };
-                    await html2pdf().set(opt).from(element).save();
-                } else {
-                    window.print();
-                }
-            } catch (e) {
-                window.print();
-            } finally {
-                btn.innerHTML = originalHTML;
-                btn.disabled = false;
-            }
-        }
-
-        function escapeHtml(str) {
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-        }
-
-        // Inicializar con el ejemplo del Tamal de Elote y Coco al abrir la página
-        window.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('preset-selector').value = "0";
-            loadPresetCourse("0");
-        });
-    </script>
+<body>
+
+<header class="top no-print">
+  <div>
+    <h1>ENSŌ · Planeación de Menú y Compras</h1>
+    <small>Cena de gala · 1 de diciembre 2026</small>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <span id="status" class="status">Conectando…</span>
+    <button id="btn-admin" class="small">🔐 Panel administrador</button>
+  </div>
+</header>
+
+<!-- ============ VISTA PARTICIPANTE ============ -->
+<div id="app-user" class="wrap">
+
+  <div class="card">
+    <h2>1. ¿Quién eres?</h2>
+    <label for="slot-select">Selecciona tu nombre y tu tiempo / bebida</label>
+    <select id="slot-select"></select>
+    <p class="hint" style="margin:8px 0 0">Todo lo que captures se guarda solo en la nube, en tiempo real. Si se cierra la página, se apaga el celular o cambias de equipo, vuelve a elegir tu nombre y tu información seguirá ahí.</p>
+  </div>
+
+  <div id="editor" class="hidden">
+
+    <div id="budget" class="budget">
+      <div class="row">
+        <div><span class="hint">Costo total estimado</span><div class="big" id="b-total">$0.00</div></div>
+        <div><span class="hint">Tope permitido</span><div class="big" id="b-limit">$0.00</div></div>
+        <div><span class="hint" id="b-rem-label">Te quedan</span><div class="big" id="b-rem">$0.00</div></div>
+        <div><span class="hint">Costo por porción</span><div class="big" id="b-portion">$0.00</div></div>
+      </div>
+      <div class="bar"><div id="b-bar"></div></div>
+      <div class="alert" id="b-alert">🚫 Te pasaste del presupuesto. Reduce ingredientes, cantidades o el tamaño de tu porción.</div>
+    </div>
+
+    <div class="card">
+      <h2 id="t-section">2. Tu platillo</h2>
+      <div class="grid g2" style="margin-bottom:12px">
+        <div><label id="l-dish">Nombre del platillo</label><input id="f-dish" maxlength="160" placeholder="Ej. Tamales de cerdo agridulce"></div>
+        <div><label>Tiempo / bebida</label><input id="f-label" disabled></div>
+      </div>
+      <div style="margin-bottom:12px"><label>Descripción breve (1–2 líneas)</label><textarea id="f-desc" rows="2" maxlength="400" placeholder="Ingredientes principales y qué lo hace especial"></textarea></div>
+      <div class="grid g4">
+        <div><label>Porciones a preparar</label><input id="f-portions" type="number" min="1" step="1" value="180"></div>
+        <div><label>Tamaño de porción</label><input id="f-psize" maxlength="60" placeholder="Ej. 50 g / 1 pza / 60 ml"></div>
+        <div><label id="l-code">Código de plato (catálogo)</label><input id="f-code" maxlength="60" placeholder="Ej. H-12" style="text-transform:uppercase"></div>
+        <div><label>Piezas de loza/cristalería</label><input id="f-glassqty" type="number" min="0" step="1" value="180"></div>
+      </div>
+      <p class="hint" style="margin:8px 0 0">Si usas más de un código (plato y cuchara, por ejemplo) sepáralos con coma: <b>H-12, C-03</b>.</p>
+    </div>
+
+    <div class="card">
+      <h2>3. Ingredientes para <span id="portions-lbl">180</span> porciones</h2>
+      <p class="hint" style="margin-top:0">Escribe cuánto necesitas <b>en total</b> y el precio estimado <b>por cada unidad</b> (ej. 3 kg de cerdo a $120 por kg).</p>
+      <div id="ing-list"></div>
+      <button id="btn-add" class="primary">+ Agregar ingrediente</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ VISTA ADMINISTRADOR ============ -->
+<div id="app-admin" class="wrap hidden">
+  <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <h2 style="color:var(--gold)">Panel administrador</h2>
+    <button id="btn-back" class="small">← Volver a captura</button>
+  </div>
+
+  <div class="kpis no-print">
+    <div class="kpi"><b id="k-budget">$0</b><span>Presupuesto total</span></div>
+    <div class="kpi"><b id="k-est">$0</b><span>Estimado capturado</span></div>
+    <div class="kpi"><b id="k-spent">$0</b><span>Gastado real</span></div>
+    <div class="kpi"><b id="k-left">$0</b><span>Te queda</span></div>
+  </div>
+
+  <div class="tabs no-print">
+    <button data-tab="adm-shop" class="active">🛒 Lista de compras</button>
+    <button data-tab="adm-glass">🍷 Loza y cristalería</button>
+    <button data-tab="adm-teams">👥 Resumen por equipo</button>
+  </div>
+
+  <div id="adm-shop" class="adm-section show card">
+    <div class="no-print" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+      <p class="hint" style="margin:0">Marca ✓ cuando compres. Si no escribes el costo real, se usa el estimado.</p>
+      <button class="primary small" data-print="adm-shop">🖨️ Imprimir lista de compras</button>
+    </div>
+    <h2 style="text-align:center">ENSŌ · Lista de compras</h2>
+    <div id="shop-body"></div>
+  </div>
+
+  <div id="adm-glass" class="adm-section card">
+    <div class="no-print" style="text-align:right;margin-bottom:6px"><button class="primary small" data-print="adm-glass">🖨️ Imprimir cristalería</button></div>
+    <h2 style="text-align:center">ENSŌ · Loza y cristalería requerida</h2>
+    <div id="glass-body"></div>
+  </div>
+
+  <div id="adm-teams" class="adm-section card">
+    <div class="no-print" style="text-align:right;margin-bottom:6px"><button class="primary small" data-print="adm-teams">🖨️ Imprimir resumen</button></div>
+    <h2 style="text-align:center">ENSŌ · Resumen por equipo</h2>
+    <div id="teams-body"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, signInAnonymously, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+/* ====== CONFIGURACIÓN (cambia aquí los topes) ====== */
+const FOOD_BUDGET  = 2500;   // tope por tiempo (platillo)
+const DRINK_BUDGET = 1000;   // tope por bebida
+const TOTAL_BUDGET = 30000;  // presupuesto general de insumos
+const ADMIN_EMAIL  = "luixnay@gmail.com";
+const APP_ID       = "enso-uatyg-gala";
+const firebaseConfig = {
+  apiKey: "AIzaSyAd_rViRrwdsigVaJNJO82nvVpGzywQT30",
+  authDomain: "enso-gala-2026.firebaseapp.com",
+  projectId: "enso-gala-2026",
+  storageBucket: "enso-gala-2026.firebasestorage.app",
+  messagingSenderId: "413676120292",
+  appId: "1:413676120292:web:b052eb281e1c32553de4f1"
+};
+
+const SLOTS = [
+  {id:"t1", type:"food",  label:"1.º Tiempo · 1.º sem. — Técnicas culinarias, salsas madre y tipos de cortes", owner:"Diego De la Rosa"},
+  {id:"t2", type:"food",  label:"2.º Tiempo · 2.º sem. — Panadería", owner:"Daniela Rivera"},
+  {id:"t3", type:"food",  label:"3.º Tiempo · 3.º sem. — Cocina Mexicana", owner:"Luis Armando"},
+  {id:"t4", type:"food",  label:"4.º Tiempo · 4.º sem. — Cocina Mexicana Zona Norte y Enología", owner:"Zully Adolfo González"},
+  {id:"t5", type:"food",  label:"5.º Tiempo · 5.º sem. — Cocina Mexicana Zona Centro y Repostería", owner:"Fernando Rincón"},
+  {id:"t6", type:"food",  label:"6.º Tiempo · 6.º sem. — Cocina Mexicana Zona Sur / Nayarita / Coctelería", owner:"Heidi Castillo"},
+  {id:"t7", type:"food",  label:"7.º Tiempo · 7.º sem. — Gastronomía Francesa y Española", owner:"Gerardo Tovar"},
+  {id:"t8", type:"food",  label:"8.º Tiempo · 8.º sem. — Gastronomía Italiana / Cocina de Autor", owner:"Brandon Jaramillo"},
+  {id:"t9", type:"food",  label:"9.º Tiempo · 9.º sem. — Chocolatería y Confitería", owner:"Martin Marquez"},
+  {id:"b1", type:"drink", label:"Bebida de bienvenida", owner:"Kestin Gutierrez"},
+  {id:"b2", type:"drink", label:"Segunda bebida", owner:"Zully González"},
+  {id:"b3", type:"drink", label:"Tercera bebida (vino)", owner:"David Villagrana"},
+  {id:"b4", type:"drink", label:"Cuarta bebida", owner:"Leonel Arroyo"},
+];
+const CATS  = ["Proteínas","Frutas y verduras","Lácteos y huevo","Abarrotes y secos","Grasas y aceites","Condimentos y especias","Bebidas y licores","Otros"];
+const UNITS = ["kg","g","L","ml","pza","paquete","lata","botella","manojo"];
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = n => "$" + (Number(n)||0).toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
+const num = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+const slotById = id => SLOTS.find(s => s.id === id);
+const limitFor = type => type === "drink" ? DRINK_BUDGET : FOOD_BUDGET;
+const newId = () => Math.random().toString(36).slice(2,8);
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const col  = name => collection(db, "artifacts", APP_ID, "public", "data", name);
+const ref  = (name, id) => doc(db, "artifacts", APP_ID, "public", "data", name, id);
+
+/* ====== ESTADO DE CONEXIÓN ====== */
+function setStatus(text, cls=""){ const s=$("status"); s.textContent=text; s.className="status "+cls; }
+let authReady;
+const authPromise = new Promise(r => authReady = r);
+onAuthStateChanged(auth, u => { if(u){ setStatus("Conectado ✓","ok"); authReady(u); } });
+signInAnonymously(auth).catch(() => setStatus("Sin conexión con Firebase","err"));
+
+/* ====== SELECTOR DE PERSONA ====== */
+const sel = $("slot-select");
+sel.innerHTML = '<option value="">— Elige tu nombre —</option>' +
+  '<optgroup label="Tiempos del menú">' + SLOTS.filter(s=>s.type==="food").map(s=>`<option value="${s.id}">${esc(s.owner)} — ${esc(s.label)}</option>`).join("") + '</optgroup>' +
+  '<optgroup label="Bebidas">' + SLOTS.filter(s=>s.type==="drink").map(s=>`<option value="${s.id}">${esc(s.owner)} — ${esc(s.label)}</option>`).join("") + '</optgroup>';
+
+let state = null;          // documento actual en edición
+let saveTimer = null, dirty = false;
+
+function emptyState(slot){
+  return { slotId:slot.id, type:slot.type, label:slot.label, owner:slot.owner,
+    dish:"", desc:"", portions:180, portionSize:"", plateCode:"", glassQty:180,
+    ingredients:[], updatedAt:new Date().toISOString(), updatedBy:"" };
+}
+
+sel.addEventListener("change", () => openSlot(sel.value));
+
+async function openSlot(id){
+  if(dirty) await saveNow();
+  if(!id){ $("editor").classList.add("hidden"); state=null; return; }
+  localStorage.setItem("enso_last_slot", id);
+  const slot = slotById(id);
+  await authPromise;
+  let remote = null;
+  try { const snap = await getDoc(ref("plan_menu", id)); if(snap.exists()) remote = snap.data(); } catch(e){ setStatus("No pude leer la nube","err"); }
+  let local = null;
+  try { local = JSON.parse(localStorage.getItem("enso_draft_"+id) || "null"); } catch(e){}
+  // Usa la versión más reciente entre la nube y el respaldo local (por si se cayó la conexión)
+  state = emptyState(slot);
+  if(remote) state = {...state, ...remote};
+  if(local && (!remote || (local.updatedAt||"") > (remote.updatedAt||""))){ state = {...state, ...local}; dirty = true; scheduleSave(); }
+  state.ingredients = Array.isArray(state.ingredients) ? state.ingredients : [];
+  paintEditor();
+}
+
+/* ====== PINTAR EDITOR ====== */
+function paintEditor(){
+  const isDrink = state.type === "drink";
+  $("editor").classList.remove("hidden");
+  $("t-section").textContent = isDrink ? "2. Tu bebida" : "2. Tu platillo";
+  $("l-dish").textContent    = isDrink ? "Nombre de la bebida" : "Nombre del platillo";
+  $("l-code").textContent    = isDrink ? "Código de vaso / copa (catálogo)" : "Código de plato (catálogo)";
+  $("f-dish").value = state.dish || "";
+  $("f-label").value = `${state.owner} · ${state.label}`;
+  $("f-desc").value = state.desc || "";
+  $("f-portions").value = state.portions || 180;
+  $("f-psize").value = state.portionSize || "";
+  $("f-code").value = state.plateCode || "";
+  $("f-glassqty").value = state.glassQty ?? state.portions ?? 180;
+  if(!state.ingredients.length) state.ingredients.push(blankIng());
+  renderIngredients();
+  updateTotals();
+}
+const blankIng = () => ({id:newId(), name:"", cat:"Proteínas", qty:"", unit:"kg", price:""});
+
+function renderIngredients(){
+  $("ing-list").innerHTML = state.ingredients.map((g,i) => `
+    <div class="ing" data-i="${i}">
+      <div class="grid">
+        <div><label>Ingrediente</label><input data-f="name" value="${esc(g.name)}" maxlength="100" placeholder="Ej. Pierna de cerdo"></div>
+        <div><label>Tipo / dónde se compra</label>
+          <select data-f="cat">${CATS.map(c=>`<option ${c===g.cat?"selected":""}>${c}</option>`).join("")}</select></div>
+        <div><label>Cantidad total</label><input data-f="qty" type="number" min="0" step="any" value="${esc(g.qty)}" placeholder="3"></div>
+        <div><label>Unidad</label>
+          <select data-f="unit">${UNITS.map(u=>`<option ${u===g.unit?"selected":""}>${u}</option>`).join("")}</select></div>
+        <div><label>Precio por unidad ($)</label><input data-f="price" type="number" min="0" step="any" value="${esc(g.price)}" placeholder="120"></div>
+        <div class="sub-wrap"><span class="hint">Subtotal</span><span class="sub" data-sub>${money(num(g.qty)*num(g.price))}</span>
+          <button class="danger small" data-del="${i}" style="margin-top:4px">Quitar</button></div>
+      </div>
+    </div>`).join("");
+  $("portions-lbl").textContent = state.portions || 0;
+}
+
+$("ing-list").addEventListener("input", e => {
+  const row = e.target.closest(".ing"); if(!row || !e.target.dataset.f) return;
+  const g = state.ingredients[+row.dataset.i];
+  g[e.target.dataset.f] = e.target.value;
+  row.querySelector("[data-sub]").textContent = money(num(g.qty)*num(g.price));
+  changed();
+});
+$("ing-list").addEventListener("click", e => {
+  const d = e.target.dataset.del; if(d === undefined) return;
+  state.ingredients.splice(+d,1);
+  if(!state.ingredients.length) state.ingredients.push(blankIng());
+  renderIngredients(); changed();
+});
+$("btn-add").addEventListener("click", () => { state.ingredients.push(blankIng()); renderIngredients(); changed();
+  const last = $("ing-list").lastElementChild; if(last) last.querySelector("input").focus(); });
+
+const fieldMap = {"f-dish":"dish","f-desc":"desc","f-psize":"portionSize","f-code":"plateCode"};
+Object.entries(fieldMap).forEach(([id,key]) => $(id).addEventListener("input", e => {
+  state[key] = key==="plateCode" ? e.target.value.toUpperCase() : e.target.value; changed(); }));
+$("f-portions").addEventListener("input", e => { state.portions = Math.max(1, Math.floor(num(e.target.value)) || 1); $("portions-lbl").textContent = state.portions; changed(); });
+$("f-glassqty").addEventListener("input", e => { state.glassQty = Math.max(0, Math.floor(num(e.target.value))); changed(); });
+
+/* ====== TOTALES Y SEMÁFORO ====== */
+function totalOf(d){ return (d.ingredients||[]).reduce((s,g)=> s + num(g.qty)*num(g.price), 0); }
+function updateTotals(){
+  const limit = limitFor(state.type), total = totalOf(state), rem = limit - total;
+  const pct = Math.min(100, total/limit*100);
+  $("b-total").textContent = money(total);
+  $("b-limit").textContent = money(limit);
+  $("b-rem-label").textContent = rem >= 0 ? "Te quedan" : "Te pasaste por";
+  $("b-rem").textContent = money(Math.abs(rem));
+  $("b-portion").textContent = money(total / Math.max(1, state.portions||1));
+  $("b-bar").style.width = pct + "%";
+  const b = $("budget"); b.classList.remove("warn","over");
+  if(total > limit) b.classList.add("over"); else if(pct >= 85) b.classList.add("warn");
+}
+
+/* ====== AUTOGUARDADO ====== */
+function changed(){
+  state.updatedAt = new Date().toISOString();
+  dirty = true; updateTotals();
+  try { localStorage.setItem("enso_draft_"+state.slotId, JSON.stringify(state)); } catch(e){}
+  scheduleSave();
+}
+function scheduleSave(){ setStatus("Guardando…","saving"); clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 700); }
+async function saveNow(){
+  if(!state || !dirty) return;
+  clearTimeout(saveTimer);
+  const snapshot = JSON.stringify(state);
+  try{
+    const u = await authPromise;
+    const data = JSON.parse(snapshot);
+    data.updatedBy = u.uid || "";
+    data.ingredients = data.ingredients.map(g => ({id:g.id, name:String(g.name||""), cat:g.cat, qty:num(g.qty), unit:g.unit, price:num(g.price)}));
+    await setDoc(ref("plan_menu", data.slotId), data);
+    if(JSON.stringify(state) === snapshot){ dirty = false; localStorage.removeItem("enso_draft_"+data.slotId); }
+    const t = new Date().toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
+    setStatus("Guardado en la nube ✓ " + t, "ok");
+  }catch(err){
+    console.error(err);
+    setStatus("No se pudo guardar — reintentando…","err");
+    saveTimer = setTimeout(saveNow, 5000);
+  }
+}
+document.addEventListener("visibilitychange", () => { if(document.visibilityState==="hidden") saveNow(); });
+window.addEventListener("pagehide", saveNow);
+window.addEventListener("online", saveNow);
+
+/* ====== ADMIN ====== */
+let isAdmin = false, adminUnsubs = [];
+let allDocs = {}, purchases = {};
+
+$("btn-admin").addEventListener("click", async () => {
+  if(auth.currentUser && auth.currentUser.email === ADMIN_EMAIL){ enterAdmin(); return; }
+  try{
+    await saveNow();
+    const res = await signInWithPopup(auth, new GoogleAuthProvider());
+    if(res.user.email === ADMIN_EMAIL){ enterAdmin(); }
+    else { alert("Esta cuenta no tiene acceso de administrador."); await signOut(auth); await signInAnonymously(auth); }
+  }catch(e){ if(e.code!=="auth/popup-closed-by-user" && e.code!=="auth/cancelled-popup-request") alert("Error de acceso: "+e.message); }
+});
+$("btn-back").addEventListener("click", () => { $("app-admin").classList.add("hidden"); $("app-user").classList.remove("hidden"); });
+
+function enterAdmin(){
+  isAdmin = true;
+  $("app-user").classList.add("hidden"); $("app-admin").classList.remove("hidden");
+  adminUnsubs.forEach(u=>u()); adminUnsubs = [];
+  adminUnsubs.push(onSnapshot(col("plan_menu"), snap => { allDocs = {}; snap.forEach(d => allDocs[d.id] = d.data()); renderAdmin(); },
+    err => alert("No pude leer los datos (revisa las reglas de Firestore): "+err.message)));
+  adminUnsubs.push(onSnapshot(col("plan_purchases"), snap => { purchases = {}; snap.forEach(d => purchases[d.id] = d.data()); renderAdmin(); }));
+}
+
+document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("active", x===b));
+  document.querySelectorAll(".adm-section").forEach(s=>s.classList.toggle("show", s.id===b.dataset.tab));
+}));
+document.querySelectorAll("[data-print]").forEach(b => b.addEventListener("click", () => {
+  const sec = $(b.dataset.print); sec.classList.add("print-target");
+  window.print();
+}));
+window.addEventListener("afterprint", () => document.querySelectorAll(".print-target").forEach(s=>s.classList.remove("print-target")));
+
+function renderAdmin(){
+  if(!isAdmin) return;
+  const typing = document.activeElement && document.activeElement.closest && document.activeElement.closest("#shop-body") && document.activeElement.tagName==="INPUT";
+  // KPIs
+  let est = 0, spent = 0;
+  const lines = [];
+  Object.values(allDocs).forEach(d => (d.ingredients||[]).forEach(g => {
+    const cost = num(g.qty)*num(g.price); est += cost;
+    const p = purchases[d.slotId+"_"+g.id] || {};
+    if(p.bought) spent += (p.realCost !== undefined && p.realCost !== null && p.realCost !== "") ? num(p.realCost) : cost;
+    lines.push({d, g, cost, key:d.slotId+"_"+g.id, p});
+  }));
+  $("k-budget").textContent = money(TOTAL_BUDGET);
+  $("k-est").textContent = money(est);
+  $("k-spent").textContent = money(spent);
+  $("k-left").textContent = money(TOTAL_BUDGET - spent);
+
+  if(!typing) renderShop(lines);
+  renderGlass();
+  renderTeams();
+}
+
+function renderShop(lines){
+  const byCat = {}; CATS.forEach(c=>byCat[c]=[]);
+  lines.forEach(l => (byCat[CATS.includes(l.g.cat)?l.g.cat:"Otros"]).push(l));
+  let html = "";
+  CATS.forEach(c => {
+    const arr = byCat[c]; if(!arr.length) return;
+    arr.sort((a,b)=> String(a.g.name).localeCompare(String(b.g.name),"es"));
+    const sub = arr.reduce((s,l)=>s+l.cost,0);
+    html += `<h3 class="cat-title">${esc(c)} <span class="hint" style="font-family:inherit;font-size:.85rem">· est. ${money(sub)}</span></h3>
+    <table><thead><tr><th style="width:36px">✓</th><th>Ingrediente</th><th>Cantidad</th><th>Quién / Tiempo</th><th class="r">Estimado</th><th class="r">Costo real</th></tr></thead><tbody>` +
+    arr.map(l => {
+      const bought = !!l.p.bought;
+      const real = (l.p.realCost !== undefined && l.p.realCost !== null) ? l.p.realCost : "";
+      return `<tr class="${bought?"bought":""}"><td><input type="checkbox" data-buy="${esc(l.key)}" data-est="${l.cost}" ${bought?"checked":""} style="width:auto"></td>
+        <td><b>${esc(l.g.name||"(sin nombre)")}</b></td><td>${l.g.qty} ${esc(l.g.unit)}</td>
+        <td>${esc(l.d.owner)} <span class="hint">(${esc(l.d.slotId.toUpperCase())})</span></td>
+        <td class="r">${money(l.cost)}</td>
+        <td class="r"><input class="real" type="number" min="0" step="any" data-real="${esc(l.key)}" data-est="${l.cost}" value="${real}" placeholder="${l.cost.toFixed(2)}"></td></tr>`;
+    }).join("") + `</tbody></table>`;
+  });
+  $("shop-body").innerHTML = html || '<p class="hint" style="text-align:center">Aún nadie ha capturado ingredientes.</p>';
+}
+
+$("shop-body").addEventListener("change", async e => {
+  const t = e.target;
+  try{
+    if(t.dataset.buy){
+      const key = t.dataset.buy, cur = purchases[key] || {};
+      const real = (cur.realCost !== undefined && cur.realCost !== "" && cur.realCost !== null) ? cur.realCost : num(t.dataset.est);
+      await setDoc(ref("plan_purchases", key), {bought:t.checked, realCost:t.checked?real:(cur.realCost ?? null), updatedAt:new Date().toISOString()});
+    } else if(t.dataset.real !== undefined){
+      const key = t.dataset.real, cur = purchases[key] || {};
+      const v = t.value === "" ? null : num(t.value);
+      await setDoc(ref("plan_purchases", key), {bought: cur.bought || v !== null, realCost:v, updatedAt:new Date().toISOString()});
+    }
+  }catch(err){ alert("No se pudo guardar la compra: "+err.message); }
+});
+
+function renderGlass(){
+  const rows = Object.values(allDocs).filter(d => (d.plateCode||"").trim());
+  const totals = {};
+  rows.forEach(d => String(d.plateCode).split(",").map(c=>c.trim().toUpperCase()).filter(Boolean).forEach(c => totals[c] = (totals[c]||0) + num(d.glassQty)));
+  const order = SLOTS.map(s=>s.id);
+  rows.sort((a,b)=> order.indexOf(a.slotId)-order.indexOf(b.slotId));
+  $("glass-body").innerHTML = rows.length ? `
+    <h3 class="cat-title">Total por código de catálogo</h3>
+    <table><thead><tr><th>Código</th><th class="r">Piezas necesarias</th></tr></thead><tbody>` +
+    Object.entries(totals).sort((a,b)=>a[0].localeCompare(b[0],"es",{numeric:true})).map(([c,q])=>`<tr><td><b>${esc(c)}</b></td><td class="r">${q}</td></tr>`).join("") +
+    `</tbody></table>
+    <h3 class="cat-title">Detalle por tiempo / bebida</h3>
+    <table><thead><tr><th>Tiempo / Bebida</th><th>Responsable</th><th>Platillo</th><th>Código</th><th class="r">Piezas</th></tr></thead><tbody>` +
+    rows.map(d=>`<tr><td>${esc(d.label)}</td><td>${esc(d.owner)}</td><td>${esc(d.dish||"—")}</td><td><b>${esc(d.plateCode)}</b></td><td class="r">${num(d.glassQty)}</td></tr>`).join("") + `</tbody></table>`
+    : '<p class="hint" style="text-align:center">Aún nadie ha capturado códigos de plato o vaso.</p>';
+}
+
+function renderTeams(){
+  $("teams-body").innerHTML = `<table><thead><tr><th>Tiempo / Bebida</th><th>Responsable</th><th>Platillo</th><th class="r">Insumos</th><th class="r">Estimado</th><th class="r">Tope</th><th>Estado</th></tr></thead><tbody>` +
+  SLOTS.map(s => {
+    const d = allDocs[s.id], lim = limitFor(s.type);
+    if(!d) return `<tr><td>${esc(s.label)}</td><td>${esc(s.owner)}</td><td>—</td><td class="r">0</td><td class="r">${money(0)}</td><td class="r">${money(lim)}</td><td><span class="tag none">Sin capturar</span></td></tr>`;
+    const t = totalOf(d), n = (d.ingredients||[]).filter(g=>g.name).length;
+    return `<tr><td>${esc(s.label)}</td><td>${esc(s.owner)}</td><td>${esc(d.dish||"—")}</td><td class="r">${n}</td><td class="r">${money(t)}</td><td class="r">${money(lim)}</td>
+      <td>${t>lim?'<span class="tag over">Excede</span>':'<span class="tag ok">En presupuesto</span>'}</td></tr>`;
+  }).join("") + `</tbody></table>`;
+}
+
+/* ====== ARRANQUE ====== */
+const last = localStorage.getItem("enso_last_slot");
+if(last && slotById(last)){ sel.value = last; openSlot(last); }
+</script>
 </body>
 </html>
