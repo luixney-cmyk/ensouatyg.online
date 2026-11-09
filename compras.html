@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENSŌ · Control Exclusivo de Compras</title>
+<style>
+  :root{
+    --bg:#f6f4ef; --card:#ffffff; --ink:#1f2933; --muted:#6b7280; --line:#e2ddd0;
+    --gold:#8a6d1b; --gold-soft:#f5ecd0; --red:#9e2032; --green:#15803d; --amber:#b45309;
+    --blue:#1d4ed8; --purple:#6d28d9;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.45}
+  h1,h2,h3{font-family:Georgia,"Times New Roman",serif;margin:0}
+  
+  /* Header */
+  header.top{background:#fff;border-bottom:3px solid var(--gold);padding:14px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  header.top h1{font-size:1.3rem;letter-spacing:.04em;color:var(--ink)}
+  header.top small{color:var(--muted);display:block;font-size:.82rem}
+  
+  .wrap{max-width:1180px;margin:0 auto;padding:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .hidden{display:none!important}
+  
+  /* Buttons & Inputs */
+  button{font:inherit;cursor:pointer;border-radius:8px;padding:9px 15px;border:1px solid var(--gold);background:#fff;color:var(--gold);font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+  button:hover{background:var(--gold-soft)}
+  button.primary{background:var(--gold);color:#fff}
+  button.primary:hover{background:#6f5614}
+  button.danger{border-color:var(--red);color:var(--red)}
+  button.danger:hover{background:#fee2e2}
+  button.small{padding:6px 11px;font-size:.84rem}
+  
+  input,select{padding:8px 11px;border:1px solid #cfc8b6;border-radius:7px;font:inherit;background:#fff;color:var(--ink)}
+  input:focus,select:focus{outline:2px solid var(--gold);border-color:var(--gold)}
+  label{display:block;font-size:.75rem;font-weight:700;color:#374151;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+
+  /* Status Badge */
+  .status{font-size:.82rem;padding:4px 11px;border-radius:999px;background:#eef2f7;color:#374151;font-weight:600;white-space:nowrap}
+  .status.ok{background:#dcfce7;color:#166534}
+  .status.saving{background:#fef3c7;color:#92400e}
+  .status.err{background:#fee2e2;color:#991b1b}
+
+  /* Login Gate */
+  .login-gate{max-width:460px;margin:60px auto;text-align:center;padding:32px 24px}
+  .login-gate .logo-circle{width:64px;height:64px;border-radius:50%;border:3px solid var(--gold);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:1.6rem;color:var(--gold);background:var(--gold-soft)}
+  .login-err{background:#fee2e2;color:#991b1b;padding:10px 14px;border-radius:8px;margin-top:14px;font-size:.9rem;font-weight:600}
+
+  /* KPIs & Budget Bar */
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+  @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:480px){.kpis{grid-template-columns:1fr}}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 10px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .kpi b{display:block;font-size:1.35rem;font-family:Georgia,serif;margin-bottom:2px}
+  .kpi span{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+  .kpi.highlight{border-bottom:4px solid var(--gold)}
+  .kpi.spent{border-bottom:4px solid var(--blue)}
+  .kpi.left-ok{border-bottom:4px solid var(--green);background:#f0fdf4}
+  .kpi.left-over{border-bottom:4px solid var(--red);background:#fef2f2;color:var(--red)}
+  .kpi.saved{border-bottom:4px solid var(--purple)}
+
+  .progress-wrap{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:16px}
+  .progress-meta{display:flex;justify-content:space-between;font-size:.85rem;font-weight:600;margin-bottom:6px;flex-wrap:wrap;gap:8px}
+  .bar{height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden;display:flex}
+  .bar-spent{background:var(--gold);height:100%;transition:width .3s}
+  .bar-over{background:var(--red)!important}
+
+  /* Toolbar & Tabs */
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tabs button{padding:10px 16px;font-size:.95rem}
+  .tabs button.active{background:var(--gold);color:#fff;box-shadow:0 2px 6px rgba(138,109,27,.25)}
+  .badge-count{background:rgba(0,0,0,.12);padding:2px 8px;border-radius:999px;font-size:.78rem}
+  .tabs button.active .badge-count{background:rgba(255,255,255,.25);color:#fff}
+
+  .filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;flex:1;justify-content:flex-end}
+  .filters input{min-width:210px;max-width:280px}
+  .filters select{min-width:180px}
+  @media(max-width:720px){.filters{justify-content:stretch}.filters input,.filters select{width:100%;max-width:none}}
+
+  /* Category Headers & Tables */
+  .cat-block{margin-bottom:22px}
+  .cat-title{margin:16px 0 8px;font-size:1.08rem;color:var(--gold);border-bottom:2px solid var(--gold);padding-bottom:5px;display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+  .cat-title small{font-family:system-ui,sans-serif;font-size:.82rem;color:var(--muted);font-weight:600}
+
+  .table-responsive{width:100%;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:.91rem}
+  th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+  th{background:#f3efe3;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:#374151;font-weight:700}
+  td.r,th.r{text-align:right}
+  td.c,th.c{text-align:center}
+  tr:hover td{background:#faf8f2}
+  tr.row-bought td{background:#f0fdf4}
+  tr.row-existing td{background:#f5f3ff}
+
+  /* Custom Action Controls inside Table */
+  .cost-input{width:110px;padding:6px 8px;text-align:right;font-weight:700;border:1px solid #b8b09c;border-radius:6px;background:#fff}
+  .cost-input:disabled{background:#e5e7eb;color:#6b7280;border-color:#d1d5db}
+  
+  .chk-label{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:.83rem;font-weight:600;padding:5px 9px;border-radius:7px;border:1px solid var(--line);background:#fff;user-select:none;transition:all .15s}
+  .chk-label:hover{border-color:var(--gold)}
+  .chk-label input{width:16px;height:16px;margin:0;cursor:pointer;accent-color:var(--green)}
+  .chk-label.buy-btn{border-color:#bbf7d0;background:#f0fdf4;color:#166534}
+  .chk-label.exist-btn{border-color:#ddd6fe;background:#f5f3ff;color:#5b21b6}
+  .chk-label.exist-btn input{accent-color:var(--purple)}
+
+  .tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.74rem;font-weight:700}
+  .tag.bought{background:#dcfce7;color:#166534}
+  .tag.existing{background:#ede9fe;color:#5b21b6}
+  .tag.diff-pos{background:#dcfce7;color:#166534}
+  .tag.diff-neg{background:#fee2e2;color:#991b1b}
+
+  /* Toast & Modal */
+  #toast{position:fixed;bottom:18px;right:18px;background:#1f2933;color:#fff;padding:11px 16px;border-radius:9px;font-size:.88rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:100;opacity:0;pointer-events:none;transition:opacity .25s}
+  #toast.show{opacity:1}
+
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:90;padding:16px}
+  .modal{background:#fff;border-radius:12px;max-width:500px;width:100%;padding:20px;border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.2)}
+  .modal h3{color:var(--gold);margin-bottom:12px;font-size:1.15rem}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  @media(max-width:520px){.form-grid{grid-template-columns:1fr}}
+
+  @media print{
+    header.top,.no-print,#login-view,#toast,.modal-backdrop{display:none!important}
+    body{background:#fff;font-size:12px}
+    .wrap{max-width:100%;padding:0}
+    .card{border:none;box-shadow:none;padding:0}
+    .cost-input{border:none;width:auto;padding:0;background:transparent}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div>
+    <h1>ENSŌ · Control Exclusivo de Compras</h1>
+    <small>ensouatyg.online/compras · Lista Unificada en Tiempo Real</small>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap" class="no-print">
+    <span id="status" class="status">Verificando acceso…</span>
+    <span id="user-badge" class="status hidden" style="background:var(--gold-soft);color:var(--gold)"></span>
+    <button id="btn-logout" class="small hidden">Cerrar sesión</button>
+  </div>
+</header>
+
+<!-- ============ PANTALLA DE ACCESO (SOLO LUIXNAY@GMAIL.COM) ============ -->
+<div id="login-view" class="wrap">
+  <div class="card login-gate">
+    <div class="logo-circle">圓</div>
+    <h2 style="color:var(--gold);margin-bottom:8px">Acceso Exclusivo de Compras</h2>
+    <p style="color:var(--muted);margin:0 0 20px;font-size:.93rem">
+      Esta herramienta está restringida únicamente a la cuenta administradora autorizada (<b>luixnay@gmail.com</b>).
+    </p>
+    <button id="btn-google-login" class="primary" style="width:100%;justify-content:center;padding:12px 18px;font-size:1rem">
+      🔐 Iniciar sesión con Google
+    </button>
+    <div id="login-error" class="login-err hidden"></div>
+  </div>
+</div>
+
+<!-- ============ APLICACIÓN DE COMPRAS ============ -->
+<div id="app-view" class="wrap hidden">
+
+  <!-- KPIs Financieros -->
+  <div class="kpis">
+    <div class="kpi highlight">
+      <b id="kpi-budget">$30,000.00</b>
+      <span>Presupuesto Total</span>
+    </div>
+    <div class="kpi">
+      <b id="kpi-est">$0.00</b>
+      <span>Estimado Lista Unificada</span>
+    </div>
+    <div class="kpi spent">
+      <b id="kpi-spent">$0.00</b>
+      <span>Gastado Real Acumulado</span>
+    </div>
+    <div id="kpi-left-card" class="kpi left-ok">
+      <b id="kpi-left">$30,000.00</b>
+      <span id="kpi-left-lbl">Disponible de $30,000</span>
+    </div>
+    <div class="kpi saved">
+      <b id="kpi-saved">$0.00</b>
+      <span>Ahorro por Existencia / Compra</span>
+    </div>
+  </div>
+
+  <!-- Barra de progreso de presupuesto y avance -->
+  <div class="progress-wrap no-print">
+    <div class="progress-meta">
+      <span id="prog-items-txt">Avance de insumos: 0 de 0 completados (0%)</span>
+      <span id="prog-budget-txt">Uso del presupuesto ($30,000): 0%</span>
+    </div>
+    <div class="bar">
+      <div id="prog-bar" class="bar-spent" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Barra de Herramientas y Pestañas -->
+  <div class="card no-print" style="padding:14px">
+    <div class="toolbar">
+      <div class="tabs">
+        <button id="tab-pending" class="active">
+          🛒 Insumos por Comprar <span id="cnt-pending" class="badge-count">0</span>
+        </button>
+        <button id="tab-bought">
+          ✅ Insumos Comprados / Existentes <span id="cnt-bought" class="badge-count">0</span>
+        </button>
+      </div>
+
+      <div class="filters">
+        <input id="f-search" type="search" placeholder="🔍 Buscar ingrediente o responsable…">
+        <select id="f-cat">
+          <option value="ALL">Todas las categorías</option>
+        </select>
+        <button id="btn-new-item" class="small">+ Insumo extra</button>
+        <button id="btn-print" class="small">🖨️ Imprimir vista</button>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding-top:10px;border-top:1px solid var(--line);font-size:.84rem;color:var(--muted)">
+      <div>
+        💡 <b>Cómo funciona:</b> Escribe lo que costó y marca <b>"Comprado"</b> para pasarlo a comprados, o marca <b>"Ya existente ($0)"</b> si ya lo tienes en almacén (suma $0 al gasto).
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor Lista por Comprar -->
+  <div id="section-pending" class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+      <h2 style="color:var(--gold)">Lista de Insumos por Comprar</h2>
+      <span id="pending-sub-est" style="font-weight:700;color:var(--muted);font-size:.9rem"></span>
+    </div>
+    <div id="pending-container"></div>
+  </div>
+
+  <!-- Contenedor Lista Comprados / Existentes -->
+  <div id="section-bought" class="card hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+      <h2 style="color:var(--green)">Insumos Comprados y En Existencia</h2>
+      <span id="bought-sub-spent" style="font-weight:700;color:var(--green);font-size:.95rem"></span>
+    </div>
+    <div id="bought-container"></div>
+  </div>
+
+</div>
+
+<!-- ============ MODAL PARA AGREGAR INSUMO EXTRA IMPRESCINDIBLE ============ -->
+<div id="modal-extra" class="modal-backdrop hidden no-print">
+  <div class="modal">
+    <h3>Agregar Insumo Extra a la Lista</h3>
+    <div class="form-grid">
+      <div style="grid-column:1/-1">
+        <label>Nombre del insumo</label>
+        <input id="m-name" placeholder="Ej. Bolsas de vacío / Hielo extra" style="width:100%">
+      </div>
+      <div>
+        <label>Categoría / Lugar</label>
+        <select id="m-cat" style="width:100%"></select>
+      </div>
+      <div>
+        <label>Cantidad</label>
+        <input id="m-qty" placeholder="Ej. 3 paquetes / 5 kg" style="width:100%">
+      </div>
+      <div>
+        <label>Responsable / Tiempo</label>
+        <input id="m-who" placeholder="Ej. Barra / General / T4" style="width:100%">
+      </div>
+      <div>
+        <label>Costo Estimado ($)</label>
+        <input id="m-est" type="number" min="0" step="any" placeholder="0.00" style="width:100%">
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button id="m-cancel">Cancelar</button>
+      <button id="m-save" class="primary">Guardar en la nube</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+/* ====== CONFIGURACIÓN OFICIAL ENSŌ ====== */
+const TOTAL_BUDGET = 30000;
+const ADMIN_EMAIL  = "luixnay@gmail.com";
+const APP_ID       = "enso-uatyg-gala";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAd_rViRrwdsigVaJNJO82nvVpGzywQT30",
+  authDomain: "enso-gala-2026.firebaseapp.com",
+  projectId: "enso-gala-2026",
+  storageBucket: "enso-gala-2026.firebasestorage.app",
+  messagingSenderId: "413676120292",
+  appId: "1:413676120292:web:b052eb281e1c32553de4f1"
+};
+
+/* ====== LISTA DE COMPRAS UNIFICADA OFICIAL (87 PARTIDAS CONSOLIDADAS) ====== */
+const CATEGORIES_ORDER = [
+  "1. Carnicería y Pescadería (Proteínas)",
+  "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)",
+  "3. Tortillería y Productos de Maíz",
+  "4. Supermercado / Club de Precios (Lácteos y Refrigerados)",
+  "5. Abarrotes, Semillas y Especias",
+  "6. Repostería y Especialidades Técnicas",
+  "7. Insumos Asiáticos y Desechables",
+  "8. Vinatería, Barra y Bebidas"
+];
+
+const MASTER_UNIFIED_ITEMS = [
+  // 1. Proteínas
+  { id: "u_prot_01", cat: "1. Carnicería y Pescadería (Proteínas)", name: "Carne molida de res", qty: "5 kg", who: "2 kg Fernando Rincón (T5) + 3 kg Diego De la Rosa (T1)", est: 796.00 },
+  { id: "u_prot_02", cat: "1. Carnicería y Pescadería (Proteínas)", name: "Platanillo de res", qty: "6.5 kg", who: "Zully Adolfo González (T4)", est: 1170.00 },
+  { id: "u_prot_03", cat: "1. Carnicería y Pescadería (Proteínas)", name: "Caldo de res", qty: "8 kg", who: "Gerardo Tovar (T7)", est: 160.00 },
+  { id: "u_prot_04", cat: "1. Carnicería y Pescadería (Proteínas)", name: "Pierna de cerdo", qty: "5 kg", who: "Luis Armando (T3)", est: 1000.00 },
+  { id: "u_prot_05", cat: "1. Carnicería y Pescadería (Proteínas)", name: "Manteca de cerdo", qty: "2 kg", who: "Luis Armando (T3)", est: 200.00 },
+  { id: "u_prot_06", cat: "1. Carnicería y Pescadería (Proteínas)", name: "Tocino", qty: "0.8 kg", who: "Diego De la Rosa (T1)", est: 278.40 },
+  { id: "u_prot_07", cat: "1. Carnicería y Pescadería (Proteínas)", name: "Camarón", qty: "8 kg", who: "Heidi Castillo (T6)", est: 880.00 },
+
+  // 2. Frutas, Verduras y Chiles
+  { id: "u_fv_01", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Ajo (cabezas)", qty: "7 pza", who: "2 pza (T4) + 3 pza (T3) + 1 pza (T1) + 1 pza (T5)", est: 113.00 },
+  { id: "u_fv_02", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Cebolla blanca", qty: "11.3 kg + 9 pza", who: "1.3 kg (T1) + 10 kg (T7) + 3 pza (T4) + 3 pza (T5) + 3 pza (T3)", est: 398.70 },
+  { id: "u_fv_03", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Cebolla morada", qty: "4 pza", who: "Luis Armando (T3)", est: 80.00 },
+  { id: "u_fv_04", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Jitomate (saladette / regular)", qty: "7.5 kg", who: "4.5 kg Daniela Rivera (T2) + 3 kg Fernando Rincón (T5)", est: 252.00 },
+  { id: "u_fv_05", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Pepino", qty: "14 kg", who: "Kestin Gutierrez (B1)", est: 294.00 },
+  { id: "u_fv_06", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Zanahoria", qty: "4.2 kg", who: "3 kg Gerardo Tovar (T7) + 1.2 kg Diego De la Rosa (T1)", est: 64.80 },
+  { id: "u_fv_07", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Calabacín", qty: "1.5 kg", who: "Diego De la Rosa (T1)", est: 21.00 },
+  { id: "u_fv_08", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Apio", qty: "1 kg", who: "Gerardo Tovar (T7)", est: 40.00 },
+  { id: "u_fv_09", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Pimiento morrón", qty: "6 pza", who: "Luis Armando (T3)", est: 120.00 },
+  { id: "u_fv_10", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Repollo", qty: "2.5 pza", who: "Diego De la Rosa (T1)", est: 135.00 },
+  { id: "u_fv_11", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Rábano", qty: "1 pza / manojo", who: "Diego De la Rosa (T1)", est: 65.00 },
+  { id: "u_fv_12", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Chile serrano", qty: "0.8 kg", who: "0.3 kg Heidi Castillo (T6) + 0.5 kg Kestin Gutierrez (B1)", est: 54.50 },
+  { id: "u_fv_13", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Chile habanero", qty: "0.5 kg", who: "Heidi Castillo (T6)", est: 75.00 },
+  { id: "u_fv_14", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Chile ancho", qty: "11 pza", who: "Zully Adolfo González (T4)", est: 66.00 },
+  { id: "u_fv_15", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Chile guajillo", qty: "11 pza", who: "Zully Adolfo González (T4)", est: 66.00 },
+  { id: "u_fv_16", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Cilantro", qty: "6 manojos/pza", who: "5 manojos (T6) + 1 pza (T1) + (T4)", est: 100.00 },
+  { id: "u_fv_17", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Perejil", qty: "2 manojos + 0.05 kg", who: "2 manojos Fernando Rincón (T5) + 0.05 kg Diego De la Rosa (T1)", est: 36.00 },
+  { id: "u_fv_18", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Cebollín", qty: "2 manojos/pza", who: "1 pza Luis Armando (T3) + 1 manojo Diego De la Rosa (T1)", est: 80.00 },
+  { id: "u_fv_19", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Albahaca fresca", qty: "0.2 kg", who: "Daniela Rivera (T2)", est: 0.00 },
+  { id: "u_fv_20", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Flores comestibles", qty: "2 paquetes", who: "Heidi Castillo (T6)", est: 320.00 },
+  { id: "u_fv_21", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Limón", qty: "21 kg", who: "14 kg Heidi Castillo (T6) + 7 kg Kestin Gutierrez (B1)", est: 399.00 },
+  { id: "u_fv_22", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Mandarina", qty: "14 kg", who: "6 kg Leonel Arroyo (B4) + 8 kg Brandon Jaramillo (T8)", est: 460.00 },
+  { id: "u_fv_23", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Plátano macho", qty: "7 kg", who: "Brandon Jaramillo (T8)", est: 300.30 },
+  { id: "u_fv_24", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Plátano regular", qty: "3 pza", who: "Martin Marquez (T9)", est: 27.00 },
+  { id: "u_fv_25", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Guayaba verde", qty: "6.5 kg", who: "Heidi Castillo (T6)", est: 195.00 },
+  { id: "u_fv_26", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Uva", qty: "4.5 kg", who: "Zully González (B2)", est: 441.00 },
+  { id: "u_fv_27", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Durazno", qty: "5 pza", who: "Fernando Rincón (T5)", est: 75.00 },
+  { id: "u_fv_28", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Manzana", qty: "5 pza", who: "Fernando Rincón (T5)", est: 50.00 },
+  { id: "u_fv_29", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Pera", qty: "5 pza", who: "Fernando Rincón (T5)", est: 60.00 },
+  { id: "u_fv_30", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Piña miel", qty: "1 pza", who: "Luis Armando (T3)", est: 70.00 },
+
+  // 3. Tortillería y Maíz
+  { id: "u_maiz_01", cat: "3. Tortillería y Productos de Maíz", name: "Masa de maíz / nixtamalizada", qty: "10 kg", who: "2 kg Fernando Rincón (T5) + 8 kg Luis Armando (T3)", est: 296.00 },
+  { id: "u_maiz_02", cat: "3. Tortillería y Productos de Maíz", name: "Hojas de maíz (para tamal)", qty: "6 paquetes", who: "Luis Armando (T3)", est: 180.00 },
+  { id: "u_maiz_03", cat: "3. Tortillería y Productos de Maíz", name: "Harina de maíz azul (Maseca)", qty: "2 paquetes", who: "Fernando Rincón (T5)", est: 80.00 },
+
+  // 4. Lácteos y Refrigerados
+  { id: "u_lac_01", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Huevo", qty: "4 carteras + 2 kg + 24 pza", who: "4 paq Brandon (T8) + 2 kg Zully (T4) + 24 pza Daniela (T2)", est: 1186.00 },
+  { id: "u_lac_02", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Leche entera", qty: "6 L", who: "4 L Diego (T1) + 1 L Fernando (T5) + 1 L Monarca Daniela (T2)", est: 194.00 },
+  { id: "u_lac_03", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Crema para batir / Lyncott", qty: "2 botellas + 0.6 kg", who: "2 bot Fernando Rincón (T5) + 0.6 kg Martin Marquez (T9)", est: 324.00 },
+  { id: "u_lac_04", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Mantequilla", qty: "1.2 kg + 0.15 g", who: "1 kg Eugenia (T8) + 0.2 kg Diego (T1) + 0.15 g Martin (T9)", est: 210.00 },
+  { id: "u_lac_05", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Margarina Eugenia sin sal", qty: "1.3 kg", who: "Daniela Rivera (T2)", est: 153.40 },
+  { id: "u_lac_06", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Queso (general / para fundir)", qty: "4.2 kg", who: "1.2 kg Diego De la Rosa (T1) + 3 kg Gerardo Tovar (T7)", est: 1260.00 },
+  { id: "u_lac_07", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Queso Crema Philadelphia (barra 1.9 kg)", qty: "1 paquete", who: "Brandon Jaramillo (T8)", est: 295.65 },
+  { id: "u_lac_08", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Queso de cabra (500 g)", qty: "5 paquetes", who: "Fernando Rincón (T5)", est: 650.00 },
+  { id: "u_lac_09", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Queso Mozzarella (Belgioso 906g + Liguria 226g)", qty: "2 pza", who: "Daniela Rivera (T2)", est: 329.00 },
+  { id: "u_lac_10", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Queso Parmesano Parma", qty: "1 pza", who: "Daniela Rivera (T2)", est: 56.00 },
+  { id: "u_lac_11", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Masa filo", qty: "4 pza", who: "Diego De la Rosa (T1)", est: 260.00 },
+
+  // 5. Abarrotes, Semillas y Especias
+  { id: "u_aba_01", cat: "5. Abarrotes, Semillas y Especias", name: "Harina de trigo", qty: "11.2 kg", who: "0.2 kg (T1) + 4 kg (T2) + 2 kg (T4) + 5 kg Espuma Chapala (T8)", est: 238.40 },
+  { id: "u_aba_02", cat: "5. Abarrotes, Semillas y Especias", name: "Azúcar estándar", qty: "7.5 kg + 0.4 g", who: "6 kg (B1) + 0.5 kg (T2) + 1 kg (T8) + 0.4 g (T9)", est: 196.10 },
+  { id: "u_aba_03", cat: "5. Abarrotes, Semillas y Especias", name: "Azúcar refinada", qty: "6 kg + 0.05 g", who: "6 kg Brandon Jaramillo (T8) + 0.05 g Martin Marquez (T9)", est: 157.82 },
+  { id: "u_aba_04", cat: "5. Abarrotes, Semillas y Especias", name: "Fécula de maíz (Maizena)", qty: "2 pza", who: "1 pza Brandon Jaramillo (T8) + 1 pza Luis Armando (T3)", est: 83.00 },
+  { id: "u_aba_05", cat: "5. Abarrotes, Semillas y Especias", name: "Polvo para hornear (Rexal / Royal)", qty: "2 pza", who: "1 pza Rexal 250g (T8) + 1 pza Royal (T3)", est: 70.00 },
+  { id: "u_aba_06", cat: "5. Abarrotes, Semillas y Especias", name: "Levadura seca Tradipan", qty: "1 pza", who: "Daniela Rivera (T2)", est: 26.00 },
+  { id: "u_aba_07", cat: "5. Abarrotes, Semillas y Especias", name: "Aceite vegetal comestible", qty: "11 L", who: "0.5 L (T1) + 0.5 L (T6) + 5 L Cristal (T8) + 5 L (T4)", est: 543.50 },
+  { id: "u_aba_08", cat: "5. Abarrotes, Semillas y Especias", name: "Aceite de oliva (Great Value 500 ml)", qty: "1 pza", who: "Daniela Rivera (T2)", est: 105.00 },
+  { id: "u_aba_09", cat: "5. Abarrotes, Semillas y Especias", name: "Miel de abeja", qty: "1.5 kg", who: "1 kg Leonel Arroyo (B4) + 0.5 kg Luis Armando (T3)", est: 235.00 },
+  { id: "u_aba_10", cat: "5. Abarrotes, Semillas y Especias", name: "Vainilla", qty: "1 L", who: "Brandon Jaramillo (T8)", est: 27.00 },
+  { id: "u_aba_11", cat: "5. Abarrotes, Semillas y Especias", name: "Vinagre de manzana", qty: "100 ml", who: "Zully Adolfo González (T4)", est: 0.00 },
+  { id: "u_aba_12", cat: "5. Abarrotes, Semillas y Especias", name: "Pan", qty: "10 pza", who: "Gerardo Tovar (T7)", est: 320.00 },
+  { id: "u_aba_13", cat: "5. Abarrotes, Semillas y Especias", name: "Nuez", qty: "2.1 kg", who: "0.1 kg Daniela Rivera (T2) + 2 kg Fernando Rincón (T5)", est: 602.00 },
+  { id: "u_aba_14", cat: "5. Abarrotes, Semillas y Especias", name: "Almendra", qty: "0.8 kg (800 g)", who: "0.5 kg Diego De la Rosa (T1) + 300 g Fernando Rincón (T5)", est: 225.00 },
+  { id: "u_aba_15", cat: "5. Abarrotes, Semillas y Especias", name: "Pistache", qty: "0.5 kg", who: "Martin Marquez (T9)", est: 165.00 },
+  { id: "u_aba_16", cat: "5. Abarrotes, Semillas y Especias", name: "Ajonjolí", qty: "0.2 kg", who: "Daniela Rivera (T2)", est: 19.20 },
+  { id: "u_aba_17", cat: "5. Abarrotes, Semillas y Especias", name: "Sal", qty: "0.17 kg", who: "0.05 kg (T2) + 0.12 kg (T8) + (T1, T4)", est: 3.45 },
+  { id: "u_aba_18", cat: "5. Abarrotes, Semillas y Especias", name: "Canela en polvo", qty: "2 pza (55g) + 100g", who: "2 pza Great Value (T8) + 100 g (T4) + 0.005 g (T9)", est: 50.50 },
+  { id: "u_aba_19", cat: "5. Abarrotes, Semillas y Especias", name: "Pimienta negra", qty: "100 g", who: "Zully Adolfo González (T4) + Diego (T1)", est: 0.00 },
+  { id: "u_aba_20", cat: "5. Abarrotes, Semillas y Especias", name: "Clavos de olor molido", qty: "100 g", who: "Zully Adolfo González (T4)", est: 0.00 },
+  { id: "u_aba_21", cat: "5. Abarrotes, Semillas y Especias", name: "Comino en polvo", qty: "100 g", who: "Zully Adolfo González (T4)", est: 0.00 },
+  { id: "u_aba_22", cat: "5. Abarrotes, Semillas y Especias", name: "Orégano seco", qty: "100 g", who: "Zully Adolfo González (T4)", est: 0.00 },
+  { id: "u_aba_23", cat: "5. Abarrotes, Semillas y Especias", name: "Tomillo seco", qty: "100 g", who: "Zully Adolfo González (T4)", est: 0.00 },
+
+  // 6. Repostería y Especialidades Técnicas
+  { id: "u_rep_01", cat: "6. Repostería y Especialidades Técnicas", name: "Chocolate con leche", qty: "1.5 kg", who: "Martin Marquez (T9)", est: 525.00 },
+  { id: "u_rep_02", cat: "6. Repostería y Especialidades Técnicas", name: "Chocolate amargo", qty: "1.3 kg", who: "Martin Marquez (T9)", est: 455.00 },
+  { id: "u_rep_03", cat: "6. Repostería y Especialidades Técnicas", name: "Chocolate blanco", qty: "0.6 kg", who: "Martin Marquez (T9)", est: 210.00 },
+  { id: "u_rep_04", cat: "6. Repostería y Especialidades Técnicas", name: "Manteca de cacao", qty: "0.5 kg", who: "Martin Marquez (T9)", est: 225.00 },
+  { id: "u_rep_05", cat: "6. Repostería y Especialidades Técnicas", name: "Chantilly sabor Nata (2 L)", qty: "2 pza", who: "Brandon Jaramillo (T8)", est: 332.00 },
+  { id: "u_rep_06", cat: "6. Repostería y Especialidades Técnicas", name: "Glucosa", qty: "0.1 g / kg", who: "Martin Marquez (T9)", est: 7.00 },
+  { id: "u_rep_07", cat: "6. Repostería y Especialidades Técnicas", name: "Puré de maracuyá", qty: "0.05 g / kg", who: "Martin Marquez (T9)", est: 7.50 },
+  { id: "u_rep_08", cat: "6. Repostería y Especialidades Técnicas", name: "Hojas de técnicas tailandés", qty: "0.031 g", who: "Martin Marquez (T9)", est: 7.75 },
+  { id: "u_rep_09", cat: "6. Repostería y Especialidades Técnicas", name: "Goma xantana", qty: "Por definir", who: "Fernando Rincón (T5)", est: 0.00 },
+  { id: "u_rep_10", cat: "6. Repostería y Especialidades Técnicas", name: "Agar agar", qty: "Por definir", who: "Fernando Rincón (T5)", est: 0.00 },
+
+  // 7. Insumos Asiáticos y Desechables
+  { id: "u_asi_01", cat: "7. Insumos Asiáticos y Desechables", name: "Arroz para sushi", qty: "3.5 paquetes", who: "Zully Adolfo González (T4)", est: 245.00 },
+  { id: "u_asi_02", cat: "7. Insumos Asiáticos y Desechables", name: "Panko", qty: "2 kg", who: "Zully Adolfo González (T4)", est: 210.00 },
+  { id: "u_asi_03", cat: "7. Insumos Asiáticos y Desechables", name: "Wasabi", qty: "1 paquete", who: "Heidi Castillo (T6)", est: 80.00 },
+  { id: "u_asi_04", cat: "7. Insumos Asiáticos y Desechables", name: "Salsa de soya", qty: "0.1 L", who: "Diego De la Rosa (T1)", est: 0.00 },
+  { id: "u_asi_05", cat: "7. Insumos Asiáticos y Desechables", name: "Aceite de ajonjolí", qty: "0.05 ml", who: "Diego De la Rosa (T1)", est: 0.00 },
+  { id: "u_asi_06", cat: "7. Insumos Asiáticos y Desechables", name: "Palillos de bambú", qty: "200 pza", who: "Kestin Gutierrez (B1)", est: 134.00 },
+
+  // 8. Vinatería, Barra y Bebidas
+  { id: "u_beb_01", cat: "8. Vinatería, Barra y Bebidas", name: "Vino", qty: "21 botellas/pza", who: "David Villagrana (B3)", est: 1617.00 },
+  { id: "u_beb_02", cat: "8. Vinatería, Barra y Bebidas", name: "Tequila blanco", qty: "6 L", who: "Kestin Gutierrez (B1)", est: 1020.00 },
+  { id: "u_beb_03", cat: "8. Vinatería, Barra y Bebidas", name: "Sake", qty: "4 botellas", who: "Zully González (B2)", est: 952.00 },
+  { id: "u_beb_04", cat: "8. Vinatería, Barra y Bebidas", name: "Cerveza oscura", qty: "1 pza", who: "Zully Adolfo González (T4)", est: 35.00 },
+  { id: "u_beb_05", cat: "8. Vinatería, Barra y Bebidas", name: "Licor de naranja", qty: "0.023 L", who: "Martin Marquez (T9)", est: 4.14 },
+  { id: "u_beb_06", cat: "8. Vinatería, Barra y Bebidas", name: "Agua mineral", qty: "36 L", who: "20 L Kestin Gutierrez (B1) + 16 L Leonel Arroyo (B4)", est: 726.00 },
+  { id: "u_beb_07", cat: "8. Vinatería, Barra y Bebidas", name: "Agua de coco", qty: "10 L", who: "Leonel Arroyo (B4)", est: 660.00 },
+  { id: "u_beb_08", cat: "8. Vinatería, Barra y Bebidas", name: "Refresco Sprite (3 Litros)", qty: "5 botellas", who: "Zully González (B2)", est: 215.00 },
+  { id: "u_beb_09", cat: "8. Vinatería, Barra y Bebidas", name: "Jarabe natural", qty: "3 botellas", who: "Zully González (B2)", est: 165.00 },
+  { id: "u_beb_10", cat: "8. Vinatería, Barra y Bebidas", name: "Jugo de granada (1 Litro)", qty: "2 botellas", who: "Fernando Rincón (T5)", est: 80.00 },
+  { id: "u_beb_11", cat: "8. Vinatería, Barra y Bebidas", name: "Jugo de naranja", qty: "1 L", who: "Luis Armando (T3)", est: 80.00 },
+  { id: "u_beb_12", cat: "8. Vinatería, Barra y Bebidas", name: "Hielo", qty: "20 kg", who: "Kestin Gutierrez (B1)", est: 112.00 }
+];
+
+/* ====== HELPERS ====== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = n => "$" + (Number(n)||0).toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
+const num = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+
+let toastTimer = null;
+function showToast(msg){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+function setStatus(text, cls=""){
+  const s = $("status");
+  s.textContent = text;
+  s.className = "status " + cls;
+}
+
+/* ====== INICIALIZAR FIREBASE ====== */
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const purchasesCol = collection(db, "artifacts", APP_ID, "public", "data", "plan_purchases");
+const purchaseRef  = id => doc(db, "artifacts", APP_ID, "public", "data", "plan_purchases", id);
+
+let unsubPurchases = null;
+let remoteData = {}; // mapa id -> { bought, existing, realCost, custom, name, cat, qty, who, est, updatedAt }
+let activeTab = "pending"; // "pending" | "bought"
+
+/* ====== LLENAR SELECTORES DE CATEGORÍA ====== */
+const catFilter = $("f-cat");
+const modalCat  = $("m-cat");
+CATEGORIES_ORDER.forEach(c => {
+  catFilter.innerHTML += `<option value="${esc(c)}">${esc(c)}</option>`;
+  modalCat.innerHTML  += `<option value="${esc(c)}">${esc(c)}</option>`;
+});
+
+/* ====== AUTENTICACIÓN EXCLUSIVA CON GOOGLE (luixnay@gmail.com) ====== */
+onAuthStateChanged(auth, async user => {
+  if (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+    $("login-view").classList.add("hidden");
+    $("app-view").classList.remove("hidden");
+    $("user-badge").textContent = user.email;
+    $("user-badge").classList.remove("hidden");
+    $("btn-logout").classList.remove("hidden");
+    setStatus("Sincronizado en tiempo real ✓", "ok");
+    startRealtimeSync();
+  } else {
+    if (unsubPurchases) { unsubPurchases(); unsubPurchases = null; }
+    $("app-view").classList.add("hidden");
+    $("login-view").classList.remove("hidden");
+    $("user-badge").classList.add("hidden");
+    $("btn-logout").classList.add("hidden");
+    if (user) {
+      $("login-error").textContent = `La cuenta ${user.email || "actual"} no tiene permiso. Ingresa exclusivamente con ${ADMIN_EMAIL}.`;
+      $("login-error").classList.remove("hidden");
+      await signOut(auth);
+    }
+    setStatus("Requiere cuenta autorizada", "err");
+  }
+});
+
+$("btn-google-login").addEventListener("click", async () => {
+  $("login-error").classList.add("hidden");
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account", login_hint: ADMIN_EMAIL });
+    const res = await signInWithPopup(auth, provider);
+    if (!res.user.email || res.user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+      $("login-error").textContent = `Acceso denegado a ${res.user.email}. Solo puede entrar ${ADMIN_EMAIL}.`;
+      $("login-error").classList.remove("hidden");
+      await signOut(auth);
+    }
+  } catch (e) {
+    if (e.code !== "auth/popup-closed-by-user" && e.code !== "auth/cancelled-popup-request") {
+      $("login-error").textContent = "Error al iniciar sesión con Google: " + e.message;
+      $("login-error").classList.remove("hidden");
+    }
+  }
+});
+
+$("btn-logout").addEventListener("click", async () => {
+  await signOut(auth);
+  showToast("Sesión cerrada");
+});
+
+/* ====== CONEXIÓN EN TIEMPO REAL A FIREBASE (plan_purchases) ====== */
+function startRealtimeSync(){
+  if (unsubPurchases) unsubPurchases();
+  unsubPurchases = onSnapshot(purchasesCol, snap => {
+    remoteData = {};
+    snap.forEach(d => { remoteData[d.id] = d.data(); });
+    renderAll();
+  }, err => {
+    console.error(err);
+    setStatus("Error de permisos en Firestore", "err");
+  });
+}
+
+/* ====== CONSTRUIR LISTA COMBINADA (OFICIAL + EXTRAS GUARDADOS EN FIREBASE) ====== */
+function getMergedItems(){
+  const list = MASTER_UNIFIED_ITEMS.map(item => {
+    const r = remoteData[item.id] || {};
+    const bought = !!r.bought;
+    const existing = !!r.existing;
+    // Si es insumo existente, el costo gastado siempre es 0
+    // Si fue comprado y tiene costo capturado, se usa ese costo; si no escribió nada al marcar comprado, toma el estimado
+    let realCost = r.realCost;
+    if (existing) {
+      realCost = 0;
+    } else if (bought && (realCost === undefined || realCost === null || realCost === "")) {
+      realCost = item.est;
+    }
+    return {
+      ...item,
+      bought,
+      existing,
+      realCost: (realCost !== undefined && realCost !== null && realCost !== "") ? num(realCost) : "",
+      updatedAt: r.updatedAt || null,
+      isCustom: false
+    };
+  });
+
+  // Agregar insumos extra creados manualmente desde esta página
+  Object.entries(remoteData).forEach(([id, r]) => {
+    if (r && r.isCustom) {
+      const bought = !!r.bought;
+      const existing = !!r.existing;
+      let realCost = r.realCost;
+      if (existing) realCost = 0;
+      else if (bought && (realCost === undefined || realCost === null || realCost === "")) realCost = num(r.est);
+      list.push({
+        id,
+        cat: r.cat || CATEGORIES_ORDER[4],
+        name: r.name || "Insumo extra",
+        qty: r.qty || "1 pza",
+        who: r.who || "Extra Compras",
+        est: num(r.est),
+        bought,
+        existing,
+        realCost: (realCost !== undefined && realCost !== null && realCost !== "") ? num(realCost) : "",
+        updatedAt: r.updatedAt || null,
+        isCustom: true
+      });
+    }
+  });
+
+  return list;
+}
+
+/* ====== RENDERIZADO PRINCIPAL ====== */
+function renderAll(){
+  const allItems = getMergedItems();
+
+  // Calcular KPIs globales (sobre todos los insumos)
+  let totalEst = 0;
+  let totalSpent = 0;
+  let totalSaved = 0;
+  let completedCount = 0;
+
+  allItems.forEach(item => {
+    totalEst += item.est;
+    if (item.bought || item.existing) {
+      completedCount++;
+      const spentVal = item.existing ? 0 : (item.realCost !== "" ? num(item.realCost) : item.est);
+      totalSpent += spentVal;
+      totalSaved += (item.est - spentVal);
+    }
+  });
+
+  const remaining = TOTAL_BUDGET - totalSpent;
+  const pctBudget = Math.min(100, Math.max(0, (totalSpent / TOTAL_BUDGET) * 100));
+  const pctItems  = allItems.length ? Math.round((completedCount / allItems.length) * 100) : 0;
+
+  $("kpi-budget").textContent = money(TOTAL_BUDGET);
+  $("kpi-est").textContent    = money(totalEst);
+  $("kpi-spent").textContent  = money(totalSpent);
+  $("kpi-left").textContent   = money(Math.abs(remaining));
+  $("kpi-saved").textContent  = (totalSaved >= 0 ? "+" : "-") + money(Math.abs(totalSaved));
+
+  const leftCard = $("kpi-left-card");
+  if (remaining >= 0) {
+    leftCard.className = "kpi left-ok";
+    $("kpi-left-lbl").textContent = "Me queda de $30,000";
+  } else {
+    leftCard.className = "kpi left-over";
+    $("kpi-left-lbl").textContent = "Excedido sobre $30,000";
+  }
+
+  $("prog-items-txt").textContent  = `Avance de compras: ${completedCount} de ${allItems.length} insumos listos (${pctItems}%)`;
+  $("prog-budget-txt").textContent = `Presupuesto usado: ${money(totalSpent)} de ${money(TOTAL_BUDGET)} (${pctBudget.toFixed(1)}%)`;
+  const bar = $("prog-bar");
+  bar.style.width = pctBudget + "%";
+  bar.classList.toggle("bar-over", remaining < 0);
+
+  // Separar pendientes vs comprados/existentes
+  const pendingItems = allItems.filter(i => !i.bought && !i.existing);
+  const boughtItems  = allItems.filter(i => i.bought || i.existing);
+
+  $("cnt-pending").textContent = pendingItems.length;
+  $("cnt-bought").textContent  = boughtItems.length;
+
+  const subPendingEst = pendingItems.reduce((s, i) => s + i.est, 0);
+  $("pending-sub-est").textContent = `Estimado pendiente por comprar: ${money(subPendingEst)}`;
+  $("bought-sub-spent").textContent = `Total gastado en insumos comprados: ${money(totalSpent)}`;
+
+  // Aplicar filtros de búsqueda y categoría
+  const q = ($("f-search").value || "").trim().toLowerCase();
+  const catSel = $("f-cat").value;
+
+  const filterFn = item => {
+    if (catSel !== "ALL" && item.cat !== catSel) return false;
+    if (!q) return true;
+    return item.name.toLowerCase().includes(q) ||
+           item.who.toLowerCase().includes(q) ||
+           item.qty.toLowerCase().includes(q);
+  };
+
+  renderPendingList(pendingItems.filter(filterFn));
+  renderBoughtList(boughtItems.filter(filterFn));
+}
+
+function renderPendingList(items){
+  if (!items.length) {
+    $("pending-container").innerHTML = `<p style="text-align:center;color:var(--muted);padding:28px 10px">🎉 No hay insumos pendientes por comprar con este filtro.</p>`;
+    return;
+  }
+
+  let html = "";
+  CATEGORIES_ORDER.forEach(cat => {
+    const group = items.filter(i => i.cat === cat);
+    if (!group.length) return;
+    const subEst = group.reduce((s, i) => s + i.est, 0);
+
+    html += `
+      <div class="cat-block">
+        <div class="cat-title">
+          <span>${esc(cat)} (${group.length})</span>
+          <small>Subtotal est.: ${money(subEst)}</small>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Ingrediente Unificado</th>
+                <th>Cantidad Total</th>
+                <th>Responsable / Tiempos</th>
+                <th class="r">Estimado</th>
+                <th class="r">Cuánto Costó ($)</th>
+                <th class="c no-print">Marcar Comprado</th>
+                <th class="c no-print">Insumo Ya Existente</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${group.map(item => `
+                <tr data-row="${esc(item.id)}">
+                  <td>
+                    <b>${esc(item.name)}</b>
+                    ${item.isCustom ? `<span class="tag" style="background:#fef3c7;color:#92400e;margin-left:4px">Extra</span>` : ""}
+                  </td>
+                  <td><b>${esc(item.qty)}</b></td>
+                  <td style="color:var(--muted);font-size:.84rem">${esc(item.who)}</td>
+                  <td class="r">${money(item.est)}</td>
+                  <td class="r">
+                    <input
+                      type="number"
+                      min="0"
+                      step="any"
+                      class="cost-input"
+                      data-cost-id="${esc(item.id)}"
+                      value="${item.realCost !== "" ? item.realCost : ""}"
+                      placeholder="${item.est.toFixed(2)}"
+                    >
+                  </td>
+                  <td class="c no-print">
+                    <label class="chk-label buy-btn" title="Pasa a Insumos Comprados sumando el costo real">
+                      <input type="checkbox" data-action="buy" data-id="${esc(item.id)}">
+                      Comprado
+                    </label>
+                  </td>
+                  <td class="c no-print">
+                    <label class="chk-label exist-btn" title="Pasa a Insumos Comprados con $0.00 de gasto">
+                      <input type="checkbox" data-action="exist" data-id="${esc(item.id)}">
+                      Ya existente ($0)
+                    </label>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  });
+
+  $("pending-container").innerHTML = html;
+}
+
+function renderBoughtList(items){
+  if (!items.length) {
+    $("bought-container").innerHTML = `<p style="text-align:center;color:var(--muted);padding:28px 10px">Aún no has marcado insumos como comprados o en existencia.</p>`;
+    return;
+  }
+
+  let html = "";
+  CATEGORIES_ORDER.forEach(cat => {
+    const group = items.filter(i => i.cat === cat);
+    if (!group.length) return;
+    const subSpent = group.reduce((s, i) => s + (i.existing ? 0 : num(i.realCost)), 0);
+
+    html += `
+      <div class="cat-block">
+        <div class="cat-title">
+          <span>${esc(cat)} (${group.length})</span>
+          <small>Gastado en sección: <b>${money(subSpent)}</b></small>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Ingrediente Unificado</th>
+                <th>Cantidad Total</th>
+                <th>Responsable / Tiempos</th>
+                <th>Estado</th>
+                <th class="r">Estimado</th>
+                <th class="r">Gastado Real ($)</th>
+                <th class="r">Diferencia</th>
+                <th class="c no-print">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${group.map(item => {
+                const spent = item.existing ? 0 : num(item.realCost);
+                const diff  = item.est - spent;
+                return `
+                  <tr class="${item.existing ? "row-existing" : "row-bought"}">
+                    <td><b>${esc(item.name)}</b></td>
+                    <td>${esc(item.qty)}</td>
+                    <td style="color:var(--muted);font-size:.84rem">${esc(item.who)}</td>
+                    <td>
+                      ${item.existing
+                        ? `<span class="tag existing">📦 En existencia ($0)</span>`
+                        : `<span class="tag bought">✅ Comprado</span>`}
+                    </td>
+                    <td class="r">${money(item.est)}</td>
+                    <td class="r">
+                      <input
+                        type="number"
+                        min="0"
+                        step="any"
+                        class="cost-input"
+                        data-edit-bought-cost="${esc(item.id)}"
+                        value="${spent.toFixed(2)}"
+                        ${item.existing ? "disabled" : ""}
+                      >
+                    </td>
+                    <td class="r">
+                      <span class="tag ${diff >= 0 ? "diff-pos" : "diff-neg"}">
+                        ${diff >= 0 ? "Ahorro " + money(diff) : "Extra " + money(Math.abs(diff))}
+                      </span>
+                    </td>
+                    <td class="c no-print">
+                      <div style="display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:center">
+                        <button class="small" data-return="${esc(item.id)}" title="Regresar a Insumos por Comprar">
+                          ↩ Regresar
+                        </button>
+                        ${item.isCustom ? `<button class="small danger" data-delete-custom="${esc(item.id)}" title="Eliminar insumo extra">🗑</button>` : ""}
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  });
+
+  $("bought-container").innerHTML = html;
+}
+
+/* ====== GUARDAR CAMBIOS EN FIREBASE AL INSTANTE ====== */
+async function savePurchaseItem(id, patch){
+  setStatus("Guardando…", "saving");
+  try {
+    const baseItem = MASTER_UNIFIED_ITEMS.find(x => x.id === id);
+    const current  = remoteData[id] || {};
+    const payload  = {
+      ...current,
+      ...(baseItem ? { name: baseItem.name, cat: baseItem.cat, qty: baseItem.qty, est: baseItem.est } : {}),
+      ...patch,
+      updatedAt: new Date().toISOString(),
+      updatedBy: auth.currentUser ? auth.currentUser.email : ADMIN_EMAIL
+    };
+    await setDoc(purchaseRef(id), payload);
+    setStatus("Sincronizado en tiempo real ✓", "ok");
+  } catch (err) {
+    console.error(err);
+    setStatus("Error al guardar", "err");
+    showToast("Error al guardar en Firebase: " + err.message);
+  }
+}
+
+/* ====== EVENTOS DE LA LISTA POR COMPRAR ====== */
+$("pending-container").addEventListener("change", async e => {
+  const t = e.target;
+
+  // Si escribe el costo pero aún no marca casilla, lo pre-guardamos para que no se pierda
+  if (t.dataset.costId) {
+    const id = t.dataset.costId;
+    const val = t.value === "" ? null : num(t.value);
+    await savePurchaseItem(id, { realCost: val, bought: false, existing: false });
+    return;
+  }
+
+  // Casilla "Comprado" o "Ya existente ($0)"
+  if (t.dataset.action) {
+    const id = t.dataset.id;
+    const action = t.dataset.action;
+    const base = getMergedItems().find(x => x.id === id);
+    const costInput = document.querySelector(`input[data-cost-id="${id}"]`);
+
+    if (action === "buy" && t.checked) {
+      // Si el usuario escribió cuánto costó, usa ese valor; si lo dejó vacío, usa el estimado
+      const typedVal = costInput && costInput.value !== "" ? num(costInput.value) : (base ? base.est : 0);
+      await savePurchaseItem(id, {
+        bought: true,
+        existing: false,
+        realCost: typedVal
+      });
+      showToast(`✅ "${base ? base.name : "Insumo"}" movido a Comprados (${money(typedVal)})`);
+    } else if (action === "exist" && t.checked) {
+      // Pasa a comprados con $0 pesos gastados
+      await savePurchaseItem(id, {
+        bought: true,
+        existing: true,
+        realCost: 0
+      });
+      showToast(`📦 "${base ? base.name : "Insumo"}" marcado como Existente ($0.00 gastado)`);
+    }
+  }
+});
+
+/* ====== EVENTOS DE LA LISTA DE COMPRADOS ====== */
+$("bought-container").addEventListener("change", async e => {
+  const t = e.target;
+  if (t.dataset.editBoughtCost) {
+    const id = t.dataset.editBoughtCost;
+    const newCost = num(t.value);
+    await savePurchaseItem(id, { realCost: newCost, bought: true, existing: false });
+    showToast("Costo real actualizado ✓");
+  }
+});
+
+$("bought-container").addEventListener("click", async e => {
+  const btnReturn = e.target.closest("[data-return]");
+  if (btnReturn) {
+    const id = btnReturn.dataset.return;
+    const base = getMergedItems().find(x => x.id === id);
+    await savePurchaseItem(id, { bought: false, existing: false });
+    showToast(`↩ "${base ? base.name : "Insumo"}" regresó a la lista por comprar`);
+    return;
+  }
+
+  const btnDel = e.target.closest("[data-delete-custom]");
+  if (btnDel) {
+    const id = btnDel.dataset.deleteCustom;
+    try {
+      await deleteDoc(purchaseRef(id));
+      showToast("Insumo extra eliminado");
+    } catch (err) {
+      showToast("No se pudo eliminar: " + err.message);
+    }
+  }
+});
+
+/* ====== PESTAÑAS Y FILTROS ====== */
+$("tab-pending").addEventListener("click", () => {
+  activeTab = "pending";
+  $("tab-pending").classList.add("active");
+  $("tab-bought").classList.remove("active");
+  $("section-pending").classList.remove("hidden");
+  $("section-bought").classList.add("hidden");
+});
+
+$("tab-bought").addEventListener("click", () => {
+  activeTab = "bought";
+  $("tab-bought").classList.add("active");
+  $("tab-pending").classList.remove("active");
+  $("section-bought").classList.remove("hidden");
+  $("section-pending").classList.add("hidden");
+});
+
+$("f-search").addEventListener("input", renderAll);
+$("f-cat").addEventListener("change", renderAll);
+$("btn-print").addEventListener("click", () => window.print());
+
+/* ====== MODAL AGREGAR INSUMO EXTRA ====== */
+$("btn-new-item").addEventListener("click", () => {
+  $("m-name").value = "";
+  $("m-qty").value  = "";
+  $("m-who").value  = "Extra Compras";
+  $("m-est").value  = "";
+  $("modal-extra").classList.remove("hidden");
+  $("m-name").focus();
+});
+
+$("m-cancel").addEventListener("click", () => $("modal-extra").classList.add("hidden"));
+
+$("m-save").addEventListener("click", async () => {
+  const name = $("m-name").value.trim();
+  if (!name) { showToast("Escribe el nombre del insumo"); return; }
+  const id = "u_extra_" + Date.now().toString(36);
+  await savePurchaseItem(id, {
+    isCustom: true,
+    name,
+    cat: $("m-cat").value,
+    qty: $("m-qty").value.trim() || "1 pza",
+    who: $("m-who").value.trim() || "General",
+    est: num($("m-est").value),
+    bought: false,
+    existing: false,
+    realCost: null
+  });
+  $("modal-extra").classList.add("hidden");
+  showToast("Insumo extra agregado a la lista por comprar ✓");
+});
+</script>
+</body>
+</html>
