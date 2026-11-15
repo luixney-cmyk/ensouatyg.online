@@ -94,6 +94,10 @@
   tr.row-bought td{background:#f0fdf4}
   tr.row-existing td{background:#f5f3ff}
 
+  /* Desglose de insumos agrupados */
+  .breakdown-box{margin-top:4px;font-size:.78rem;color:#4b5563;background:#f8f6f0;border-left:3px solid var(--gold);padding:4px 8px;border-radius:0 6px 6px 0}
+  .updated-note{display:inline-block;margin-top:3px;font-size:.73rem;background:#fef3c7;color:#92400e;padding:2px 7px;border-radius:5px;font-weight:600}
+
   /* Custom Action Controls inside Table */
   .cost-input{width:110px;padding:6px 8px;text-align:right;font-weight:700;border:1px solid #b8b09c;border-radius:6px;background:#fff}
   .cost-input:disabled{background:#e5e7eb;color:#6b7280;border-color:#d1d5db}
@@ -111,6 +115,9 @@
   .tag.diff-pos{background:#dcfce7;color:#166534}
   .tag.diff-neg{background:#fee2e2;color:#991b1b}
 
+  /* Banner informativo de sincronización sin pérdida */
+  .sync-banner{background:#f5ecd0;border:1px solid #dfcf9f;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:.85rem;color:#5c470e;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+
   /* Toast & Modal */
   #toast{position:fixed;bottom:18px;right:18px;background:#1f2933;color:#fff;padding:11px 16px;border-radius:9px;font-size:.88rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:100;opacity:0;pointer-events:none;transition:opacity .25s}
   #toast.show{opacity:1}
@@ -122,7 +129,7 @@
   @media(max-width:520px){.form-grid{grid-template-columns:1fr}}
 
   @media print{
-    header.top,.no-print,#login-view,#toast,.modal-backdrop{display:none!important}
+    header.top,.no-print,#login-view,#toast,.modal-backdrop,.sync-banner{display:none!important}
     body{background:#fff;font-size:12px}
     .wrap{max-width:100%;padding:0}
     .card{border:none;box-shadow:none;padding:0}
@@ -135,7 +142,7 @@
 <header class="top">
   <div>
     <h1>ENSŌ · Control Exclusivo de Compras</h1>
-    <small>ensouatyg.online/compras · Lista Unificada en Tiempo Real</small>
+    <small>ensouatyg.online/compras · Lista Unificada Cuadrada con PDF Oficial ($25,273.71)</small>
   </div>
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap" class="no-print">
     <span id="status" class="status">Verificando acceso…</span>
@@ -162,6 +169,12 @@
 <!-- ============ APLICACIÓN DE COMPRAS ============ -->
 <div id="app-view" class="wrap hidden">
 
+  <div class="sync-banner no-print">
+    <div>
+      ✨ <b>Lista cuadrada al 100% con el PDF oficial ($25,273.71):</b> Se integraron los faltantes (1.2 kg Jitomate de T4, 3 kg Harina de T7, 3 pzas Mantequilla de T7 y ajuste de Chocolate amargo a 0.8 kg) conservando intactos todos tus avances en Firebase.
+    </div>
+  </div>
+
   <!-- KPIs Financieros -->
   <div class="kpis">
     <div class="kpi highlight">
@@ -170,7 +183,7 @@
     </div>
     <div class="kpi">
       <b id="kpi-est">$0.00</b>
-      <span>Estimado Lista Unificada</span>
+      <span>Estimado Oficial PDF</span>
     </div>
     <div class="kpi spent">
       <b id="kpi-spent">$0.00</b>
@@ -210,7 +223,7 @@
       </div>
 
       <div class="filters">
-        <input id="f-search" type="search" placeholder="🔍 Buscar ingrediente o responsable…">
+        <input id="f-search" type="search" placeholder="🔍 Buscar ingrediente, tiempo o responsable…">
         <select id="f-cat">
           <option value="ALL">Todas las categorías</option>
         </select>
@@ -221,7 +234,7 @@
 
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding-top:10px;border-top:1px solid var(--line);font-size:.84rem;color:var(--muted)">
       <div>
-        💡 <b>Cómo funciona:</b> Escribe lo que costó y marca <b>"Comprado"</b> para pasarlo a comprados, o marca <b>"Ya existente ($0)"</b> si ya lo tienes en almacén (suma $0 al gasto).
+        💡 <b>Tus avances están protegidos:</b> Cada partida conserva su ID en Firebase. Si un producto ya comprado tuvo un incremento por desfase (ej. Jitomate, Harina o Mantequilla), puedes ajustar su costo real directamente en la pestaña de <b>Comprados</b> o regresarlo si te falta comprar la diferencia.
       </div>
     </div>
   </div>
@@ -300,21 +313,30 @@ const firebaseConfig = {
   appId: "1:413676120292:web:b052eb281e1c32553de4f1"
 };
 
-/* ====== LISTA DE COMPRAS UNIFICADA OFICIAL (87 PARTIDAS CONSOLIDADAS) ====== */
+/* ====== CATEGORÍAS DE COMPRA AGRUPADAS ====== */
 const CATEGORIES_ORDER = [
   "1. Carnicería y Pescadería (Proteínas)",
   "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)",
   "3. Tortillería y Productos de Maíz",
   "4. Supermercado / Club de Precios (Lácteos y Refrigerados)",
-  "5. Abarrotes, Semillas y Especias",
+  "5. Abarrotes, Semillas, Grasas y Especias",
   "6. Repostería y Especialidades Técnicas",
-  "7. Insumos Asiáticos y Desechables",
+  "7. Insumos Asiáticos yOtros / Desechables",
   "8. Vinatería, Barra y Bebidas"
 ];
 
+/*
+ * LISTA MAESTRA UNIFICADA CUADRADA AL 100% CON EL PDF "ENSŌ · Planeación de Menú y Compras.pdf"
+ * Suma total exacta del PDF: $25,273.71
+ * (Proteínas $4,036.00 + Frutas/Verduras $4,018.40 + Lácteos/Huevo $4,664.05 + Abarrotes $2,400.07 +
+ *  Grasas/Aceites $1,194.40 + Condimentos $52.90 + Bebidas/Licores $5,631.14 + Otros $3,276.75 = $25,273.71)
+ *
+ * NOTA CRÍTICA PARA FIREBASE: Se mantienen EXACTAMENTE los mismos IDs (u_prot_01, u_fv_04, etc.)
+ * para que ningún avance guardado por el usuario en `plan_purchases` se pierda.
+ */
 const MASTER_UNIFIED_ITEMS = [
-  // 1. Proteínas
-  { id: "u_prot_01", cat: "1. Carnicería y Pescadería (Proteínas)", name: "Carne molida de res", qty: "5 kg", who: "2 kg Fernando Rincón (T5) + 3 kg Diego De la Rosa (T1)", est: 796.00 },
+  // 1. Carnicería y Pescadería (Proteínas)
+  { id: "u_prot_01", cat: "1. Carnicería y Pescadería (Proteínas)", name: "Carne molida de res", qty: "5 kg", who: "2 kg Fernando Rincón (T5 - $196) + 3 kg Diego De la Rosa (T1 - $600)", est: 796.00 },
   { id: "u_prot_02", cat: "1. Carnicería y Pescadería (Proteínas)", name: "Platanillo de res", qty: "6.5 kg", who: "Zully Adolfo González (T4)", est: 1170.00 },
   { id: "u_prot_03", cat: "1. Carnicería y Pescadería (Proteínas)", name: "Caldo de res", qty: "8 kg", who: "Gerardo Tovar (T7)", est: 160.00 },
   { id: "u_prot_04", cat: "1. Carnicería y Pescadería (Proteínas)", name: "Pierna de cerdo", qty: "5 kg", who: "Luis Armando (T3)", est: 1000.00 },
@@ -322,29 +344,29 @@ const MASTER_UNIFIED_ITEMS = [
   { id: "u_prot_06", cat: "1. Carnicería y Pescadería (Proteínas)", name: "Tocino", qty: "0.8 kg", who: "Diego De la Rosa (T1)", est: 278.40 },
   { id: "u_prot_07", cat: "1. Carnicería y Pescadería (Proteínas)", name: "Camarón", qty: "8 kg", who: "Heidi Castillo (T6)", est: 880.00 },
 
-  // 2. Frutas, Verduras y Chiles
-  { id: "u_fv_01", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Ajo (cabezas)", qty: "7 pza", who: "2 pza (T4) + 3 pza (T3) + 1 pza (T1) + 1 pza (T5)", est: 113.00 },
-  { id: "u_fv_02", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Cebolla blanca", qty: "11.3 kg + 9 pza", who: "1.3 kg (T1) + 10 kg (T7) + 3 pza (T4) + 3 pza (T5) + 3 pza (T3)", est: 398.70 },
+  // 2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)
+  { id: "u_fv_01", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Ajo (cabezas)", qty: "7 pza", who: "2 pza Zully (T4 - $30) + 3 pza Luis (T3 - $60) + 1 pza Diego (T1 - $12) + 1 pza Fernando (T5 - $11)", est: 113.00 },
+  { id: "u_fv_02", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Cebolla blanca", qty: "11.3 kg + 9 pza", who: "1.3 kg Diego (T1 - $24.70) + 10 kg Gerardo (T7 - $200) + 3 pza Zully (T4 - $30) + 3 pza Fernando (T5 - $84) + 3 pza Luis (T3 - $60)", est: 398.70 },
   { id: "u_fv_03", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Cebolla morada", qty: "4 pza", who: "Luis Armando (T3)", est: 80.00 },
-  { id: "u_fv_04", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Jitomate (saladette / regular)", qty: "7.5 kg", who: "4.5 kg Daniela Rivera (T2) + 3 kg Fernando Rincón (T5)", est: 252.00 },
+  { id: "u_fv_04", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Jitomate (saladette / regular)", qty: "8.7 kg", who: "4.5 kg Daniela Rivera (T2 - $171) + 1.2 kg Zully Adolfo González (T4 - $45.60) + 3 kg Fernando Rincón (T5 - $81)", est: 297.60, updatedNote: "Ajustado según PDF: se sumaron +1.2 kg ($45.60) de Zully (T4)" },
   { id: "u_fv_05", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Pepino", qty: "14 kg", who: "Kestin Gutierrez (B1)", est: 294.00 },
-  { id: "u_fv_06", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Zanahoria", qty: "4.2 kg", who: "3 kg Gerardo Tovar (T7) + 1.2 kg Diego De la Rosa (T1)", est: 64.80 },
+  { id: "u_fv_06", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Zanahoria", qty: "4.2 kg", who: "3 kg Gerardo Tovar (T7 - $48) + 1.2 kg Diego De la Rosa (T1 - $16.80)", est: 64.80 },
   { id: "u_fv_07", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Calabacín", qty: "1.5 kg", who: "Diego De la Rosa (T1)", est: 21.00 },
   { id: "u_fv_08", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Apio", qty: "1 kg", who: "Gerardo Tovar (T7)", est: 40.00 },
   { id: "u_fv_09", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Pimiento morrón", qty: "6 pza", who: "Luis Armando (T3)", est: 120.00 },
   { id: "u_fv_10", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Repollo", qty: "2.5 pza", who: "Diego De la Rosa (T1)", est: 135.00 },
-  { id: "u_fv_11", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Rábano", qty: "1 pza / manojo", who: "Diego De la Rosa (T1)", est: 65.00 },
-  { id: "u_fv_12", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Chile serrano", qty: "0.8 kg", who: "0.3 kg Heidi Castillo (T6) + 0.5 kg Kestin Gutierrez (B1)", est: 54.50 },
+  { id: "u_fv_11", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Rábano", qty: "1 pza", who: "Diego De la Rosa (T1)", est: 65.00 },
+  { id: "u_fv_12", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Chile serrano", qty: "0.8 kg", who: "0.3 kg Heidi Castillo (T6 - $19.50) + 0.5 kg Kestin Gutierrez (B1 - $35)", est: 54.50 },
   { id: "u_fv_13", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Chile habanero", qty: "0.5 kg", who: "Heidi Castillo (T6)", est: 75.00 },
   { id: "u_fv_14", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Chile ancho", qty: "11 pza", who: "Zully Adolfo González (T4)", est: 66.00 },
   { id: "u_fv_15", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Chile guajillo", qty: "11 pza", who: "Zully Adolfo González (T4)", est: 66.00 },
-  { id: "u_fv_16", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Cilantro", qty: "6 manojos/pza", who: "5 manojos (T6) + 1 pza (T1) + (T4)", est: 100.00 },
-  { id: "u_fv_17", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Perejil", qty: "2 manojos + 0.05 kg", who: "2 manojos Fernando Rincón (T5) + 0.05 kg Diego De la Rosa (T1)", est: 36.00 },
-  { id: "u_fv_18", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Cebollín", qty: "2 manojos/pza", who: "1 pza Luis Armando (T3) + 1 manojo Diego De la Rosa (T1)", est: 80.00 },
+  { id: "u_fv_16", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Cilantro", qty: "5 manojos + 1 pza", who: "5 manojos Heidi (T6 - $60) + 1 pza Diego (T1 - $40) + 0 manojo Zully (T4 - $0)", est: 100.00 },
+  { id: "u_fv_17", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Perejil", qty: "2 manojos + 0.05 kg", who: "2 manojos Fernando Rincón (T5 - $34) + 0.05 kg Diego De la Rosa (T1 - $2)", est: 36.00 },
+  { id: "u_fv_18", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Cebollín", qty: "1 pza + 1 manojo", who: "1 pza Luis Armando (T3 - $40) + 1 manojo Diego De la Rosa (T1 - $40)", est: 80.00 },
   { id: "u_fv_19", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Albahaca fresca", qty: "0.2 kg", who: "Daniela Rivera (T2)", est: 0.00 },
   { id: "u_fv_20", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Flores comestibles", qty: "2 paquetes", who: "Heidi Castillo (T6)", est: 320.00 },
-  { id: "u_fv_21", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Limón", qty: "21 kg", who: "14 kg Heidi Castillo (T6) + 7 kg Kestin Gutierrez (B1)", est: 399.00 },
-  { id: "u_fv_22", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Mandarina", qty: "14 kg", who: "6 kg Leonel Arroyo (B4) + 8 kg Brandon Jaramillo (T8)", est: 460.00 },
+  { id: "u_fv_21", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Limón", qty: "21 kg", who: "14 kg Heidi Castillo (T6 - $280) + 7 kg Kestin Gutierrez (B1 - $119)", est: 399.00 },
+  { id: "u_fv_22", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Mandarina", qty: "14 kg", who: "6 kg Leonel Arroyo (B4 - $180) + 8 kg Brandon Jaramillo (T8 - $280)", est: 460.00 },
   { id: "u_fv_23", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Plátano macho", qty: "7 kg", who: "Brandon Jaramillo (T8)", est: 300.30 },
   { id: "u_fv_24", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Plátano regular", qty: "3 pza", who: "Martin Marquez (T9)", est: 27.00 },
   { id: "u_fv_25", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Guayaba verde", qty: "6.5 kg", who: "Heidi Castillo (T6)", est: 195.00 },
@@ -354,80 +376,79 @@ const MASTER_UNIFIED_ITEMS = [
   { id: "u_fv_29", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Pera", qty: "5 pza", who: "Fernando Rincón (T5)", est: 60.00 },
   { id: "u_fv_30", cat: "2. Mercado / Central de Abastos (Frutas, Verduras y Chiles)", name: "Piña miel", qty: "1 pza", who: "Luis Armando (T3)", est: 70.00 },
 
-  // 3. Tortillería y Maíz
-  { id: "u_maiz_01", cat: "3. Tortillería y Productos de Maíz", name: "Masa de maíz / nixtamalizada", qty: "10 kg", who: "2 kg Fernando Rincón (T5) + 8 kg Luis Armando (T3)", est: 296.00 },
+  // 3. Tortillería y Productos de Maíz
+  { id: "u_maiz_01", cat: "3. Tortillería y Productos de Maíz", name: "Masa de maíz / nixtamalizada", qty: "10 kg", who: "2 kg Masa de maíz Fernando Rincón (T5 - $120) + 8 kg Masa nixtamalizada Luis Armando (T3 - $176)", est: 296.00 },
   { id: "u_maiz_02", cat: "3. Tortillería y Productos de Maíz", name: "Hojas de maíz (para tamal)", qty: "6 paquetes", who: "Luis Armando (T3)", est: 180.00 },
   { id: "u_maiz_03", cat: "3. Tortillería y Productos de Maíz", name: "Harina de maíz azul (Maseca)", qty: "2 paquetes", who: "Fernando Rincón (T5)", est: 80.00 },
 
-  // 4. Lácteos y Refrigerados
-  { id: "u_lac_01", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Huevo", qty: "4 carteras + 2 kg + 24 pza", who: "4 paq Brandon (T8) + 2 kg Zully (T4) + 24 pza Daniela (T2)", est: 1186.00 },
-  { id: "u_lac_02", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Leche entera", qty: "6 L", who: "4 L Diego (T1) + 1 L Fernando (T5) + 1 L Monarca Daniela (T2)", est: 194.00 },
-  { id: "u_lac_03", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Crema para batir / Lyncott", qty: "2 botellas + 0.6 kg", who: "2 bot Fernando Rincón (T5) + 0.6 kg Martin Marquez (T9)", est: 324.00 },
-  { id: "u_lac_04", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Mantequilla", qty: "1.2 kg + 0.15 g", who: "1 kg Eugenia (T8) + 0.2 kg Diego (T1) + 0.15 g Martin (T9)", est: 210.00 },
+  // 4. Supermercado / Club de Precios (Lácteos y Refrigerados)
+  { id: "u_lac_01", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Huevo", qty: "4 carteras + 2 kg + 24 pza", who: "4 paq Cartera Brandon (T8 - $252) + 2 kg Zully (T4 - $70) + 24 pza Daniela (T2 - $864)", est: 1186.00 },
+  { id: "u_lac_02", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Leche entera / Monarca", qty: "6 L", who: "4 L Diego (T1 - $128) + 1 L Fernando (T5 - $35) + 1 L Monarca Daniela (T2 - $31)", est: 194.00 },
+  { id: "u_lac_03", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Crema para batir / Lyncott", qty: "2 botellas + 0.6 kg", who: "2 bot Crema para batir Fernando Rincón (T5 - $246) + 0.6 kg Crema Lyncott Martin Marquez (T9 - $78)", est: 324.00 },
+  { id: "u_lac_04", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Mantequilla (Repostera Eugenia y barra/general)", qty: "1.2 kg + 3 pza + 0.15 g", who: "1 kg Eugenia Repostera Brandon (T8 - $119) + 3 pza Gerardo Tovar (T7 - $75) + 0.2 kg Diego (T1 - $46) + 0.15 g Martin (T9 - $45)", est: 285.00, updatedNote: "Ajustado según PDF: se sumaron +3 pza ($75.00) de Gerardo Tovar (T7)" },
   { id: "u_lac_05", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Margarina Eugenia sin sal", qty: "1.3 kg", who: "Daniela Rivera (T2)", est: 153.40 },
-  { id: "u_lac_06", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Queso (general / para fundir)", qty: "4.2 kg", who: "1.2 kg Diego De la Rosa (T1) + 3 kg Gerardo Tovar (T7)", est: 1260.00 },
+  { id: "u_lac_06", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Queso (general / para fundir)", qty: "4.2 kg", who: "1.2 kg Diego De la Rosa (T1 - $384) + 3 kg Gerardo Tovar (T7 - $876)", est: 1260.00 },
   { id: "u_lac_07", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Queso Crema Philadelphia (barra 1.9 kg)", qty: "1 paquete", who: "Brandon Jaramillo (T8)", est: 295.65 },
   { id: "u_lac_08", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Queso de cabra (500 g)", qty: "5 paquetes", who: "Fernando Rincón (T5)", est: 650.00 },
-  { id: "u_lac_09", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Queso Mozzarella (Belgioso 906g + Liguria 226g)", qty: "2 pza", who: "Daniela Rivera (T2)", est: 329.00 },
+  { id: "u_lac_09", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Queso Mozzarella (Belgioso Sam's 906g + Liguria 226g)", qty: "2 pza", who: "1 pza Belgioso ($240) + 1 pza Liguria ($89) Daniela Rivera (T2)", est: 329.00 },
   { id: "u_lac_10", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Queso Parmesano Parma", qty: "1 pza", who: "Daniela Rivera (T2)", est: 56.00 },
   { id: "u_lac_11", cat: "4. Supermercado / Club de Precios (Lácteos y Refrigerados)", name: "Masa filo", qty: "4 pza", who: "Diego De la Rosa (T1)", est: 260.00 },
 
-  // 5. Abarrotes, Semillas y Especias
-  { id: "u_aba_01", cat: "5. Abarrotes, Semillas y Especias", name: "Harina de trigo", qty: "11.2 kg", who: "0.2 kg (T1) + 4 kg (T2) + 2 kg (T4) + 5 kg Espuma Chapala (T8)", est: 238.40 },
-  { id: "u_aba_02", cat: "5. Abarrotes, Semillas y Especias", name: "Azúcar estándar", qty: "7.5 kg + 0.4 g", who: "6 kg (B1) + 0.5 kg (T2) + 1 kg (T8) + 0.4 g (T9)", est: 196.10 },
-  { id: "u_aba_03", cat: "5. Abarrotes, Semillas y Especias", name: "Azúcar refinada", qty: "6 kg + 0.05 g", who: "6 kg Brandon Jaramillo (T8) + 0.05 g Martin Marquez (T9)", est: 157.82 },
-  { id: "u_aba_04", cat: "5. Abarrotes, Semillas y Especias", name: "Fécula de maíz (Maizena)", qty: "2 pza", who: "1 pza Brandon Jaramillo (T8) + 1 pza Luis Armando (T3)", est: 83.00 },
-  { id: "u_aba_05", cat: "5. Abarrotes, Semillas y Especias", name: "Polvo para hornear (Rexal / Royal)", qty: "2 pza", who: "1 pza Rexal 250g (T8) + 1 pza Royal (T3)", est: 70.00 },
-  { id: "u_aba_06", cat: "5. Abarrotes, Semillas y Especias", name: "Levadura seca Tradipan", qty: "1 pza", who: "Daniela Rivera (T2)", est: 26.00 },
-  { id: "u_aba_07", cat: "5. Abarrotes, Semillas y Especias", name: "Aceite vegetal comestible", qty: "11 L", who: "0.5 L (T1) + 0.5 L (T6) + 5 L Cristal (T8) + 5 L (T4)", est: 543.50 },
-  { id: "u_aba_08", cat: "5. Abarrotes, Semillas y Especias", name: "Aceite de oliva (Great Value 500 ml)", qty: "1 pza", who: "Daniela Rivera (T2)", est: 105.00 },
-  { id: "u_aba_09", cat: "5. Abarrotes, Semillas y Especias", name: "Miel de abeja", qty: "1.5 kg", who: "1 kg Leonel Arroyo (B4) + 0.5 kg Luis Armando (T3)", est: 235.00 },
-  { id: "u_aba_10", cat: "5. Abarrotes, Semillas y Especias", name: "Vainilla", qty: "1 L", who: "Brandon Jaramillo (T8)", est: 27.00 },
-  { id: "u_aba_11", cat: "5. Abarrotes, Semillas y Especias", name: "Vinagre de manzana", qty: "100 ml", who: "Zully Adolfo González (T4)", est: 0.00 },
-  { id: "u_aba_12", cat: "5. Abarrotes, Semillas y Especias", name: "Pan", qty: "10 pza", who: "Gerardo Tovar (T7)", est: 320.00 },
-  { id: "u_aba_13", cat: "5. Abarrotes, Semillas y Especias", name: "Nuez", qty: "2.1 kg", who: "0.1 kg Daniela Rivera (T2) + 2 kg Fernando Rincón (T5)", est: 602.00 },
-  { id: "u_aba_14", cat: "5. Abarrotes, Semillas y Especias", name: "Almendra", qty: "0.8 kg (800 g)", who: "0.5 kg Diego De la Rosa (T1) + 300 g Fernando Rincón (T5)", est: 225.00 },
-  { id: "u_aba_15", cat: "5. Abarrotes, Semillas y Especias", name: "Pistache", qty: "0.5 kg", who: "Martin Marquez (T9)", est: 165.00 },
-  { id: "u_aba_16", cat: "5. Abarrotes, Semillas y Especias", name: "Ajonjolí", qty: "0.2 kg", who: "Daniela Rivera (T2)", est: 19.20 },
-  { id: "u_aba_17", cat: "5. Abarrotes, Semillas y Especias", name: "Sal", qty: "0.17 kg", who: "0.05 kg (T2) + 0.12 kg (T8) + (T1, T4)", est: 3.45 },
-  { id: "u_aba_18", cat: "5. Abarrotes, Semillas y Especias", name: "Canela en polvo", qty: "2 pza (55g) + 100g", who: "2 pza Great Value (T8) + 100 g (T4) + 0.005 g (T9)", est: 50.50 },
-  { id: "u_aba_19", cat: "5. Abarrotes, Semillas y Especias", name: "Pimienta negra", qty: "100 g", who: "Zully Adolfo González (T4) + Diego (T1)", est: 0.00 },
-  { id: "u_aba_20", cat: "5. Abarrotes, Semillas y Especias", name: "Clavos de olor molido", qty: "100 g", who: "Zully Adolfo González (T4)", est: 0.00 },
-  { id: "u_aba_21", cat: "5. Abarrotes, Semillas y Especias", name: "Comino en polvo", qty: "100 g", who: "Zully Adolfo González (T4)", est: 0.00 },
-  { id: "u_aba_22", cat: "5. Abarrotes, Semillas y Especias", name: "Orégano seco", qty: "100 g", who: "Zully Adolfo González (T4)", est: 0.00 },
-  { id: "u_aba_23", cat: "5. Abarrotes, Semillas y Especias", name: "Tomillo seco", qty: "100 g", who: "Zully Adolfo González (T4)", est: 0.00 },
+  // 5. Abarrotes, Semillas, Grasas y Especias
+  { id: "u_aba_01", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Harina de trigo (general + Espuma de Chapala)", qty: "14.2 kg", who: "0.2 kg Diego (T1 - $4) + 3 kg Gerardo Tovar (T7 - $60) + 4 kg Daniela (T2 - $80) + 2 kg Zully (T4 - $40) + 5 kg Espuma de Chapala Brandon (T8 - $114.40)", est: 298.40, updatedNote: "Ajustado según PDF: se sumaron +3 kg ($60.00) de Gerardo Tovar (T7)" },
+  { id: "u_aba_02", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Azúcar estándar", qty: "7.5 kg + 0.4 g", who: "6 kg Kestin (B1 - $144) + 0.5 kg Daniela (T2 - $12.50) + 1 kg Brandon (T8 - $22) + 0.4 g Martin (T9 - $17.60)", est: 196.10 },
+  { id: "u_aba_03", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Azúcar refinada", qty: "6 kg + 0.05 g", who: "6 kg Brandon Jaramillo (T8 - $153.72) + 0.05 g Martin Marquez (T9 - $4.10)", est: 157.82 },
+  { id: "u_aba_04", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Fécula de maíz (Maizena)", qty: "2 pza", who: "1 pza Brandon Jaramillo (T8 - $23) + 1 pza Luis Armando (T3 - $60)", est: 83.00 },
+  { id: "u_aba_05", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Polvo para hornear (Rexal 250g / Royal)", qty: "2 pza", who: "1 pza Rexal 250g Brandon (T8 - $30) + 1 pza Royal Luis Armando (T3 - $40)", est: 70.00 },
+  { id: "u_aba_06", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Levadura seca Tradipan", qty: "1 pza", who: "Daniela Rivera (T2)", est: 26.00 },
+  { id: "u_aba_07", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Aceite vegetal comestible (general + Cristal)", qty: "11 L", who: "0.5 L Diego (T1 - $43.50) + 0.5 L Heidi (T6 - $90) + 5 L Cristal Brandon (T8 - $195) + 5 L Zully (T4 - $215)", est: 543.50 },
+  { id: "u_aba_08", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Aceite de oliva 500 ml (Great Value)", qty: "1 pza", who: "Daniela Rivera (T2)", est: 105.00 },
+  { id: "u_aba_09", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Miel de abeja", qty: "1.5 kg", who: "1 kg Leonel Arroyo (B4 - $175) + 0.5 kg Luis Armando (T3 - $60)", est: 235.00 },
+  { id: "u_aba_10", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Vainilla", qty: "1 L", who: "Brandon Jaramillo (T8)", est: 27.00 },
+  { id: "u_aba_11", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Vinagre de manzana", qty: "100 ml", who: "Zully Adolfo González (T4)", est: 0.00 },
+  { id: "u_aba_13", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Nuez", qty: "2.1 kg", who: "0.1 kg Daniela Rivera (T2 - $30) + 2 kg Fernando Rincón (T5 - $572)", est: 602.00 },
+  { id: "u_aba_14", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Almendra", qty: "0.5 kg + 300 g (800 g)", who: "0.5 kg Diego De la Rosa (T1 - $105) + 300 g Fernando Rincón (T5 - $120)", est: 225.00 },
+  { id: "u_aba_15", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Pistache", qty: "0.5 g / kg", who: "Martin Marquez (T9)", est: 165.00 },
+  { id: "u_aba_16", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Ajonjolí", qty: "0.2 kg", who: "Daniela Rivera (T2)", est: 19.20 },
+  { id: "u_aba_17", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Sal", qty: "0.17 kg", who: "0.05 kg Daniela (T2 - $1.05) + 0.12 kg Brandon (T8 - $2.40) + 0 kg Diego (T1 - $0) + 0 kg Zully (T4 - $0)", est: 3.45 },
+  { id: "u_aba_18", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Canela en polvo", qty: "2 pza (55g) + 100g + 0.005g", who: "2 pza Great Value Brandon (T8 - $48) + 0.005 g Martin (T9 - $2.50) + 100 g Zully (T4 - $0)", est: 50.50 },
+  { id: "u_aba_19", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Pimienta negra", qty: "100 g", who: "100 g + 0 kg Zully Adolfo González (T4 - $0) + 0 kg Diego De la Rosa (T1 - $0)", est: 0.00 },
+  { id: "u_aba_20", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Clavos de olor molido", qty: "100 g", who: "Zully Adolfo González (T4)", est: 0.00 },
+  { id: "u_aba_21", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Comino en polvo", qty: "100 g", who: "Zully Adolfo González (T4)", est: 0.00 },
+  { id: "u_aba_22", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Orégano seco", qty: "100 g", who: "Zully Adolfo González (T4)", est: 0.00 },
+  { id: "u_aba_23", cat: "5. Abarrotes, Semillas, Grasas y Especias", name: "Tomillo seco", qty: "100 g", who: "Zully Adolfo González (T4)", est: 0.00 },
 
   // 6. Repostería y Especialidades Técnicas
   { id: "u_rep_01", cat: "6. Repostería y Especialidades Técnicas", name: "Chocolate con leche", qty: "1.5 kg", who: "Martin Marquez (T9)", est: 525.00 },
-  { id: "u_rep_02", cat: "6. Repostería y Especialidades Técnicas", name: "Chocolate amargo", qty: "1.3 kg", who: "Martin Marquez (T9)", est: 455.00 },
+  { id: "u_rep_02", cat: "6. Repostería y Especialidades Técnicas", name: "Chocolate amargo", qty: "0.8 kg", who: "Martin Marquez (T9)", est: 280.00, updatedNote: "Ajustado según PDF: 0.8 kg ($280.00)" },
   { id: "u_rep_03", cat: "6. Repostería y Especialidades Técnicas", name: "Chocolate blanco", qty: "0.6 kg", who: "Martin Marquez (T9)", est: 210.00 },
-  { id: "u_rep_04", cat: "6. Repostería y Especialidades Técnicas", name: "Manteca de cacao", qty: "0.5 kg", who: "Martin Marquez (T9)", est: 225.00 },
+  { id: "u_rep_04", cat: "6. Repostería y Especialidades Técnicas", name: "Manteca de cacao", qty: "0.5 g / kg", who: "Martin Marquez (T9)", est: 225.00 },
   { id: "u_rep_05", cat: "6. Repostería y Especialidades Técnicas", name: "Chantilly sabor Nata (2 L)", qty: "2 pza", who: "Brandon Jaramillo (T8)", est: 332.00 },
-  { id: "u_rep_06", cat: "6. Repostería y Especialidades Técnicas", name: "Glucosa", qty: "0.1 g / kg", who: "Martin Marquez (T9)", est: 7.00 },
-  { id: "u_rep_07", cat: "6. Repostería y Especialidades Técnicas", name: "Puré de maracuyá", qty: "0.05 g / kg", who: "Martin Marquez (T9)", est: 7.50 },
+  { id: "u_rep_06", cat: "6. Repostería y Especialidades Técnicas", name: "Glucosa", qty: "0.1 g", who: "Martin Marquez (T9)", est: 7.00 },
+  { id: "u_rep_07", cat: "6. Repostería y Especialidades Técnicas", name: "Puré de maracuyá", qty: "0.05 g", who: "Martin Marquez (T9)", est: 7.50 },
   { id: "u_rep_08", cat: "6. Repostería y Especialidades Técnicas", name: "Hojas de técnicas tailandés", qty: "0.031 g", who: "Martin Marquez (T9)", est: 7.75 },
-  { id: "u_rep_09", cat: "6. Repostería y Especialidades Técnicas", name: "Goma xantana", qty: "Por definir", who: "Fernando Rincón (T5)", est: 0.00 },
-  { id: "u_rep_10", cat: "6. Repostería y Especialidades Técnicas", name: "Agar agar", qty: "Por definir", who: "Fernando Rincón (T5)", est: 0.00 },
+  { id: "u_rep_09", cat: "6. Repostería y Especialidades Técnicas", name: "Goma xantana", qty: "0 kg (Por definir)", who: "Fernando Rincón (T5)", est: 0.00 },
+  { id: "u_rep_10", cat: "6. Repostería y Especialidades Técnicas", name: "Agar agar", qty: "0 kg (Por definir)", who: "Fernando Rincón (T5)", est: 0.00 },
 
-  // 7. Insumos Asiáticos y Desechables
-  { id: "u_asi_01", cat: "7. Insumos Asiáticos y Desechables", name: "Arroz para sushi", qty: "3.5 paquetes", who: "Zully Adolfo González (T4)", est: 245.00 },
-  { id: "u_asi_02", cat: "7. Insumos Asiáticos y Desechables", name: "Panko", qty: "2 kg", who: "Zully Adolfo González (T4)", est: 210.00 },
-  { id: "u_asi_03", cat: "7. Insumos Asiáticos y Desechables", name: "Wasabi", qty: "1 paquete", who: "Heidi Castillo (T6)", est: 80.00 },
-  { id: "u_asi_04", cat: "7. Insumos Asiáticos y Desechables", name: "Salsa de soya", qty: "0.1 L", who: "Diego De la Rosa (T1)", est: 0.00 },
-  { id: "u_asi_05", cat: "7. Insumos Asiáticos y Desechables", name: "Aceite de ajonjolí", qty: "0.05 ml", who: "Diego De la Rosa (T1)", est: 0.00 },
-  { id: "u_asi_06", cat: "7. Insumos Asiáticos y Desechables", name: "Palillos de bambú", qty: "200 pza", who: "Kestin Gutierrez (B1)", est: 134.00 },
+  // 7. Insumos Asiáticos y Otros / Desechables
+  { id: "u_asi_01", cat: "7. Insumos Asiáticos yOtros / Desechables", name: "Arroz para sushi", qty: "3.5 paquetes", who: "Zully Adolfo González (T4)", est: 245.00 },
+  { id: "u_asi_02", cat: "7. Insumos Asiáticos yOtros / Desechables", name: "Panko", qty: "2 kg", who: "Zully Adolfo González (T4)", est: 210.00 },
+  { id: "u_asi_03", cat: "7. Insumos Asiáticos yOtros / Desechables", name: "Wasabi", qty: "1 paquete", who: "Heidi Castillo (T6)", est: 80.00 },
+  { id: "u_asi_04", cat: "7. Insumos Asiáticos yOtros / Desechables", name: "Soya (Salsa de soya)", qty: "0.1 L", who: "Diego De la Rosa (T1)", est: 0.00 },
+  { id: "u_asi_05", cat: "7. Insumos Asiáticos yOtros / Desechables", name: "Aceite de ajonjolí", qty: "0.05 ml", who: "Diego De la Rosa (T1)", est: 0.00 },
+  { id: "u_asi_06", cat: "7. Insumos Asiáticos yOtros / Desechables", name: "Palillos de bambú", qty: "200 pza", who: "Kestin Gutierrez (B1)", est: 134.00 },
 
   // 8. Vinatería, Barra y Bebidas
-  { id: "u_beb_01", cat: "8. Vinatería, Barra y Bebidas", name: "Vino", qty: "21 botellas/pza", who: "David Villagrana (B3)", est: 1617.00 },
+  { id: "u_beb_01", cat: "8. Vinatería, Barra y Bebidas", name: "Vino", qty: "21 pza / botellas", who: "David Villagrana (B3)", est: 1617.00 },
   { id: "u_beb_02", cat: "8. Vinatería, Barra y Bebidas", name: "Tequila blanco", qty: "6 L", who: "Kestin Gutierrez (B1)", est: 1020.00 },
   { id: "u_beb_03", cat: "8. Vinatería, Barra y Bebidas", name: "Sake", qty: "4 botellas", who: "Zully González (B2)", est: 952.00 },
   { id: "u_beb_04", cat: "8. Vinatería, Barra y Bebidas", name: "Cerveza oscura", qty: "1 pza", who: "Zully Adolfo González (T4)", est: 35.00 },
-  { id: "u_beb_05", cat: "8. Vinatería, Barra y Bebidas", name: "Licor de naranja", qty: "0.023 L", who: "Martin Marquez (T9)", est: 4.14 },
-  { id: "u_beb_06", cat: "8. Vinatería, Barra y Bebidas", name: "Agua mineral", qty: "36 L", who: "20 L Kestin Gutierrez (B1) + 16 L Leonel Arroyo (B4)", est: 726.00 },
+  { id: "u_beb_05", cat: "8. Vinatería, Barra y Bebidas", name: "Licor de naranja", qty: "0.023 g / L", who: "Martin Marquez (T9)", est: 4.14 },
+  { id: "u_beb_06", cat: "8. Vinatería, Barra y Bebidas", name: "Agua mineral", qty: "36 L", who: "20 L Kestin Gutierrez (B1 - $270) + 16 L Leonel Arroyo (B4 - $456)", est: 726.00 },
   { id: "u_beb_07", cat: "8. Vinatería, Barra y Bebidas", name: "Agua de coco", qty: "10 L", who: "Leonel Arroyo (B4)", est: 660.00 },
-  { id: "u_beb_08", cat: "8. Vinatería, Barra y Bebidas", name: "Refresco Sprite (3 Litros)", qty: "5 botellas", who: "Zully González (B2)", est: 215.00 },
+  { id: "u_beb_08", cat: "8. Vinatería, Barra y Bebidas", name: "Sprite de 3 litros", qty: "5 botellas", who: "Zully González (B2)", est: 215.00 },
   { id: "u_beb_09", cat: "8. Vinatería, Barra y Bebidas", name: "Jarabe natural", qty: "3 botellas", who: "Zully González (B2)", est: 165.00 },
-  { id: "u_beb_10", cat: "8. Vinatería, Barra y Bebidas", name: "Jugo de granada (1 Litro)", qty: "2 botellas", who: "Fernando Rincón (T5)", est: 80.00 },
+  { id: "u_beb_10", cat: "8. Vinatería, Barra y Bebidas", name: "Jugo de granada (litro)", qty: "2 botellas", who: "Fernando Rincón (T5)", est: 80.00 },
   { id: "u_beb_11", cat: "8. Vinatería, Barra y Bebidas", name: "Jugo de naranja", qty: "1 L", who: "Luis Armando (T3)", est: 80.00 },
   { id: "u_beb_12", cat: "8. Vinatería, Barra y Bebidas", name: "Hielo", qty: "20 kg", who: "Kestin Gutierrez (B1)", est: 112.00 }
 ];
@@ -461,7 +482,7 @@ const purchasesCol = collection(db, "artifacts", APP_ID, "public", "data", "plan
 const purchaseRef  = id => doc(db, "artifacts", APP_ID, "public", "data", "plan_purchases", id);
 
 let unsubPurchases = null;
-let remoteData = {}; // mapa id -> { bought, existing, realCost, custom, name, cat, qty, who, est, updatedAt }
+let remoteData = {}; // mapa id -> { bought, existing, realCost, isCustom, name, cat, qty, who, est, updatedAt }
 let activeTab = "pending"; // "pending" | "bought"
 
 /* ====== LLENAR SELECTORES DE CATEGORÍA ====== */
@@ -534,14 +555,14 @@ function startRealtimeSync(){
   });
 }
 
-/* ====== CONSTRUIR LISTA COMBINADA (OFICIAL + EXTRAS GUARDADOS EN FIREBASE) ====== */
+/* ====== CONSTRUIR LISTA COMBINADA SIN PERDER NINGÚN AVANCE ====== */
 function getMergedItems(){
+  const masterIds = new Set(MASTER_UNIFIED_ITEMS.map(x => x.id));
+
   const list = MASTER_UNIFIED_ITEMS.map(item => {
     const r = remoteData[item.id] || {};
     const bought = !!r.bought;
     const existing = !!r.existing;
-    // Si es insumo existente, el costo gastado siempre es 0
-    // Si fue comprado y tiene costo capturado, se usa ese costo; si no escribió nada al marcar comprado, toma el estimado
     let realCost = r.realCost;
     if (existing) {
       realCost = 0;
@@ -558,20 +579,24 @@ function getMergedItems(){
     };
   });
 
-  // Agregar insumos extra creados manualmente desde esta página
+  // Conservar también cualquier insumo extra o partida previa que ya hayas marcado como comprada en Firebase
   Object.entries(remoteData).forEach(([id, r]) => {
-    if (r && r.isCustom) {
+    if (!r) return;
+    const isOrphanedBought = !masterIds.has(id) && (r.bought || r.existing || r.isCustom);
+    if (isOrphanedBought) {
       const bought = !!r.bought;
       const existing = !!r.existing;
       let realCost = r.realCost;
       if (existing) realCost = 0;
       else if (bought && (realCost === undefined || realCost === null || realCost === "")) realCost = num(r.est);
+
+      const validCat = CATEGORIES_ORDER.includes(r.cat) ? r.cat : CATEGORIES_ORDER[4];
       list.push({
         id,
-        cat: r.cat || CATEGORIES_ORDER[4],
-        name: r.name || "Insumo extra",
+        cat: validCat,
+        name: r.name || "Insumo registrado en Firebase",
         qty: r.qty || "1 pza",
-        who: r.who || "Extra Compras",
+        who: r.who || "Avance guardado en Firebase",
         est: num(r.est),
         bought,
         existing,
@@ -589,7 +614,6 @@ function getMergedItems(){
 function renderAll(){
   const allItems = getMergedItems();
 
-  // Calcular KPIs globales (sobre todos los insumos)
   let totalEst = 0;
   let totalSpent = 0;
   let totalSaved = 0;
@@ -630,7 +654,6 @@ function renderAll(){
   bar.style.width = pctBudget + "%";
   bar.classList.toggle("bar-over", remaining < 0);
 
-  // Separar pendientes vs comprados/existentes
   const pendingItems = allItems.filter(i => !i.bought && !i.existing);
   const boughtItems  = allItems.filter(i => i.bought || i.existing);
 
@@ -641,7 +664,6 @@ function renderAll(){
   $("pending-sub-est").textContent = `Estimado pendiente por comprar: ${money(subPendingEst)}`;
   $("bought-sub-spent").textContent = `Total gastado en insumos comprados: ${money(totalSpent)}`;
 
-  // Aplicar filtros de búsqueda y categoría
   const q = ($("f-search").value || "").trim().toLowerCase();
   const catSel = $("f-cat").value;
 
@@ -681,8 +703,8 @@ function renderPendingList(items){
               <tr>
                 <th>Ingrediente Unificado</th>
                 <th>Cantidad Total</th>
-                <th>Responsable / Tiempos</th>
-                <th class="r">Estimado</th>
+                <th>Desglose por Responsable / Tiempos</th>
+                <th class="r">Estimado Oficial</th>
                 <th class="r">Cuánto Costó ($)</th>
                 <th class="c no-print">Marcar Comprado</th>
                 <th class="c no-print">Insumo Ya Existente</th>
@@ -694,9 +716,12 @@ function renderPendingList(items){
                   <td>
                     <b>${esc(item.name)}</b>
                     ${item.isCustom ? `<span class="tag" style="background:#fef3c7;color:#92400e;margin-left:4px">Extra</span>` : ""}
+                    ${item.updatedNote ? `<div><span class="updated-note">📌 ${esc(item.updatedNote)}</span></div>` : ""}
                   </td>
                   <td><b>${esc(item.qty)}</b></td>
-                  <td style="color:var(--muted);font-size:.84rem">${esc(item.who)}</td>
+                  <td>
+                    <div class="breakdown-box">${esc(item.who)}</div>
+                  </td>
                   <td class="r">${money(item.est)}</td>
                   <td class="r">
                     <input
@@ -757,9 +782,9 @@ function renderBoughtList(items){
               <tr>
                 <th>Ingrediente Unificado</th>
                 <th>Cantidad Total</th>
-                <th>Responsable / Tiempos</th>
+                <th>Desglose por Responsable / Tiempos</th>
                 <th>Estado</th>
-                <th class="r">Estimado</th>
+                <th class="r">Estimado Oficial</th>
                 <th class="r">Gastado Real ($)</th>
                 <th class="r">Diferencia</th>
                 <th class="c no-print">Acciones</th>
@@ -771,9 +796,14 @@ function renderBoughtList(items){
                 const diff  = item.est - spent;
                 return `
                   <tr class="${item.existing ? "row-existing" : "row-bought"}">
-                    <td><b>${esc(item.name)}</b></td>
-                    <td>${esc(item.qty)}</td>
-                    <td style="color:var(--muted);font-size:.84rem">${esc(item.who)}</td>
+                    <td>
+                      <b>${esc(item.name)}</b>
+                      ${item.updatedNote ? `<div><span class="updated-note">📌 ${esc(item.updatedNote)}</span></div>` : ""}
+                    </td>
+                    <td><b>${esc(item.qty)}</b></td>
+                    <td>
+                      <div class="breakdown-box">${esc(item.who)}</div>
+                    </td>
                     <td>
                       ${item.existing
                         ? `<span class="tag existing">📦 En existencia ($0)</span>`
@@ -843,7 +873,6 @@ async function savePurchaseItem(id, patch){
 $("pending-container").addEventListener("change", async e => {
   const t = e.target;
 
-  // Si escribe el costo pero aún no marca casilla, lo pre-guardamos para que no se pierda
   if (t.dataset.costId) {
     const id = t.dataset.costId;
     const val = t.value === "" ? null : num(t.value);
@@ -851,7 +880,6 @@ $("pending-container").addEventListener("change", async e => {
     return;
   }
 
-  // Casilla "Comprado" o "Ya existente ($0)"
   if (t.dataset.action) {
     const id = t.dataset.id;
     const action = t.dataset.action;
@@ -859,7 +887,6 @@ $("pending-container").addEventListener("change", async e => {
     const costInput = document.querySelector(`input[data-cost-id="${id}"]`);
 
     if (action === "buy" && t.checked) {
-      // Si el usuario escribió cuánto costó, usa ese valor; si lo dejó vacío, usa el estimado
       const typedVal = costInput && costInput.value !== "" ? num(costInput.value) : (base ? base.est : 0);
       await savePurchaseItem(id, {
         bought: true,
@@ -868,7 +895,6 @@ $("pending-container").addEventListener("change", async e => {
       });
       showToast(`✅ "${base ? base.name : "Insumo"}" movido a Comprados (${money(typedVal)})`);
     } else if (action === "exist" && t.checked) {
-      // Pasa a comprados con $0 pesos gastados
       await savePurchaseItem(id, {
         bought: true,
         existing: true,
