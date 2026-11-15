@@ -904,6 +904,19 @@
         </div>
     </div>
 
+    <!-- ── MODAL VISTA PREVIA / GUARDADO MANUAL (FALLBACK PARA NAVEGADORES DE WHATSAPP / INSTAGRAM / iOS) ── -->
+    <div id="modal-ticket-preview" class="modal-overlay" style="z-index: 320;">
+        <div class="modal-box" style="max-width: 400px; padding: 28px 20px;">
+            <button class="modal-close" onclick="document.getElementById('modal-ticket-preview').classList.remove('active');" aria-label="Cerrar vista previa" style="background:none;border:none;">×</button>
+            <h3 class="modal-title" style="font-size: 1.1rem; margin-bottom: 8px;">Guardar en Fotos</h3>
+            <p class="modal-text" style="font-size: 0.98rem; margin-bottom: 14px; color: var(--gold-light);">
+                Mantén presionada la imagen de abajo durante 2 segundos y elige <strong>"Guardar en Fotos"</strong> o <strong>"Descargar imagen"</strong>:
+            </p>
+            <img id="ticket-preview-output" src="" alt="Pase ENSŌ listo para guardar" style="width: 100%; border-radius: 4px; border: 1px solid var(--gold); margin-bottom: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.85);">
+            <button class="btn-outline" style="width: 100%;" onclick="document.getElementById('modal-ticket-preview').classList.remove('active');">Cerrar</button>
+        </div>
+    </div>
+
     <!-- ── MODAL 5: ADMIN LOGIN ── -->
     <div id="modal-admin-login" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="admin-login-title">
         <div class="modal-box">
@@ -1526,18 +1539,28 @@
             return normalizedGuestName;
         }
 
-        function showTicket(nameToDisplay, tableNum, customStatusMsg = null) {
+        // Convierte la URL del QR en Base64 local para evitar errores de CORS o Tainted Canvas en html2canvas
+        async function loadQrAsDataUrl(code) {
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=0&data=${encodeURIComponent(code)}`;
+            try {
+                const response = await fetch(qrUrl, { mode: 'cors', cache: 'force-cache' });
+                if (!response.ok) throw new Error('QR HTTP error');
+                const blob = await response.blob();
+                return await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            } catch (err) {
+                return qrUrl;
+            }
+        }
+
+        async function showTicket(nameToDisplay, tableNum, customStatusMsg = null) {
             document.getElementById('ticket-guest-name').innerText = nameToDisplay;
             document.getElementById('ticket-table-num').innerText = "MESA " + tableNum;
             document.querySelectorAll('.event-date-display').forEach(el => el.innerText = CONFIG.eventDate.toUpperCase());
-
-            // El QR codifica directamente el código único del invitado para lectura instantánea en entrada.html
-            const qrImg = document.getElementById('ticket-qr-img');
-            if (qrImg && currentValidDataCode) {
-                const qrPayload = encodeURIComponent(currentValidDataCode);
-                qrImg.parentElement.style.display = 'flex';
-                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=0&data=${qrPayload}`;
-            }
 
             const statusMsgEl = document.getElementById('ticket-status-msg');
             statusMsgEl.innerText = customStatusMsg ? customStatusMsg : (!navigator.onLine ? "Sin conexión — muestra tu pase descargado al staff." : "Guarda este pase en tu galería o toma captura para mostrarlo el día del evento.");
@@ -1555,32 +1578,145 @@
                 existingNote.remove();
             }
 
-            const img = document.getElementById('ticket-bg-img');
             const downloadBtn = document.getElementById('btn-download');
-            if (img && !img.complete) {
-                downloadBtn.disabled = true; downloadBtn.innerHTML = 'Cargando pase...';
-                img.onload = () => { downloadBtn.disabled = false; downloadBtn.innerHTML = '↓ Guardar Pase en mi Celular'; };
-                img.onerror = () => { downloadBtn.disabled = false; downloadBtn.innerHTML = '↓ Guardar Pase en mi Celular'; };
-            }
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = 'Preparando pase...';
+
             window.pushModalState();
             document.getElementById('modal-ticket').classList.add('active');
+
+            // Cargamos el QR como DataURL Base64 para que html2canvas nunca falle por bloqueo CORS
+            const qrImg = document.getElementById('ticket-qr-img');
+            if (qrImg && currentValidDataCode) {
+                qrImg.parentElement.style.display = 'flex';
+                const qrDataUrl = await loadQrAsDataUrl(currentValidDataCode);
+                await new Promise((resolve) => {
+                    qrImg.onload = resolve;
+                    qrImg.onerror = resolve;
+                    qrImg.src = qrDataUrl;
+                });
+            }
+
+            const bgImg = document.getElementById('ticket-bg-img');
+            if (bgImg && !bgImg.complete) {
+                await new Promise((resolve) => {
+                    bgImg.onload = resolve;
+                    bgImg.onerror = resolve;
+                });
+            }
+
+            downloadBtn.disabled = false;
+            downloadBtn.innerHTML = '↓ Guardar Pase en mi Celular';
         }
 
         window.downloadTicket = async function() {
-            const btn = document.getElementById('btn-download'); const originalText = btn.innerHTML;
-            btn.innerHTML = 'Generando...'; btn.disabled = true;
+            const btn = document.getElementById('btn-download');
+            const originalText = '↓ Guardar Pase en mi Celular';
+            btn.innerHTML = 'Generando...';
+            btn.disabled = true;
+
             const captureDiv = document.getElementById('ticket-card-capture');
-            const guestName = document.getElementById('ticket-guest-name').innerText;
-            const tableNum = document.getElementById('ticket-table-num').innerText;
+            const guestName = document.getElementById('ticket-guest-name').innerText.trim();
+            const tableNum = document.getElementById('ticket-table-num').innerText.trim();
+            const fileName = `Pase_Enso_${guestName.replace(/[^A-Z0-9ÁÉÍÓÚÜÑ]+/gi, '_')}_${tableNum.replace(/\s+/g, '_')}.png`;
 
             try {
-                await document.fonts.ready;
-                const canvas = await html2canvas(captureDiv, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#050505', logging: false, imageTimeout: 0 });
+                if (typeof html2canvas === 'undefined') {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                }
+
+                if (document.fonts && document.fonts.ready) {
+                    await document.fonts.ready;
+                }
+
+                // IMPORTANTE: allowTaint DEBE ser false para que canvas.toDataURL() no lance SecurityError
+                let canvas;
+                try {
+                    canvas = await html2canvas(captureDiv, {
+                        scale: 3,
+                        useCORS: true,
+                        allowTaint: false,
+                        backgroundColor: '#050505',
+                        logging: false,
+                        imageTimeout: 8000
+                    });
+                } catch (firstErr) {
+                    // Fallback seguro si el navegador bloquea la imagen externa del QR
+                    canvas = await html2canvas(captureDiv, {
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: false,
+                        backgroundColor: '#050505',
+                        logging: false,
+                        ignoreElements: (el) => el.id === 'ticket-qr-img' && !String(el.src).startsWith('data:')
+                    });
+                }
+
+                const dataUrl = canvas.toDataURL('image/png');
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+
+                // Detectamos navegadores internos de WhatsApp / Instagram / Facebook o iOS
+                const ua = navigator.userAgent || '';
+                const isInAppBrowser = /FBAN|FBAV|Instagram|WhatsApp|Line|wv/i.test(ua);
+                const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+                // En iOS o navegadores internos, intentamos primero el menú nativo "Guardar imagen" (Web Share API)
+                if ((isIOS || isInAppBrowser) && blob && navigator.canShare) {
+                    const file = new File([blob], fileName, { type: 'image/png' });
+                    if (navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                title: 'Pase de Acceso ENSŌ'
+                            });
+                            btn.innerHTML = '¡Pase Listo!';
+                            setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
+                            return;
+                        } catch (shareErr) {
+                            if (shareErr && shareErr.name === 'AbortError') {
+                                btn.innerHTML = originalText;
+                                btn.disabled = false;
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                // Si está en el navegador interno de WhatsApp/Instagram y no soporta Share API, mostramos el visor para mantener presionado
+                if (isInAppBrowser) {
+                    const previewImg = document.getElementById('ticket-preview-output');
+                    if (previewImg) {
+                        previewImg.src = dataUrl;
+                        document.getElementById('modal-ticket-preview').classList.add('active');
+                    }
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+
+                // Descarga directa estándar para Chrome / Safari / Android / PC
+                const downloadUrl = blob ? URL.createObjectURL(blob) : dataUrl;
                 const link = document.createElement('a');
-                link.download = `Pase_Enso_${guestName.replace(/\s+/g, '_')}_${tableNum.replace(/\s+/g, '_')}.png`;
-                link.href = canvas.toDataURL('image/png'); link.click();
-                btn.innerHTML = '¡Descargado!'; setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
-            } catch (err) { btn.innerHTML = 'Error'; setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500); }
+                link.download = fileName;
+                link.href = downloadUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                if (blob) setTimeout(() => URL.revokeObjectURL(downloadUrl), 4000);
+
+                btn.innerHTML = '¡Descargado!';
+                setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2500);
+            } catch (err) {
+                console.error("Error al generar pase:", err);
+                btn.innerHTML = 'Toma captura de pantalla';
+                setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 3000);
+            }
         };
 
         window.finalizeRSVP = function() {
