@@ -143,6 +143,10 @@
         .student-row:hover {
             background: rgba(229, 193, 88, 0.07);
         }
+        .student-row.is-dropped {
+            opacity: 0.6;
+            background: rgba(158, 32, 50, 0.08);
+        }
 
         /* ── Modales ENSŌ ── */
         .modal-overlay {
@@ -160,15 +164,16 @@
             overflow-y: auto;
         }
         .modal-box.wide-modal {
-            max-width: 820px;
+            max-width: 860px;
         }
         .input-gold {
-            background: rgba(5,5,5,0.65); border: 1px solid rgba(229,193,88,0.45);
+            background: rgba(5,5,5,0.75); border: 1px solid rgba(229,193,88,0.45);
             color: white; padding: 0.55rem 0.75rem; border-radius: 4px; width: 100%;
             outline: none; font-family: 'Cormorant Garamond', serif;
             font-size: 1.05rem;
         }
         .input-gold:focus { border-color: var(--gold-light); box-shadow: 0 0 12px rgba(229,193,88,0.28); }
+        .input-gold option { background: #0D0B08; color: #F4EFE6; }
         
         .btn-gold {
             background: rgba(229, 193, 88, 0.14); border: 1px solid var(--gold);
@@ -227,7 +232,7 @@
                 <div>
                     <h1 class="text-xl md:text-2xl text-gold tracking-widest uppercase font-semibold">ENSŌ Planner</h1>
                     <p class="text-xs uppercase tracking-[0.2em] text-[rgba(244,239,230,0.75)] italic">
-                        Organizador de Mesas, Invitados y Extras
+                        Organizador de Mesas, Invitados y Boletos Especiales
                         <span id="sync-status" class="ml-2 font-bold tracking-normal not-italic"></span>
                     </p>
                 </div>
@@ -251,7 +256,7 @@
                 </div>
                 <div class="w-px h-8 bg-[rgba(229,193,88,0.25)] hidden sm:block"></div>
                 <div class="text-center cursor-pointer group" onclick="window.openExtrasSummaryModal()" title="Ver desglose de invitados extras">
-                    <p class="text-[0.6rem] md:text-[0.65rem] uppercase tracking-widest text-[#FFF099] group-hover:text-white transition-colors">Total Invitados Extras ⓘ</p>
+                    <p class="text-[0.6rem] md:text-[0.65rem] uppercase tracking-widest text-[#FFF099] group-hover:text-white transition-colors">Total Extras / Esp. ⓘ</p>
                     <p id="stat-extras-count" class="cinzel text-lg md:text-xl font-bold text-[#FFF099]">0 <span class="text-xs font-normal text-gray-300">lug.</span></p>
                 </div>
                 <div class="w-px h-8 bg-[rgba(229,193,88,0.25)] hidden sm:block"></div>
@@ -273,7 +278,7 @@
 
     <main class="flex-grow flex flex-col lg:flex-row max-w-[1600px] mx-auto w-full overflow-hidden">
         
-        <aside class="lg:w-[480px] w-full flex-shrink-0 bg-panel border-r border-[rgba(229,193,88,0.22)] flex flex-col lg:h-[calc(100vh-125px)] overflow-hidden">
+        <aside class="lg:w-[500px] w-full flex-shrink-0 bg-panel border-r border-[rgba(229,193,88,0.22)] flex flex-col lg:h-[calc(100vh-125px)] overflow-hidden">
             
             <!-- Mesas Especiales -->
             <div class="p-4 border-b border-[rgba(229,193,88,0.18)] flex-shrink-0">
@@ -305,13 +310,13 @@
 
             <!-- Lista de Generación y Control de Extras -->
             <div class="p-4 flex-grow overflow-y-auto custom-scrollbar flex flex-col">
-                <div class="flex justify-between items-end mb-3 flex-shrink-0">
+                <div class="flex justify-between items-end mb-3 flex-shrink-0 gap-2">
                     <div>
-                        <h2 class="text-xs tracking-[0.2em] text-gold uppercase font-semibold">Generación (22 Alumnos)</h2>
-                        <p class="text-xs text-gray-300 italic">Base: <strong class="text-[#FFF099]">6</strong> invitados · Máx: <strong class="text-[#FFF099]">+6 extras</strong> (12 total)</p>
+                        <h2 id="generation-title" class="text-xs tracking-[0.2em] text-gold uppercase font-semibold">Generación (22 Alumnos)</h2>
+                        <p class="text-xs text-gray-300 italic">Base: <strong class="text-[#FFF099]">6</strong> · Usa <strong class="text-rose-300">Baja (0)</strong> para quitar a un alumno</p>
                     </div>
-                    <button onclick="window.openExtrasSummaryModal()" class="text-[0.65rem] cinzel tracking-wider bg-[rgba(229,193,88,0.15)] text-[#FFF099] px-2.5 py-1 rounded hover:bg-[#E5C158] hover:text-black transition-colors border border-[rgba(229,193,88,0.45)] font-semibold">
-                        Ver Sumatoria Extras
+                    <button onclick="window.openSpecialPassesModal()" class="text-[0.65rem] cinzel tracking-wider bg-amber-500/20 text-[#FFF099] px-2.5 py-1.5 rounded hover:bg-[#E5C158] hover:text-black transition-colors border border-[#FFF099]/70 font-bold whitespace-nowrap shadow">
+                        🎟️ Boletos Especiales
                     </button>
                 </div>
 
@@ -337,16 +342,19 @@
             
             <!-- Acciones de Sincronización con Firebase -->
             <div class="p-3.5 border-t border-[rgba(229,193,88,0.22)] bg-[#080705] flex flex-col gap-2 flex-shrink-0">
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="window.openTableManager()" class="py-2 px-2 border border-[#E5C158]/60 text-[#FFF099] text-[0.68rem] cinzel uppercase tracking-wider hover:bg-[#E5C158]/15 transition-colors rounded font-semibold">
-                        🪑 Gestor de Mesas
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="window.openSpecialPassesModal()" class="py-2 px-1.5 border border-amber-400/70 bg-amber-500/10 text-[#FFF099] text-[0.64rem] cinzel uppercase tracking-wider hover:bg-[#E5C158] hover:text-black transition-colors rounded font-bold">
+                        🎟️ Especiales
                     </button>
-                    <button onclick="window.openExtrasSummaryModal()" class="py-2 px-2 border border-emerald-500/60 text-emerald-300 text-[0.68rem] cinzel uppercase tracking-wider hover:bg-emerald-500/15 transition-colors rounded font-semibold">
-                        📊 Reporte de Extras
+                    <button onclick="window.openTableManager()" class="py-2 px-1.5 border border-[#E5C158]/60 text-[#FFF099] text-[0.64rem] cinzel uppercase tracking-wider hover:bg-[#E5C158]/15 transition-colors rounded font-semibold">
+                        🪑 Mesas
+                    </button>
+                    <button onclick="window.openExtrasSummaryModal()" class="py-2 px-1.5 border border-emerald-500/60 text-emerald-300 text-[0.64rem] cinzel uppercase tracking-wider hover:bg-emerald-500/15 transition-colors rounded font-semibold">
+                        📊 Reporte
                     </button>
                 </div>
-                <button onclick="window.syncHostData()" class="w-full py-2.5 bg-[rgba(229,193,88,0.14)] border border-[#E5C158] text-[#FFF099] text-xs cinzel uppercase tracking-widest hover:bg-[#E5C158] hover:text-black transition-all rounded font-bold shadow-[0_0_15px_rgba(229,193,88,0.15)]">
-                    ⟳ Guardar y Sincronizar Cupos con Invitación (Firebase)
+                <button id="btn-sync-firebase" onclick="window.syncHostData()" class="w-full py-2.5 bg-[rgba(229,193,88,0.14)] border border-[#E5C158] text-[#FFF099] text-xs cinzel uppercase tracking-widest hover:bg-[#E5C158] hover:text-black transition-all rounded font-bold shadow-[0_0_15px_rgba(229,193,88,0.15)]">
+                    ⟳ Actualizar y Sincronizar con Firebase (Borrar Bajas + Crear ESP)
                 </button>
             </div>
         </aside>
@@ -356,7 +364,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-2 border-b border-[rgba(229,193,88,0.15)] pb-4">
                     <div>
                         <h2 class="cinzel text-lg md:text-xl text-[#FFF099] tracking-[0.25em] uppercase">Plano del Salón y Ocupación</h2>
-                        <p class="text-sm text-gray-300 italic">Haz clic en cualquier mesa para ver la lista de invitados que ya confirmaron su asistencia con código.</p>
+                        <p class="text-sm text-gray-300 italic">Haz clic en cualquier mesa para ver la lista de invitados y códigos asignados.</p>
                     </div>
                     <div class="flex items-center gap-4 text-xs">
                         <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full border border-[#E5C158] inline-block"></span> Individual</span>
@@ -384,11 +392,11 @@
                 <!-- Resumen inferior en el salón -->
                 <div class="mt-12 p-5 rounded border border-[rgba(229,193,88,0.25)] bg-[rgba(13,11,8,0.85)] grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                     <div>
-                        <p class="cinzel text-[0.65rem] uppercase tracking-widest text-gray-400">Lugares Base (22 Alumnos × 6)</p>
+                        <p id="summary-base-label" class="cinzel text-[0.65rem] uppercase tracking-widest text-gray-400">Lugares Base Activos</p>
                         <p id="summary-base-seats" class="cinzel text-xl text-white font-bold mt-1">132 lugares</p>
                     </div>
                     <div>
-                        <p class="cinzel text-[0.65rem] uppercase tracking-widest text-[#FFF099]">Sumatoria Invitados Extras</p>
+                        <p class="cinzel text-[0.65rem] uppercase tracking-widest text-[#FFF099]">Sumatoria Extras + Especiales</p>
                         <p id="summary-extra-seats" class="cinzel text-xl text-[#FFF099] font-bold mt-1">+0 invitados extras</p>
                     </div>
                     <div>
@@ -400,13 +408,107 @@
         </section>
     </main>
 
+    <!-- Modal: Agregar Boletos Especiales (Venta de pases extra en mesa elegida con código ESP) -->
+    <div id="modal-special-passes" class="modal-overlay">
+        <div class="modal-box wide-modal">
+            <div class="flex justify-between items-center mb-4 border-b border-[rgba(229,193,88,0.22)] pb-3">
+                <div>
+                    <h3 class="cinzel text-lg md:text-xl text-gold uppercase tracking-widest font-semibold">🎟️ Agregar Boletos Especiales (ESP)</h3>
+                    <p class="font-serif text-sm text-gray-300 italic mt-0.5">
+                        Asigna pases vendidos extra a un alumno y elige en qué mesa se sentarán (máx. 12 por mesa y máx. 200 en total).
+                    </p>
+                </div>
+                <button onclick="window.closeModals()" class="text-2xl text-[#FFF099]/70 hover:text-white transition-colors">&times;</button>
+            </div>
+
+            <!-- Barra de disponibilidad global -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                <div class="bg-[rgba(5,5,5,0.6)] border border-[rgba(229,193,88,0.3)] rounded p-3 text-center">
+                    <span class="text-[0.64rem] cinzel uppercase tracking-widest text-gray-300 block">Aforo Actual Planificado</span>
+                    <span id="sp-stat-total" class="cinzel text-lg text-white font-bold mt-0.5 block">0 / 200</span>
+                </div>
+                <div class="bg-[rgba(16,185,129,0.08)] border border-emerald-500/40 rounded p-3 text-center">
+                    <span class="text-[0.64rem] cinzel uppercase tracking-widest text-emerald-300 block">Cupo Libre (Hasta 200)</span>
+                    <span id="sp-stat-remaining" class="cinzel text-lg text-emerald-400 font-bold mt-0.5 block">0 disponibles</span>
+                </div>
+                <div class="bg-[rgba(229,193,88,0.08)] border border-[rgba(229,193,88,0.35)] rounded p-3 text-center">
+                    <span class="text-[0.64rem] cinzel uppercase tracking-widest text-[#FFF099] block">Formato de Código Nuevo</span>
+                    <span id="sp-code-preview" class="font-mono text-sm text-[#FFF099] font-bold mt-1 block">ALUMNOESP1234</span>
+                </div>
+            </div>
+
+            <!-- Formulario para agregar lote -->
+            <div class="p-4 rounded border border-[rgba(229,193,88,0.35)] bg-[rgba(5,5,5,0.55)] mb-5">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                    <div class="md:col-span-5">
+                        <label class="block cinzel text-[0.65rem] uppercase tracking-widest text-[#FFF099] mb-1.5 font-semibold">1. Alumno que compra los pases</label>
+                        <select id="sp-student-select" onchange="window.onSpecialStudentChange()" class="input-gold !text-sm !py-2">
+                            <!-- Opciones por JS -->
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block cinzel text-[0.65rem] uppercase tracking-widest text-[#FFF099] mb-1.5 font-semibold">2. Cantidad</label>
+                        <input type="number" id="sp-qty-input" min="1" max="12" value="1" oninput="window.validateSpecialPassPreview()" class="input-gold !text-sm !py-2 text-center font-mono font-bold">
+                    </div>
+                    <div class="md:col-span-5">
+                        <label class="block cinzel text-[0.65rem] uppercase tracking-widest text-[#FFF099] mb-1.5 font-semibold">3. Mesa donde se sentarán (Máx 12)</label>
+                        <select id="sp-table-select" onchange="window.validateSpecialPassPreview()" class="input-gold !text-sm !py-2">
+                            <!-- Mesas con disponibilidad por JS -->
+                        </select>
+                    </div>
+                </div>
+
+                <div id="sp-validation-msg" class="mt-3 text-xs font-sans rounded px-3 py-2 hidden"></div>
+
+                <div class="mt-4 flex flex-wrap justify-between items-center gap-3">
+                    <p class="text-xs text-gray-300 italic">
+                        Al agregarlos aquí se reflejan al instante en el plano. Luego pulsa <strong class="text-[#FFF099]">Actualizar y Sincronizar</strong> para crear los códigos <strong class="text-[#FFF099]">ESP</strong> en Firebase.
+                    </p>
+                    <button id="btn-add-special-pass" onclick="window.addSpecialPass()" class="btn-gold">
+                        + Agregar Boletos Especiales
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lista de boletos especiales registrados -->
+            <div class="mb-2 flex justify-between items-center">
+                <h4 class="cinzel text-xs uppercase tracking-widest text-[#FFF099] font-semibold">Boletos Especiales Asignados</h4>
+                <span id="sp-list-count" class="text-xs font-mono text-gray-400">0 pases</span>
+            </div>
+            <div class="data-table-container custom-scrollbar max-h-[34vh] overflow-y-auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th class="text-left">Alumno</th>
+                            <th>Cant.</th>
+                            <th>Mesa</th>
+                            <th class="text-left">Códigos Generados (ESP)</th>
+                            <th>Aportación</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sp-list-tbody">
+                        <!-- JS Render -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-5 flex flex-wrap justify-between items-center gap-3 border-t border-[rgba(229,193,88,0.18)] pt-4">
+                <button onclick="window.syncHostData()" class="py-2 px-4 bg-emerald-500/15 border border-emerald-400 text-emerald-300 text-xs cinzel uppercase tracking-wider hover:bg-emerald-400 hover:text-black transition-all rounded font-bold">
+                    ⟳ Sincronizar y Generar Códigos ESP Ahora
+                </button>
+                <button onclick="window.closeModals()" class="btn-gold">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal: Sumatoria y Proyección de Invitados Extras -->
     <div id="modal-extras-summary" class="modal-overlay">
         <div class="modal-box wide-modal">
             <div class="flex justify-between items-center mb-4 border-b border-[rgba(229,193,88,0.2)] pb-3">
                 <div>
                     <h3 class="cinzel text-lg md:text-xl text-gold uppercase tracking-widest font-semibold">Proyección de Invitados Extras</h3>
-                    <p class="font-serif text-sm text-gray-300 italic mt-0.5">Cálculo exclusivo de lugares adicionales sobre la base de 6 invitados por alumno.</p>
+                    <p class="font-serif text-sm text-gray-300 italic mt-0.5">Cálculo exclusivo de lugares adicionales (extras directos + boletos especiales ESP) sobre la base de 6 por alumno activo.</p>
                 </div>
                 <button onclick="window.closeModals()" class="text-2xl text-[#FFF099]/70 hover:text-white transition-colors">&times;</button>
             </div>
@@ -418,7 +520,7 @@
                     <span id="modal-stat-price" class="cinzel text-xl text-[#FFF099] font-bold mt-1 block">$300</span>
                 </div>
                 <div class="bg-[rgba(5,5,5,0.55)] border border-[rgba(229,193,88,0.3)] rounded p-3 text-center">
-                    <span class="text-[0.65rem] cinzel uppercase tracking-widest text-gray-300 block">Total Invitados Extras</span>
+                    <span class="text-[0.65rem] cinzel uppercase tracking-widest text-gray-300 block">Total Extras + Especiales</span>
                     <span id="modal-stat-extras" class="cinzel text-xl text-white font-bold mt-1 block">0 extras</span>
                 </div>
                 <div class="bg-[rgba(16,185,129,0.08)] border border-emerald-500/40 rounded p-3 text-center">
@@ -446,7 +548,7 @@
                             <th class="text-left">Alumno</th>
                             <th>Mesa</th>
                             <th>Base</th>
-                            <th>Invitados Extras</th>
+                            <th>Extras + ESP</th>
                             <th>Total Lugares</th>
                             <th>Confirmados (QR)</th>
                             <th>Total por Extras</th>
@@ -499,7 +601,8 @@
             </div>
         </div>
     </div>
-            <!-- Modal: Invitados Confirmados por Mesa -->
+
+    <!-- Modal: Invitados Confirmados por Mesa -->
     <div id="modal-table-guests" class="modal-overlay">
         <div class="modal-box w-full max-w-lg">
             <div class="flex justify-between items-center mb-4 border-b border-[rgba(229,193,88,0.2)] pb-3">
@@ -527,8 +630,20 @@
     <div id="modal-notice" class="modal-overlay" style="z-index: 250;">
         <div class="modal-box max-w-md text-center">
             <h4 id="notice-title" class="cinzel text-lg text-gold uppercase tracking-widest mb-3">Aviso del Sistema</h4>
-            <p id="notice-message" class="text-base text-gray-200 whitespace-pre-line leading-relaxed mb-6"></p>
+            <p id="notice-message" class="text-base text-gray-200 whitespace-pre-line leading-relaxed mb-6 text-left"></p>
             <button onclick="document.getElementById('modal-notice').classList.remove('active')" class="btn-gold w-full">Entendido</button>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación Elegante -->
+    <div id="modal-confirm" class="modal-overlay" style="z-index: 260;">
+        <div class="modal-box max-w-md text-center">
+            <h4 id="confirm-title" class="cinzel text-lg text-gold uppercase tracking-widest mb-3">Confirmar Acción</h4>
+            <p id="confirm-message" class="text-base text-gray-200 whitespace-pre-line leading-relaxed mb-6"></p>
+            <div class="flex justify-center gap-3">
+                <button onclick="document.getElementById('modal-confirm').classList.remove('active')" class="px-4 py-2 border border-gray-500 text-gray-300 hover:text-white rounded text-xs cinzel uppercase tracking-wider">Cancelar</button>
+                <button id="confirm-ok-btn" class="btn-gold">Confirmar</button>
+            </div>
         </div>
     </div>
 
@@ -585,6 +700,7 @@
                 { id: 'v1', name: 'Mesa 1 (Maestros)', capacity: 9 },
                 { id: 'v2', name: 'Mesa 2 (Directivos)', capacity: 9 }
             ],
+            specialPasses: [],
             students: [
                 { name: "Aron Rafael Bañuelos Cortez.", table: 7 },
                 { name: "Brandon Jaramillo Rosas.", table: 8 },
@@ -612,7 +728,8 @@
                 id: `s${index}`,
                 name: s.name,
                 baseTable: s.table,
-                extra: 0
+                extra: 0,
+                dropped: false
             }))
         };
 
@@ -630,6 +747,14 @@
 
         const formatMoney = (val) => '$' + (Number(val) || 0).toLocaleString('es-MX');
         const cleanText = (str) => (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]/gi, '').toUpperCase();
+
+        function getStudentPrefix(student) {
+            if (student.hostPrefix && String(student.hostPrefix).trim()) {
+                return cleanText(student.hostPrefix);
+            }
+            const firstWord = (student.name || 'INV').trim().split(/\s+/)[0] || 'INV';
+            return cleanText(firstWord);
+        }
 
         function parseTableNum(val) {
             if (val === null || val === undefined || val === '') return null;
@@ -652,6 +777,13 @@
             return false;
         }
 
+        function getSpecialCountForStudent(studentId) {
+            if (!Array.isArray(state.specialPasses)) return 0;
+            return state.specialPasses
+                .filter(sp => sp.studentId === studentId)
+                .reduce((acc, sp) => acc + (Number(sp.count) || 0), 0);
+        }
+
         function reconcileStateWithFirebase(allowOverwriteFromHostData = false) {
             const baseSeats = Number(state.settings.baseSeats) || 6;
 
@@ -667,7 +799,14 @@
                             st.baseTable = tNum;
                         }
                         if ((allowOverwriteFromHostData || !hasLoadedPlannerState) && match.count !== undefined && match.count !== null) {
-                            st.extra = Math.max(0, Math.min(6, Number(match.count) - baseSeats));
+                            const hostCount = Number(match.count);
+                            if (hostCount === 0) {
+                                st.dropped = true;
+                                st.extra = 0;
+                            } else {
+                                st.dropped = false;
+                                st.extra = Math.max(0, Math.min(6, hostCount - baseSeats));
+                            }
                         }
                     }
                 });
@@ -704,6 +843,17 @@
             document.getElementById('notice-title').innerText = title;
             document.getElementById('notice-message').innerText = message;
             document.getElementById('modal-notice').classList.add('active');
+        };
+
+        window.showConfirm = function(title, message, onConfirm) {
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-message').innerText = message;
+            const okBtn = document.getElementById('confirm-ok-btn');
+            okBtn.onclick = () => {
+                document.getElementById('modal-confirm').classList.remove('active');
+                onConfirm();
+            };
+            document.getElementById('modal-confirm').classList.add('active');
         };
 
         window.loginWithGoogle = async function() {
@@ -753,11 +903,15 @@
                                     const localSt = state.students.find(s => s.id === savedSt.id || isSamePerson(s.name, savedSt.name));
                                     if (localSt) {
                                         if (savedSt.baseTable !== undefined) localSt.baseTable = Number(savedSt.baseTable);
+                                        localSt.dropped = !!savedSt.dropped;
                                         if (savedSt.extra !== undefined) {
-                                            localSt.extra = Math.max(0, Math.min(6, Number(savedSt.extra) || 0));
+                                            localSt.extra = localSt.dropped ? 0 : Math.max(0, Math.min(6, Number(savedSt.extra) || 0));
                                         }
                                     }
                                 });
+                            }
+                            if (!isLocalEditing) {
+                                state.specialPasses = Array.isArray(data.specialPasses) ? data.specialPasses : [];
                             }
                             reconcileStateWithFirebase(false);
                             renderAll();
@@ -817,7 +971,7 @@
             if (!auth.currentUser || auth.currentUser.email !== ADMIN_EMAIL) return;
             try {
                 const baseSeats = Number(state.settings.baseSeats) || 6;
-                const newCount = baseSeats + (Number(student.extra) || 0);
+                const newCount = student.dropped ? 0 : (baseSeats + (Number(student.extra) || 0));
                 const newTable = Number(student.baseTable);
 
                 const match = allHostData.find(h =>
@@ -833,12 +987,9 @@
                     match.table = newTable;
                 }
 
-                let newTotalCapacity = 0;
-                state.students.forEach(s => newTotalCapacity += (baseSeats + Number(s.extra || 0)));
-                state.vipTables.forEach(v => newTotalCapacity += Number(v.capacity || 0));
-
+                const plan = calculateFloorPlan();
                 const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
-                batch.set(statsRef, { totalCapacity: newTotalCapacity }, { merge: true });
+                batch.set(statsRef, { totalCapacity: plan.totalGuests }, { merge: true });
 
                 await batch.commit();
 
@@ -855,74 +1006,493 @@
             }
         }
 
+        // Dar de baja (0 lugares) o reactivar (6 lugares) a un alumno
+        window.toggleStudentDrop = function(studentId) {
+            const student = state.students.find(s => s.id === studentId);
+            if (!student) return;
+
+            if (!student.dropped) {
+                window.showConfirm(
+                    "Bajar Alumno a 0 Lugares",
+                    `¿Deseas poner a ${student.name} en 0 lugares?\n\nEsto liberará sus 6 espacios en la Mesa ${student.baseTable}.\nAl pulsar "Actualizar y Sincronizar con Firebase", se eliminarán automáticamente sus códigos libres (sin borrar nunca a invitados ya confirmados).`,
+                    () => {
+                        isLocalEditing = true;
+                        student.dropped = true;
+                        student.extra = 0;
+                        renderAll();
+                        Promise.all([
+                            window.saveData(),
+                            syncSingleStudentToHostData(student)
+                        ]).finally(() => {
+                            setTimeout(() => { isLocalEditing = false; }, 600);
+                        });
+                    }
+                );
+            } else {
+                const plan = calculateFloorPlan();
+                const maxGuests = Number(state.settings.maxTotalGuests) || 200;
+                const baseSeats = Number(state.settings.baseSeats) || 6;
+                if (plan.totalGuests + baseSeats > maxGuests) {
+                    window.showNotice(
+                        "Límite de 200 Invitados",
+                        `No se puede reactivar a ${student.name} porque sumaría ${plan.totalGuests + baseSeats} invitados y rebasaría el máximo de ${maxGuests}.`
+                    );
+                    return;
+                }
+                isLocalEditing = true;
+                student.dropped = false;
+                student.extra = 0;
+                renderAll();
+                Promise.all([
+                    window.saveData(),
+                    syncSingleStudentToHostData(student)
+                ]).finally(() => {
+                    setTimeout(() => { isLocalEditing = false; }, 600);
+                });
+            }
+        };
+
+        // ── PANTALLA DE BOLETOS ESPECIALES (ESP) ──
+        function getTableOccupancyMap() {
+            const baseSeats = Number(state.settings.baseSeats) || 6;
+            const map = {};
+
+            // Garantizar que aparezcan las mesas 3 a 13 (y cualquier otra usada)
+            for (let t = 3; t <= 13; t++) {
+                map[t] = { table: t, seats: 0, occupants: [] };
+            }
+
+            state.students.forEach(s => {
+                if (s.dropped) return;
+                const t = Number(s.baseTable) || 0;
+                if (!map[t]) map[t] = { table: t, seats: 0, occupants: [] };
+                const seats = baseSeats + (Number(s.extra) || 0);
+                map[t].seats += seats;
+                map[t].occupants.push(s.name.split(' ')[0]);
+            });
+
+            (state.specialPasses || []).forEach(sp => {
+                const t = Number(sp.table) || 0;
+                if (!map[t]) map[t] = { table: t, seats: 0, occupants: [] };
+                map[t].seats += (Number(sp.count) || 0);
+                map[t].occupants.push(`+${sp.count} ${sp.studentName.split(' ')[0]}`);
+            });
+
+            return map;
+        }
+
+        window.openSpecialPassesModal = function() {
+            renderSpecialPassesModal();
+            document.getElementById('modal-special-passes').classList.add('active');
+        };
+
+        function renderSpecialPassesModal() {
+            const plan = calculateFloorPlan();
+            const maxGuests = Number(state.settings.maxTotalGuests) || 200;
+            const remaining = Math.max(0, maxGuests - plan.totalGuests);
+
+            document.getElementById('sp-stat-total').innerText = `${plan.totalGuests} / ${maxGuests}`;
+            const remEl = document.getElementById('sp-stat-remaining');
+            remEl.innerText = `${remaining} disponibles`;
+            remEl.className = remaining > 0 ? 'cinzel text-lg text-emerald-400 font-bold mt-0.5 block' : 'cinzel text-lg text-rose-400 font-bold mt-0.5 block';
+
+            // Llenar selector de alumnos (activos)
+            const studentSelect = document.getElementById('sp-student-select');
+            const prevStudentId = studentSelect.value;
+            const activeStudents = state.students.filter(s => !s.dropped);
+            studentSelect.innerHTML = activeStudents.map(s => {
+                const prefix = getStudentPrefix(s);
+                return `<option value="${s.id}">${s.name} (Mesa ${s.baseTable} · ${prefix}ESP####)</option>`;
+            }).join('');
+
+            if (prevStudentId && activeStudents.some(s => s.id === prevStudentId)) {
+                studentSelect.value = prevStudentId;
+            }
+
+            populateSpecialTableDropdown();
+            window.validateSpecialPassPreview();
+            renderSpecialPassesTable();
+        }
+
+        function populateSpecialTableDropdown(preferredTable = null) {
+            const tableSelect = document.getElementById('sp-table-select');
+            const prevTable = preferredTable !== null ? String(preferredTable) : tableSelect.value;
+            const occMap = getTableOccupancyMap();
+            const tableNums = Object.keys(occMap).map(Number).sort((a, b) => a - b);
+
+            tableSelect.innerHTML = tableNums.map(tNum => {
+                const info = occMap[tNum];
+                const free = Math.max(0, 12 - info.seats);
+                const occLabel = info.occupants.length > 0 ? info.occupants.join(', ') : 'Vacía';
+                const status = free === 0 ? 'LLENA (12/12)' : `${info.seats}/12 (${free} libres)`;
+                return `<option value="${tNum}" ${free === 0 ? 'style="color:#fb7185;"' : ''}>Mesa ${tNum} [${occLabel}] — ${status}</option>`;
+            }).join('');
+
+            if (prevTable && tableNums.includes(Number(prevTable))) {
+                tableSelect.value = prevTable;
+            }
+        }
+
+        window.onSpecialStudentChange = function() {
+            const studentId = document.getElementById('sp-student-select').value;
+            const student = state.students.find(s => s.id === studentId);
+            if (!student) return;
+
+            const occMap = getTableOccupancyMap();
+            const ownTableInfo = occMap[student.baseTable];
+            // Si la mesa del alumno tiene espacio, preseleccionarla; si está llena, preseleccionar la primera con espacio
+            if (ownTableInfo && ownTableInfo.seats < 12) {
+                populateSpecialTableDropdown(student.baseTable);
+            } else {
+                const firstWithSpace = Object.values(occMap).find(m => m.seats < 12);
+                populateSpecialTableDropdown(firstWithSpace ? firstWithSpace.table : student.baseTable);
+            }
+            window.validateSpecialPassPreview();
+        };
+
+        window.validateSpecialPassPreview = function() {
+            const studentId = document.getElementById('sp-student-select').value;
+            const qty = parseInt(document.getElementById('sp-qty-input').value, 10) || 0;
+            const tableNum = parseInt(document.getElementById('sp-table-select').value, 10);
+            const msgEl = document.getElementById('sp-validation-msg');
+            const btnAdd = document.getElementById('btn-add-special-pass');
+            const previewEl = document.getElementById('sp-code-preview');
+
+            const student = state.students.find(s => s.id === studentId);
+            if (student && previewEl) {
+                previewEl.innerText = `${getStudentPrefix(student)}ESP1234`;
+            }
+
+            const plan = calculateFloorPlan();
+            const maxGuests = Number(state.settings.maxTotalGuests) || 200;
+            const occMap = getTableOccupancyMap();
+            const tableInfo = occMap[tableNum] || { seats: 0 };
+
+            msgEl.classList.remove('hidden', 'bg-rose-950/60', 'border', 'border-rose-500/50', 'text-rose-300', 'bg-emerald-950/50', 'border-emerald-500/40', 'text-emerald-300');
+
+            if (qty < 1) {
+                msgEl.classList.add('bg-rose-950/60', 'border', 'border-rose-500/50', 'text-rose-300');
+                msgEl.innerText = "⚠️ Ingresa una cantidad válida (mínimo 1 boleto).";
+                btnAdd.disabled = true;
+                return false;
+            }
+
+            if (tableInfo.seats + qty > 12) {
+                const freeInTable = Math.max(0, 12 - tableInfo.seats);
+                msgEl.classList.add('bg-rose-950/60', 'border', 'border-rose-500/50', 'text-rose-300');
+                msgEl.innerText = `⛔ La Mesa ${tableNum} ya tiene ${tableInfo.seats}/12 lugares. Solo caben ${freeInTable} más en esa mesa (elige otra mesa disponible).`;
+                btnAdd.disabled = true;
+                return false;
+            }
+
+            if (plan.totalGuests + qty > maxGuests) {
+                const freeGlobal = Math.max(0, maxGuests - plan.totalGuests);
+                msgEl.classList.add('bg-rose-950/60', 'border', 'border-rose-500/50', 'text-rose-300');
+                msgEl.innerText = `⛔ Se rebasaría el límite máximo de ${maxGuests} invitados en el salón. Solo quedan ${freeGlobal} lugares disponibles en total.`;
+                btnAdd.disabled = true;
+                return false;
+            }
+
+            msgEl.classList.add('bg-emerald-950/50', 'border', 'border-emerald-500/40', 'text-emerald-300');
+            msgEl.innerText = `✅ Válido: La Mesa ${tableNum} quedará con ${tableInfo.seats + qty}/12 lugares y el aforo total en ${plan.totalGuests + qty}/${maxGuests}.`;
+            btnAdd.disabled = false;
+            return true;
+        };
+
+        window.addSpecialPass = function() {
+            if (!window.validateSpecialPassPreview()) return;
+
+            const studentId = document.getElementById('sp-student-select').value;
+            const qty = parseInt(document.getElementById('sp-qty-input').value, 10);
+            const tableNum = parseInt(document.getElementById('sp-table-select').value, 10);
+            const student = state.students.find(s => s.id === studentId);
+            if (!student) return;
+
+            isLocalEditing = true;
+            if (!Array.isArray(state.specialPasses)) state.specialPasses = [];
+
+            state.specialPasses.push({
+                id: 'sp_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+                studentId: student.id,
+                studentName: student.name,
+                firebaseName: student.firebaseName || student.name,
+                hostPrefix: getStudentPrefix(student),
+                table: tableNum,
+                count: qty,
+                codes: []
+            });
+
+            renderAll();
+            renderSpecialPassesModal();
+            window.saveData().finally(() => {
+                setTimeout(() => { isLocalEditing = false; }, 600);
+            });
+        };
+
+        window.removeSpecialPass = function(spId) {
+            const idx = (state.specialPasses || []).findIndex(p => p.id === spId);
+            if (idx === -1) return;
+            const sp = state.specialPasses[idx];
+
+            const generatedCodes = Array.isArray(sp.codes) ? sp.codes : [];
+            const usedCodes = generatedCodes.filter(code => {
+                const inv = allInvites.find(i => i.codigo === code || i.id === code);
+                return inv && inv.usado;
+            });
+
+            if (usedCodes.length > 0) {
+                window.showNotice(
+                    "No se puede eliminar",
+                    `Este lote ya tiene ${usedCodes.length} código(s) confirmado(s) por un invitado (${usedCodes.join(', ')}). Para proteger los registros, primero deberías liberar al invitado desde el Panel de Control.`
+                );
+                return;
+            }
+
+            window.showConfirm(
+                "Eliminar Boletos Especiales",
+                `¿Quitar los ${sp.count} boletos especiales de ${sp.studentName} en la Mesa ${sp.table}?${generatedCodes.length > 0 ? '\n\nTambién se borrarán de Firebase sus códigos ESP no usados.' : ''}`,
+                async () => {
+                    isLocalEditing = true;
+                    state.specialPasses.splice(idx, 1);
+
+                    // Si ya tenían códigos generados en Firebase y no están usados, borrarlos de una vez
+                    if (generatedCodes.length > 0 && auth.currentUser && auth.currentUser.email === ADMIN_EMAIL) {
+                        try {
+                            const batch = writeBatch(db);
+                            generatedCodes.forEach(code => {
+                                const invRef = doc(db, 'artifacts', appId, 'public', 'data', 'invites', code);
+                                batch.delete(invRef);
+                            });
+                            const plan = calculateFloorPlan();
+                            const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
+                            batch.set(statsRef, { totalCapacity: plan.totalGuests }, { merge: true });
+                            await batch.commit();
+                        } catch (err) {
+                            console.error("Error borrando códigos ESP:", err);
+                        }
+                    }
+
+                    renderAll();
+                    renderSpecialPassesModal();
+                    window.saveData().finally(() => {
+                        setTimeout(() => { isLocalEditing = false; }, 600);
+                    });
+                }
+            );
+        };
+
+        function renderSpecialPassesTable() {
+            const tbody = document.getElementById('sp-list-tbody');
+            const list = state.specialPasses || [];
+            const extraPrice = Number(state.settings.extraPrice) || 0;
+            const totalSpecialCount = list.reduce((acc, p) => acc + (Number(p.count) || 0), 0);
+            document.getElementById('sp-list-count').innerText = `${totalSpecialCount} pase(s) especial(es)`;
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-400 italic py-5">Aún no has agregado boletos especiales. Selecciona un alumno arriba para comenzar.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = list.map(sp => {
+                const codes = Array.isArray(sp.codes) ? sp.codes : [];
+                const codesHtml = codes.length > 0
+                    ? codes.map(c => {
+                        const inv = allInvites.find(i => i.codigo === c || i.id === c);
+                        const isUsed = inv && inv.usado;
+                        return `<span class="inline-block font-mono text-[0.68rem] px-1.5 py-0.5 rounded mr-1 mb-1 ${isUsed ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-500/40' : 'bg-[rgba(229,193,88,0.14)] text-[#FFF099] border border-[rgba(229,193,88,0.4)]'}" title="${isUsed ? 'Usado por ' + (inv.guestName || 'Invitado') : 'Disponible'}">${c}</span>`;
+                    }).join('')
+                    : `<span class="text-amber-300/80 italic text-xs">Pendiente de sincronizar (se crearán ${sp.count} códigos ${sp.hostPrefix}ESP####)</span>`;
+
+                return `
+                    <tr>
+                        <td class="text-left text-white font-serif text-sm">${sp.studentName}</td>
+                        <td class="text-center font-mono font-bold text-[#FFF099]">+${sp.count}</td>
+                        <td class="text-center font-mono text-white">Mesa ${sp.table}</td>
+                        <td class="text-left whitespace-normal">${codesHtml}</td>
+                        <td class="font-mono text-emerald-300 font-bold">${formatMoney(sp.count * extraPrice)}</td>
+                        <td class="text-center">
+                            <button onclick="window.removeSpecialPass('${sp.id}')" class="px-2 py-0.5 text-xs border border-rose-500/60 text-rose-300 hover:bg-rose-600 hover:text-white rounded transition-colors" title="Eliminar lote">✕</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ── SINCRONIZACIÓN MAESTRA CON FIREBASE (BORRA BAJAS + CREA CÓDIGOS ESP SIN TOCAR EXISTENTES) ──
         window.syncHostData = async function() {
             const syncStatus = document.getElementById('sync-status');
+            const syncBtn = document.getElementById('btn-sync-firebase');
             if (syncStatus) {
                 syncStatus.innerText = 'Sincronizando...';
                 syncStatus.style.color = 'var(--gold-light)';
             }
-            
+            if (syncBtn) syncBtn.disabled = true;
+
             try {
-                calculateFloorPlan();
+                isLocalEditing = true;
+                const plan = calculateFloorPlan();
+                const maxGuests = Number(state.settings.maxTotalGuests) || 200;
+
+                if (plan.totalGuests > maxGuests) {
+                    throw new Error(`El aforo total (${plan.totalGuests}) supera el límite máximo permitido de ${maxGuests} invitados. Reduce lugares antes de sincronizar.`);
+                }
 
                 const hostDataRef = collection(db, 'artifacts', appId, 'public', 'data', 'hostData');
-                const hostDataSnap = await getDocs(hostDataRef);
-                const batch = writeBatch(db);
-                let updates = 0;
+                const invitesRef = collection(db, 'artifacts', appId, 'public', 'data', 'invites');
+                const [hostDataSnap, invitesSnap] = await Promise.all([
+                    getDocs(hostDataRef),
+                    getDocs(invitesRef)
+                ]);
 
+                const batch = writeBatch(db);
+                let hostUpdates = 0;
+                let deletedUnusedCodes = 0;
+                let skippedUsedCodes = 0;
+                let createdEspCodes = [];
+
+                // 1. Actualizar hostData de todos los alumnos (0 si está dado de baja)
                 hostDataSnap.forEach(docSnap => {
                     const data = docSnap.data();
-                    if (data.type !== 'special') { 
+                    if (data.type !== 'special') {
                         const studentInPlan = state.students.find(st =>
                             (st.hostPrefix && st.hostPrefix === docSnap.id) ||
                             isSamePerson(data.name, st.name)
                         );
-                        
                         if (studentInPlan) {
-                            const newCount = Number(state.settings.baseSeats) + Number(studentInPlan.extra || 0);
+                            const newCount = studentInPlan.dropped ? 0 : (Number(state.settings.baseSeats) + Number(studentInPlan.extra || 0));
                             const newTable = Number(studentInPlan.assignedTable || studentInPlan.baseTable);
                             const currentCount = Number(data.count || 0);
                             const currentTable = parseTableNum(data.table);
-                            
+
                             if (currentCount !== newCount || currentTable !== newTable) {
                                 batch.update(docSnap.ref, { count: newCount, table: newTable });
-                                updates++;
+                                hostUpdates++;
                             }
                         }
                     }
                 });
-                
-                let newTotalCapacity = 0;
-                state.students.forEach(s => newTotalCapacity += (Number(state.settings.baseSeats) + Number(s.extra || 0)));
-                state.vipTables.forEach(v => newTotalCapacity += Number(v.capacity));
-                
+
+                // 2. Mapear códigos existentes y borrar códigos LIBRES de alumnos dados de baja (0 lugares)
+                const existingCodeSet = new Set();
+                const droppedStudents = state.students.filter(s => s.dropped);
+
+                invitesSnap.forEach(docSnap => {
+                    const inv = docSnap.data();
+                    existingCodeSet.add(docSnap.id);
+
+                    if (inv.type !== 'special' && droppedStudents.length > 0) {
+                        const belongsToDropped = droppedStudents.some(st =>
+                            (st.hostPrefix && inv.hostCode === st.hostPrefix) ||
+                            isSamePerson(inv.hostName, st.name)
+                        );
+                        if (belongsToDropped) {
+                            if (!inv.usado) {
+                                batch.delete(docSnap.ref);
+                                existingCodeSet.delete(docSnap.id);
+                                deletedUnusedCodes++;
+                            } else {
+                                skippedUsedCodes++;
+                            }
+                        }
+                    }
+                });
+
+                // 3. Generar los nuevos códigos ESP para los boletos especiales pendientes
+                const specialList = Array.isArray(state.specialPasses) ? state.specialPasses : [];
+                specialList.forEach(sp => {
+                    if (!Array.isArray(sp.codes)) sp.codes = [];
+                    // Limpiar referencias a códigos que ya no existan en Firebase
+                    sp.codes = sp.codes.filter(c => existingCodeSet.has(c));
+
+                    const needed = (Number(sp.count) || 0) - sp.codes.length;
+                    const studentObj = state.students.find(s => s.id === sp.studentId);
+                    const prefix = (sp.hostPrefix || (studentObj ? getStudentPrefix(studentObj) : 'INV')).toUpperCase();
+                    const hostNameFinal = sp.firebaseName || (studentObj ? (studentObj.firebaseName || studentObj.name) : sp.studentName);
+
+                    for (let i = 0; i < needed; i++) {
+                        let newCode;
+                        let attempts = 0;
+                        do {
+                            const digits = Math.floor(1000 + Math.random() * 9000).toString();
+                            newCode = `${prefix}ESP${digits}`;
+                            attempts++;
+                        } while (existingCodeSet.has(newCode) && attempts < 150);
+
+                        existingCodeSet.add(newCode);
+                        sp.codes.push(newCode);
+                        createdEspCodes.push(`${newCode} (Mesa ${sp.table})`);
+
+                        batch.set(doc(invitesRef, newCode), {
+                            codigo: newCode,
+                            type: 'standard',
+                            hostCode: prefix,
+                            hostName: hostNameFinal,
+                            fullName: '',
+                            table: Number(sp.table),
+                            text: '',
+                            usado: false,
+                            guestName: '',
+                            isSpecialExtra: true
+                        });
+                    }
+                });
+
+                // 4. Actualizar aforo total en stats/main
                 const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'main');
-                batch.set(statsRef, { totalCapacity: newTotalCapacity }, { merge: true });
-                
+                batch.set(statsRef, { totalCapacity: plan.totalGuests }, { merge: true });
+
                 await batch.commit();
-                
+                await window.saveData();
+
                 if (syncStatus) {
                     syncStatus.innerText = '✔ Sincronizado';
                     syncStatus.style.color = '#4ade80';
                     setTimeout(() => syncStatus.innerText = '', 3500);
                 }
-                window.showNotice(
-                    "Sincronización Exitosa",
-                    `Se actualizaron los cupos/mesas de ${updates} alumnos en Firebase.\n\nCapacidad total en sistema ajustada a: ${newTotalCapacity} lugares.\n\nNota: Si aumentaste lugares extras a un alumno, recuerda entrar al Panel de Control de la invitación principal y pulsar "+ Generar Códigos" para crear sus códigos nuevos.`
-                );
+
+                renderAll();
+                if (document.getElementById('modal-special-passes').classList.contains('active')) {
+                    renderSpecialPassesModal();
+                }
+
+                let summaryLines = [
+                    `• Cupos/mesas actualizados: ${hostUpdates} alumno(s).`,
+                    `• Pases libres eliminados (bajas en 0): ${deletedUnusedCodes} código(s).`,
+                    `• Nuevos códigos ESP creados: ${createdEspCodes.length} código(s).`,
+                    `• Aforo total oficial en Firebase: ${plan.totalGuests} / ${maxGuests} lugares.`
+                ];
+                if (skippedUsedCodes > 0) {
+                    summaryLines.push(`\n⚠️ Protección: ${skippedUsedCodes} pase(s) ya confirmado(s) NO fueron borrados.`);
+                }
+                if (createdEspCodes.length > 0) {
+                    summaryLines.push(`\n🎟️ Códigos nuevos listos para imprimir en Antara:\n${createdEspCodes.join('\n')}`);
+                }
+
+                window.showNotice("Sincronización Exitosa", summaryLines.join('\n'));
             } catch (e) {
                 console.error("Error al sincronizar con Firebase:", e);
                 if (syncStatus) {
                     syncStatus.innerText = '❌ Error DB';
                     syncStatus.style.color = '#fb7185';
                 }
-                window.showNotice("Error de Sincronización", "Ocurrió un problema al sincronizar con Firebase: " + e.message);
+                window.showNotice("Error de Sincronización", "Ocurrió un problema: " + e.message);
+            } finally {
+                if (syncBtn) syncBtn.disabled = false;
+                setTimeout(() => { isLocalEditing = false; }, 600);
             }
         };
 
         window.updateVIPCapacity = function(id, delta) {
             const table = state.vipTables.find(t => t.id === id);
             if (table) {
+                if (delta > 0) {
+                    const plan = calculateFloorPlan();
+                    const maxGuests = Number(state.settings.maxTotalGuests) || 200;
+                    if (plan.totalGuests + delta > maxGuests) {
+                        window.showNotice("Límite Alcanzado", `No puedes superar el límite máximo de ${maxGuests} invitados en el salón.`);
+                        return;
+                    }
+                }
                 isLocalEditing = true;
                 table.capacity = Math.max(1, Number(table.capacity) + delta);
                 renderAll();
@@ -934,7 +1504,15 @@
 
         window.updateStudentExtra = function(id, delta) {
             const student = state.students.find(s => s.id === id);
-            if (student) {
+            if (student && !student.dropped) {
+                if (delta > 0) {
+                    const plan = calculateFloorPlan();
+                    const maxGuests = Number(state.settings.maxTotalGuests) || 200;
+                    if (plan.totalGuests + delta > maxGuests) {
+                        window.showNotice("Límite Alcanzado", `No puedes superar el límite máximo de ${maxGuests} invitados en el salón.`);
+                        return;
+                    }
+                }
                 isLocalEditing = true;
                 state.settings.baseSeats = 6;
                 state.settings.maxExtra = 6;
@@ -970,13 +1548,13 @@
         window.openTableManager = function() {
             const tbody = document.getElementById('table-manager-list');
             tbody.innerHTML = state.students.map((s, index) => {
-                const base = Number(state.settings.baseSeats) || 6;
-                const extra = Number(s.extra) || 0;
+                const base = s.dropped ? 0 : (Number(state.settings.baseSeats) || 6);
+                const extra = s.dropped ? 0 : (Number(s.extra) || 0);
                 const seats = base + extra;
                 return `
-                <tr>
+                <tr class="${s.dropped ? 'opacity-50' : ''}">
                     <td class="text-left text-gray-400 font-mono">${index + 1}</td>
-                    <td class="text-left text-white font-serif text-base">${s.name}</td>
+                    <td class="text-left text-white font-serif text-base">${s.name} ${s.dropped ? '<span class="text-xs text-rose-400 font-mono">(BAJA)</span>' : ''}</td>
                     <td class="text-center text-gray-300 font-mono">${base}</td>
                     <td class="text-center ${extra > 0 ? 'text-[#FFF099] font-bold' : 'text-gray-500'} font-mono">+${extra}</td>
                     <td class="text-center text-white font-mono font-bold">${seats}</td>
@@ -1125,9 +1703,9 @@
                     `;
                     const sortedPending = [...pendingInvites].sort((a, b) => String(a.fullName || a.hostName || a.codigo).localeCompare(String(b.fullName || b.hostName || b.codigo)));
                     html += sortedPending.map(inv => `
-                        <div class="grid grid-cols-12 gap-2 items-center py-2 px-2.5 border-b border-[rgba(255,255,255,0.04)] opacity-75 hover:opacity-100 rounded">
+                        <div class="grid grid-cols-12 gap-2 items-center py-2 px-2.5 border-b border-[rgba(255,255,255,0.04)] opacity-80 hover:opacity-100 rounded">
                             <div class="col-span-6 font-serif text-gray-300 text-sm truncate" title="${inv.fullName || 'Pase disponible'}">
-                                ⏳ ${inv.fullName || 'Pase sin confirmar'}
+                                ${String(inv.codigo || '').includes('ESP') ? '🎟️' : '⏳'} ${inv.fullName || (String(inv.codigo || '').includes('ESP') ? 'Boleto Especial (ESP)' : 'Pase sin confirmar')}
                             </div>
                             <div class="col-span-4 text-left text-[0.65rem] text-gray-400 cinzel uppercase tracking-wider truncate">
                                 ${inv.hostName || 'VIP'} <span class="text-[#FFF099] font-mono">[${inv.codigo}]</span>
@@ -1146,6 +1724,7 @@
         function calculateFloorPlan() {
             let totalGuests = 0;
             let totalExtrasCount = 0;
+            let activeStudentCount = 0;
             const baseSeats = Number(state.settings.baseSeats) || 6;
             const extraPrice = Number(state.settings.extraPrice) || 0;
 
@@ -1169,12 +1748,23 @@
 
             const tableGroups = {};
             state.students.forEach(s => {
+                if (s.dropped) return;
+                activeStudentCount++;
                 const extra = Number(s.extra) || 0;
                 totalExtrasCount += extra;
                 
                 const tNum = Number(s.baseTable) || 0;
-                if (!tableGroups[tNum]) tableGroups[tNum] = [];
-                tableGroups[tNum].push(s);
+                if (!tableGroups[tNum]) tableGroups[tNum] = { students: [], specials: [] };
+                tableGroups[tNum].students.push(s);
+            });
+
+            (state.specialPasses || []).forEach(sp => {
+                const count = Number(sp.count) || 0;
+                if (count <= 0) return;
+                totalExtrasCount += count;
+                const tNum = Number(sp.table) || 0;
+                if (!tableGroups[tNum]) tableGroups[tNum] = { students: [], specials: [] };
+                tableGroups[tNum].specials.push(sp);
             });
 
             Object.keys(tableGroups).sort((a, b) => Number(a) - Number(b)).forEach(tableNum => {
@@ -1182,8 +1772,9 @@
                 let tableCapacity = 0;
                 let tableExtras = 0;
                 let names = [];
+                let specialBadges = [];
                 
-                group.forEach(s => {
+                group.students.forEach(s => {
                     const ext = Number(s.extra) || 0;
                     const seats = baseSeats + ext;
                     tableCapacity += seats;
@@ -1191,33 +1782,45 @@
                     names.push(s.name);
                     s.assignedTable = tableNum;
                 });
+
+                group.specials.forEach(sp => {
+                    const cnt = Number(sp.count) || 0;
+                    tableCapacity += cnt;
+                    tableExtras += cnt;
+                    const firstName = (sp.studentName || 'Esp').split(' ')[0];
+                    specialBadges.push(`+${cnt} Esp. ${firstName}`);
+                });
                 
                 const isOver = tableCapacity > 12;
                 
                 computedTables.students.push({
-                    type: isOver ? 'error' : (group.length > 1 ? 'combined' : 'individual'),
+                    type: isOver ? 'error' : ((group.students.length + group.specials.length) > 1 ? 'combined' : 'individual'),
                     names: names,
+                    specialBadges: specialBadges,
                     capacity: tableCapacity,
                     extras: tableExtras,
                     guests: tableCapacity, 
                     label: `MESA ${tableNum}`,
                     displayNumber: Number(tableNum),
                     isOvercapacity: isOver,
-                    studentsObj: group
+                    studentsObj: group.students
                 });
                 
                 totalGuests += tableCapacity;
             });
 
             const totalExtrasRevenue = totalExtrasCount * extraPrice;
-            const totalStudentSeats = (state.students.length * baseSeats) + totalExtrasCount;
+            const totalBaseSeats = activeStudentCount * baseSeats;
+            const totalStudentSeats = totalBaseSeats + totalExtrasCount;
 
             return {
                 computedTables,
                 totalGuests,
                 totalExtrasCount,
                 totalExtrasRevenue,
-                totalStudentSeats
+                totalStudentSeats,
+                totalBaseSeats,
+                activeStudentCount
             };
         }
 
@@ -1225,18 +1828,20 @@
             const plan = calculateFloorPlan();
             
             renderHeader(plan);
-            renderSidebar();
+            renderSidebar(plan);
             renderFloorPlan(plan.computedTables);
 
             if (document.getElementById('modal-extras-summary').classList.contains('active')) {
                 renderExtrasBreakdownModal();
             }
+            if (document.getElementById('modal-special-passes').classList.contains('active')) {
+                renderSpecialPassesModal();
+            }
         }
 
         function renderHeader(plan) {
-            const { computedTables, totalGuests, totalExtrasCount, totalExtrasRevenue } = plan;
+            const { computedTables, totalGuests, totalExtrasCount, totalExtrasRevenue, totalBaseSeats, activeStudentCount } = plan;
             const maxGuests = Number(state.settings.maxTotalGuests) || 200;
-            const baseTotal = state.students.length * (Number(state.settings.baseSeats) || 6);
 
             const elTotal = document.getElementById('stat-total');
             const capBar = document.getElementById('capacity-bar');
@@ -1251,7 +1856,8 @@
             document.getElementById('stat-extras-count').innerHTML = `+${totalExtrasCount} <span class="text-xs font-normal text-gray-300">lug.</span>`;
             document.getElementById('stat-extras-money').innerText = formatMoney(totalExtrasRevenue);
 
-            document.getElementById('summary-base-seats').innerText = `${baseTotal} lugares`;
+            document.getElementById('summary-base-label').innerText = `Lugares Base (${activeStudentCount} Alumnos × 6)`;
+            document.getElementById('summary-base-seats').innerText = `${totalBaseSeats} lugares`;
             document.getElementById('summary-extra-seats').innerText = `+${totalExtrasCount} invitados extras`;
             document.getElementById('summary-extra-revenue').innerText = `${formatMoney(totalExtrasRevenue)} MXN`;
 
@@ -1273,7 +1879,12 @@
             }
         }
 
-        function renderSidebar() {
+        function renderSidebar(plan) {
+            const genTitle = document.getElementById('generation-title');
+            if (genTitle && plan) {
+                genTitle.innerText = `Generación (${plan.activeStudentCount}/${state.students.length} Activos)`;
+            }
+
             const vipTotal = state.vipTables.reduce((acc, t) => acc + Number(t.capacity || 0), 0);
             const vipBadge = document.getElementById('vip-total-badge');
             if (vipBadge) vipBadge.innerText = `${vipTotal} lug.`;
@@ -1300,35 +1911,46 @@
             });
 
             const studentHtml = filteredStudents.map(s => {
-                const extra = Number(s.extra) || 0;
-                const totalSeats = baseSeats + extra;
-                const canAdd = extra < maxAllowedExtras;
-                const extraCost = extra * extraPrice;
+                const isDropped = !!s.dropped;
+                const extra = isDropped ? 0 : (Number(s.extra) || 0);
+                const specialCount = getSpecialCountForStudent(s.id);
+                const totalSeats = isDropped ? 0 : (baseSeats + extra + specialCount);
+                const canAdd = !isDropped && extra < maxAllowedExtras;
+                const extraCost = (extra + specialCount) * extraPrice;
                 const confirmedCount = getConfirmedCountForStudent(s);
-                
                 const shortName = s.name.split(' ').slice(0, 2).join(' ');
 
                 return `
-                <div class="student-row grid grid-cols-12 gap-1 items-center py-2 px-2 border-b border-[rgba(255,255,255,0.06)] rounded">
+                <div class="student-row ${isDropped ? 'is-dropped' : ''} grid grid-cols-12 gap-1 items-center py-2 px-2 border-b border-[rgba(255,255,255,0.06)] rounded">
                     <div class="col-span-5 flex flex-col justify-center pr-1" title="${s.name}">
-                        <span class="cinzel text-xs text-white font-semibold truncate">${shortName}</span>
-                        <div class="flex items-center gap-1.5 mt-0.5">
-                            <button onclick="window.editBaseTable('${s.id}')" class="text-[0.6rem] font-mono py-0.5 px-1.5 border border-[rgba(229,193,88,0.4)] rounded bg-[rgba(229,193,88,0.12)] text-[#FFF099] hover:bg-[#E5C158] hover:text-black transition-colors cursor-pointer" title="Cambiar mesa asignada">
-                                M${s.baseTable} ✎
+                        <span class="cinzel text-xs ${isDropped ? 'line-through text-rose-300' : 'text-white'} font-semibold truncate">${shortName}</span>
+                        <div class="flex items-center gap-1 mt-0.5 flex-wrap">
+                            ${!isDropped ? `
+                                <button onclick="window.editBaseTable('${s.id}')" class="text-[0.58rem] font-mono py-0.5 px-1.5 border border-[rgba(229,193,88,0.4)] rounded bg-[rgba(229,193,88,0.12)] text-[#FFF099] hover:bg-[#E5C158] hover:text-black transition-colors cursor-pointer" title="Cambiar mesa asignada">
+                                    M${s.baseTable} ✎
+                                </button>
+                            ` : ''}
+                            <button onclick="window.toggleStudentDrop('${s.id}')" class="text-[0.58rem] font-mono py-0.5 px-1.5 border rounded transition-colors cursor-pointer ${isDropped ? 'border-emerald-400/70 bg-emerald-950/60 text-emerald-300 hover:bg-emerald-400 hover:text-black' : 'border-rose-500/50 bg-rose-950/40 text-rose-300 hover:bg-rose-500 hover:text-white'}" title="${isDropped ? 'Restaurar a 6 lugares' : 'Dar de baja y poner en 0 lugares'}">
+                                ${isDropped ? '↺ Restaurar' : 'Baja (0)'}
                             </button>
-                            <span class="text-[0.62rem] font-mono ${confirmedCount > 0 ? 'text-emerald-400' : 'text-gray-400'}" title="Invitados que ya confirmaron con su código">
+                            <span class="text-[0.6rem] font-mono ${confirmedCount > 0 ? 'text-emerald-400' : 'text-gray-400'}" title="Invitados que ya confirmaron con su código">
                                 ✓${confirmedCount}/${totalSeats}
                             </span>
                         </div>
                     </div>
 
-                    <div class="col-span-3 flex justify-center items-center gap-1.5">
-                        <button onclick="window.updateStudentExtra('${s.id}', -1)" class="btn-ctrl !w-5 !h-5 !text-xs" ${extra <= 0 ? 'disabled' : ''} title="Quitar invitado extra">-</button>
-                        <span class="font-mono text-xs font-bold ${extra > 0 ? 'text-[#FFF099]' : 'text-gray-400'} w-5 text-center">+${extra}</span>
-                        <button onclick="window.updateStudentExtra('${s.id}', 1)" class="btn-ctrl !w-5 !h-5 !text-xs" ${!canAdd ? 'disabled' : ''} title="Añadir invitado extra (Máx +${maxAllowedExtras})">+</button>
+                    <div class="col-span-3 flex flex-col items-center justify-center">
+                        ${isDropped ? `<span class="text-[0.62rem] font-mono text-rose-400 font-bold">BAJA</span>` : `
+                            <div class="flex justify-center items-center gap-1.5">
+                                <button onclick="window.updateStudentExtra('${s.id}', -1)" class="btn-ctrl !w-5 !h-5 !text-xs" ${extra <= 0 ? 'disabled' : ''} title="Quitar invitado extra">-</button>
+                                <span class="font-mono text-xs font-bold ${extra > 0 ? 'text-[#FFF099]' : 'text-gray-400'} w-5 text-center">+${extra}</span>
+                                <button onclick="window.updateStudentExtra('${s.id}', 1)" class="btn-ctrl !w-5 !h-5 !text-xs" ${!canAdd ? 'disabled' : ''} title="Añadir invitado extra (Máx +${maxAllowedExtras})">+</button>
+                            </div>
+                            ${specialCount > 0 ? `<span class="text-[0.58rem] font-mono text-amber-300 mt-0.5">+${specialCount} ESP</span>` : ''}
+                        `}
                     </div>
 
-                    <div class="col-span-2 text-center font-mono text-xs font-bold ${extra > 0 ? 'text-white' : 'text-gray-300'}">
+                    <div class="col-span-2 text-center font-mono text-xs font-bold ${isDropped ? 'text-rose-400' : (extra + specialCount > 0 ? 'text-white' : 'text-gray-300')}">
                         ${totalSeats} <span class="text-[0.6rem] font-normal text-gray-400">lug</span>
                     </div>
 
@@ -1346,25 +1968,31 @@
             const extraPrice = Number(state.settings.extraPrice) || 0;
 
             let totalExtras = 0;
+            let totalBaseAll = 0;
             let totalSeatsAll = 0;
             let rowsHtml = '';
 
             state.students.forEach((s, idx) => {
-                const extra = Number(s.extra) || 0;
-                const totalSeats = baseSeats + extra;
-                const extraAmount = extra * extraPrice;
+                const isDropped = !!s.dropped;
+                const base = isDropped ? 0 : baseSeats;
+                const extraDirect = isDropped ? 0 : (Number(s.extra) || 0);
+                const specialCount = getSpecialCountForStudent(s.id);
+                const totalExtraStudent = extraDirect + specialCount;
+                const totalSeats = base + totalExtraStudent;
+                const extraAmount = totalExtraStudent * extraPrice;
                 const confirmed = getConfirmedCountForStudent(s);
 
-                totalExtras += extra;
+                totalBaseAll += base;
+                totalExtras += totalExtraStudent;
                 totalSeatsAll += totalSeats;
 
                 rowsHtml += `
-                    <tr>
+                    <tr class="${isDropped ? 'opacity-50' : ''}">
                         <td class="text-left text-gray-400 font-mono">${idx + 1}</td>
-                        <td class="text-left text-white font-serif text-sm md:text-base">${s.name}</td>
-                        <td class="text-center font-mono text-[#FFF099]">Mesa ${s.baseTable}</td>
-                        <td class="text-center font-mono text-gray-300">${baseSeats}</td>
-                        <td class="text-center font-mono font-bold ${extra > 0 ? 'text-[#FFF099] bg-[rgba(229,193,88,0.1)]' : 'text-gray-500'}">+${extra}</td>
+                        <td class="text-left text-white font-serif text-sm md:text-base">${s.name} ${isDropped ? '<span class="text-xs text-rose-400 font-mono">(BAJA)</span>' : ''}</td>
+                        <td class="text-center font-mono text-[#FFF099]">${isDropped ? '—' : `Mesa ${s.baseTable}`}</td>
+                        <td class="text-center font-mono text-gray-300">${base}</td>
+                        <td class="text-center font-mono font-bold ${totalExtraStudent > 0 ? 'text-[#FFF099] bg-[rgba(229,193,88,0.1)]' : 'text-gray-500'}">+${totalExtraStudent}${specialCount > 0 ? ` <span class="text-[0.65rem] text-amber-300">(${specialCount} ESP)</span>` : ''}</td>
                         <td class="text-center font-mono font-bold text-white">${totalSeats}</td>
                         <td class="text-center font-mono ${confirmed > 0 ? 'text-emerald-400 font-bold' : 'text-gray-400'}">${confirmed} / ${totalSeats}</td>
                         <td class="font-mono font-bold ${extraAmount > 0 ? 'text-emerald-300' : 'text-gray-500'}">${formatMoney(extraAmount)}</td>
@@ -1377,8 +2005,8 @@
 
             rowsHtml += `
                 <tr class="bg-[rgba(229,193,88,0.12)] font-bold">
-                    <td colspan="3" class="text-left cinzel text-xs text-[#FFF099] uppercase">Totales Generación (22 Alumnos)</td>
-                    <td class="text-center font-mono text-white">${state.students.length * baseSeats}</td>
+                    <td colspan="3" class="text-left cinzel text-xs text-[#FFF099] uppercase">Totales Generación</td>
+                    <td class="text-center font-mono text-white">${totalBaseAll}</td>
                     <td class="text-center font-mono text-[#FFF099]">+${totalExtras} extras</td>
                     <td class="text-center font-mono text-white">${totalSeatsAll} lug.</td>
                     <td class="text-center font-mono text-emerald-300">${allConfirmedGuests.length} conf.</td>
@@ -1422,29 +2050,29 @@
                 const confirmedInTable = getConfirmedGuestsForTable(t.displayNumber).length;
 
                 let borderClass = 'border-student cursor-pointer hover:border-[#FFF099] transition-all';
-                let widthClass = 'w-36 h-36';
+                let widthClass = 'w-40 h-40';
                 let bgClass = 'bg-[rgba(255,255,255,0.03)]';
                 
                 const formatName = (n) => n.split(' ')[0] + ' ' + (n.split(' ')[1] || '');
 
                 if (t.isOvercapacity) {
                     borderClass = 'warning-border cursor-pointer transition-all';
-                    widthClass = 'w-44 h-44';
+                    widthClass = 'w-48 h-48';
                     bgClass = 'bg-[rgba(158,32,50,0.14)]';
-                } else if (t.names.length > 1) {
+                } else if (t.names.length > 1 || (t.specialBadges && t.specialBadges.length > 0)) {
                     borderClass = 'border-combined cursor-pointer hover:border-[#FFF099] transition-all';
-                    widthClass = 'w-44 h-44'; 
+                    widthClass = 'w-48 h-48'; 
                     bgClass = 'bg-[rgba(229,193,88,0.05)]';
                 } else if (t.capacity > 6) {
-                    widthClass = 'w-40 h-40';
+                    widthClass = 'w-44 h-44';
                     bgClass = 'bg-[rgba(229,193,88,0.09)]'; 
                 }
 
                 const namesHtml = t.names.map(n => `<span class="table-name tracking-wider text-[0.68rem] text-white font-semibold uppercase leading-tight truncate w-full px-1">${formatName(n)}</span>`).join('<div class="w-10 h-px bg-[rgba(229,193,88,0.35)] my-1"></div>');
 
-                const extrasBadge = t.extras > 0
-                    ? `<span class="text-[0.6rem] font-mono text-[#FFF099] bg-[rgba(229,193,88,0.15)] px-1.5 py-0.2 rounded mt-0.5">+${t.extras} ext.</span>`
-                    : '';
+                const specialHtml = (t.specialBadges || []).map(b =>
+                    `<span class="text-[0.58rem] font-mono text-amber-200 bg-amber-500/20 border border-amber-400/50 px-1.5 py-0.2 rounded mt-1">🎟️ ${b}</span>`
+                ).join('');
 
                 return `
                     <div class="enso-table ${widthClass} ${borderClass} ${shape} ${bgClass}"
@@ -1452,9 +2080,9 @@
                         <span class="table-name tracking-widest text-[0.65rem] font-bold ${t.isOvercapacity ? 'text-rose-400' : 'text-gold'} uppercase mb-1">${t.label}</span>
                         <div class="flex flex-col items-center w-full justify-center">
                             ${namesHtml}
+                            ${specialHtml}
                         </div>
-                        <span class="table-size-indicator ${t.isOvercapacity ? 'text-rose-400 font-bold' : ''}">${t.capacity} LUG.</span>
-                        ${extrasBadge}
+                        <span class="table-size-indicator ${t.isOvercapacity ? 'text-rose-400 font-bold' : ''}">${t.capacity}/12 LUG.</span>
                         <span class="text-[0.62rem] font-mono mt-0.5 ${confirmedInTable > 0 ? 'text-emerald-400 font-semibold' : 'text-gray-400'}">✓ ${confirmedInTable}/${t.capacity} conf.</span>
                     </div>
                 `;
