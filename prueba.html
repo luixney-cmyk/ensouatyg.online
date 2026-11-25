@@ -19,6 +19,8 @@
   .wrap{max-width:1050px;margin:0 auto;padding:18px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
   .card h2{font-size:1.15rem;margin-bottom:12px;color:var(--gold)}
+  .card-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+  .card-head h2{margin-bottom:0}
   label{display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
   input,select,textarea{width:100%;padding:10px 11px;border:1px solid #cfc8b6;border-radius:7px;font:inherit;background:#fff;color:var(--ink)}
   input:focus,select:focus,textarea:focus{outline:2px solid var(--gold);border-color:var(--gold)}
@@ -26,16 +28,23 @@
   .grid{display:grid;gap:12px}
   .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}
   @media(max-width:720px){.g2,.g3,.g4{grid-template-columns:1fr}}
-  button{font:inherit;cursor:pointer;border-radius:7px;padding:10px 16px;border:1px solid var(--gold);background:#fff;color:var(--gold);font-weight:600}
+  button{font:inherit;cursor:pointer;border-radius:7px;padding:10px 16px;border:1px solid var(--gold);background:#fff;color:var(--gold);font-weight:600;transition:background .15s}
   button:hover{background:var(--gold-soft)}
   button.primary{background:var(--gold);color:#fff}
   button.primary:hover{background:#6f5614}
   button.danger{border-color:var(--red);color:var(--red)}
   button.small{padding:6px 10px;font-size:.85rem}
+  button:disabled{opacity:.45;cursor:not-allowed}
   .hint{color:var(--muted);font-size:.9rem}
   .status{font-size:.85rem;padding:4px 10px;border-radius:999px;background:#eef2f7;color:#374151;white-space:nowrap}
   .status.ok{background:#dcfce7;color:#166534}.status.saving{background:#fef3c7;color:#92400e}.status.err{background:#fee2e2;color:#991b1b}
   .hidden{display:none!important}
+
+  /* notificaciones tipo toast */
+  #toast{position:fixed;bottom:20px;right:20px;z-index:100;background:#1f2933;color:#fff;padding:12px 18px;border-radius:9px;box-shadow:0 6px 20px rgba(0,0,0,.2);font-size:.92rem;max-width:360px;opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .2s,transform .2s}
+  #toast.show{opacity:1;transform:translateY(0);pointer-events:auto}
+  #toast.err{background:var(--red)}
+  #toast.ok{background:var(--green)}
 
   /* presupuesto */
   .budget{position:sticky;top:0;z-index:20;background:#fff;border:1px solid var(--line);border-left:6px solid var(--green);border-radius:10px;padding:12px 16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
@@ -69,16 +78,48 @@
   .kpi{background:#fff;border:1px solid var(--line);border-radius:9px;padding:10px;text-align:center}
   .kpi b{display:block;font-size:1.3rem}
   .kpi span{font-size:.78rem;color:var(--muted);text-transform:uppercase}
-  .tag{padding:2px 8px;border-radius:999px;font-size:.78rem;font-weight:700}
+  .tag{padding:2px 8px;border-radius:999px;font-size:.78rem;font-weight:700;white-space:nowrap}
   .tag.ok{background:#dcfce7;color:#166534}.tag.over{background:#fee2e2;color:#991b1b}.tag.none{background:#e5e7eb;color:#374151}
   td input.real{width:100px;padding:5px 7px;text-align:right}
   .adm-section{display:none}.adm-section.show{display:block}
 
+  /* tarjetas de receta en admin */
+  .recipe-card{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px;background:#fcfbf8}
+  .recipe-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .recipe-card h3{font-size:1.08rem;color:var(--ink)}
+  .recipe-meta{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.86rem;color:var(--muted);margin-bottom:8px}
+  .recipe-desc{margin:0 0 10px;font-size:.93rem;color:#374151;font-style:italic}
+  .recipe-card details summary{cursor:pointer;font-size:.88rem;font-weight:600;color:var(--gold);user-select:none}
+  .recipe-card details table{margin-top:8px;background:#fff}
+
+  /* contenedor exclusivo de impresión de recetas */
+  #print-recipe-root{display:none}
+  .recipe-sheet{padding:8px 0;color:#111}
+  .rs-header{border-bottom:2px solid var(--gold);padding-bottom:10px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+  .rs-brand{font-family:Georgia,"Times New Roman",serif;font-size:.9rem;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;margin-bottom:4px}
+  .rs-title{font-family:Georgia,"Times New Roman",serif;font-size:1.55rem;margin:0;color:#111}
+  .rs-sub{font-size:.92rem;color:#4b5563;margin-top:3px}
+  .rs-badge{font-size:.82rem;font-weight:700;padding:4px 10px;border:1px solid var(--gold);border-radius:6px;color:var(--gold);white-space:nowrap}
+  .rs-desc{background:#faf8f2;border-left:3px solid var(--gold);padding:9px 12px;margin:0 0 14px;font-size:.95rem}
+  .rs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+  .rs-box{border:1px solid #d6d0c0;border-radius:6px;padding:7px 9px}
+  .rs-box span{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:#6b7280}
+  .rs-box b{font-size:.98rem;color:#111}
+  .rs-table{width:100%;border-collapse:collapse;font-size:.9rem;margin-bottom:14px}
+  .rs-table th,.rs-table td{border:1px solid #d6d0c0;padding:6px 8px;text-align:left}
+  .rs-table th{background:#f3efe3;font-size:.75rem;text-transform:uppercase}
+  .rs-table td.r,.rs-table th.r{text-align:right}
+  .rs-table tfoot td{font-weight:700;background:#faf8f2}
+  .rs-footer{display:flex;justify-content:space-between;font-size:.78rem;color:#6b7280;border-top:1px solid #e2ddd0;padding-top:8px;margin-top:14px}
+
   @media print{
     body>*{display:none!important}
-    body>#app-admin{display:block!important}
-    #app-admin .adm-section{display:none!important}
-    #app-admin .adm-section.print-target{display:block!important}
+    body:not(.printing-recipes)>#app-admin{display:block!important}
+    body:not(.printing-recipes) #app-admin .adm-section{display:none!important}
+    body:not(.printing-recipes) #app-admin .adm-section.print-target{display:block!important}
+    body.printing-recipes>#print-recipe-root{display:block!important}
+    .recipe-sheet{page-break-after:always;break-after:page}
+    .recipe-sheet:last-child{page-break-after:auto;break-after:auto}
     .no-print{display:none!important}
     body{background:#fff}
     .card{border:none;box-shadow:none;padding:0}
@@ -124,7 +165,10 @@
     </div>
 
     <div class="card">
-      <h2 id="t-section">2. Tu platillo</h2>
+      <div class="card-head">
+        <h2 id="t-section">2. Tu platillo</h2>
+        <button id="btn-print-my-recipe" class="small">🖨️ Imprimir mi receta</button>
+      </div>
       <div class="grid g2" style="margin-bottom:12px">
         <div><label id="l-dish">Nombre del platillo</label><input id="f-dish" maxlength="160" placeholder="Ej. Tamales de cerdo agridulce"></div>
         <div><label>Tiempo / bebida</label><input id="f-label" disabled></div>
@@ -165,6 +209,7 @@
 
   <div class="tabs no-print">
     <button data-tab="adm-shop" class="active">🛒 Lista de compras</button>
+    <button data-tab="adm-recipes">📖 Recetas</button>
     <button data-tab="adm-glass">🍷 Loza y cristalería</button>
     <button data-tab="adm-teams">👥 Resumen por equipo</button>
   </div>
@@ -176,6 +221,15 @@
     </div>
     <h2 style="text-align:center">ENSŌ · Lista de compras</h2>
     <div id="shop-body"></div>
+  </div>
+
+  <div id="adm-recipes" class="adm-section card">
+    <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+      <p class="hint" style="margin:0">Imprime una receta en específico o todas las capturadas (una por hoja).</p>
+      <button id="btn-print-all-recipes" class="primary small">🖨️ Imprimir todas (1 por hoja)</button>
+    </div>
+    <h2 style="text-align:center;margin-bottom:14px">ENSŌ · Recetas por tiempo y bebida</h2>
+    <div id="recipes-body"></div>
   </div>
 
   <div id="adm-glass" class="adm-section card">
@@ -190,6 +244,12 @@
     <div id="teams-body"></div>
   </div>
 </div>
+
+<!-- ============ ÁREA DE IMPRESIÓN DE RECETAS ============ -->
+<div id="print-recipe-root" aria-hidden="true"></div>
+
+<!-- ============ NOTIFICACIONES ============ -->
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -236,6 +296,16 @@ const num = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
 const slotById = id => SLOTS.find(s => s.id === id);
 const limitFor = type => type === "drink" ? DRINK_BUDGET : FOOD_BUDGET;
 const newId = () => Math.random().toString(36).slice(2,8);
+
+/* ====== NOTIFICACIONES NO BLOQUEANTES ====== */
+let toastTimer = null;
+function showToast(msg, type=""){
+  const el = $("toast");
+  el.textContent = msg;
+  el.className = "show " + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 4000);
+}
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -345,6 +415,93 @@ Object.entries(fieldMap).forEach(([id,key]) => $(id).addEventListener("input", e
 $("f-portions").addEventListener("input", e => { state.portions = Math.max(1, Math.floor(num(e.target.value)) || 1); $("portions-lbl").textContent = state.portions; changed(); });
 $("f-glassqty").addEventListener("input", e => { state.glassQty = Math.max(0, Math.floor(num(e.target.value))); changed(); });
 
+/* ====== IMPRESIÓN DE RECETAS (INDIVIDUAL O TODAS 1 POR HOJA) ====== */
+function buildRecipeSheetHTML(d){
+  const slot = slotById(d.slotId) || {};
+  const type = d.type || slot.type || "food";
+  const isDrink = type === "drink";
+  const portions = Math.max(1, Math.floor(num(d.portions)) || 180);
+  const total = totalOf(d);
+  const limit = limitFor(type);
+  const perPortion = total / portions;
+  const ings = (d.ingredients || []).filter(g => String(g.name || "").trim() || num(g.qty) > 0);
+  const printedAt = new Date().toLocaleDateString("es-MX", {day:"2-digit", month:"short", year:"numeric"});
+
+  const rowsHtml = ings.length
+    ? ings.map(g => {
+        const sub = num(g.qty) * num(g.price);
+        return `<tr>
+          <td><b>${esc(g.name || "(sin nombre)")}</b></td>
+          <td>${esc(g.cat || "Otros")}</td>
+          <td class="r">${num(g.qty)} ${esc(g.unit || "")}</td>
+          <td class="r">${money(g.price)}</td>
+          <td class="r">${money(sub)}</td>
+        </tr>`;
+      }).join("")
+    : `<tr><td colspan="5" style="text-align:center;color:#6b7280">Sin ingredientes capturados.</td></tr>`;
+
+  return `
+    <article class="recipe-sheet">
+      <div class="rs-header">
+        <div>
+          <div class="rs-brand">ENSŌ · Cena de gala · 1 de diciembre 2026</div>
+          <h1 class="rs-title">${esc(d.dish || (isDrink ? "Bebida sin nombre" : "Platillo sin nombre"))}</h1>
+          <div class="rs-sub"><b>${esc(d.owner || slot.owner || "")}</b> · ${esc(d.label || slot.label || "")}</div>
+        </div>
+        <div class="rs-badge">${esc((d.slotId || "").toUpperCase())} · ${isDrink ? "BEBIDA" : "PLATILLO"}</div>
+      </div>
+
+      ${d.desc ? `<p class="rs-desc">${esc(d.desc)}</p>` : ""}
+
+      <div class="rs-grid">
+        <div class="rs-box"><span>Porciones</span><b>${portions}${d.portionSize ? " · " + esc(d.portionSize) : ""}</b></div>
+        <div class="rs-box"><span>${isDrink ? "Vaso / Copa" : "Loza / Plato"}</span><b>${esc(d.plateCode || "—")}${d.plateCode ? " (" + num(d.glassQty ?? portions) + " pzas)" : ""}</b></div>
+        <div class="rs-box"><span>Costo estimado / Tope</span><b>${money(total)} / ${money(limit)}</b></div>
+        <div class="rs-box"><span>Costo por porción</span><b>${money(perPortion)}</b></div>
+      </div>
+
+      <table class="rs-table">
+        <thead>
+          <tr>
+            <th>Ingrediente</th>
+            <th>Categoría</th>
+            <th class="r">Cantidad</th>
+            <th class="r">Precio unit.</th>
+            <th class="r">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>${rowsHtml}</tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" class="r">Total estimado de insumos</td>
+            <td class="r">${money(total)}</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="rs-footer">
+        <span>Ficha de planeación · ${esc(d.owner || slot.owner || "")}</span>
+        <span>Impreso el ${printedAt}</span>
+      </div>
+    </article>`;
+}
+
+function printRecipes(docsList){
+  if(!docsList || !docsList.length){
+    showToast("No hay recetas capturadas para imprimir.", "err");
+    return;
+  }
+  const root = $("print-recipe-root");
+  root.innerHTML = docsList.map(buildRecipeSheetHTML).join("");
+  document.body.classList.add("printing-recipes");
+  window.print();
+}
+
+$("btn-print-my-recipe").addEventListener("click", () => {
+  if(!state) return;
+  printRecipes([state]);
+});
+
 /* ====== TOTALES Y SEMÁFORO ====== */
 function totalOf(d){ return (d.ingredients||[]).reduce((s,g)=> s + num(g.qty)*num(g.price), 0); }
 function updateTotals(){
@@ -401,8 +558,8 @@ $("btn-admin").addEventListener("click", async () => {
     await saveNow();
     const res = await signInWithPopup(auth, new GoogleAuthProvider());
     if(res.user.email === ADMIN_EMAIL){ enterAdmin(); }
-    else { alert("Esta cuenta no tiene acceso de administrador."); await signOut(auth); await signInAnonymously(auth); }
-  }catch(e){ if(e.code!=="auth/popup-closed-by-user" && e.code!=="auth/cancelled-popup-request") alert("Error de acceso: "+e.message); }
+    else { showToast("Esta cuenta no tiene acceso de administrador.", "err"); await signOut(auth); await signInAnonymously(auth); }
+  }catch(e){ if(e.code!=="auth/popup-closed-by-user" && e.code!=="auth/cancelled-popup-request") showToast("Error de acceso: "+e.message, "err"); }
 });
 $("btn-back").addEventListener("click", () => { $("app-admin").classList.add("hidden"); $("app-user").classList.remove("hidden"); });
 
@@ -411,7 +568,7 @@ function enterAdmin(){
   $("app-user").classList.add("hidden"); $("app-admin").classList.remove("hidden");
   adminUnsubs.forEach(u=>u()); adminUnsubs = [];
   adminUnsubs.push(onSnapshot(col("plan_menu"), snap => { allDocs = {}; snap.forEach(d => allDocs[d.id] = d.data()); renderAdmin(); },
-    err => alert("No pude leer los datos (revisa las reglas de Firestore): "+err.message)));
+    err => showToast("No pude leer los datos (revisa las reglas de Firestore): "+err.message, "err")));
   adminUnsubs.push(onSnapshot(col("plan_purchases"), snap => { purchases = {}; snap.forEach(d => purchases[d.id] = d.data()); renderAdmin(); }));
 }
 
@@ -420,10 +577,14 @@ document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click
   document.querySelectorAll(".adm-section").forEach(s=>s.classList.toggle("show", s.id===b.dataset.tab));
 }));
 document.querySelectorAll("[data-print]").forEach(b => b.addEventListener("click", () => {
+  document.body.classList.remove("printing-recipes");
   const sec = $(b.dataset.print); sec.classList.add("print-target");
   window.print();
 }));
-window.addEventListener("afterprint", () => document.querySelectorAll(".print-target").forEach(s=>s.classList.remove("print-target")));
+window.addEventListener("afterprint", () => {
+  document.querySelectorAll(".print-target").forEach(s=>s.classList.remove("print-target"));
+  document.body.classList.remove("printing-recipes");
+});
 
 function renderAdmin(){
   if(!isAdmin) return;
@@ -443,6 +604,7 @@ function renderAdmin(){
   $("k-left").textContent = money(TOTAL_BUDGET - spent);
 
   if(!typing) renderShop(lines);
+  renderRecipesAdmin();
   renderGlass();
   renderTeams();
 }
@@ -482,7 +644,66 @@ $("shop-body").addEventListener("change", async e => {
       const v = t.value === "" ? null : num(t.value);
       await setDoc(ref("plan_purchases", key), {bought: cur.bought || v !== null, realCost:v, updatedAt:new Date().toISOString()});
     }
-  }catch(err){ alert("No se pudo guardar la compra: "+err.message); }
+  }catch(err){ showToast("No se pudo guardar la compra: "+err.message, "err"); }
+});
+
+/* ====== PESTAÑA RECETAS EN ADMIN ====== */
+function renderRecipesAdmin(){
+  const html = SLOTS.map(s => {
+    const d = allDocs[s.id];
+    const lim = limitFor(s.type);
+    if(!d){
+      return `<div class="recipe-card" style="opacity:.65">
+        <div class="recipe-card-head">
+          <div>
+            <h3>${esc(s.label)}</h3>
+            <div class="recipe-meta"><span>Responsable: <b>${esc(s.owner)}</b></span><span class="tag none">Sin capturar</span></div>
+          </div>
+          <button class="small" disabled>🖨️ Imprimir receta</button>
+        </div>
+      </div>`;
+    }
+    const t = totalOf(d);
+    const ings = (d.ingredients || []).filter(g => String(g.name || "").trim() || num(g.qty) > 0);
+    const portions = Math.max(1, Math.floor(num(d.portions)) || 180);
+    return `<div class="recipe-card">
+      <div class="recipe-card-head">
+        <div>
+          <h3>${esc(d.dish || "(Sin nombre de platillo)")}</h3>
+          <div class="recipe-meta">
+            <span><b>${esc(s.owner)}</b> · ${esc(s.label)}</span>
+          </div>
+          <div class="recipe-meta">
+            <span>Porciones: <b>${portions}${d.portionSize ? " ("+esc(d.portionSize)+")" : ""}</b></span>
+            <span>Loza/Copa: <b>${esc(d.plateCode || "—")}</b></span>
+            <span>Estimado: <b>${money(t)}</b> / ${money(lim)}</span>
+            ${t > lim ? '<span class="tag over">Excede</span>' : '<span class="tag ok">En presupuesto</span>'}
+          </div>
+        </div>
+        <button class="primary small" data-print-recipe="${esc(s.id)}">🖨️ Imprimir receta</button>
+      </div>
+      ${d.desc ? `<p class="recipe-desc">${esc(d.desc)}</p>` : ""}
+      <details>
+        <summary>Ver ${ings.length} ingrediente${ings.length===1?"":"s"}</summary>
+        ${ings.length ? `<table><thead><tr><th>Ingrediente</th><th>Categoría</th><th class="r">Cantidad</th><th class="r">Subtotal</th></tr></thead><tbody>` +
+          ings.map(g => `<tr><td>${esc(g.name||"(sin nombre)")}</td><td>${esc(g.cat||"Otros")}</td><td class="r">${num(g.qty)} ${esc(g.unit||"")}</td><td class="r">${money(num(g.qty)*num(g.price))}</td></tr>`).join("") +
+          `</tbody></table>` : '<p class="hint" style="margin:6px 0 0">Sin ingredientes capturados.</p>'}
+      </details>
+    </div>`;
+  }).join("");
+  $("recipes-body").innerHTML = html;
+}
+
+$("recipes-body").addEventListener("click", e => {
+  const btn = e.target.closest("[data-print-recipe]");
+  if(!btn) return;
+  const d = allDocs[btn.dataset.printRecipe];
+  if(d) printRecipes([d]);
+});
+
+$("btn-print-all-recipes").addEventListener("click", () => {
+  const list = SLOTS.map(s => allDocs[s.id]).filter(Boolean);
+  printRecipes(list);
 });
 
 function renderGlass(){
@@ -503,15 +724,23 @@ function renderGlass(){
 }
 
 function renderTeams(){
-  $("teams-body").innerHTML = `<table><thead><tr><th>Tiempo / Bebida</th><th>Responsable</th><th>Platillo</th><th class="r">Insumos</th><th class="r">Estimado</th><th class="r">Tope</th><th>Estado</th></tr></thead><tbody>` +
+  $("teams-body").innerHTML = `<table><thead><tr><th>Tiempo / Bebida</th><th>Responsable</th><th>Platillo</th><th class="r">Insumos</th><th class="r">Estimado</th><th class="r">Tope</th><th>Estado</th><th class="no-print r">Receta</th></tr></thead><tbody>` +
   SLOTS.map(s => {
     const d = allDocs[s.id], lim = limitFor(s.type);
-    if(!d) return `<tr><td>${esc(s.label)}</td><td>${esc(s.owner)}</td><td>—</td><td class="r">0</td><td class="r">${money(0)}</td><td class="r">${money(lim)}</td><td><span class="tag none">Sin capturar</span></td></tr>`;
+    if(!d) return `<tr><td>${esc(s.label)}</td><td>${esc(s.owner)}</td><td>—</td><td class="r">0</td><td class="r">${money(0)}</td><td class="r">${money(lim)}</td><td><span class="tag none">Sin capturar</span></td><td class="no-print r">—</td></tr>`;
     const t = totalOf(d), n = (d.ingredients||[]).filter(g=>g.name).length;
     return `<tr><td>${esc(s.label)}</td><td>${esc(s.owner)}</td><td>${esc(d.dish||"—")}</td><td class="r">${n}</td><td class="r">${money(t)}</td><td class="r">${money(lim)}</td>
-      <td>${t>lim?'<span class="tag over">Excede</span>':'<span class="tag ok">En presupuesto</span>'}</td></tr>`;
+      <td>${t>lim?'<span class="tag over">Excede</span>':'<span class="tag ok">En presupuesto</span>'}</td>
+      <td class="no-print r"><button class="small" data-print-recipe="${esc(s.id)}" title="Imprimir receta">🖨️</button></td></tr>`;
   }).join("") + `</tbody></table>`;
 }
+
+$("teams-body").addEventListener("click", e => {
+  const btn = e.target.closest("[data-print-recipe]");
+  if(!btn) return;
+  const d = allDocs[btn.dataset.printRecipe];
+  if(d) printRecipes([d]);
+});
 
 /* ====== ARRANQUE ====== */
 const last = localStorage.getItem("enso_last_slot");
